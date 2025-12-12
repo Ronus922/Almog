@@ -77,6 +77,38 @@ export default function StatusManagement() {
     loadUser();
   }, []);
 
+  React.useEffect(() => {
+    const ensureDefaultStatus = async () => {
+      if (!allStatuses || allStatuses.length === 0) return;
+      
+      const legalStatuses = allStatuses.filter(s => s.type === 'LEGAL');
+      const defaultStatus = legalStatuses.find(s => s.is_default === true);
+      
+      if (!defaultStatus) {
+        console.log('[StatusManagement] No default status found, creating one...');
+        try {
+          await base44.entities.Status.create({
+            name: 'לא הוגדר',
+            type: 'LEGAL',
+            description: 'סטטוס זמני – נדרש לקבוע סטטוס משפטי',
+            color: 'bg-blue-100 text-blue-700',
+            order: 0,
+            is_active: true,
+            is_default: true
+          });
+          queryClient.invalidateQueries({ queryKey: ['statuses'] });
+          console.log('[StatusManagement] Default status created successfully');
+        } catch (err) {
+          console.error('[StatusManagement] Failed to create default status:', err);
+        }
+      }
+    };
+    
+    if (user?.role === 'admin') {
+      ensureDefaultStatus();
+    }
+  }, [allStatuses, user, queryClient]);
+
   const { data: allStatuses = [], isLoading } = useQuery({
     queryKey: ['statuses'],
     queryFn: () => base44.entities.Status.list('order'),
