@@ -47,24 +47,28 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   };
 
   const InfoRow = ({ icon: Icon, label, value }) => (
-    <div className="flex items-start gap-3 py-2">
-      <Icon className="w-4 h-4 text-slate-400 mt-0.5" />
-      <div>
-        <p className="text-xs text-slate-500">{label}</p>
-        <p className="text-sm font-medium text-slate-700">{value || '-'}</p>
+    <div className="flex items-start gap-4 py-3" dir="rtl">
+      <div className="flex-shrink-0 w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center">
+        <Icon className="w-5 h-5 text-slate-600" />
+      </div>
+      <div className="flex-1 text-right">
+        <p className="text-xs text-slate-500 font-semibold mb-1">{label}</p>
+        <p className="text-sm font-bold text-slate-800">{value || '-'}</p>
       </div>
     </div>
   );
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-xl flex items-center justify-between">
-            <span>פרטי דירה {editedRecord?.apartmentNumber}</span>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl" dir="rtl">
+        <DialogHeader className="text-right">
+          <DialogTitle className="text-2xl font-bold flex items-center justify-between">
+            <span className="bg-gradient-to-l from-slate-800 to-slate-600 bg-clip-text text-transparent">
+              פרטי דירה {editedRecord?.apartmentNumber}
+            </span>
             {!isAdmin && (
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
-                <Lock className="w-3 h-3 ml-1" />
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 mr-2">
+                <Lock className="w-4 h-4 ml-2" />
                 מצב צפייה
               </Badge>
             )}
@@ -72,19 +76,24 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         </DialogHeader>
         
         {!isAdmin && (
-          <Alert className="bg-blue-50 border-blue-200">
-            <Lock className="w-4 h-4 text-blue-600" />
-            <AlertDescription className="text-blue-700">
-              אתה מחובר כצופה - לא ניתן לערוך נתונים
-            </AlertDescription>
+          <Alert className="bg-gradient-to-l from-blue-50 to-blue-100 border-blue-300 rounded-xl" dir="rtl">
+            <div className="flex items-center gap-3">
+              <Lock className="w-5 h-5 text-blue-600" />
+              <AlertDescription className="text-blue-800 font-semibold">
+                אתה מחובר כצופה - לא ניתן לערוך נתונים
+              </AlertDescription>
+            </div>
           </Alert>
         )}
 
-        <div className="space-y-6 py-4">
+        <div className="space-y-8 py-4" dir="rtl">
           {/* פרטים כלליים */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="space-y-4">
-              <h3 className="font-semibold text-slate-700 pb-2 border-b">פרטי דירה</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div className="space-y-2 bg-slate-50/50 rounded-2xl p-6">
+              <h3 className="font-bold text-slate-800 pb-3 border-b-2 border-blue-200 text-right flex items-center gap-2">
+                <Home className="w-5 h-5 text-blue-600" />
+                פרטי דירה
+              </h3>
               <InfoRow icon={Home} label="מספר דירה" value={editedRecord?.apartmentNumber} />
               <InfoRow icon={User} label="בעל דירה" value={editedRecord?.ownerName || 'לא צוין'} />
               <InfoRow icon={Phone} label="טלפון בעלים" value={editedRecord?.phoneOwner || 'אין'} />
@@ -92,70 +101,82 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               <InfoRow icon={Phone} label="טלפון להצגה" value={editedRecord?.phonePrimary || 'אין מספר'} />
             </div>
             
-            <div className="space-y-4">
-              <h3 className="font-semibold text-slate-700 pb-2 border-b">מידע נוסף</h3>
+            <div className="space-y-2 bg-slate-50/50 rounded-2xl p-6">
+              <h3 className="font-bold text-slate-800 pb-3 border-b-2 border-amber-200 text-right flex items-center gap-2">
+                <Wallet className="w-5 h-5 text-amber-600" />
+                מידע נוסף
+              </h3>
               <InfoRow icon={Calendar} label="חודשי פיגור" value={editedRecord?.monthsInArrears || 0} />
               <InfoRow icon={Wallet} label="תשלום חודשי" value={formatCurrency(editedRecord?.monthlyPayment)} />
             </div>
           </div>
 
-          <Separator />
+          <Separator className="my-6" />
 
           {/* נתוני חוב */}
-          <div className="bg-slate-50 rounded-lg p-4">
-            <h3 className="text-sm font-semibold text-slate-600 mb-3 flex items-center gap-2">
-              <Wallet className="w-4 h-4" />
+          <div className="bg-gradient-to-l from-slate-50 to-slate-100 rounded-2xl p-6">
+            <h3 className="text-lg font-bold text-slate-800 mb-4 flex items-center gap-3 text-right">
+              <div className="w-10 h-10 rounded-xl bg-rose-100 flex items-center justify-center">
+                <Wallet className="w-5 h-5 text-rose-600" />
+              </div>
               פירוט חובות
             </h3>
-            <div className="grid grid-cols-3 gap-4">
-              <div className="text-center p-3 bg-white rounded-lg">
-                <p className="text-xs text-slate-500">סה״כ חוב</p>
-                <p className="text-lg font-bold text-rose-600">{formatCurrency(record.totalDebt)}</p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="text-right p-5 bg-white rounded-2xl shadow-sm border-r-4 border-rose-500">
+                <p className="text-xs text-slate-500 font-bold mb-2">סה״כ חוב</p>
+                <p className="text-2xl font-extrabold text-rose-600">{formatCurrency(record.totalDebt)}</p>
               </div>
-              <div className="text-center p-3 bg-white rounded-lg">
-                <p className="text-xs text-slate-500">חוב חודשי</p>
-                <p className="text-lg font-bold text-amber-600">{formatCurrency(record.monthlyDebt)}</p>
+              <div className="text-right p-5 bg-white rounded-2xl shadow-sm border-r-4 border-amber-500">
+                <p className="text-xs text-slate-500 font-bold mb-2">חוב חודשי</p>
+                <p className="text-2xl font-extrabold text-amber-600">{formatCurrency(record.monthlyDebt)}</p>
               </div>
-              <div className="text-center p-3 bg-white rounded-lg">
-                <p className="text-xs text-slate-500">חוב מיוחד</p>
-                <p className="text-lg font-bold text-purple-600">{formatCurrency(record.specialDebt)}</p>
+              <div className="text-right p-5 bg-white rounded-2xl shadow-sm border-r-4 border-purple-500">
+                <p className="text-xs text-slate-500 font-bold mb-2">חוב מיוחד</p>
+                <p className="text-2xl font-extrabold text-purple-600">{formatCurrency(record.specialDebt)}</p>
               </div>
             </div>
           </div>
 
           {/* פרטים נוספים */}
-          <div className="space-y-3">
-            <div>
-              <Label className="text-xs text-slate-500">פרטים חודשיים</Label>
-              <p className="text-sm bg-slate-50 rounded p-2 mt-1">{record.detailsMonthly || 'אין'}</p>
+          <div className="space-y-4">
+            <div className="text-right">
+              <Label className="text-sm font-bold text-slate-700 mb-2 block">פרטים חודשיים</Label>
+              <p className="text-sm bg-slate-50 rounded-xl p-4 text-right" style={{ direction: 'rtl', unicodeBidi: 'plaintext' }}>
+                {record.detailsMonthly || 'אין'}
+              </p>
             </div>
-            <div>
-              <Label className="text-xs text-slate-500">פרטים מיוחדים</Label>
-              <p className="text-sm bg-slate-50 rounded p-2 mt-1">{record.detailsSpecial || 'אין'}</p>
+            <div className="text-right">
+              <Label className="text-sm font-bold text-slate-700 mb-2 block">פרטים מיוחדים</Label>
+              <p className="text-sm bg-slate-50 rounded-xl p-4 text-right" style={{ direction: 'rtl', unicodeBidi: 'plaintext' }}>
+                {record.detailsSpecial || 'אין'}
+              </p>
             </div>
           </div>
 
-          <Separator />
+          <Separator className="my-6" />
 
           {/* שדות עריכה למנהל */}
           {isAdmin && (
-            <div className="space-y-4">
-              <h3 className="text-sm font-semibold text-slate-600 flex items-center gap-2">
-                <Scale className="w-4 h-4" />
+            <div className="space-y-6 bg-blue-50/30 rounded-2xl p-6">
+              <h3 className="text-lg font-bold text-slate-800 flex items-center gap-3 text-right">
+                <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center">
+                  <Scale className="w-5 h-5 text-blue-600" />
+                </div>
                 ניהול משפטי
               </h3>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>שלב משפטי</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="text-right">
+                  <Label className="text-sm font-bold text-slate-700 mb-2 block">שלב משפטי</Label>
                   <Select 
                     value={editedRecord?.legalStage || 'אין'} 
                     onValueChange={(v) => setEditedRecord({...editedRecord, legalStage: v})}
+                    dir="rtl"
                   >
-                    <SelectTrigger className="mt-1">
+                    <SelectTrigger className="mt-2 h-12 rounded-xl text-right" dir="rtl">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent dir="rtl" className="rounded-xl">
                       <SelectItem value="אין">אין</SelectItem>
                       <SelectItem value="פנייה ראשונית">פנייה ראשונית</SelectItem>
                       <SelectItem value="מכתב התראה">מכתב התראה</SelectItem>
@@ -165,16 +186,17 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                   </Select>
                 </div>
 
-                <div>
-                  <Label>סטטוס (ידני)</Label>
+                <div className="text-right">
+                  <Label className="text-sm font-bold text-slate-700 mb-2 block">סטטוס (ידני)</Label>
                   <Select 
                     value={editedRecord?.status || 'סדיר'} 
                     onValueChange={(v) => setEditedRecord({...editedRecord, status: v})}
+                    dir="rtl"
                   >
-                    <SelectTrigger className="mt-1">
+                    <SelectTrigger className="mt-2 h-12 rounded-xl text-right" dir="rtl">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent dir="rtl" className="rounded-xl">
                       <SelectItem value="סדיר">סדיר</SelectItem>
                       <SelectItem value="חייב">חייב</SelectItem>
                       <SelectItem value="חייב משמעותי">חייב משמעותי</SelectItem>
@@ -186,50 +208,54 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label>תאריך קשר אחרון</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="text-right">
+                  <Label className="text-sm font-bold text-slate-700 mb-2 block">תאריך קשר אחרון</Label>
                   <Input 
                     type="date" 
                     value={editedRecord?.lastContactDate || ''} 
                     onChange={(e) => setEditedRecord({...editedRecord, lastContactDate: e.target.value})}
-                    className="mt-1"
+                    className="mt-2 h-12 rounded-xl text-right"
+                    dir="rtl"
                   />
                 </div>
-                <div>
-                  <Label>תאריך פעולה הבאה</Label>
+                <div className="text-right">
+                  <Label className="text-sm font-bold text-slate-700 mb-2 block">תאריך פעולה הבאה</Label>
                   <Input 
                     type="date" 
                     value={editedRecord?.nextActionDate || ''} 
                     onChange={(e) => setEditedRecord({...editedRecord, nextActionDate: e.target.value})}
-                    className="mt-1"
+                    className="mt-2 h-12 rounded-xl text-right"
+                    dir="rtl"
                   />
                 </div>
               </div>
 
-              <div>
-                <Label>הערות</Label>
+              <div className="text-right">
+                <Label className="text-sm font-bold text-slate-700 mb-2 block">הערות</Label>
                 <Textarea 
                   value={editedRecord?.notes || ''} 
                   onChange={(e) => setEditedRecord({...editedRecord, notes: e.target.value})}
                   placeholder="הוסף הערות..."
-                  className="mt-1"
-                  rows={3}
+                  className="mt-2 rounded-xl text-right resize-none"
+                  rows={4}
+                  dir="rtl"
+                  style={{ direction: 'rtl', textAlign: 'right' }}
                 />
               </div>
             </div>
           )}
         </div>
 
-        <div className="flex justify-end gap-3 pt-4 border-t">
-          <Button variant="outline" onClick={onClose}>
-            <X className="w-4 h-4 ml-2" />
+        <div className="flex justify-end gap-4 pt-6 border-t-2" dir="rtl">
+          <Button variant="outline" onClick={onClose} className="rounded-xl h-12 px-6 font-semibold">
+            <X className="w-5 h-5 ml-2" />
             סגור
           </Button>
           {isAdmin && (
-            <Button onClick={handleSave} disabled={isSaving}>
-              <Save className="w-4 h-4 ml-2" />
-              {isSaving ? 'שומר...' : 'שמור'}
+            <Button onClick={handleSave} disabled={isSaving} className="rounded-xl h-12 px-6 font-semibold bg-gradient-to-l from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
+              <Save className="w-5 h-5 ml-2" />
+              {isSaving ? 'שומר...' : 'שמור שינויים'}
             </Button>
           )}
         </div>
