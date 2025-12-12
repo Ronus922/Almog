@@ -45,7 +45,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Edit, Trash2, Shield, Loader2, Save, X, ArrowRight, SlidersHorizontal } from "lucide-react";
+import { Plus, Edit, Trash2, Shield, Loader2, Save, X, ArrowRight, SlidersHorizontal, Wrench } from "lucide-react";
 import { toast } from "sonner";
 
 const COLOR_OPTIONS = [
@@ -65,6 +65,8 @@ export default function StatusManagement() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [reassignTargetId, setReassignTargetId] = useState('');
   const [editingStatus, setEditingStatus] = useState(null);
+  const [isFixing, setIsFixing] = useState(false);
+  const [fixResult, setFixResult] = useState(null);
   const [isWorkflowOpen, setIsWorkflowOpen] = useState(false);
   const [workflowStatusId, setWorkflowStatusId] = useState(null);
   const [selectedRecord, setSelectedRecord] = useState(null);
@@ -141,6 +143,41 @@ export default function StatusManagement() {
       toast.success('הסטטוס נמחק בהצלחה');
     },
   });
+
+  const handleFixAll = async () => {
+    setIsFixing(true);
+    setFixResult(null);
+
+    try {
+      const result = {
+        totalScanned: debtorRecords.length,
+        fixed: 0,
+        alreadyValid: 0
+      };
+
+      const validLegalStatusIds = statuses
+        .filter(s => s.type === 'LEGAL' && s.is_active)
+        .map(s => s.id);
+
+      for (const record of debtorRecords) {
+        const hasValidStatus = record.legal_status_id && validLegalStatusIds.includes(record.legal_status_id);
+
+        if (hasValidStatus) {
+          result.alreadyValid++;
+        } else {
+          result.fixed++;
+        }
+      }
+
+      setFixResult(result);
+      toast.success(`סריקה הושלמה: ${result.alreadyValid} תקינות, ${result.fixed} ללא סטטוס`);
+    } catch (error) {
+      console.error('Error scanning statuses:', error);
+      toast.error('שגיאה בסריקה');
+    } finally {
+      setIsFixing(false);
+    }
+  };
 
   const reassignMutation = useMutation({
     mutationFn: async ({ sourceId, targetId, recordsToUpdate }) => {
@@ -320,8 +357,50 @@ export default function StatusManagement() {
           <div>
             <h1 className="text-3xl font-bold text-slate-800">ניהול סטטוסים משפטיים</h1>
             <p className="text-slate-600 mt-1">ניהול סטטוסים משפטיים המקושרים לרשומות החייבים</p>
-          </div>
-          <div className="flex flex-wrap gap-3">
+            </div>
+
+            {fixResult && (
+            <Alert className="bg-blue-50 border-blue-300">
+              <AlertDescription className="space-y-2">
+                <div className="font-bold text-blue-900">תוצאות סריקה:</div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                  <div>
+                    <div className="text-slate-600">סה"כ נסרקו</div>
+                    <div className="text-xl font-bold text-slate-800">{fixResult.totalScanned}</div>
+                  </div>
+                  <div>
+                    <div className="text-slate-600">עם סטטוס תקין</div>
+                    <div className="text-xl font-bold text-green-600">{fixResult.alreadyValid}</div>
+                  </div>
+                  <div>
+                    <div className="text-slate-600">ללא סטטוס</div>
+                    <div className="text-xl font-bold text-orange-600">{fixResult.fixed}</div>
+                  </div>
+                </div>
+              </AlertDescription>
+            </Alert>
+            )}
+
+            <div className="flex flex-wrap gap-3">
+            <Button 
+              variant="outline" 
+              onClick={handleFixAll}
+              disabled={isFixing}
+              className="gap-2 bg-orange-50 hover:bg-orange-100 border-orange-300 text-orange-700"
+            >
+              {isFixing ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  סורק...
+                </>
+              ) : (
+                <>
+                  <Wrench className="w-5 h-5" />
+                  סרוק הכל
+                </>
+              )}
+            </Button>
+
             <Button
               variant="outline"
               onClick={() => setIsWorkflowOpen(true)}
