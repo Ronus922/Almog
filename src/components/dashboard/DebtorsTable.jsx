@@ -260,11 +260,11 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
                 <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
               )}
             </Button>
-          </div>
-        </div>
+            </div>
+            </div>
 
-        {/* פילטרים מתקדמים */}
-        {showAdvancedFilters && (
+            {/* פילטרים מתקדמים */}
+            {showAdvancedFilters && (
           <div className="mt-4 p-6 bg-gradient-to-l from-slate-50 to-slate-100 rounded-2xl border border-slate-200" dir="rtl">
             <div className="space-y-6">
               {/* מספר דירה */}
@@ -390,7 +390,8 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
               </div>
             </div>
           </div>
-        )}
+          )}
+        </div>
       </CardHeader>
 
       <CardContent className="p-0">
