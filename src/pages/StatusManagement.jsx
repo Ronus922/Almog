@@ -82,7 +82,17 @@ export default function StatusManagement() {
     queryFn: () => base44.entities.Status.list('order'),
   });
 
-  const statuses = allStatuses.filter(s => s.type === 'LEGAL');
+  const statuses = allStatuses
+    .filter(s => s.type === 'LEGAL')
+    .sort((a, b) => {
+      // סטטוס default תמיד ראשון
+      if (a.is_default && !b.is_default) return -1;
+      if (!a.is_default && b.is_default) return 1;
+      // אחר כך לפי order
+      if (a.order !== b.order) return a.order - b.order;
+      // אחר כך לפי שם
+      return (a.name || '').localeCompare(b.name || '');
+    });
 
   const { data: debtorRecords = [] } = useQuery({
     queryKey: ['debtorRecords'],
@@ -332,16 +342,28 @@ export default function StatusManagement() {
                           <Button variant="outline" size="sm" onClick={() => handleEdit(status)}>
                             <Edit className="w-4 h-4" />
                           </Button>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            onClick={() => handleDelete(status)}
-                            disabled={usageCount > 0 || status.is_default}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                            title={status.is_default ? 'לא ניתן למחוק סטטוס ברירת מחדל' : (usageCount > 0 ? 'לא ניתן למחוק סטטוס מקושר לרשומות' : '')}
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
+                          {!status.is_default ? (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              onClick={() => handleDelete(status)}
+                              disabled={usageCount > 0}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                              title={usageCount > 0 ? 'לא ניתן למחוק סטטוס מקושר לרשומות' : ''}
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          ) : (
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              disabled
+                              className="opacity-30 cursor-not-allowed"
+                              title="זהו סטטוס ברירת מחדל במערכת ולא ניתן למחיקה"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          )}
                         </div>
                       </TableCell>
                     </TableRow>

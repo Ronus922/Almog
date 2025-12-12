@@ -99,18 +99,33 @@ export default function LegalStatusMigration() {
 
       // שלב 2: מיגרציה של רשומות DebtorRecord
       for (const record of debtorRecords) {
-        // אם כבר יש legal_status_id תקין - דלג
+        // אם כבר יש legal_status_id תקין ושונה ידנית - דלג
         const hasValidStatus = record.legal_status_id && updatedLegalStatuses.find(s => s.id === record.legal_status_id);
-        if (hasValidStatus) {
+        if (hasValidStatus && record.legal_status_overridden) {
           result.recordsSkipped++;
           continue;
         }
 
-        // אם אין legal_status_manual או ריק - הצב default
-        if (!record.legal_status_manual || record.legal_status_manual.trim() === '') {
+        // אם אין סטטוס תקין - הצב default
+        if (!hasValidStatus) {
           if (defaultStatus) {
             await base44.entities.DebtorRecord.update(record.id, {
-              legal_status_id: defaultStatus.id
+              legal_status_id: defaultStatus.id,
+              legal_status_overridden: false
+            });
+            result.recordsUpdated++;
+          } else {
+            result.recordsNoStatus++;
+          }
+          continue;
+        }
+
+        // אם יש legal_status_manual אבל אין legal_status_id
+        if (!record.legal_status_manual || record.legal_status_manual.trim() === '') {
+          if (defaultStatus && !hasValidStatus) {
+            await base44.entities.DebtorRecord.update(record.id, {
+              legal_status_id: defaultStatus.id,
+              legal_status_overridden: false
             });
             result.recordsUpdated++;
           } else {
