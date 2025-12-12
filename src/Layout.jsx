@@ -14,6 +14,7 @@ import {
   LayoutDashboard, Upload, Settings, LogOut, 
   User, ChevronDown, Building2, Menu, X
 } from "lucide-react";
+import RoleIndicator from './components/RoleIndicator';
 
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
@@ -89,13 +90,16 @@ export default function Layout({ children, currentPageName }) {
                     <ChevronDown className="w-4 h-4 text-slate-400" />
                   </Button>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent align="start" className="w-48">
-                  <div className="px-3 py-2">
-                    <p className="text-sm font-medium">{user?.full_name}</p>
-                    <p className="text-xs text-slate-500">{isAdmin ? 'מנהל' : 'צופה'}</p>
+                <DropdownMenuContent align="start" className="w-56">
+                  <div className="px-3 py-3">
+                    <p className="text-sm font-semibold text-slate-800">{user?.full_name}</p>
+                    <p className="text-xs text-slate-500 mt-0.5">{user?.email}</p>
+                    <div className="mt-2">
+                      <RoleIndicator role={user?.role} />
+                    </div>
                   </div>
                   <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                  <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer">
                     <LogOut className="w-4 h-4 ml-2" />
                     התנתק
                   </DropdownMenuItem>

@@ -68,7 +68,7 @@ export default function Dashboard() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100" dir="rtl">
       <div className="max-w-7xl mx-auto p-6 space-y-6">
         {/* כותרת */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-white rounded-xl shadow-sm">
               <Building2 className="w-6 h-6 text-slate-700" />
@@ -78,10 +78,17 @@ export default function Dashboard() {
               <p className="text-sm text-slate-500">{settings.buildingAddress || ''}</p>
             </div>
           </div>
-          <Button variant="outline" size="sm" onClick={() => refetchRecords()}>
-            <RefreshCw className="w-4 h-4 ml-2" />
-            רענן
-          </Button>
+          <div className="flex items-center gap-2">
+            {!isAdmin && (
+              <div className="text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg border border-blue-200">
+                מצב צפייה בלבד
+              </div>
+            )}
+            <Button variant="outline" size="sm" onClick={() => refetchRecords()}>
+              <RefreshCw className="w-4 h-4 ml-2" />
+              רענן
+            </Button>
+          </div>
         </div>
 
         {/* כרטיסי KPI */}

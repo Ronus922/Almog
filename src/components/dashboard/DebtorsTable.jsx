@@ -171,16 +171,22 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
                   </div>
                 </TableHead>
                 <TableHead className="text-center font-semibold">פעולות</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {paginatedRecords.length === 0 ? (
+                </TableRow>
+                </TableHeader>
+                <TableBody>
+                {paginatedRecords.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={11} className="text-center py-10 text-slate-500">
-                    לא נמצאו רשומות
+                  <TableCell colSpan={11} className="text-center py-10">
+                    <div className="flex flex-col items-center gap-2">
+                      <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center">
+                        <Filter className="w-6 h-6 text-slate-400" />
+                      </div>
+                      <p className="text-slate-500 font-medium">לא נמצאו רשומות</p>
+                      <p className="text-xs text-slate-400">נסה לשנות את הפילטרים או את החיפוש</p>
+                    </div>
                   </TableCell>
                 </TableRow>
-              ) : (
+                ) : (
                 paginatedRecords.map((record) => (
                   <TableRow 
                     key={record.id} 
@@ -206,14 +212,19 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
                     </TableCell>
                     <TableCell className="text-center">{record.monthsInArrears || 0}</TableCell>
                     <TableCell className="text-center">
-                      <Button variant="ghost" size="sm" onClick={(e) => { e.stopPropagation(); onRowClick(record); }}>
+                      <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={(e) => { e.stopPropagation(); onRowClick(record); }}
+                        title={isAdmin ? "צפה ערוך" : "צפה"}
+                      >
                         <Eye className="w-4 h-4" />
                       </Button>
                     </TableCell>
                   </TableRow>
                 ))
-              )}
-            </TableBody>
+                )}
+                </TableBody>
           </Table>
         </div>
 
