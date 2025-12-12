@@ -1,28 +1,20 @@
 import React, { useState, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { ArrowRight, Search, Loader2, Shield, ExternalLink } from "lucide-react";
+import { Card } from "@/components/ui/card";
+import { ArrowRight, Loader2, Shield } from "lucide-react";
+import DebtorsTable from '../components/dashboard/DebtorsTable';
 import ApartmentDetailModal from '../components/dashboard/ApartmentDetailModal';
 
 export default function LinkedRecords() {
   const [user, setUser] = useState(null);
-  const [search, setSearch] = useState('');
   const [selectedRecord, setSelectedRecord] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   // קריאת פרמטרים מה-URL
   const urlParams = new URLSearchParams(window.location.search);
@@ -42,48 +34,53 @@ export default function LinkedRecords() {
     queryFn: () => base44.entities.DebtorRecord.list(),
   });
 
-  const { data: statuses = [] } = useQuery({
+  const { data: allStatuses = [] } = useQuery({
     queryKey: ['statuses'],
     queryFn: () => base44.entities.Status.list(),
   });
 
-  const status = statuses.find(s => s.id === statusId);
+  const { data: settingsList = [] } = useQuery({
+    queryKey: ['settings'],
+    queryFn: () => base44.entities.Settings.list(),
+  });
 
+  const settings = settingsList[0] || {};
+  const isAdmin = user?.role === 'admin';
+
+  // סינון רשומות לפי סטטוס מקושר
   const linkedRecords = useMemo(() => {
-    let filtered = debtorRecords.filter(r => r.legal_status_id === statusId);
+    return debtorRecords.filter(r => r.legal_status_id === statusId);
+  }, [debtorRecords, statusId]);
 
-    if (search) {
-      const s = search.toLowerCase();
-      filtered = filtered.filter(r =>
-        r.apartmentNumber?.toLowerCase().includes(s) ||
-        r.ownerName?.toLowerCase().includes(s) ||
-        r.phonePrimary?.toLowerCase().includes(s)
-      );
-    }
+  const updateMutation = useMutation({
+    mutationFn: ({ id, data }) => base44.entities.DebtorRecord.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+      setIsModalOpen(false);
+    },
+  });
 
-    return filtered;
-  }, [debtorRecords, statusId, search]);
+  const handleRowClick = (record) => {
+    setSelectedRecord(record);
+    setIsModalOpen(true);
+  };
 
-  const formatCurrency = (num) =>
-    new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num || 0);
-
-  const handleSave = async (updatedRecord) => {
-    await base44.entities.DebtorRecord.update(updatedRecord.id, updatedRecord);
-    setSelectedRecord(null);
+  const handleSaveRecord = async (editedRecord) => {
+    await updateMutation.mutateAsync({ id: editedRecord.id, data: editedRecord });
   };
 
   if (!user || user.role !== 'admin') {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100" dir="rtl">
         <Card className="max-w-md">
-          <CardContent className="pt-6">
+          <div className="p-6">
             <div className="text-center">
               <Shield className="w-16 h-16 mx-auto text-slate-300 mb-4" />
               <h2 className="text-xl font-bold text-slate-800 mb-2">גישה מוגבלת</h2>
               <p className="text-slate-600 mb-4">אין לך הרשאה לגשת לדף זה</p>
               <Button onClick={() => navigate(createPageUrl('Dashboard'))}>חזור לדשבורד</Button>
             </div>
-          </CardContent>
+          </div>
         </Card>
       </div>
     );
@@ -98,102 +95,53 @@ export default function LinkedRecords() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6" dir="rtl">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <div className="flex items-center gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => navigate(createPageUrl('StatusManagement'))}
-                className="gap-2"
-              >
-                <ArrowRight className="w-4 h-4" />
-                חזור לניהול סטטוסים
-              </Button>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100" dir="rtl">
+      <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8">
+        {/* כותרת */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate(createPageUrl('StatusManagement'))}
+              className="gap-2 rounded-xl h-10 px-4 font-semibold"
+            >
+              <ArrowRight className="w-4 h-4" />
+              חזרה לסטטוסים
+            </Button>
+            <div>
+              <h1 className="text-xl md:text-3xl font-extrabold bg-gradient-to-l from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                רשומות מקושרות לסטטוס
+              </h1>
+              <p className="text-xs md:text-sm text-slate-600 font-medium mt-1">
+                <span className="font-bold text-blue-600">{statusName || 'לא ידוע'}</span>
+                {' • '}
+                סה״כ: <span className="font-bold text-blue-600">{linkedRecords.length}</span> דירות
+              </p>
             </div>
-            <h1 className="text-3xl font-bold text-slate-800 mt-4">רשומות מקושרות</h1>
-            {status && (
-              <div className="flex items-center gap-2 mt-2">
-                <span className="text-slate-600">סטטוס:</span>
-                <Badge className={status.color + ' text-base px-3 py-1'}>
-                  {status.name}
-                </Badge>
-              </div>
-            )}
           </div>
         </div>
 
-        <Card>
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <CardTitle>
-                {linkedRecords.length} רשומות מקושרות
-              </CardTitle>
-              <div className="relative w-64">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input
-                  placeholder="חיפוש..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pr-10 h-10 rounded-xl"
-                />
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            {linkedRecords.length === 0 ? (
-              <div className="text-center py-12">
-                <p className="text-slate-600">לא נמצאו רשומות מקושרות</p>
-              </div>
-            ) : (
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-right">מספר דירה</TableHead>
-                    <TableHead className="text-right">שם בעלים</TableHead>
-                    <TableHead className="text-right">טלפון</TableHead>
-                    <TableHead className="text-right">סה״כ חוב</TableHead>
-                    <TableHead className="text-center">פעולות</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {linkedRecords.map((record) => (
-                    <TableRow key={record.id} className="hover:bg-slate-50 cursor-pointer">
-                      <TableCell className="font-semibold">{record.apartmentNumber}</TableCell>
-                      <TableCell>{record.ownerName || '-'}</TableCell>
-                      <TableCell>{record.phonePrimary || '-'}</TableCell>
-                      <TableCell className="font-bold text-rose-600">{formatCurrency(record.totalDebt)}</TableCell>
-                      <TableCell className="text-center">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={() => setSelectedRecord(record)}
-                          className="gap-2"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                          פתח
-                        </Button>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-            )}
-          </CardContent>
-        </Card>
-      </div>
+        {/* טבלת חייבים - אותה טבלה מהדשבורד */}
+        <DebtorsTable 
+          records={linkedRecords} 
+          onRowClick={handleRowClick}
+          isAdmin={isAdmin}
+          settings={settings}
+          initialStatusFilter={statusName}
+          allStatuses={allStatuses}
+          hideStatusFilter={true}
+        />
 
-      {selectedRecord && (
+        {/* מודל פרטי דירה */}
         <ApartmentDetailModal
           record={selectedRecord}
-          isOpen={!!selectedRecord}
-          onClose={() => setSelectedRecord(null)}
-          onSave={handleSave}
-          isAdmin={user?.role === 'admin'}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleSaveRecord}
+          isAdmin={isAdmin}
         />
-      )}
+      </div>
     </div>
   );
 }
