@@ -9,6 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Building2, AlertCircle, Loader2 } from "lucide-react";
 import { toast } from 'sonner';
+import { base44 } from '@/api/base44Client';
 
 export default function AppLogin() {
   const navigate = useNavigate();
@@ -18,19 +19,35 @@ export default function AppLogin() {
   const [rememberUsername, setRememberUsername] = useState(false);
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [isFirstUser, setIsFirstUser] = useState(false);
+  const [checkingUsers, setCheckingUsers] = useState(true);
 
   useEffect(() => {
-    // If already logged in, redirect to dashboard
-    if (currentUser) {
-      navigate(createPageUrl('Dashboard'), { replace: true });
-    }
+    const checkFirstUser = async () => {
+      // If already logged in, redirect to dashboard
+      if (currentUser) {
+        navigate(createPageUrl('Dashboard'), { replace: true });
+        return;
+      }
 
-    // Load remembered username
-    const savedUsername = localStorage.getItem('remembered_username');
-    if (savedUsername) {
-      setUsername(savedUsername);
-      setRememberUsername(true);
-    }
+      // Check if there are any users in the system
+      try {
+        const users = await base44.entities.AppUser.list();
+        setIsFirstUser(users.length === 0);
+      } catch (err) {
+        console.error('Error checking users:', err);
+      }
+      setCheckingUsers(false);
+
+      // Load remembered username
+      const savedUsername = localStorage.getItem('remembered_username');
+      if (savedUsername) {
+        setUsername(savedUsername);
+        setRememberUsername(true);
+      }
+    };
+
+    checkFirstUser();
   }, [currentUser, navigate]);
 
   const handleSubmit = async (e) => {
@@ -54,9 +71,29 @@ export default function AppLogin() {
       return;
     }
 
+    // Check password length
+    if (password.length < 6 || password.length > 10) {
+      setError('סיסמה חייבת להיות 6-10 תווים');
+      return;
+    }
+
     setIsLoading(true);
 
     try {
+      // If first user, create admin account
+      if (isFirstUser) {
+        const passwordHash = btoa(password);
+        await base44.entities.AppUser.create({
+          username,
+          password_hash: passwordHash,
+          role: 'admin',
+          is_active: true
+        });
+        toast.success('משתמש Admin ראשון נוצר בהצלחה!');
+        setIsFirstUser(false);
+      }
+
+      // Login
       await login(username, password);
 
       // Remember username if checked
@@ -76,6 +113,17 @@ export default function AppLogin() {
     }
   };
 
+  if (checkingUsers) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50">
+        <div className="text-center">
+          <div className="inline-block w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
+          <p className="text-slate-600 font-medium">טוען...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50 flex items-center justify-center p-4" dir="rtl">
       <div className="w-full max-w-md">
@@ -89,9 +137,26 @@ export default function AppLogin() {
 
         <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
           <div className="mb-6">
-            <h2 className="text-2xl font-bold text-slate-800 text-right">התחברות</h2>
-            <p className="text-sm text-slate-500 mt-1 text-right">הזן שם משתמש וסיסמה כדי להיכנס</p>
+            <h2 className="text-2xl font-bold text-slate-800 text-right">
+              {isFirstUser ? 'יצירת משתמש Admin ראשון' : 'התחברות'}
+            </h2>
+            <p className="text-sm text-slate-500 mt-1 text-right">
+              {isFirstUser 
+                ? 'צור משתמש מנהל ראשון למערכת' 
+                : 'הזן שם משתמש וסיסמה כדי להיכנס'}
+            </p>
           </div>
+
+          {isFirstUser && (
+            <Alert className="mb-6 bg-blue-50 border-blue-200" dir="rtl">
+              <div className="flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 text-blue-600" />
+                <AlertDescription className="text-blue-800 text-sm font-medium">
+                  אין משתמשים במערכת. צור משתמש Admin ראשון כדי להתחיל.
+                </AlertDescription>
+              </div>
+            </Alert>
+          )}
 
           {error && (
             <Alert className="mb-6 bg-red-50 border-red-200" dir="rtl">
@@ -161,10 +226,10 @@ export default function AppLogin() {
               {isLoading ? (
                 <span className="flex items-center gap-2">
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  מתחבר...
+                  {isFirstUser ? 'יוצר משתמש...' : 'מתחבר...'}
                 </span>
               ) : (
-                'התחבר'
+                isFirstUser ? 'צור משתמש Admin והתחבר' : 'התחבר'
               )}
             </Button>
           </form>
