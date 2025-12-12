@@ -20,15 +20,6 @@ import {
 import { useQuery } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 
-const STATUS_COLORS = {
-  'סדיר': 'bg-green-100 text-green-700',
-  'חייב': 'bg-yellow-100 text-yellow-700',
-  'חייב משמעותי': 'bg-orange-100 text-orange-700',
-  'מועמד לתביעה': 'bg-slate-100 text-slate-700',
-  'בתביעה': 'bg-red-100 text-red-700',
-  'בהסדר': 'bg-blue-100 text-blue-700'
-};
-
 export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin }) {
   const [editedRecord, setEditedRecord] = useState(record);
   const [isSaving, setIsSaving] = useState(false);
