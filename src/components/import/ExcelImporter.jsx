@@ -367,21 +367,6 @@ export default function ExcelImporter({ onImportComplete }) {
     return value;
   };
 
-  const calculateStatus = (record, settings) => {
-    const totalDebt = record.totalDebt || 0;
-    const monthsInArrears = record.monthsInArrears || 0;
-    const legalStage = record.legalStage || 'אין';
-    const highThreshold = settings?.highDebtThreshold || 1000;
-    const monthsThreshold = settings?.monthsBeforeLawsuit || 3;
-
-    if (legalStage === 'בתביעה') return 'בתביעה';
-    if (legalStage === 'הסדר תשלומים') return 'בהסדר';
-    if (totalDebt === 0) return 'סדיר';
-    if (totalDebt >= highThreshold && monthsInArrears >= monthsThreshold) return 'מועמד לתביעה';
-    if (totalDebt >= highThreshold) return 'חייב משמעותי';
-    return 'חייב';
-  };
-
   const handleImport = async () => {
     // בדיקה אחרונה של עמודות חובה לפני הייבוא
     const validation = validateRequiredColumns(headers, mappings);
@@ -397,9 +382,17 @@ export default function ExcelImporter({ onImportComplete }) {
     console.log(`[Excel Import] Starting import of ${excelData.length} rows in mode: ${importMode}`);
 
     try {
-      // קבלת הגדרות
+
+      // Fetch settings for threshold calculation
       const settingsList = await base44.entities.Settings.list();
-      const settings = settingsList[0] || { highDebtThreshold: 1000, monthsBeforeLawsuit: 3 };
+      const settings = settingsList[0] || { threshold_ok: 1000, threshold_legal: 5000 };
+
+      // Helper function to calculate debt status
+      const calculateDebtStatus = (totalDebt) => {
+        if (!totalDebt || totalDebt <= settings.threshold_ok) return 'סך חוב תקין';
+        if (totalDebt < settings.threshold_legal) return 'חוב משמעותי';
+        return 'לטיפול משפטי';
+      };
 
       // אם נבחר איפוס מלא - מחיקת כל הרשומות
       if (importMode === 'reset') {
@@ -464,6 +457,9 @@ export default function ExcelImporter({ onImportComplete }) {
             console.warn(`[Excel Import - dbInsert] Row ${i + 1}: Could not calculate months in arrears from: "${record.detailsMonthly}"`);
           }
 
+          // Calculate automatic debt status
+          record.debt_status_auto = calculateDebtStatus(record.totalDebt);
+
           // בדיקה אם דירה קיימת
           const existing = existingRecords.find(r => r.apartmentNumber === record.apartmentNumber);
 
@@ -495,41 +491,19 @@ export default function ExcelImporter({ onImportComplete }) {
             }
             // else: overwrite mode - use all new values
 
-            // Calculate debt state (always update)
-            const totalDebt = record.totalDebt || 0;
-            updateData.debt_state = totalDebt > 0 ? 'יש חוב' : 'ללא חוב';
-            updateData.debt_amount_current = totalDebt;
-            updateData.debt_last_import_at = new Date().toISOString();
-
-            // Check if needs status review
-            if (updateData.debt_state === 'ללא חוב' && 
-                existing.status && 
-                !['סדיר', 'ללא חוב'].includes(existing.status)) {
-              updateData.needs_status_review = true;
-            } else {
-              updateData.needs_status_review = false;
-            }
-
             // Always preserve these fields (never from import)
-            updateData.legalStage = existing.legalStage;
             updateData.notes = existing.notes;
             updateData.lastContactDate = existing.lastContactDate;
             updateData.nextActionDate = existing.nextActionDate;
-            updateData.status = existing.status; // CRITICAL: Never update status from import
-            updateData.status_locked = existing.status_locked !== false; // Preserve lock
+            // CRITICAL: Never update legal_status_manual_id from import
+            updateData.legal_status_manual_id = existing.legal_status_manual_id;
             
             await base44.entities.DebtorRecord.update(existing.id, updateData);
             updated++;
             console.log(`[Excel Import - dbInsert] Updated apartment ${record.apartmentNumber} (mode: ${importMode})`);
           } else {
-            // New record - calculate status
-            record.status = calculateStatus(record, settings);
-            record.legalStage = 'אין';
-            record.debt_state = (record.totalDebt || 0) > 0 ? 'יש חוב' : 'ללא חוב';
-            record.debt_amount_current = record.totalDebt || 0;
-            record.debt_last_import_at = new Date().toISOString();
-            record.status_locked = true;
-            record.needs_status_review = false;
+            // New record - debt_status_auto already calculated above
+            // legal_status_manual_id is null by default
             
             await base44.entities.DebtorRecord.create(record);
             created++;
