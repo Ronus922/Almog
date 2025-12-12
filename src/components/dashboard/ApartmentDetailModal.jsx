@@ -30,12 +30,22 @@ const STATUS_COLORS = {
 export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin }) {
   const [editedRecord, setEditedRecord] = useState(record);
   const [isSaving, setIsSaving] = useState(false);
+  const [dateError, setDateError] = useState('');
 
   React.useEffect(() => {
     setEditedRecord(record);
+    setDateError('');
   }, [record]);
 
   if (!record) return null;
+
+  const getTodayDate = () => {
+    const today = new Date();
+    const year = today.getFullYear();
+    const month = String(today.getMonth() + 1).padStart(2, '0');
+    const day = String(today.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
+  };
 
   const formatCurrency = (num) => 
     new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num || 0);
@@ -48,6 +58,21 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   };
 
   const handleSave = async () => {
+    setDateError('');
+    
+    // ולידציה: תאריך קשר אחרון לא יכול להיות עתידי
+    if (editedRecord?.lastContactDate) {
+      const selectedDate = new Date(editedRecord.lastContactDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      selectedDate.setHours(0, 0, 0, 0);
+      
+      if (selectedDate > today) {
+        setDateError('לא ניתן לבחור תאריך עתידי');
+        return;
+      }
+    }
+    
     setIsSaving(true);
     await onSave(editedRecord);
     setIsSaving(false);
@@ -221,10 +246,20 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                   <Input 
                     type="date" 
                     value={editedRecord?.lastContactDate || ''} 
-                    onChange={(e) => setEditedRecord({...editedRecord, lastContactDate: e.target.value})}
-                    className="mt-2 h-12 rounded-xl text-right"
+                    max={getTodayDate()}
+                    onChange={(e) => {
+                      setEditedRecord({...editedRecord, lastContactDate: e.target.value});
+                      setDateError('');
+                    }}
+                    className={`mt-2 h-12 rounded-xl text-right ${dateError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
                     dir="rtl"
                   />
+                  {dateError && (
+                    <p className="text-xs text-red-600 font-semibold mt-2 text-right flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4" />
+                      {dateError}
+                    </p>
+                  )}
                 </div>
                 <div className="text-right">
                   <Label className="text-sm font-bold text-slate-700 mb-2 block">תאריך פעולה הבאה</Label>
