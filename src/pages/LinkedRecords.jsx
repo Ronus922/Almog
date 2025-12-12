@@ -99,27 +99,25 @@ export default function LinkedRecords() {
       <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8">
         {/* כותרת */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => navigate(createPageUrl('StatusManagement'))}
-              className="gap-2 rounded-xl h-10 px-4 font-semibold"
-            >
-              <ArrowRight className="w-4 h-4" />
-              חזרה לסטטוסים
-            </Button>
-            <div>
-              <h1 className="text-xl md:text-3xl font-extrabold bg-gradient-to-l from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                רשומות מקושרות לסטטוס
-              </h1>
-              <p className="text-xs md:text-sm text-slate-600 font-medium mt-1">
-                <span className="font-bold text-blue-600">{statusName || 'לא ידוע'}</span>
-                {' • '}
-                סה״כ: <span className="font-bold text-blue-600">{linkedRecords.length}</span> דירות
-              </p>
-            </div>
+          <div>
+            <h1 className="text-xl md:text-3xl font-extrabold text-slate-800">
+              רשומות מקושרות לסטטוס
+            </h1>
+            <p className="text-xs md:text-sm text-slate-600 font-medium mt-1">
+              <span className="font-bold text-blue-600">{statusName || 'לא ידוע'}</span>
+              {' • '}
+              סה״כ: <span className="font-bold text-blue-600">{linkedRecords.length}</span> דירות
+            </p>
           </div>
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => navigate(createPageUrl('StatusManagement'))}
+            className="gap-2 rounded-xl h-10 px-4 font-semibold"
+          >
+            <ArrowRight className="w-4 h-4" />
+            חזרה לסטטוסים
+          </Button>
         </div>
 
         {/* טבלת חייבים - אותה טבלה מהדשבורד */}

@@ -200,7 +200,7 @@ export default function Layout({ children, currentPageName }) {
     <AuthProvider>
       <style>{`
         * {
-          font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', -apple-system, Arial, sans-serif !important;
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
           letter-spacing: -0.01em;
         }
         html {
@@ -208,6 +208,9 @@ export default function Layout({ children, currentPageName }) {
         }
         body {
           font-weight: 400;
+        }
+        h1, h2, h3, h4, h5, h6, p, span, div, button, input, select, textarea, label {
+          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
         }
       `}</style>
       <LayoutContent children={children} currentPageName={currentPageName} />
