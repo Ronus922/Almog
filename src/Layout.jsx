@@ -204,7 +204,7 @@ export default function Layout({ children, currentPageName }) {
           letter-spacing: -0.01em;
         }
         html {
-          font-size: 19px;
+          font-size: 17px;
         }
         body {
           font-weight: 400;
