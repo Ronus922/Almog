@@ -562,7 +562,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, a
                       <span className="font-bold text-base text-purple-600">{formatCurrency(record.specialDebt)}</span>
                     </TableCell>
                     <TableCell className="py-6 px-6 align-middle text-center">
-                      <Badge variant="outline" className={`${STATUS_COLORS[record.debt_status_auto] || STATUS_COLORS['תקין']} min-w-[96px] h-8 px-3 inline-flex items-center justify-center text-sm font-medium whitespace-nowrap`}>
+                      <Badge variant="outline" className={`${STATUS_COLORS[record.debt_status_auto] || STATUS_COLORS['תקין']} min-w-[96px] h-8 px-3 inline-flex items-center justify-center text-sm font-medium whitespace-nowrap transition-colors`}>
                         {record.debt_status_auto || 'תקין'}
                       </Badge>
                     </TableCell>
@@ -576,7 +576,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, a
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <div className="inline-block">
-                                  <Badge className={`${legalStatus.color} min-w-[96px] h-8 px-3 inline-flex items-center justify-center gap-1.5 text-sm font-medium whitespace-nowrap`}>
+                                  <Badge className={`${legalStatus.color} min-w-[96px] h-8 px-3 inline-flex items-center justify-center gap-1.5 text-sm font-medium whitespace-nowrap transition-colors`}>
                                     {legalStatus.name}
                                     {isDefault && (
                                       <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
@@ -592,7 +592,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, a
                             </Tooltip>
                           </TooltipProvider>
                         ) : (
-                          <Badge className="bg-slate-100 text-slate-500 min-w-[96px] h-8 px-3 inline-flex items-center justify-center text-sm font-medium whitespace-nowrap">לא מקושר</Badge>
+                          <Badge className="bg-slate-100 text-slate-500 min-w-[96px] h-8 px-3 inline-flex items-center justify-center text-sm font-medium whitespace-nowrap transition-colors">לא מקושר</Badge>
                         );
                       })()}
                     </TableCell>

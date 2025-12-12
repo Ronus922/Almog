@@ -453,7 +453,7 @@ export default function StatusManagement() {
                       <TableCell className="font-semibold">{status.name}</TableCell>
                       <TableCell className="text-slate-600">{status.description || '-'}</TableCell>
                       <TableCell>
-                        <Badge className={status.color}>{status.name}</Badge>
+                        <Badge className={`${status.color} transition-colors`}>{status.name}</Badge>
                       </TableCell>
                       <TableCell className="text-center">
                         <TooltipProvider>
@@ -651,7 +651,7 @@ export default function StatusManagement() {
                           .map((status) => (
                             <SelectItem key={status.id} value={status.id}>
                               <div className="flex items-center gap-2">
-                                <Badge className={status.color + ' text-xs'}>
+                                <Badge className={status.color + ' text-xs transition-colors'}>
                                   {status.name}
                                 </Badge>
                               </div>
