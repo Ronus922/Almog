@@ -48,6 +48,18 @@ export default function DebtCharts({ records }) {
   const formatCurrency = (value) => 
     new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(value);
 
+  const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+      return (
+        <div className="bg-white p-2 border border-slate-200 rounded shadow-sm" dir="rtl">
+          <p className="text-xs font-medium">{payload[0].name}</p>
+          <p className="text-xs text-slate-600">{payload[0].value}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
       {/* גרף עמודות - טווחי חוב */}
@@ -56,15 +68,26 @@ export default function DebtCharts({ records }) {
           <CardTitle className="text-base font-semibold text-slate-700">התפלגות חוב לפי טווח</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-64">
+          <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={rangeData} layout="vertical">
+              <BarChart data={rangeData} layout="vertical" margin={{ top: 10, right: 10, left: 10, bottom: 40 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
                 <XAxis type="number" tick={{ fontSize: 12 }} />
                 <YAxis dataKey="name" type="category" tick={{ fontSize: 12 }} width={80} />
-                <Tooltip 
-                  formatter={(value) => [`${value} דירות`, 'מספר']}
-                  contentStyle={{ direction: 'rtl', textAlign: 'right' }}
+                <Tooltip content={<CustomTooltip />} />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={36}
+                  content={({ payload }) => (
+                    <div className="flex flex-wrap justify-center gap-3 mt-2" dir="rtl">
+                      {payload.map((entry, index) => (
+                        <div key={index} className="flex items-center gap-1">
+                          <div className="w-3 h-3 rounded" style={{ backgroundColor: COLORS.ranges[index] }} />
+                          <span className="text-xs text-slate-600">{rangeData[index]?.name}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 />
                 <Bar dataKey="count" radius={[0, 4, 4, 0]}>
                   {rangeData.map((entry, index) => (
@@ -83,19 +106,18 @@ export default function DebtCharts({ records }) {
           <CardTitle className="text-base font-semibold text-slate-700">חלוקת חוב לפי סוג</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-64">
+          <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
+              <PieChart margin={{ top: 10, right: 10, left: 10, bottom: 40 }}>
                 <Pie
                   data={typeData}
                   cx="50%"
-                  cy="50%"
+                  cy="45%"
                   innerRadius={50}
-                  outerRadius={80}
+                  outerRadius={75}
                   paddingAngle={5}
                   dataKey="value"
-                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                  labelLine={false}
+                  label={false}
                 >
                   {typeData.map((entry, index) => (
                     <Cell key={index} fill={COLORS.types[index]} />
@@ -104,6 +126,21 @@ export default function DebtCharts({ records }) {
                 <Tooltip 
                   formatter={(value) => formatCurrency(value)}
                   contentStyle={{ direction: 'rtl', textAlign: 'right' }}
+                />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={36}
+                  content={({ payload }) => (
+                    <div className="flex flex-wrap justify-center gap-4 mt-2" dir="rtl">
+                      {typeData.map((entry, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded" style={{ backgroundColor: COLORS.types[index] }} />
+                          <span className="text-xs text-slate-700 font-medium">{entry.name}</span>
+                          <span className="text-xs text-slate-500">({formatCurrency(entry.value)})</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 />
               </PieChart>
             </ResponsiveContainer>
@@ -117,15 +154,31 @@ export default function DebtCharts({ records }) {
           <CardTitle className="text-base font-semibold text-slate-700">דירות לפי סטטוס</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="h-64">
+          <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={statusData}>
+              <BarChart data={statusData} margin={{ top: 10, right: 10, left: 10, bottom: 40 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-                <XAxis dataKey="name" tick={{ fontSize: 10 }} angle={-45} textAnchor="end" height={60} />
+                <XAxis 
+                  dataKey="name" 
+                  tick={false}
+                  height={10}
+                />
                 <YAxis tick={{ fontSize: 12 }} />
-                <Tooltip 
-                  formatter={(value) => [`${value} דירות`, 'מספר']}
-                  contentStyle={{ direction: 'rtl', textAlign: 'right' }}
+                <Tooltip content={<CustomTooltip />} />
+                <Legend 
+                  verticalAlign="bottom" 
+                  height={60}
+                  content={({ payload }) => (
+                    <div className="grid grid-cols-2 gap-2 mt-2" dir="rtl">
+                      {statusData.map((entry, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded" style={{ backgroundColor: entry.fill }} />
+                          <span className="text-xs text-slate-700">{entry.name}</span>
+                          <span className="text-xs text-slate-500">({entry.count})</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
                 />
                 <Bar dataKey="count" radius={[4, 4, 0, 0]}>
                   {statusData.map((entry, index) => (
