@@ -20,16 +20,16 @@ export default function CopyLoginLink() {
       variant="outline" 
       size="sm" 
       onClick={handleCopy}
-      className="gap-2"
+      className="gap-2 rounded-xl h-10 px-4 font-semibold border-blue-200 hover:bg-blue-50 hover:border-blue-300"
     >
       {copied ? (
         <>
-          <Check className="w-4 h-4 text-green-600" />
-          הועתק
+          <Check className="w-5 h-5 text-green-600" />
+          הקישור הועתק!
         </>
       ) : (
         <>
-          <Link2 className="w-4 h-4" />
+          <Link2 className="w-5 h-5" />
           העתק קישור כניסה
         </>
       )}
