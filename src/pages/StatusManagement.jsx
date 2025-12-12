@@ -54,6 +54,7 @@ export default function StatusManagement() {
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
+  const [reassignTargetId, setReassignTargetId] = useState('');
   const [editingStatus, setEditingStatus] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
@@ -111,9 +112,36 @@ export default function StatusManagement() {
     mutationFn: (id) => base44.entities.Status.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['statuses'] });
+      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
       setDeleteConfirm(null);
-      toast.success('סטטוס נמחק בהצלחה');
+      setReassignTargetId('');
+      toast.success('הסטטוס נמחק בהצלחה');
     },
+  });
+
+  const reassignMutation = useMutation({
+    mutationFn: async ({ sourceId, targetId, recordsToUpdate }) => {
+      // עדכון כל הרשומות בבת אחת
+      for (const record of recordsToUpdate) {
+        await base44.entities.DebtorRecord.update(record.id, { legal_status_id: targetId });
+      }
+      return { count: recordsToUpdate.length };
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+      queryClient.invalidateQueries({ queryKey: ['statuses'] });
+      const targetStatus = statuses.find(s => s.id === variables.targetId);
+      toast.success(`בוצעה העברה בהצלחה: ${data.count} רשומות עודכנו לסטטוס '${targetStatus?.name}'`);
+      setReassignTargetId('');
+      // רענון מונה הקשרים
+      setDeleteConfirm({
+        ...deleteConfirm,
+        usageCount: 0
+      });
+    },
+    onError: () => {
+      toast.error('כשל בביצוע ההעברה. לא בוצעו שינויים.');
+    }
   });
 
   const resetForm = () => {
@@ -154,6 +182,32 @@ export default function StatusManagement() {
     if (deleteConfirm && deleteConfirm.usageCount === 0) {
       deleteMutation.mutate(deleteConfirm.status.id);
     }
+  };
+
+  const handleReassign = () => {
+    if (!reassignTargetId) {
+      toast.error('יש לבחור סטטוס חלופי כדי להמשיך');
+      return;
+    }
+
+    if (reassignTargetId === deleteConfirm.status.id) {
+      toast.error('לא ניתן לבחור את אותו הסטטוס כחלופי. בחר סטטוס אחר');
+      return;
+    }
+
+    const targetStatus = statuses.find(s => s.id === reassignTargetId);
+    if (!targetStatus || !targetStatus.is_active) {
+      toast.error('לא ניתן להעביר לסטטוס לא פעיל. בחר סטטוס פעיל');
+      return;
+    }
+
+    const recordsToUpdate = debtorRecords.filter(r => r.legal_status_id === deleteConfirm.status.id);
+    
+    reassignMutation.mutate({
+      sourceId: deleteConfirm.status.id,
+      targetId: reassignTargetId,
+      recordsToUpdate
+    });
   };
 
   const handleSubmit = () => {
