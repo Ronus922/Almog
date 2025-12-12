@@ -392,14 +392,7 @@ export default function StatusManagement() {
                 </>
               )}
             </Button>
-            <Button 
-              variant="outline" 
-              onClick={() => navigate(createPageUrl('StatusWorkflow'))}
-              className="gap-2"
-            >
-              <ArrowRight className="w-5 h-5" />
-              טיפול דירה-דירה
-            </Button>
+
             <Button onClick={handleAdd} className="gap-2">
               <Plus className="w-5 h-5" />
               הוסף סטטוס
@@ -461,26 +454,16 @@ export default function StatusManagement() {
                             <TooltipTrigger asChild>
                               <button
                                 onClick={() => {
-                                  if (status.is_default && usageCount > 0) {
-                                    navigate(createPageUrl('StatusWorkflow'));
-                                  } else {
-                                    navigate(createPageUrl('LinkedRecords') + `?statusId=${status.id}&statusName=${encodeURIComponent(status.name)}`);
-                                  }
+                                  navigate(createPageUrl('LinkedRecords') + `?statusId=${status.id}&statusName=${encodeURIComponent(status.name)}`);
                                 }}
-                                className={`font-bold underline decoration-2 transition-all text-lg ${
-                                  status.is_default && usageCount > 0
-                                    ? 'text-orange-600 hover:text-orange-800 hover:decoration-orange-800 animate-pulse'
-                                    : 'text-blue-600 hover:text-blue-800 hover:decoration-blue-800'
-                                }`}
+                                className="font-bold underline decoration-2 transition-all text-lg text-blue-600 hover:text-blue-800 hover:decoration-blue-800"
                               >
                                 {usageCount}
                               </button>
                             </TooltipTrigger>
                             <TooltipContent>
                               <p className="text-sm font-semibold">
-                                {status.is_default && usageCount > 0
-                                  ? `${usageCount} דירות שעדיין לא הוגדר להן סטטוס משפטי - לחץ לטיפול`
-                                  : `${usageCount} דירות מקושרות לסטטוס זה`}
+                                {usageCount} דירות מקושרות לסטטוס זה - לחץ לצפייה
                               </p>
                             </TooltipContent>
                           </Tooltip>
