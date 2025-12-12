@@ -1,10 +1,20 @@
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Phone, Calendar, ChevronLeft } from "lucide-react";
-import DebtStatusBadge, { getBorderColor } from './DebtSeverityBadge';
+import { Phone, Wallet, Calendar, ChevronLeft } from "lucide-react";
 
-export default function DebtorCard({ record, onClick }) {
+const STATUS_COLORS = {
+  'סדיר': 'bg-green-100 text-green-700 border-green-200',
+  'חייב': 'bg-yellow-100 text-yellow-700 border-yellow-200',
+  'חייב משמעותי': 'bg-orange-100 text-orange-700 border-orange-200',
+  'מועמד לתביעה': 'bg-slate-100 text-slate-700 border-slate-200',
+  'בתביעה': 'bg-red-100 text-red-700 border-red-200',
+  'בהסדר': 'bg-blue-100 text-blue-700 border-blue-200'
+};
+
+import DebtSeverityBadge, { getDebtSeverityColor } from './DebtSeverityBadge';
+
+export default function DebtorCard({ record, onClick, settings }) {
   const formatCurrency = (num) => 
     new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num || 0);
 
@@ -15,7 +25,10 @@ export default function DebtorCard({ record, onClick }) {
     return phone;
   };
 
-  const borderColor = getBorderColor(record.debt_status_auto);
+  const severityColor = getDebtSeverityColor(record.totalDebt, settings);
+  const borderColor = severityColor === 'green' ? 'border-r-green-500' : 
+                      severityColor === 'orange' ? 'border-r-orange-500' : 
+                      'border-r-red-500';
 
   return (
     <Card 
@@ -29,10 +42,12 @@ export default function DebtorCard({ record, onClick }) {
             <div className="text-2xl font-bold text-slate-800">{record.apartmentNumber}</div>
           </div>
           <div className="flex flex-col items-end gap-1">
-            <DebtStatusBadge debtStatusAuto={record.debt_status_auto} />
-            {record.legal_status_manual && (
-              <Badge variant="outline" className="bg-slate-100 text-slate-700 border-slate-300 text-xs font-medium">
-                {record.legal_status_manual}
+            <Badge variant="outline" className={`${STATUS_COLORS[record.status] || 'bg-slate-100 text-slate-700'} font-semibold text-xs`}>
+              {record.status || 'סדיר'}
+            </Badge>
+            {record.needs_status_review && (
+              <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs">
+                בדוק
               </Badge>
             )}
           </div>
@@ -56,7 +71,10 @@ export default function DebtorCard({ record, onClick }) {
         <div className="grid grid-cols-3 gap-2 mb-3 pt-3 border-t">
           <div className="text-center">
             <div className="text-xs text-slate-500 mb-1">סה״כ חוב</div>
-            <div className="text-sm font-bold text-slate-800">{formatCurrency(record.total_debt)}</div>
+            <div className="text-sm font-bold text-rose-600">{formatCurrency(record.totalDebt)}</div>
+            <div className="mt-1">
+              <DebtSeverityBadge debt={record.totalDebt} settings={settings} />
+            </div>
           </div>
           <div className="text-center border-x border-slate-200">
             <div className="text-xs text-slate-500 mb-1">חודשי</div>
