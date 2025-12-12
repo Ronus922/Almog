@@ -15,16 +15,30 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Home, Phone, Wallet, Calendar, FileText, Scale, 
-  Save, X, AlertTriangle, Lock, User
+  Save, X, AlertTriangle, Lock, User, Pencil, Check
 } from "lucide-react";
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { toast } from 'sonner';
 
 export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin }) {
   const [editedRecord, setEditedRecord] = useState(record);
   const [isSaving, setIsSaving] = useState(false);
   const [lastContactDateError, setLastContactDateError] = useState('');
   const [nextActionDateError, setNextActionDateError] = useState('');
+  
+  // Inline edit states
+  const [editingPhone, setEditingPhone] = useState(false);
+  const [phoneValue, setPhoneValue] = useState('');
+  const [phoneError, setPhoneError] = useState('');
+  const [savingPhone, setSavingPhone] = useState(false);
+  
+  const [editingPayment, setEditingPayment] = useState(false);
+  const [paymentValue, setPaymentValue] = useState('');
+  const [paymentError, setPaymentError] = useState('');
+  const [savingPayment, setSavingPayment] = useState(false);
+
+  const queryClient = useQueryClient();
 
   const { data: statuses = [] } = useQuery({
     queryKey: ['statuses'],
@@ -37,6 +51,10 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     setEditedRecord(record);
     setLastContactDateError('');
     setNextActionDateError('');
+    setEditingPhone(false);
+    setEditingPayment(false);
+    setPhoneError('');
+    setPaymentError('');
   }, [record]);
 
   if (!record) return null;
@@ -94,6 +112,88 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     setIsSaving(false);
   };
 
+  const validatePhone = (phone) => {
+    if (!phone || phone.trim() === '') return 'נא להזין מספר טלפון';
+    const cleaned = phone.replace(/\D/g, '');
+    if (cleaned.length < 7 || cleaned.length > 15) {
+      return 'מספר טלפון לא תקין';
+    }
+    return '';
+  };
+
+  const validatePayment = (payment) => {
+    const num = parseFloat(payment);
+    if (isNaN(num) || num < 0) {
+      return 'תשלום חודשי חייב להיות מספר תקין';
+    }
+    return '';
+  };
+
+  const handleEditPhone = () => {
+    setPhoneValue(editedRecord?.phonePrimary || '');
+    setPhoneError('');
+    setEditingPhone(true);
+  };
+
+  const handleCancelPhone = () => {
+    setEditingPhone(false);
+    setPhoneError('');
+  };
+
+  const handleSavePhone = async () => {
+    const error = validatePhone(phoneValue);
+    if (error) {
+      setPhoneError(error);
+      return;
+    }
+
+    setSavingPhone(true);
+    try {
+      await base44.entities.DebtorRecord.update(record.id, { phonePrimary: phoneValue });
+      setEditedRecord({ ...editedRecord, phonePrimary: phoneValue });
+      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+      toast.success('טלפון עודכן בהצלחה');
+      setEditingPhone(false);
+    } catch (err) {
+      toast.error('שגיאה בעדכון, נסה שוב');
+    } finally {
+      setSavingPhone(false);
+    }
+  };
+
+  const handleEditPayment = () => {
+    setPaymentValue(editedRecord?.monthlyPayment?.toString() || '0');
+    setPaymentError('');
+    setEditingPayment(true);
+  };
+
+  const handleCancelPayment = () => {
+    setEditingPayment(false);
+    setPaymentError('');
+  };
+
+  const handleSavePayment = async () => {
+    const error = validatePayment(paymentValue);
+    if (error) {
+      setPaymentError(error);
+      return;
+    }
+
+    setSavingPayment(true);
+    try {
+      const numValue = parseFloat(paymentValue);
+      await base44.entities.DebtorRecord.update(record.id, { monthlyPayment: numValue });
+      setEditedRecord({ ...editedRecord, monthlyPayment: numValue });
+      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+      toast.success('תשלום חודשי עודכן בהצלחה');
+      setEditingPayment(false);
+    } catch (err) {
+      toast.error('שגיאה בעדכון, נסה שוב');
+    } finally {
+      setSavingPayment(false);
+    }
+  };
+
   const InfoRow = ({ icon: Icon, label, value }) => (
     <div className="flex items-start gap-3 md:gap-4 py-2 md:py-3" dir="rtl">
       <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-slate-100 flex items-center justify-center">
@@ -102,6 +202,80 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       <div className="flex-1 text-right">
         <p className="text-xs text-slate-500 font-semibold mb-1">{label}</p>
         <p className="text-sm md:text-base font-bold text-slate-800 break-words">{value || '-'}</p>
+      </div>
+    </div>
+  );
+
+  const EditableInfoRow = ({ icon: Icon, label, value, isEditing, editValue, onEdit, onCancel, onSave, onChange, error, saving, formatDisplay }) => (
+    <div className="flex items-start gap-3 md:gap-4 py-2 md:py-3" dir="rtl">
+      <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-slate-100 flex items-center justify-center">
+        <Icon className="w-4 h-4 md:w-5 md:h-5 text-slate-600" />
+      </div>
+      <div className="flex-1 text-right">
+        <p className="text-xs text-slate-500 font-semibold mb-1">{label}</p>
+        {!isEditing ? (
+          <div className="flex items-center gap-2 justify-end">
+            <p className="text-sm md:text-base font-bold text-slate-800 break-words">
+              {formatDisplay ? formatDisplay(value) : (value || '-')}
+            </p>
+            {isAdmin && (
+              <button
+                onClick={onEdit}
+                className="p-1 hover:bg-slate-200 rounded transition-colors"
+                title="ערוך"
+              >
+                <Pencil className="w-4 h-4 text-slate-600" />
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-2">
+            <Input
+              type="text"
+              value={editValue}
+              onChange={(e) => onChange(e.target.value)}
+              className="h-10 rounded-lg text-right"
+              dir="rtl"
+              disabled={saving}
+            />
+            {error && (
+              <p className="text-xs text-red-600 font-semibold text-right flex items-center gap-1">
+                <AlertTriangle className="w-3 h-3" />
+                {error}
+              </p>
+            )}
+            <div className="flex gap-2 justify-end">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={onCancel}
+                disabled={saving}
+                className="h-8 px-3 rounded-lg"
+              >
+                <X className="w-3 h-3 ml-1" />
+                ביטול
+              </Button>
+              <Button
+                size="sm"
+                onClick={onSave}
+                disabled={saving}
+                className="h-8 px-3 rounded-lg bg-blue-600 hover:bg-blue-700"
+              >
+                {saving ? (
+                  <span className="flex items-center gap-1">
+                    <span className="animate-spin">⏳</span>
+                    שומר...
+                  </span>
+                ) : (
+                  <>
+                    <Check className="w-3 h-3 ml-1" />
+                    שמור
+                  </>
+                )}
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -140,13 +314,26 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             <div className="space-y-2 bg-slate-50/50 rounded-2xl p-4 md:p-6">
               <h3 className="font-bold text-slate-800 pb-2 md:pb-3 border-b-2 border-blue-200 text-right flex items-center gap-2 text-sm md:text-base">
                 <Home className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
-                פרטי דירה
+                פרטים עיקריים
               </h3>
               <InfoRow icon={Home} label="מספר דירה" value={editedRecord?.apartmentNumber} />
               <InfoRow icon={User} label="בעל דירה" value={editedRecord?.ownerName || 'לא צוין'} />
               <InfoRow icon={Phone} label="טלפון בעלים" value={formatPhone(editedRecord?.phoneOwner)} />
               <InfoRow icon={Phone} label="טלפון שוכר" value={formatPhone(editedRecord?.phoneTenant)} />
-              <InfoRow icon={Phone} label="טלפון להצגה" value={formatPhone(editedRecord?.phonePrimary)} />
+              <EditableInfoRow
+                icon={Phone}
+                label="טלפון להצגה"
+                value={editedRecord?.phonePrimary}
+                isEditing={editingPhone}
+                editValue={phoneValue}
+                onEdit={handleEditPhone}
+                onCancel={handleCancelPhone}
+                onSave={handleSavePhone}
+                onChange={setPhoneValue}
+                error={phoneError}
+                saving={savingPhone}
+                formatDisplay={formatPhone}
+              />
             </div>
             
             <div className="space-y-2 bg-slate-50/50 rounded-2xl p-4 md:p-6">
@@ -155,7 +342,20 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 מידע נוסף
               </h3>
               <InfoRow icon={Calendar} label="חודשי פיגור" value={editedRecord?.monthsInArrears || 0} />
-              <InfoRow icon={Wallet} label="תשלום חודשי" value={formatCurrency(editedRecord?.monthlyPayment)} />
+              <EditableInfoRow
+                icon={Wallet}
+                label="תשלום חודשי"
+                value={editedRecord?.monthlyPayment}
+                isEditing={editingPayment}
+                editValue={paymentValue}
+                onEdit={handleEditPayment}
+                onCancel={handleCancelPayment}
+                onSave={handleSavePayment}
+                onChange={setPaymentValue}
+                error={paymentError}
+                saving={savingPayment}
+                formatDisplay={formatCurrency}
+              />
             </div>
           </div>
 
@@ -231,18 +431,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                     ))}
                   </SelectContent>
                 </Select>
-              </div>
-
-              <div className="text-right">
-                <Label className="text-sm font-bold text-slate-700 mb-2 block">חודשי פיגור</Label>
-                <Input 
-                  type="number" 
-                  min="0"
-                  value={editedRecord?.monthsInArrears || 0} 
-                  onChange={(e) => setEditedRecord({...editedRecord, monthsInArrears: parseInt(e.target.value) || 0})}
-                  className="mt-2 h-12 rounded-xl text-right"
-                  dir="rtl"
-                />
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
