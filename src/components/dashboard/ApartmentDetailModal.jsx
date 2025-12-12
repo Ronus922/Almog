@@ -569,13 +569,17 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               <div className="text-right">
                 <Label className="text-sm font-bold text-slate-700 mb-2 block">סטטוס משפטי</Label>
                 <Select 
-                  value={editedRecord?.legal_status_id || ''} 
-                  onValueChange={(v) => setEditedRecord({...editedRecord, legal_status_id: v || defaultStatus?.id, legal_status_overridden: true})}
+                  value={editedRecord?.legal_status_id || defaultStatus?.id || ''} 
+                  onValueChange={(v) => {
+                    console.log('Selected status ID:', v, typeof v);
+                    setEditedRecord({...editedRecord, legal_status_id: v, legal_status_overridden: true});
+                  }}
+                  disabled={!editedRecord || activeLegalStatuses.length === 0}
                 >
                   <SelectTrigger className="mt-2 h-12 rounded-xl text-right">
-                    <SelectValue placeholder="בחר סטטוס משפטי" />
+                    <SelectValue placeholder={activeLegalStatuses.length === 0 ? "אין סטטוסים זמינים" : "בחר סטטוס משפטי"} />
                   </SelectTrigger>
-                  <SelectContent className="rounded-xl">
+                  <SelectContent className="rounded-xl z-[9999]" position="popper">
                     {currentStatus && !currentStatus.is_active && (
                       <SelectItem key={currentStatus.id} value={currentStatus.id}>
                         {currentStatus.name} (לא פעיל)
