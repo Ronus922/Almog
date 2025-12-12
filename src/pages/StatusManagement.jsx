@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Edit, Trash2, Loader2, Save, X } from "lucide-react";
+import { Plus, Edit, Trash2, Shield, Loader2, Save, X } from "lucide-react";
 import { toast } from "sonner";
 
 const COLOR_OPTIONS = [
