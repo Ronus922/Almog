@@ -342,20 +342,27 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   };
 
   const handleLegalStatusChange = async (newStatusId) => {
-    console.log('Changing legal status to:', newStatusId, typeof newStatusId);
+    console.log('[DEBUG] Changing legal status:', {
+      recordId: record.id,
+      apartmentNumber: record.apartmentNumber,
+      newStatusId,
+      newStatusIdType: typeof newStatusId,
+      oldStatusId: editedRecord.legal_status_id
+    });
     
-    // עדכון מיידי ב-UI (Optimistic)
+    // שמירת ערך ישן לשחזור במקרה של כשל
     const oldStatusId = editedRecord.legal_status_id;
     const newStatus = legalStatuses.find(s => s.id === newStatusId);
     const oldStatus = legalStatuses.find(s => s.id === oldStatusId);
     
-    setEditedRecord({
-      ...editedRecord, 
+    // עדכון מיידי ב-UI (Optimistic)
+    setEditedRecord(prev => ({
+      ...prev, 
       legal_status_id: newStatusId,
       legal_status_overridden: true,
       legal_status_lock: true,
       legal_status_source: 'MANUAL'
-    });
+    }));
     
     setSavingStatus(true);
     setStatusSaveSuccess(false);
@@ -364,21 +371,27 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       const currentUser = await base44.auth.me();
       const now = new Date().toISOString();
       
-      // עדכון הרשומה עם audit fields
-      await base44.entities.DebtorRecord.update(record.id, {
+      const updatePayload = {
         legal_status_id: newStatusId,
         legal_status_overridden: true,
         legal_status_lock: true,
         legal_status_source: 'MANUAL',
         legal_status_updated_at: now,
         legal_status_updated_by: currentUser.email || currentUser.username
-      });
+      };
+
+      console.log('[DEBUG] Update payload:', updatePayload);
+      
+      // עדכון הרשומה עם audit fields
+      const updatedRecord = await base44.entities.DebtorRecord.update(record.id, updatePayload);
+      
+      console.log('[DEBUG] Server response:', updatedRecord);
 
       // יצירת רשומת היסטוריה
       await base44.entities.LegalStatusHistory.create({
         debtor_record_id: record.id,
         apartment_number: record.apartmentNumber,
-        old_status_id: oldStatusId,
+        old_status_id: oldStatusId || null,
         old_status_name: oldStatus?.name || 'לא הוגדר',
         new_status_id: newStatusId,
         new_status_name: newStatus?.name || '',
@@ -387,30 +400,41 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         source: 'MANUAL'
       });
 
-      // עדכון ה-state עם ה-audit fields
-      setEditedRecord({
-        ...editedRecord,
-        legal_status_id: newStatusId,
+      // עדכון ה-state עם התשובה מהשרת
+      setEditedRecord(prev => ({
+        ...prev,
+        legal_status_id: updatedRecord?.legal_status_id || newStatusId,
         legal_status_overridden: true,
         legal_status_lock: true,
         legal_status_source: 'MANUAL',
-        legal_status_updated_at: now,
-        legal_status_updated_by: currentUser.email || currentUser.username
-      });
+        legal_status_updated_at: updatedRecord?.legal_status_updated_at || now,
+        legal_status_updated_by: updatedRecord?.legal_status_updated_by || (currentUser.email || currentUser.username)
+      }));
 
-      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+      // רענון cache
+      await queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+      
       setStatusSaveSuccess(true);
       toast.success('סטטוס משפטי עודכן בהצלחה ✓');
       
+      console.log('[DEBUG] Status change completed successfully');
+      
       setTimeout(() => setStatusSaveSuccess(false), 3000);
     } catch (err) {
-      console.error('Failed to save legal status:', err);
-      // החזרה לערך הקודם בכשל
-      setEditedRecord({
-        ...editedRecord,
-        legal_status_id: oldStatusId
+      console.error('[ERROR] Failed to save legal status:', err);
+      console.error('[ERROR] Error details:', {
+        message: err.message,
+        response: err.response,
+        stack: err.stack
       });
-      toast.error('שמירת הסטטוס נכשלה. אנא נסה שוב.');
+      
+      // החזרה לערך הקודם בכשל
+      setEditedRecord(prev => ({
+        ...prev,
+        legal_status_id: oldStatusId
+      }));
+      
+      toast.error('שמירת הסטטוס נכשלה: ' + (err.message || 'שגיאה לא ידועה'));
     } finally {
       setSavingStatus(false);
     }
