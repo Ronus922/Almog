@@ -65,7 +65,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   const [savingPayment, setSavingPayment] = useState(false);
 
   const [savingStatus, setSavingStatus] = useState(false);
-  const [statusSaveSuccess, setStatusSaveSuccess] = useState(false);
 
   const queryClient = useQueryClient();
 
@@ -352,7 +351,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     const oldStatus = legalStatuses.find(s => s.id === oldStatusId);
     
     setSavingStatus(true);
-    setStatusSaveSuccess(false);
     
     try {
       const currentUser = await base44.auth.me();
@@ -433,21 +431,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         return old.map(r => r.id === record.id ? { ...r, ...updatedRecord } : r);
       });
       
-      setStatusSaveSuccess(true);
-      
-      const userName = currentUser.email || currentUser.username;
-      const dateStr = new Date(now).toLocaleDateString('he-IL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-      
-      toast.success(
-        'סטטוס עודכן בהצלחה',
-        {
-          description: `עודכן ל־${newStatus?.name} · ${dateStr} · ע״י ${userName}`
-        }
-      );
-      
       console.log('[SUCCESS] Manual status change completed');
-      
-      setTimeout(() => setStatusSaveSuccess(false), 3000);
     } catch (err) {
       console.error('[ERROR] Failed to save:', err);
       
@@ -458,12 +442,10 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       
       if (errorMessage.includes('lock') || errorMessage.includes('protected')) {
         toast.error('שינוי סטטוס חסום', {
-          description: 'הסטטוס מוגן משינויים. רק משתמש מורשה יכול לעדכן אותו.'
+          description: 'הסטטוס מוגן משינויים.'
         });
       } else {
-        toast.error('שמירת הסטטוס נכשלה', {
-          description: 'לא ניתן לשמור את השינוי. נסה שוב.'
-        });
+        toast.error('שמירה נכשלה – נסה שוב');
       }
     } finally {
       setSavingStatus(false);
@@ -732,9 +714,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                         </Badge>
                         {savingStatus && (
                           <span className="text-xs text-blue-600 font-semibold animate-pulse">שומר...</span>
-                        )}
-                        {statusSaveSuccess && (
-                          <span className="text-xs text-green-600 font-semibold">✓ נשמר</span>
                         )}
                       </div>
                     );
