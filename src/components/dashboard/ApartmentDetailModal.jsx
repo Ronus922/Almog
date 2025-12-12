@@ -12,9 +12,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Home, Phone, Wallet, Calendar, FileText, Scale, 
-  Save, X, AlertTriangle
+  Save, X, AlertTriangle, Lock, User
 } from "lucide-react";
 
 const STATUS_COLORS = {
@@ -57,22 +58,43 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
-            <Home className="w-5 h-5 text-slate-600" />
-            <span>דירה {record.apartmentNumber}</span>
-            <Badge className={STATUS_COLORS[record.status]}>{record.status}</Badge>
+          <DialogTitle className="text-xl flex items-center justify-between">
+            <span>פרטי דירה {editedRecord?.apartmentNumber}</span>
+            {!isAdmin && (
+              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200">
+                <Lock className="w-3 h-3 ml-1" />
+                מצב צפייה
+              </Badge>
+            )}
           </DialogTitle>
         </DialogHeader>
+        
+        {!isAdmin && (
+          <Alert className="bg-blue-50 border-blue-200">
+            <Lock className="w-4 h-4 text-blue-600" />
+            <AlertDescription className="text-blue-700">
+              אתה מחובר כצופה - לא ניתן לערוך נתונים
+            </AlertDescription>
+          </Alert>
+        )}
 
         <div className="space-y-6 py-4">
           {/* פרטים כלליים */}
-          <div className="grid grid-cols-2 gap-4">
-            <InfoRow icon={Home} label="בעלים" value={record.ownerName} />
-            <InfoRow icon={Home} label="שוכר" value={record.tenantName} />
-            <InfoRow icon={Phone} label="טלפונים" value={record.phones} />
-            <InfoRow icon={Calendar} label="חודשי פיגור" value={record.monthsInArrears} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-4">
+              <h3 className="font-semibold text-slate-700 pb-2 border-b">פרטי דירה</h3>
+              <InfoRow icon={Home} label="מספר דירה" value={editedRecord?.apartmentNumber} />
+              <InfoRow icon={User} label="בעל דירה" value={editedRecord?.ownerName || 'לא צוין'} />
+              <InfoRow icon={Phone} label="טלפונים" value={editedRecord?.phones || 'לא צוין'} />
+            </div>
+            
+            <div className="space-y-4">
+              <h3 className="font-semibold text-slate-700 pb-2 border-b">מידע נוסף</h3>
+              <InfoRow icon={Calendar} label="חודשי פיגור" value={editedRecord?.monthsInArrears || 0} />
+              <InfoRow icon={Wallet} label="תשלום חודשי" value={formatCurrency(editedRecord?.monthlyPayment)} />
+            </div>
           </div>
 
           <Separator />

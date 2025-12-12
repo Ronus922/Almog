@@ -52,7 +52,6 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
       result = result.filter(r => 
         r.apartmentNumber?.toLowerCase().includes(s) ||
         r.ownerName?.toLowerCase().includes(s) ||
-        r.tenantName?.toLowerCase().includes(s) ||
         r.phones?.toLowerCase().includes(s)
       );
     }
