@@ -256,20 +256,20 @@ export default function StatusManagement() {
                         )}
                       </TableCell>
                       <TableCell>
-                        <div className="flex gap-2">
-                          <Button variant="outline" size="sm" onClick={() => handleEdit(status)}>
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          {!status.is_system && (
+                        <div className="flex gap-2 justify-start">
+                          {!status.is_system && usageCount === 0 && (
                             <Button 
                               variant="outline" 
                               size="sm" 
                               onClick={() => handleDelete(status)}
-                              className="text-red-600 hover:text-red-700"
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           )}
+                          <Button variant="outline" size="sm" onClick={() => handleEdit(status)}>
+                            <Edit className="w-4 h-4" />
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
