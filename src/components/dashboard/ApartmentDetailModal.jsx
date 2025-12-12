@@ -22,12 +22,6 @@ import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
 export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin }) {
-  const { data: legalStatuses = [] } = useQuery({
-    queryKey: ['legalStatuses'],
-    queryFn: () => base44.entities.LegalStatus.list('order'),
-  });
-
-  const activeLegalStatuses = legalStatuses.filter(s => s.is_active);
   const [editedRecord, setEditedRecord] = useState(record);
   const [isSaving, setIsSaving] = useState(false);
   const [lastContactDateError, setLastContactDateError] = useState('');
@@ -60,6 +54,13 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   const [savingPayment, setSavingPayment] = useState(false);
 
   const queryClient = useQueryClient();
+
+  const { data: legalStatuses = [] } = useQuery({
+    queryKey: ['legalStatuses'],
+    queryFn: () => base44.entities.LegalStatus.list('order'),
+  });
+
+  const activeLegalStatuses = legalStatuses.filter(s => s.is_active);
 
   React.useEffect(() => {
     setEditedRecord(record);

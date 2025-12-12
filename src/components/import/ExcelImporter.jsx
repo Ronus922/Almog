@@ -499,8 +499,8 @@ export default function ExcelImporter({ onImportComplete }) {
             updateData.notes = existing.notes;
             updateData.lastContactDate = existing.lastContactDate;
             updateData.nextActionDate = existing.nextActionDate;
-            // CRITICAL: Never update legal_status_manual from import
-            updateData.legal_status_manual = existing.legal_status_manual;
+            // CRITICAL: Never update legal_status_id from import
+            updateData.legal_status_id = existing.legal_status_id;
             
             await base44.entities.DebtorRecord.update(existing.id, updateData);
             updated++;
