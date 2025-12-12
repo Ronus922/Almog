@@ -665,11 +665,8 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
                     </TableCell>
                     <TableCell className="text-slate-700 text-base py-5 px-6 align-middle">{record.ownerName || '-'}</TableCell>
                     <TableCell className="text-base font-medium text-slate-600 py-5 px-6 align-middle text-right" dir="rtl">{formatPhone(record.phonePrimary)}</TableCell>
-                    <TableCell className="py-5 px-6 align-middle">
-                      <div className="flex flex-col items-center gap-1">
-                        <span className="font-bold text-lg text-rose-600">{formatCurrency(record.totalDebt)}</span>
-                        <DebtSeverityBadge debt={record.totalDebt} settings={settings} />
-                      </div>
+                    <TableCell className="font-bold text-lg text-rose-600 py-5 px-6 align-middle text-center">
+                      {formatCurrency(record.totalDebt)}
                     </TableCell>
                     <TableCell className="text-amber-600 font-semibold text-base py-5 px-6 align-middle text-center">{formatCurrency(record.monthlyDebt)}</TableCell>
                     <TableCell className="text-purple-600 font-semibold text-base py-5 px-6 align-middle text-center">{formatCurrency(record.specialDebt)}</TableCell>
@@ -678,6 +675,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
                         <Badge variant="outline" className={`${STATUS_COLORS[record.status] || 'bg-slate-100 text-slate-700'} font-semibold text-sm`}>
                           {record.status || 'סדיר'}
                         </Badge>
+                        <DebtSeverityBadge debt={record.totalDebt} settings={settings} />
                         {record.debt_state && (
                           <Badge variant="outline" className={`text-xs ${record.debt_state === 'ללא חוב' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-slate-100 text-slate-600'}`}>
                             {record.debt_state}
