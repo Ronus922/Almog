@@ -10,6 +10,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import KPICards from '../components/dashboard/KPICards';
 import DebtorsTable from '../components/dashboard/DebtorsTable';
 import ApartmentDetailModal from '../components/dashboard/ApartmentDetailModal';
+import ExcelExporter from '../components/export/ExcelExporter';
+import PDFExporter from '../components/export/PDFExporter';
 
 function DashboardContent() {
   const { currentUser } = useAuth();
@@ -35,6 +37,11 @@ function DashboardContent() {
   const { data: settingsList = [], isLoading: settingsLoading } = useQuery({
     queryKey: ['settings'],
     queryFn: () => base44.entities.Settings.list(),
+  });
+
+  const { data: legalStatuses = [] } = useQuery({
+    queryKey: ['legalStatuses'],
+    queryFn: () => base44.entities.LegalStatus.list('order'),
   });
 
   const settings = settingsList[0] || { highDebtThreshold: 1000, monthsBeforeLawsuit: 3 };
@@ -133,8 +140,14 @@ function DashboardContent() {
               <span className="hidden sm:inline">רענן נתונים</span>
               <span className="sm:hidden">רענן</span>
             </Button>
-          </div>
-        </div>
+            {isAdmin && (
+              <>
+                <ExcelExporter records={records} legalStatuses={legalStatuses} />
+                <PDFExporter records={records} legalStatuses={legalStatuses} settings={settings} />
+              </>
+            )}
+            </div>
+            </div>
 
         {/* כרטיסי KPI */}
         <KPICards records={records} settings={settings} />

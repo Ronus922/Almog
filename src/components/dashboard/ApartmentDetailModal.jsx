@@ -55,12 +55,12 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
   const queryClient = useQueryClient();
 
-  const { data: statuses = [] } = useQuery({
-    queryKey: ['statuses'],
-    queryFn: () => base44.entities.Status.list('order'),
+  const { data: legalStatuses = [] } = useQuery({
+    queryKey: ['legalStatuses'],
+    queryFn: () => base44.entities.LegalStatus.list('order'),
   });
 
-  const activeStatuses = statuses.filter(s => s.is_active);
+  const activeLegalStatuses = legalStatuses.filter(s => s.is_active);
 
   React.useEffect(() => {
     setEditedRecord(record);
@@ -580,18 +580,19 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               </h3>
 
               <div className="text-right">
-                <Label className="text-sm font-bold text-slate-700 mb-2 block">סטטוס</Label>
+                <Label className="text-sm font-bold text-slate-700 mb-2 block">מצב משפטי</Label>
                 <Select 
-                  value={editedRecord?.status || ''} 
-                  onValueChange={(v) => setEditedRecord({...editedRecord, status: v})}
+                  value={editedRecord?.legal_status_manual_id || 'none'} 
+                  onValueChange={(v) => setEditedRecord({...editedRecord, legal_status_manual_id: v === 'none' ? null : v})}
                   dir="rtl"
                 >
                   <SelectTrigger className="mt-2 h-12 rounded-xl text-right" dir="rtl">
-                    <SelectValue placeholder="בחר סטטוס..." />
+                    <SelectValue placeholder="בחר מצב משפטי..." />
                   </SelectTrigger>
                   <SelectContent dir="rtl" className="rounded-xl">
-                    {activeStatuses.map(status => (
-                      <SelectItem key={status.id} value={status.name}>
+                    <SelectItem value="none">ללא מצב משפטי</SelectItem>
+                    {activeLegalStatuses.map(status => (
+                      <SelectItem key={status.id} value={status.id}>
                         {status.name}
                       </SelectItem>
                     ))}
