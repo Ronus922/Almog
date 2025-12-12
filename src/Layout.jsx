@@ -198,6 +198,18 @@ function LayoutContent({ children, currentPageName }) {
 export default function Layout({ children, currentPageName }) {
   return (
     <AuthProvider>
+      <style>{`
+        * {
+          font-family: 'Segoe UI', 'Roboto', 'Helvetica Neue', -apple-system, Arial, sans-serif !important;
+          letter-spacing: -0.01em;
+        }
+        html {
+          font-size: 17px;
+        }
+        body {
+          font-weight: 400;
+        }
+      `}</style>
       <LayoutContent children={children} currentPageName={currentPageName} />
     </AuthProvider>
   );
