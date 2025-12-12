@@ -59,7 +59,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
     if (!ownerName) return '-';
     const isTenant = ownerName.includes('/') || ownerName.includes(',');
     const mainName = ownerName.split(/[\/,]/)[0]?.trim() || ownerName;
-    return isTenant ? `${mainName} (שוכר)` : mainName;
+    return isTenant ? mainName + ' )שוכר(' : mainName;
   };
 
   const filteredRecords = useMemo(() => {
