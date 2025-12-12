@@ -8,8 +8,9 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Settings, Building2, Scale, Webhook, Save, 
-  Loader2, CheckCircle2, AlertTriangle
+  Loader2, CheckCircle2, AlertTriangle, Tag
 } from "lucide-react";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { base44 } from '@/api/base44Client';
 
 export default function SettingsPanel() {
@@ -17,6 +18,12 @@ export default function SettingsPanel() {
     highDebtThreshold: 1000,
     lawsuitDebtThreshold: 5000,
     monthsBeforeLawsuit: 3,
+    low_threshold: 1500,
+    mid_threshold: 5000,
+    label_low: '',
+    label_mid: 'חוב משמעותי',
+    label_high: 'לטיפול משפטי',
+    status_update_policy: 'manual',
     makeEnabled: false,
     makeWebhookStatusChangeUrl: '',
     makeWebhookNewLawsuitCandidateUrl: '',
@@ -145,6 +152,124 @@ export default function SettingsPanel() {
               onChange={(e) => setSettings({...settings, monthsBeforeLawsuit: parseInt(e.target.value) || 0})}
               className="mt-1 max-w-32"
             />
+          </div>
+
+          <Separator className="my-4" />
+
+          {/* ספי צביעת חוב */}
+          <div className="space-y-4 pt-2">
+            <div className="flex items-center gap-2">
+              <Tag className="w-4 h-4 text-slate-600" />
+              <Label className="text-base font-semibold">ספי צביעת חוב (תיוג חזותי)</Label>
+            </div>
+            <p className="text-xs text-slate-500 -mt-2">
+              ספים אלו משמשים לתצוגה חזותית בטבלה בלבד, ולא משנים סטטוס ידני
+            </p>
+            
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label>סף חוב נמוך (ירוק) - עד</Label>
+                <Input
+                  type="number"
+                  value={settings.low_threshold || 0}
+                  onChange={(e) => setSettings({...settings, low_threshold: parseFloat(e.target.value) || 0})}
+                  className="mt-1"
+                />
+                <p className="text-xs text-slate-500 mt-1">תצוגה בירוק עד סכום זה</p>
+              </div>
+              <div>
+                <Label>סף חוב בינוני (כתום) - מ־</Label>
+                <Input
+                  type="number"
+                  value={settings.mid_threshold || 0}
+                  onChange={(e) => setSettings({...settings, mid_threshold: parseFloat(e.target.value) || 0})}
+                  className="mt-1"
+                />
+                <p className="text-xs text-slate-500 mt-1">כתום מסף נמוך, אדום מסף זה</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-3 gap-4">
+              <div>
+                <Label>תווית ירוק (אופציונלי)</Label>
+                <Input
+                  value={settings.label_low || ''}
+                  onChange={(e) => setSettings({...settings, label_low: e.target.value})}
+                  placeholder="תקין / ריק"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label>תווית כתום</Label>
+                <Input
+                  value={settings.label_mid || ''}
+                  onChange={(e) => setSettings({...settings, label_mid: e.target.value})}
+                  placeholder="חוב משמעותי"
+                  className="mt-1"
+                />
+              </div>
+              <div>
+                <Label>תווית אדום</Label>
+                <Input
+                  value={settings.label_high || ''}
+                  onChange={(e) => setSettings({...settings, label_high: e.target.value})}
+                  placeholder="לטיפול משפטי"
+                  className="mt-1"
+                />
+              </div>
+            </div>
+          </div>
+
+          <Separator className="my-4" />
+
+          {/* מדיניות עדכון סטטוס */}
+          <div className="space-y-3 pt-2">
+            <Label className="text-base font-semibold">מדיניות עדכון סטטוס בייבוא</Label>
+            <p className="text-xs text-slate-500 -mt-1">
+              מה קורה כאשר חוב=0 בייבוא אך סטטוס ידני הוא "חייב"?
+            </p>
+            
+            <RadioGroup 
+              value={settings.status_update_policy || 'manual'} 
+              onValueChange={(value) => setSettings({...settings, status_update_policy: value})}
+              className="space-y-3"
+            >
+              <div className="flex items-start gap-3 p-3 rounded-lg border-2 border-blue-200 bg-blue-50">
+                <RadioGroupItem value="manual" id="manual" className="mt-0.5" />
+                <div className="flex-1">
+                  <Label htmlFor="manual" className="cursor-pointer font-semibold text-blue-900">
+                    לא לעדכן סטטוס אוטומטית (מומלץ)
+                  </Label>
+                  <p className="text-xs text-blue-700 mt-1">
+                    סטטוס יישאר ידני. המערכת תסמן פער ותאפשר עדכון ידני.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 p-3 rounded-lg border border-slate-200">
+                <RadioGroupItem value="recommendations" id="recommendations" className="mt-0.5" />
+                <div className="flex-1">
+                  <Label htmlFor="recommendations" className="cursor-pointer font-semibold">
+                    הצג רשימת המלצות לאישור
+                  </Label>
+                  <p className="text-xs text-slate-500 mt-1">
+                    לאחר ייבוא - הצג רשימת חייבים עם פער ואפשר אישור מרוכז.
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 p-3 rounded-lg border border-slate-200">
+                <RadioGroupItem value="auto" id="auto" className="mt-0.5" />
+                <div className="flex-1">
+                  <Label htmlFor="auto" className="cursor-pointer font-semibold">
+                    עדכן אוטומטית ל"סדיר" כשחוב=0
+                  </Label>
+                  <p className="text-xs text-slate-500 mt-1">
+                    רק אם סטטוס לא נעול וחוב אכן 0.
+                  </p>
+                </div>
+              </div>
+            </RadioGroup>
           </div>
         </CardContent>
       </Card>

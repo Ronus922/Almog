@@ -109,6 +109,7 @@ function DashboardContent() {
           records={records} 
           onRowClick={handleRowClick}
           isAdmin={isAdmin}
+          settings={settings}
         />
 
         {/* מודל פרטי דירה */}

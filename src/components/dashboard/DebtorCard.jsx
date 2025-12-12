@@ -12,7 +12,9 @@ const STATUS_COLORS = {
   'בהסדר': 'bg-blue-100 text-blue-700 border-blue-200'
 };
 
-export default function DebtorCard({ record, onClick }) {
+import DebtSeverityBadge, { getDebtSeverityColor } from './DebtSeverityBadge';
+
+export default function DebtorCard({ record, onClick, settings }) {
   const formatCurrency = (num) => 
     new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num || 0);
 

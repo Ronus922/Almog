@@ -22,6 +22,7 @@ import {
 import { Search, Filter, ArrowUpDown, Eye, ChevronLeft, ChevronRight, X, SlidersHorizontal } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import DebtorCard from './DebtorCard';
+import DebtSeverityBadge, { getDebtSeverityColor } from './DebtSeverityBadge';
 
 const STATUS_COLORS = {
   'סדיר': 'bg-green-100 text-green-700 border-green-200',
@@ -32,7 +33,7 @@ const STATUS_COLORS = {
   'בהסדר': 'bg-blue-100 text-blue-700 border-blue-200'
 };
 
-export default function DebtorsTable({ records, onRowClick, isAdmin }) {
+export default function DebtorsTable({ records, onRowClick, isAdmin, settings }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [debtFilter, setDebtFilter] = useState('all');
@@ -449,7 +450,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
             </div>
           ) : (
             paginatedRecords.map((record) => (
-              <DebtorCard key={record.id} record={record} onClick={onRowClick} />
+              <DebtorCard key={record.id} record={record} onClick={onRowClick} settings={settings} />
             ))
           )}
         </div>
@@ -640,26 +641,53 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
                     </TableCell>
                   </TableRow>
                 ) : (
-                paginatedRecords.map((record, idx) => (
+                paginatedRecords.map((record, idx) => {
+                  const severityColor = getDebtSeverityColor(record.totalDebt, settings);
+                  const borderColor = severityColor === 'green' ? 'border-r-green-500' : 
+                                    severityColor === 'orange' ? 'border-r-orange-500' : 
+                                    'border-r-red-500';
+
+                  return (
                   <TableRow 
                     key={record.id} 
-                    className={`hover:bg-blue-50/50 cursor-pointer transition-all duration-200 border-b border-slate-100 ${idx % 2 === 1 ? 'bg-slate-50/30' : 'bg-white'}`}
+                    className={`hover:bg-blue-50/50 cursor-pointer transition-all duration-200 border-b border-slate-100 border-r-4 ${borderColor} ${idx % 2 === 1 ? 'bg-slate-50/30' : 'bg-white'}`}
                     onClick={() => onRowClick(record)}
                   >
-                    <TableCell className="font-bold text-slate-800 text-base py-5 px-6 align-middle">{record.apartmentNumber}</TableCell>
+                    <TableCell className="font-bold text-slate-800 text-base py-5 px-6 align-middle">
+                      <div className="flex items-center gap-2">
+                        {record.apartmentNumber}
+                        {record.needs_status_review && (
+                          <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs">
+                            בדוק סטטוס
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
                     <TableCell className="text-slate-700 text-base py-5 px-6 align-middle">{record.ownerName || '-'}</TableCell>
                     <TableCell className="text-base font-medium text-slate-600 py-5 px-6 align-middle text-right" dir="rtl">{formatPhone(record.phonePrimary)}</TableCell>
-                    <TableCell className="font-bold text-lg text-rose-600 py-5 px-6 align-middle text-center">{formatCurrency(record.totalDebt)}</TableCell>
+                    <TableCell className="py-5 px-6 align-middle">
+                      <div className="flex flex-col items-center gap-1">
+                        <span className="font-bold text-lg text-rose-600">{formatCurrency(record.totalDebt)}</span>
+                        <DebtSeverityBadge debt={record.totalDebt} settings={settings} />
+                      </div>
+                    </TableCell>
                     <TableCell className="text-amber-600 font-semibold text-base py-5 px-6 align-middle text-center">{formatCurrency(record.monthlyDebt)}</TableCell>
                     <TableCell className="text-purple-600 font-semibold text-base py-5 px-6 align-middle text-center">{formatCurrency(record.specialDebt)}</TableCell>
                     <TableCell className="py-5 px-6 align-middle">
-                      <Badge variant="outline" className={`${STATUS_COLORS[record.status] || 'bg-slate-100 text-slate-700'} font-semibold text-sm`}>
-                        {record.status || 'סדיר'}
-                      </Badge>
+                      <div className="flex flex-col items-center gap-1">
+                        <Badge variant="outline" className={`${STATUS_COLORS[record.status] || 'bg-slate-100 text-slate-700'} font-semibold text-sm`}>
+                          {record.status || 'סדיר'}
+                        </Badge>
+                        {record.debt_state && (
+                          <Badge variant="outline" className={`text-xs ${record.debt_state === 'ללא חוב' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-slate-100 text-slate-600'}`}>
+                            {record.debt_state}
+                          </Badge>
+                        )}
+                      </div>
                     </TableCell>
                     <TableCell className="text-center font-bold text-slate-700 text-base py-5 px-6 align-middle">{record.monthsInArrears || 0}</TableCell>
                   </TableRow>
-                ))
+                )})
                 )}
                 </TableBody>
           </Table>

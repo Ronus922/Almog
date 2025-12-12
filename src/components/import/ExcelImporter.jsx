@@ -495,12 +495,28 @@ export default function ExcelImporter({ onImportComplete }) {
             }
             // else: overwrite mode - use all new values
 
+            // Calculate debt state (always update)
+            const totalDebt = record.totalDebt || 0;
+            updateData.debt_state = totalDebt > 0 ? 'יש חוב' : 'ללא חוב';
+            updateData.debt_amount_current = totalDebt;
+            updateData.debt_last_import_at = new Date().toISOString();
+
+            // Check if needs status review
+            if (updateData.debt_state === 'ללא חוב' && 
+                existing.status && 
+                !['סדיר', 'ללא חוב'].includes(existing.status)) {
+              updateData.needs_status_review = true;
+            } else {
+              updateData.needs_status_review = false;
+            }
+
             // Always preserve these fields (never from import)
             updateData.legalStage = existing.legalStage;
             updateData.notes = existing.notes;
             updateData.lastContactDate = existing.lastContactDate;
             updateData.nextActionDate = existing.nextActionDate;
             updateData.status = existing.status; // CRITICAL: Never update status from import
+            updateData.status_locked = existing.status_locked !== false; // Preserve lock
             
             await base44.entities.DebtorRecord.update(existing.id, updateData);
             updated++;
@@ -509,6 +525,11 @@ export default function ExcelImporter({ onImportComplete }) {
             // New record - calculate status
             record.status = calculateStatus(record, settings);
             record.legalStage = 'אין';
+            record.debt_state = (record.totalDebt || 0) > 0 ? 'יש חוב' : 'ללא חוב';
+            record.debt_amount_current = record.totalDebt || 0;
+            record.debt_last_import_at = new Date().toISOString();
+            record.status_locked = true;
+            record.needs_status_review = false;
             
             await base44.entities.DebtorRecord.create(record);
             created++;
