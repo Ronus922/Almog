@@ -214,11 +214,11 @@ export default function StatusManagement() {
                   <TableHead className="text-right">שם סטטוס</TableHead>
                   <TableHead className="text-right">תיאור</TableHead>
                   <TableHead className="text-right">תצוגה</TableHead>
-                  <TableHead className="text-right">סדר</TableHead>
-                  <TableHead className="text-right">מקושרים</TableHead>
-                  <TableHead className="text-right">פעיל</TableHead>
-                  <TableHead className="text-right">סוג</TableHead>
-                  <TableHead className="text-right">פעולות</TableHead>
+                  <TableHead className="text-center">סדר</TableHead>
+                  <TableHead className="text-center">מקושרים</TableHead>
+                  <TableHead className="text-center">פעיל</TableHead>
+                  <TableHead className="text-center">סוג</TableHead>
+                  <TableHead className="text-left">פעולות</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -231,7 +231,7 @@ export default function StatusManagement() {
                       <TableCell>
                         <Badge className={status.color}>{status.name}</Badge>
                       </TableCell>
-                      <TableCell>{status.order}</TableCell>
+                      <TableCell className="text-center">{status.order}</TableCell>
                       <TableCell className="text-center">
                         <button
                           onClick={() => navigate(createPageUrl('Dashboard') + `?status=${encodeURIComponent(status.name)}`)}
@@ -240,23 +240,25 @@ export default function StatusManagement() {
                           {usageCount}
                         </button>
                       </TableCell>
-                      <TableCell>
+                      <TableCell className="text-center">
                         {status.is_active ? (
                           <Badge className="bg-green-100 text-green-700">פעיל</Badge>
                         ) : (
                           <Badge className="bg-slate-100 text-slate-500">לא פעיל</Badge>
                         )}
                       </TableCell>
-                      <TableCell>
-                        {status.is_system && (
+                      <TableCell className="text-center">
+                        {status.is_system ? (
                           <Badge variant="outline" className="gap-1">
                             <Shield className="w-3 h-3" />
                             מערכת
                           </Badge>
+                        ) : (
+                          <span className="text-slate-400 text-xs">-</span>
                         )}
                       </TableCell>
-                      <TableCell>
-                        <div className="flex gap-2 justify-start">
+                      <TableCell className="text-left">
+                        <div className="flex gap-2">
                           {!status.is_system && usageCount === 0 && (
                             <Button 
                               variant="outline" 
