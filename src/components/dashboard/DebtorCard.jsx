@@ -25,9 +25,14 @@ export default function DebtorCard({ record, onClick, settings }) {
     return phone;
   };
 
+  const severityColor = getDebtSeverityColor(record.totalDebt, settings);
+  const borderColor = severityColor === 'green' ? 'border-r-green-500' : 
+                      severityColor === 'orange' ? 'border-r-orange-500' : 
+                      'border-r-red-500';
+
   return (
     <Card 
-      className="hover:shadow-lg transition-all duration-200 cursor-pointer border-r-4 border-r-blue-500"
+      className={`hover:shadow-lg transition-all duration-200 cursor-pointer border-r-4 ${borderColor}`}
       onClick={() => onClick(record)}
     >
       <CardContent className="p-4">
@@ -36,9 +41,16 @@ export default function DebtorCard({ record, onClick, settings }) {
             <div className="text-xs text-slate-500 font-semibold mb-1">דירה</div>
             <div className="text-2xl font-bold text-slate-800">{record.apartmentNumber}</div>
           </div>
-          <Badge variant="outline" className={`${STATUS_COLORS[record.status] || 'bg-slate-100 text-slate-700'} font-semibold text-xs`}>
-            {record.status || 'סדיר'}
-          </Badge>
+          <div className="flex flex-col items-end gap-1">
+            <Badge variant="outline" className={`${STATUS_COLORS[record.status] || 'bg-slate-100 text-slate-700'} font-semibold text-xs`}>
+              {record.status || 'סדיר'}
+            </Badge>
+            {record.needs_status_review && (
+              <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs">
+                בדוק
+              </Badge>
+            )}
+          </div>
         </div>
 
         <div className="space-y-2 mb-3">
@@ -60,6 +72,9 @@ export default function DebtorCard({ record, onClick, settings }) {
           <div className="text-center">
             <div className="text-xs text-slate-500 mb-1">סה״כ חוב</div>
             <div className="text-sm font-bold text-rose-600">{formatCurrency(record.totalDebt)}</div>
+            <div className="mt-1">
+              <DebtSeverityBadge debt={record.totalDebt} settings={settings} />
+            </div>
           </div>
           <div className="text-center border-x border-slate-200">
             <div className="text-xs text-slate-500 mb-1">חודשי</div>
