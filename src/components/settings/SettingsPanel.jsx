@@ -14,11 +14,9 @@ import { base44 } from '@/api/base44Client';
 
 export default function SettingsPanel() {
   const [settings, setSettings] = useState({
-    highDebtThreshold: 1000,
-    lawsuitDebtThreshold: 5000,
-    monthsBeforeLawsuit: 3,
-    threshold_ok: 1000,
-    threshold_legal: 5000,
+    threshold_ok_max: 1000,
+    threshold_collect_from: 1500,
+    threshold_legal_from: 5000,
     makeEnabled: false,
     makeWebhookStatusChangeUrl: '',
     makeWebhookNewLawsuitCandidateUrl: '',
@@ -55,6 +53,18 @@ export default function SettingsPanel() {
     setError(null);
     setSaveSuccess(false);
 
+    // Validation
+    if (settings.threshold_ok_max >= settings.threshold_collect_from) {
+      setError('סף תקין חייב להיות קטן מסף לגבייה מיידית');
+      setIsSaving(false);
+      return;
+    }
+    if (settings.threshold_collect_from >= settings.threshold_legal_from) {
+      setError('סף לגבייה מיידית חייב להיות קטן מסף טיפול משפטי');
+      setIsSaving(false);
+      return;
+    }
+
     try {
       if (settingsId) {
         await base44.entities.Settings.update(settingsId, settings);
@@ -62,6 +72,16 @@ export default function SettingsPanel() {
         const created = await base44.entities.Settings.create(settings);
         setSettingsId(created.id);
       }
+      
+      // Recalculate all records
+      const records = await base44.entities.DebtorRecord.list();
+      for (const record of records) {
+        const newStatus = calculateDebtStatus(record.totalDebt || 0);
+        if (record.debt_status_auto !== newStatus) {
+          await base44.entities.DebtorRecord.update(record.id, { debt_status_auto: newStatus });
+        }
+      }
+      
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err) {
@@ -69,6 +89,12 @@ export default function SettingsPanel() {
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const calculateDebtStatus = (totalDebt) => {
+    if (totalDebt <= settings.threshold_ok_max) return 'תקין';
+    if (totalDebt > settings.threshold_ok_max && totalDebt < settings.threshold_legal_from) return 'לגבייה מיידית';
+    return 'לטיפול משפטי';
   };
 
   if (isLoading) {
@@ -114,71 +140,43 @@ export default function SettingsPanel() {
         <CardHeader className="pb-4">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
             <Scale className="w-4 h-4 text-slate-600" />
-            הגדרות סטטוס וחוב
+            ספי סטטוס חוב אוטומטי
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
-              <Label>סף חוב משמעותי (₪)</Label>
+              <Label>סף תקין (₪)</Label>
               <Input
                 type="number"
-                value={settings.highDebtThreshold || 0}
-                onChange={(e) => setSettings({...settings, highDebtThreshold: parseFloat(e.target.value) || 0})}
+                value={settings.threshold_ok_max || 0}
+                onChange={(e) => setSettings({...settings, threshold_ok_max: parseFloat(e.target.value) || 0})}
                 className="mt-1"
+                dir="rtl"
               />
-              <p className="text-xs text-slate-500 mt-1">חוב מעל סכום זה ייחשב "משמעותי"</p>
+              <p className="text-xs text-slate-500 mt-1">עד סכום זה הסטטוס: תקין (ירוק)</p>
             </div>
             <div>
-              <Label>סף חוב לתביעה מיידית (₪)</Label>
+              <Label>סף לגבייה מיידית (₪)</Label>
               <Input
                 type="number"
-                value={settings.lawsuitDebtThreshold || 0}
-                onChange={(e) => setSettings({...settings, lawsuitDebtThreshold: parseFloat(e.target.value) || 0})}
+                value={settings.threshold_collect_from || 0}
+                onChange={(e) => setSettings({...settings, threshold_collect_from: parseFloat(e.target.value) || 0})}
                 className="mt-1"
+                dir="rtl"
               />
+              <p className="text-xs text-slate-500 mt-1">מעל סכום זה הסטטוס: לגבייה מיידית (כתום)</p>
             </div>
-          </div>
-          <div>
-            <Label>חודשי פיגור לפני "מועמד לתביעה"</Label>
-            <Input
-              type="number"
-              value={settings.monthsBeforeLawsuit || 0}
-              onChange={(e) => setSettings({...settings, monthsBeforeLawsuit: parseInt(e.target.value) || 0})}
-              className="mt-1 max-w-32"
-            />
-          </div>
-
-          <Separator className="my-4" />
-
-          {/* ספי חישוב אוטומטי */}
-          <div className="space-y-4 pt-2">
-            <Label className="text-base font-semibold">ספי חישוב חוב אוטומטי</Label>
-            <p className="text-xs text-slate-500 -mt-2">
-              ספי החישוב לצביעת חוב אוטומטית: ירוק ≤ threshold_ok, כתום בטווח, אדום ≥ threshold_legal
-            </p>
-            
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label>סף תקין (threshold_ok)</Label>
-                <Input
-                  type="number"
-                  value={settings.threshold_ok || 0}
-                  onChange={(e) => setSettings({...settings, threshold_ok: parseFloat(e.target.value) || 0})}
-                  className="mt-1"
-                />
-                <p className="text-xs text-slate-500 mt-1">חוב עד סכום זה = ירוק</p>
-              </div>
-              <div>
-                <Label>סף משפטי (threshold_legal)</Label>
-                <Input
-                  type="number"
-                  value={settings.threshold_legal || 0}
-                  onChange={(e) => setSettings({...settings, threshold_legal: parseFloat(e.target.value) || 0})}
-                  className="mt-1"
-                />
-                <p className="text-xs text-slate-500 mt-1">חוב מסכום זה = אדום</p>
-              </div>
+            <div>
+              <Label>סף טיפול משפטי (₪)</Label>
+              <Input
+                type="number"
+                value={settings.threshold_legal_from || 0}
+                onChange={(e) => setSettings({...settings, threshold_legal_from: parseFloat(e.target.value) || 0})}
+                className="mt-1"
+                dir="rtl"
+              />
+              <p className="text-xs text-slate-500 mt-1">מעל סכום זה הסטטוס: לטיפול משפטי (אדום)</p>
             </div>
           </div>
         </CardContent>
@@ -253,7 +251,7 @@ export default function SettingsPanel() {
       {saveSuccess && (
         <Alert className="bg-green-50 border-green-200">
           <CheckCircle2 className="w-4 h-4 text-green-600" />
-          <AlertDescription className="text-green-700">ההגדרות נשמרו בהצלחה</AlertDescription>
+          <AlertDescription className="text-green-700">ההגדרות נשמרו והסטטוסים עודכנו בהתאם לספים החדשים</AlertDescription>
         </Alert>
       )}
 

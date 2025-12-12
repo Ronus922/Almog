@@ -385,12 +385,16 @@ export default function ExcelImporter({ onImportComplete }) {
 
       // Fetch settings for threshold calculation
       const settingsList = await base44.entities.Settings.list();
-      const settings = settingsList[0] || { threshold_ok: 1000, threshold_legal: 5000 };
+      const settings = settingsList[0] || { 
+        threshold_ok_max: 1000, 
+        threshold_collect_from: 1500, 
+        threshold_legal_from: 5000 
+      };
 
       // Helper function to calculate debt status
       const calculateDebtStatus = (totalDebt) => {
-        if (!totalDebt || totalDebt <= settings.threshold_ok) return 'סך חוב תקין';
-        if (totalDebt < settings.threshold_legal) return 'חוב משמעותי';
+        if (!totalDebt || totalDebt <= settings.threshold_ok_max) return 'תקין';
+        if (totalDebt > settings.threshold_ok_max && totalDebt < settings.threshold_legal_from) return 'לגבייה מיידית';
         return 'לטיפול משפטי';
       };
 
@@ -495,8 +499,8 @@ export default function ExcelImporter({ onImportComplete }) {
             updateData.notes = existing.notes;
             updateData.lastContactDate = existing.lastContactDate;
             updateData.nextActionDate = existing.nextActionDate;
-            // CRITICAL: Never update legal_status_manual_id from import
-            updateData.legal_status_manual_id = existing.legal_status_manual_id;
+            // CRITICAL: Never update legal_status_manual from import
+            updateData.legal_status_manual = existing.legal_status_manual;
             
             await base44.entities.DebtorRecord.update(existing.id, updateData);
             updated++;
