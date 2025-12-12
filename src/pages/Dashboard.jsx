@@ -52,51 +52,7 @@ function DashboardContent() {
   const settings = settingsList[0] || { highDebtThreshold: 1000, monthsBeforeLawsuit: 3 };
   const isAdmin = currentUser?.role === 'admin';
 
-  // *** AUTO-FIX מושבת זמנית - רק תיקון חד-פעמי בטעינה ראשונית ***
-  const [autoFixRan, setAutoFixRan] = React.useState(false);
-  
-  useEffect(() => {
-    // רק פעם אחת בטעינה ראשונית
-    if (autoFixRan || !records || records.length === 0 || !allStatuses || allStatuses.length === 0) return;
 
-    const fixInvalidStatuses = async () => {
-      const defaultStatus = allStatuses.find(s => s.type === 'LEGAL' && s.is_default === true);
-      if (!defaultStatus) return;
-
-      const validLegalStatusIds = allStatuses
-        .filter(s => s.type === 'LEGAL' && s.is_active)
-        .map(s => s.id);
-
-      // רק רשומות לא נעולות עם סטטוס לא תקין
-      const recordsToFix = records.filter(r => 
-        r.legal_status_lock !== true && 
-        (!r.legal_status_id || !validLegalStatusIds.includes(r.legal_status_id))
-      );
-
-      if (recordsToFix.length > 0) {
-        console.log(`[AUTO-FIX INITIAL] Fixing ${recordsToFix.length} records`);
-        
-        for (const record of recordsToFix) {
-          try {
-            await base44.entities.DebtorRecord.update(record.id, { 
-              legal_status_id: defaultStatus.id,
-              legal_status_overridden: false,
-              legal_status_source: 'AUTO_DEFAULT',
-              legal_status_updated_at: new Date().toISOString()
-            });
-          } catch (err) {
-            console.error(`[AUTO-FIX ERROR] ${record.id}:`, err);
-          }
-        }
-
-        queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
-      }
-      
-      setAutoFixRan(true);
-    };
-
-    fixInvalidStatuses();
-  }, [records, allStatuses, queryClient, autoFixRan]);
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.DebtorRecord.update(id, data),

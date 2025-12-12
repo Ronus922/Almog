@@ -19,13 +19,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X, SlidersHorizontal, AlertCircle } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X, SlidersHorizontal } from "lucide-react";
 import DebtorCard from './DebtorCard';
 
 const STATUS_COLORS = {
@@ -53,12 +47,10 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, a
 
   const legalStatuses = allStatuses.filter(s => s.type === 'LEGAL');
   const activeLegalStatuses = legalStatuses.filter(s => s.is_active);
-  const defaultStatus = legalStatuses.find(s => s.is_default === true);
 
   const getLegalStatusForRecord = (record) => {
-    if (!record.legal_status_id) return defaultStatus;
-    const status = legalStatuses.find(s => s.id === record.legal_status_id);
-    return status || defaultStatus;
+    if (!record.legal_status_id) return null;
+    return legalStatuses.find(s => s.id === record.legal_status_id) || null;
   };
 
   const formatCurrency = (num) => 
@@ -122,10 +114,12 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, a
     }
 
     if (legalStatusFilter && legalStatusFilter !== 'all') {
-      result = result.filter(r => {
-        const legalStatus = getLegalStatusForRecord(r);
-        return legalStatus && legalStatus.id === legalStatusFilter;
-      });
+      if (legalStatusFilter === 'null') {
+        // פילטר רשומות ללא סטטוס
+        result = result.filter(r => !r.legal_status_id);
+      } else {
+        result = result.filter(r => r.legal_status_id === legalStatusFilter);
+      }
     }
 
     result.sort((a, b) => {
@@ -278,6 +272,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, a
                           </SelectTrigger>
                           <SelectContent className="rounded-xl">
                             <SelectItem value="all">כל המצבים</SelectItem>
+                            <SelectItem value="null">ללא סטטוס</SelectItem>
                             {activeLegalStatuses.map(status => (
                               <SelectItem key={status.id} value={status.id}>
                                 {status.name}
@@ -491,6 +486,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, a
                         </SelectTrigger>
                         <SelectContent className="rounded-lg">
                           <SelectItem value="all">הכל</SelectItem>
+                          <SelectItem value="null">ללא סטטוס</SelectItem>
                           {activeLegalStatuses.map(status => (
                             <SelectItem key={status.id} value={status.id}>
                               {status.name}
@@ -573,30 +569,15 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, a
                     <TableCell className="py-6 px-6 align-middle text-center">
                       {(() => {
                         const legalStatus = getLegalStatusForRecord(record);
-                        const isDefault = legalStatus?.is_default === true;
                         
                         return legalStatus ? (
-                          <TooltipProvider>
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <div className="inline-block">
-                                  <Badge className={`${legalStatus.color} min-w-[96px] h-8 px-3 inline-flex items-center justify-center gap-1.5 text-sm font-medium whitespace-nowrap transition-all duration-200 hover:opacity-80`}>
-                                    {legalStatus.name}
-                                    {isDefault && (
-                                      <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
-                                    )}
-                                  </Badge>
-                                </div>
-                              </TooltipTrigger>
-                              {isDefault && (
-                                <TooltipContent>
-                                  <p className="text-xs font-semibold">ברירת מחדל – נדרש לקבוע סטטוס</p>
-                                </TooltipContent>
-                              )}
-                            </Tooltip>
-                          </TooltipProvider>
+                          <Badge className={`${legalStatus.color} min-w-[96px] h-8 px-3 inline-flex items-center justify-center text-sm font-medium whitespace-nowrap transition-all duration-200 hover:opacity-80`}>
+                            {legalStatus.name}
+                          </Badge>
                         ) : (
-                          <Badge className="bg-slate-100 text-slate-500 min-w-[96px] h-8 px-3 inline-flex items-center justify-center text-sm font-medium whitespace-nowrap transition-all duration-200 hover:opacity-80">לא מקושר</Badge>
+                          <Badge className="bg-slate-100 text-slate-500 min-w-[96px] h-8 px-3 inline-flex items-center justify-center text-sm font-medium whitespace-nowrap transition-all duration-200 hover:opacity-80">
+                            לא הוגדר
+                          </Badge>
                         );
                       })()}
                     </TableCell>

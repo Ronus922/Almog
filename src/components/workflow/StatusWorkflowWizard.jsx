@@ -40,7 +40,6 @@ export default function StatusWorkflowWizard({ isOpen, onClose, initialStatusId 
 
   const legalStatuses = allStatuses.filter(s => s.type === 'LEGAL');
   const activeLegalStatuses = legalStatuses.filter(s => s.is_active);
-  const defaultStatus = legalStatuses.find(s => s.is_default === true);
 
   // סינון רשומות לפי הסטטוס שנבחר
   const filteredRecords = allRecords.filter(r => 
@@ -53,9 +52,9 @@ export default function StatusWorkflowWizard({ isOpen, onClose, initialStatusId 
 
   useEffect(() => {
     if (currentRecord) {
-      setSelectedLegalStatusId(String(currentRecord.legal_status_id || defaultStatus?.id || ''));
+      setSelectedLegalStatusId(String(currentRecord.legal_status_id || ''));
     }
-  }, [currentRecord, defaultStatus]);
+  }, [currentRecord]);
 
   const handleStartWorkflow = () => {
     if (!selectedStatusId) {
@@ -86,8 +85,6 @@ export default function StatusWorkflowWizard({ isOpen, onClose, initialStatusId 
       
       const updatePayload = {
         legal_status_id: newStatusId,
-        legal_status_overridden: true,
-        legal_status_lock: true,
         legal_status_source: 'MANUAL',
         legal_status_updated_at: now,
         legal_status_updated_by: currentUser.email || currentUser.username
@@ -101,21 +98,6 @@ export default function StatusWorkflowWizard({ isOpen, onClose, initialStatusId 
       });
 
       const updatedRecord = await base44.entities.DebtorRecord.update(currentRecord.id, updatePayload);
-
-      // וידוא שהשרת החזיר את הסטטוס הנכון
-      if (updatedRecord?.legal_status_id !== newStatusId) {
-        console.error('[WIZARD OVERRIDE] Status was overridden:', {
-          requested: newStatusId,
-          received: updatedRecord?.legal_status_id
-        });
-
-        toast.error('השינוי נדרס', {
-          description: 'תהליך מערכת אחר שינה את הסטטוס'
-        });
-        
-        setIsSaving(false);
-        return;
-      }
 
       // רישום היסטוריה
       const newStatus = legalStatuses.find(s => s.id === newStatusId);

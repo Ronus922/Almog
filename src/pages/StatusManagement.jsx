@@ -45,7 +45,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Edit, Trash2, Shield, Loader2, Save, X, ArrowRight, Wrench, SlidersHorizontal } from "lucide-react";
+import { Plus, Edit, Trash2, Shield, Loader2, Save, X, ArrowRight, SlidersHorizontal } from "lucide-react";
 import { toast } from "sonner";
 
 const COLOR_OPTIONS = [
@@ -65,8 +65,6 @@ export default function StatusManagement() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [reassignTargetId, setReassignTargetId] = useState('');
   const [editingStatus, setEditingStatus] = useState(null);
-  const [isFixing, setIsFixing] = useState(false);
-  const [fixResult, setFixResult] = useState(null);
   const [isWorkflowOpen, setIsWorkflowOpen] = useState(false);
   const [workflowStatusId, setWorkflowStatusId] = useState(null);
   const [selectedRecord, setSelectedRecord] = useState(null);
@@ -111,36 +109,7 @@ export default function StatusManagement() {
     queryFn: () => base44.entities.DebtorRecord.list(),
   });
 
-  React.useEffect(() => {
-    const ensureDefaultStatus = async () => {
-      if (!allStatuses || allStatuses.length === 0) return;
-      
-      const legalStatuses = allStatuses.filter(s => s.type === 'LEGAL');
-      const defaultStatus = legalStatuses.find(s => s.is_default === true);
-      
-      if (!defaultStatus) {
-        console.log('[StatusManagement] No default status found, creating one...');
-        try {
-          await base44.entities.Status.create({
-            name: 'לא הוגדר',
-            type: 'LEGAL',
-            description: 'סטטוס זמני – נדרש לקבוע סטטוס משפטי',
-            color: 'bg-blue-100 text-blue-700',
-            is_active: true,
-            is_default: true
-          });
-          queryClient.invalidateQueries({ queryKey: ['statuses'] });
-          console.log('[StatusManagement] Default status created successfully');
-        } catch (err) {
-          console.error('[StatusManagement] Failed to create default status:', err);
-        }
-      }
-    };
-    
-    if (user?.role === 'admin') {
-      ensureDefaultStatus();
-    }
-  }, [allStatuses, user, queryClient]);
+
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Status.create(data),
@@ -198,64 +167,7 @@ export default function StatusManagement() {
     }
   });
 
-  const handleFixAll = async () => {
-    // חישוב defaultStatus בתוך הפונקציה
-    const currentDefaultStatus = statuses.find(s => s.type === 'LEGAL' && s.is_default === true);
-    
-    if (!currentDefaultStatus) {
-      toast.error('לא נמצא סטטוס ברירת מחדל במערכת');
-      return;
-    }
 
-    setIsFixing(true);
-    setFixResult(null);
-
-    try {
-      const result = {
-        totalScanned: debtorRecords.length,
-        fixed: 0,
-        alreadyValid: 0,
-        skippedLocked: 0
-      };
-
-      const validLegalStatusIds = statuses
-        .filter(s => s.type === 'LEGAL' && s.is_active)
-        .map(s => s.id);
-
-      for (const record of debtorRecords) {
-        // דלג על רשומות נעולות
-        if (record.legal_status_lock === true) {
-          result.skippedLocked++;
-          continue;
-        }
-
-        const hasValidStatus = record.legal_status_id && validLegalStatusIds.includes(record.legal_status_id);
-
-        if (!hasValidStatus) {
-          await base44.entities.DebtorRecord.update(record.id, {
-            legal_status_id: currentDefaultStatus.id,
-            legal_status_overridden: false,
-            legal_status_source: 'SYSTEM_FIX',
-            legal_status_updated_at: new Date().toISOString()
-          });
-          result.fixed++;
-        } else {
-          result.alreadyValid++;
-        }
-      }
-
-      await queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
-      await queryClient.invalidateQueries({ queryKey: ['statuses'] });
-      
-      setFixResult(result);
-      toast.success(`תיקון הושלם: ${result.fixed} רשומות תוקנו, ${result.skippedLocked} דולגו (נעולות)`);
-    } catch (error) {
-      console.error('Error fixing statuses:', error);
-      toast.error('שגיאה בתיקון הסטטוסים');
-    } finally {
-      setIsFixing(false);
-    }
-  };
 
   const resetForm = () => {
     setFormData({
@@ -410,25 +322,6 @@ export default function StatusManagement() {
             <p className="text-slate-600 mt-1">ניהול סטטוסים משפטיים המקושרים לרשומות החייבים</p>
           </div>
           <div className="flex flex-wrap gap-3">
-            <Button 
-              variant="outline" 
-              onClick={handleFixAll}
-              disabled={isFixing}
-              className="gap-2 bg-orange-50 hover:bg-orange-100 border-orange-300 text-orange-700"
-            >
-              {isFixing ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  מתקן...
-                </>
-              ) : (
-                <>
-                  <Wrench className="w-5 h-5" />
-                  תקן הכל עכשיו
-                </>
-              )}
-            </Button>
-
             <Button
               variant="outline"
               onClick={() => setIsWorkflowOpen(true)}
@@ -445,33 +338,7 @@ export default function StatusManagement() {
           </div>
         </div>
 
-        {fixResult && (
-          <Alert className="bg-green-50 border-green-300">
-              <AlertDescription className="space-y-2">
-                <div className="font-bold text-green-900">תוצאות תיקון אוטומטי:</div>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
-                  <div>
-                    <div className="text-slate-600">סה"כ נסרקו</div>
-                    <div className="text-xl font-bold text-slate-800">{fixResult.totalScanned}</div>
-                  </div>
-                  <div>
-                    <div className="text-slate-600">תוקנו</div>
-                    <div className="text-xl font-bold text-green-600">{fixResult.fixed}</div>
-                  </div>
-                  <div>
-                    <div className="text-slate-600">היו תקינות</div>
-                    <div className="text-xl font-bold text-blue-600">{fixResult.alreadyValid}</div>
-                  </div>
-                  {fixResult.skippedLocked > 0 && (
-                    <div>
-                      <div className="text-slate-600">דולגו (נעולות)</div>
-                      <div className="text-xl font-bold text-amber-600">{fixResult.skippedLocked}</div>
-                    </div>
-                  )}
-                </div>
-              </AlertDescription>
-            </Alert>
-          )}
+
 
         <Card>
           <CardHeader>

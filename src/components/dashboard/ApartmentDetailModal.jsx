@@ -29,7 +29,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
   const legalStatuses = allStatuses.filter(s => s.type === 'LEGAL');
   const activeLegalStatuses = legalStatuses.filter(s => s.is_active);
-  const defaultStatus = legalStatuses.find(s => s.is_default === true);
   
   // State מקומי לסטטוס משפטי - נפרד מ-editedRecord
   const [selectedLegalStatusId, setSelectedLegalStatusId] = useState('');
@@ -74,7 +73,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     setEditedRecord(record);
     
     // אתחול state מקומי לסטטוס משפטי
-    const initialStatusId = record.legal_status_id || defaultStatus?.id || '';
+    const initialStatusId = record.legal_status_id || '';
     setSelectedLegalStatusId(String(initialStatusId));
     
     setLastContactDateError('');
@@ -89,7 +88,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     setPhoneError('');
     setMonthsError('');
     setPaymentError('');
-  }, [record, defaultStatus]);
+  }, [record]);
 
   if (!record) return null;
 
@@ -358,8 +357,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       
       const updatePayload = {
         legal_status_id: newStatusId,
-        legal_status_overridden: true,
-        legal_status_lock: true,
         legal_status_source: 'MANUAL',
         legal_status_updated_at: now,
         legal_status_updated_by: currentUser.email || currentUser.username
@@ -375,31 +372,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         receivedId: updatedRecord?.legal_status_id,
         match: updatedRecord?.legal_status_id === newStatusId
       });
-
-      // וידוא: השרת החזיר את הסטטוס שביקשנו
-      if (updatedRecord?.legal_status_id !== newStatusId) {
-        console.error('[OVERRIDE DETECTED] Status was overridden!', {
-          requested: newStatusId,
-          received: updatedRecord?.legal_status_id
-        });
-        
-        // החזרה לערך הקודם
-        setSelectedLegalStatusId(String(oldStatusId || defaultStatus?.id || ''));
-        
-        const isDefaultReturned = updatedRecord?.legal_status_id === defaultStatus?.id;
-        
-        toast.error(
-          isDefaultReturned ? 'השינוי לא נשמר' : 'השינוי נדרס לאחר שמירה',
-          {
-            description: isDefaultReturned 
-              ? 'הסטטוס שבחרת לא נשמר בפועל והוחזר לברירת המחדל. סביר שקיים תהליך אוטומטי שדרס את השינוי.'
-              : 'הסטטוס נשמר אך תהליך מערכת אחר שינה אותו מיד לאחר מכן. בדוק הגדרות Auto-fix.'
-          }
-        );
-        
-        setSavingStatus(false);
-        return;
-      }
 
       // רישום היסטוריה
       await base44.entities.LegalStatusHistory.create({
@@ -418,14 +390,12 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       setEditedRecord(prev => ({
         ...prev,
         legal_status_id: updatedRecord.legal_status_id,
-        legal_status_overridden: true,
-        legal_status_lock: true,
         legal_status_source: 'MANUAL',
         legal_status_updated_at: updatedRecord.legal_status_updated_at || now,
         legal_status_updated_by: updatedRecord.legal_status_updated_by || (currentUser.email || currentUser.username)
       }));
 
-      // רענון cache אך לא בזמן שהמודאל פתוח
+      // רענון cache
       queryClient.setQueryData(['debtorRecords'], (old) => {
         if (!old) return old;
         return old.map(r => r.id === record.id ? { ...r, ...updatedRecord } : r);
@@ -436,17 +406,9 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       console.error('[ERROR] Failed to save:', err);
       
       // החזרה לערך הקודם
-      setSelectedLegalStatusId(String(oldStatusId || defaultStatus?.id || ''));
+      setSelectedLegalStatusId(String(oldStatusId || ''));
       
-      const errorMessage = err.message || '';
-      
-      if (errorMessage.includes('lock') || errorMessage.includes('protected')) {
-        toast.error('שינוי סטטוס חסום', {
-          description: 'הסטטוס מוגן משינויים.'
-        });
-      } else {
-        toast.error('שמירה נכשלה – נסה שוב');
-      }
+      toast.error('שמירה נכשלה – נסה שוב');
     } finally {
       setSavingStatus(false);
     }
@@ -702,7 +664,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                     ))}
                   </SelectContent>
                 </Select>
-                
+
                 {/* סטטוס נוכחי + מידע Audit */}
                 <div className="mt-3 space-y-2">
                   {(() => {
@@ -718,7 +680,13 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                       </div>
                     );
                   })()}
-                  
+
+                  {!selectedLegalStatusId && (
+                    <div className="text-xs text-slate-500 bg-slate-50 rounded-lg p-2">
+                      לא הוגדר סטטוס משפטי
+                    </div>
+                  )}
+
                   {editedRecord?.legal_status_updated_at && (
                     <div className="text-xs text-slate-600 bg-slate-50 rounded-lg p-2">
                       <div className="flex items-center gap-2">
@@ -729,12 +697,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                         <div className="flex items-center gap-2 mt-1">
                           <span className="font-semibold">על ידי:</span>
                           <span>{editedRecord.legal_status_updated_by}</span>
-                        </div>
-                      )}
-                      {editedRecord.legal_status_lock && (
-                        <div className="flex items-center gap-2 mt-1">
-                          <Lock className="w-3 h-3 text-amber-600" />
-                          <span className="text-amber-600 font-semibold">נעול מפני דריסה בייבוא</span>
                         </div>
                       )}
                     </div>
