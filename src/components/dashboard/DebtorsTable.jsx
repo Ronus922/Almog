@@ -12,7 +12,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Filter, ArrowUpDown, Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, Filter, ArrowUpDown, Eye, ChevronLeft, ChevronRight, X, SlidersHorizontal } from "lucide-react";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const STATUS_COLORS = {
   'סדיר': 'bg-green-100 text-green-700 border-green-200',
@@ -36,9 +37,25 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
   const [statusFilter, setStatusFilter] = useState('all');
   const [debtFilter, setDebtFilter] = useState('all');
   const [sortField, setSortField] = useState('totalDebt');
-  const [sortDir, setSortDir] = useState('desc'); // ברירת מחדל: מהגדול לקטן
+  const [sortDir, setSortDir] = useState('desc');
   const [page, setPage] = useState(1);
   const pageSize = 50;
+
+  // פילטרים מתקדמים
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  const [apartmentFilter, setApartmentFilter] = useState('');
+  
+  // חוב חודשי
+  const [monthlyDebtMin, setMonthlyDebtMin] = useState('');
+  const [monthlyDebtMax, setMonthlyDebtMax] = useState('');
+  const [monthlyDebtMode, setMonthlyDebtMode] = useState('all');
+  
+  // חוב מיוחד
+  const [specialDebtMin, setSpecialDebtMin] = useState('');
+  const [specialDebtMax, setSpecialDebtMax] = useState('');
+  const [specialDebtMode, setSpecialDebtMode] = useState('all');
+  
+  const [filterError, setFilterError] = useState('');
 
   const formatCurrency = (num) => 
     new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num || 0);
@@ -50,10 +67,48 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
     return phone;
   };
 
+  const applyAdvancedFilters = () => {
+    setFilterError('');
+    
+    // ולידציה חוב חודשי
+    if (monthlyDebtMin && monthlyDebtMax) {
+      const min = parseFloat(monthlyDebtMin);
+      const max = parseFloat(monthlyDebtMax);
+      if (min > max) {
+        setFilterError('חוב חודשי: מינימום גדול ממקסימום');
+        return;
+      }
+    }
+    
+    // ולידציה חוב מיוחד
+    if (specialDebtMin && specialDebtMax) {
+      const min = parseFloat(specialDebtMin);
+      const max = parseFloat(specialDebtMax);
+      if (min > max) {
+        setFilterError('חוב מיוחד: מינימום גדול ממקסימום');
+        return;
+      }
+    }
+    
+    setPage(1);
+  };
+
+  const clearAdvancedFilters = () => {
+    setApartmentFilter('');
+    setMonthlyDebtMin('');
+    setMonthlyDebtMax('');
+    setMonthlyDebtMode('all');
+    setSpecialDebtMin('');
+    setSpecialDebtMax('');
+    setSpecialDebtMode('all');
+    setFilterError('');
+    setPage(1);
+  };
+
   const filteredRecords = useMemo(() => {
     let result = [...records];
 
-    // חיפוש
+    // חיפוש כללי
     if (search) {
       const s = search.toLowerCase();
       result = result.filter(r => 
@@ -63,12 +118,52 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
       );
     }
 
+    // סינון לפי מספר דירה
+    if (apartmentFilter) {
+      const apt = apartmentFilter.toLowerCase();
+      result = result.filter(r => r.apartmentNumber?.toLowerCase().includes(apt));
+    }
+
+    // סינון חוב חודשי
+    if (monthlyDebtMode === 'gt0') {
+      result = result.filter(r => (r.monthlyDebt || 0) > 0);
+    } else if (monthlyDebtMode === 'eq0') {
+      result = result.filter(r => (r.monthlyDebt || 0) === 0);
+    }
+    
+    if (monthlyDebtMin) {
+      const min = parseFloat(monthlyDebtMin);
+      result = result.filter(r => (r.monthlyDebt || 0) >= min);
+    }
+    
+    if (monthlyDebtMax) {
+      const max = parseFloat(monthlyDebtMax);
+      result = result.filter(r => (r.monthlyDebt || 0) <= max);
+    }
+
+    // סינון חוב מיוחד
+    if (specialDebtMode === 'gt0') {
+      result = result.filter(r => (r.specialDebt || 0) > 0);
+    } else if (specialDebtMode === 'eq0') {
+      result = result.filter(r => (r.specialDebt || 0) === 0);
+    }
+    
+    if (specialDebtMin) {
+      const min = parseFloat(specialDebtMin);
+      result = result.filter(r => (r.specialDebt || 0) >= min);
+    }
+    
+    if (specialDebtMax) {
+      const max = parseFloat(specialDebtMax);
+      result = result.filter(r => (r.specialDebt || 0) <= max);
+    }
+
     // סינון סטטוס
     if (statusFilter !== 'all') {
       result = result.filter(r => r.status === statusFilter);
     }
 
-    // סינון חוב
+    // סינון חוב (ישן)
     if (debtFilter === 'special') {
       result = result.filter(r => (r.specialDebt || 0) > 0);
     } else if (debtFilter === 'above1000') {
@@ -90,7 +185,8 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
     });
 
     return result;
-  }, [records, search, statusFilter, debtFilter, sortField, sortDir]);
+  }, [records, search, apartmentFilter, monthlyDebtMin, monthlyDebtMax, monthlyDebtMode, 
+      specialDebtMin, specialDebtMax, specialDebtMode, statusFilter, debtFilter, sortField, sortDir]);
 
   const totalPages = Math.ceil(filteredRecords.length / pageSize);
   const paginatedRecords = filteredRecords.slice((page - 1) * pageSize, page * pageSize);
@@ -104,13 +200,17 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
     }
   };
 
+  const hasActiveAdvancedFilters = apartmentFilter || monthlyDebtMin || monthlyDebtMax || 
+    monthlyDebtMode !== 'all' || specialDebtMin || specialDebtMax || specialDebtMode !== 'all';
+
   return (
     <Card className="border-0 shadow-xl rounded-2xl overflow-hidden">
       <CardHeader className="pb-6 pt-6 bg-gradient-to-l from-white to-slate-50 border-b border-slate-200">
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <CardTitle className="text-2xl font-bold text-slate-800">טבלת חייבים</CardTitle>
-          
-          <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <CardTitle className="text-2xl font-bold text-slate-800">טבלת חייבים</CardTitle>
+            
+            <div className="flex flex-wrap items-center gap-3">
             <div className="relative">
               <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <Input
@@ -147,8 +247,150 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
                 <SelectItem value="special">חוב מיוחד בלבד</SelectItem>
               </SelectContent>
             </Select>
+
+            <Button
+              variant={showAdvancedFilters ? "default" : "outline"}
+              size="sm"
+              onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+              className="h-11 rounded-xl px-4 gap-2"
+            >
+              <SlidersHorizontal className="w-4 h-4" />
+              פילטרים מתקדמים
+              {hasActiveAdvancedFilters && (
+                <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse" />
+              )}
+            </Button>
           </div>
         </div>
+
+        {/* פילטרים מתקדמים */}
+        {showAdvancedFilters && (
+          <div className="mt-4 p-6 bg-gradient-to-l from-slate-50 to-slate-100 rounded-2xl border border-slate-200" dir="rtl">
+            <div className="space-y-6">
+              {/* מספר דירה */}
+              <div>
+                <label className="text-sm font-bold text-slate-700 mb-2 block">מספר דירה</label>
+                <div className="relative">
+                  <Input
+                    placeholder="הקלד מספר דירה..."
+                    value={apartmentFilter}
+                    onChange={(e) => setApartmentFilter(e.target.value)}
+                    className="h-11 rounded-xl pr-4 pl-10 text-right"
+                    dir="rtl"
+                  />
+                  {apartmentFilter && (
+                    <button
+                      onClick={() => setApartmentFilter('')}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* חוב חודשי */}
+              <div>
+                <label className="text-sm font-bold text-slate-700 mb-3 block">חוב חודשי</label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div>
+                    <Input
+                      type="number"
+                      placeholder="מינימום (₪)"
+                      value={monthlyDebtMin}
+                      onChange={(e) => setMonthlyDebtMin(e.target.value)}
+                      className="h-11 rounded-xl text-right"
+                      dir="rtl"
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      type="number"
+                      placeholder="מקסימום (₪)"
+                      value={monthlyDebtMax}
+                      onChange={(e) => setMonthlyDebtMax(e.target.value)}
+                      className="h-11 rounded-xl text-right"
+                      dir="rtl"
+                    />
+                  </div>
+                  <Select value={monthlyDebtMode} onValueChange={setMonthlyDebtMode} dir="rtl">
+                    <SelectTrigger className="h-11 rounded-xl" dir="rtl">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent dir="rtl" className="rounded-xl">
+                      <SelectItem value="all">הכל</SelectItem>
+                      <SelectItem value="gt0">רק עם חוב</SelectItem>
+                      <SelectItem value="eq0">רק ללא חוב</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* חוב מיוחד */}
+              <div>
+                <label className="text-sm font-bold text-slate-700 mb-3 block">חוב מיוחד</label>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  <div>
+                    <Input
+                      type="number"
+                      placeholder="מינימום (₪)"
+                      value={specialDebtMin}
+                      onChange={(e) => setSpecialDebtMin(e.target.value)}
+                      className="h-11 rounded-xl text-right"
+                      dir="rtl"
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      type="number"
+                      placeholder="מקסימום (₪)"
+                      value={specialDebtMax}
+                      onChange={(e) => setSpecialDebtMax(e.target.value)}
+                      className="h-11 rounded-xl text-right"
+                      dir="rtl"
+                    />
+                  </div>
+                  <Select value={specialDebtMode} onValueChange={setSpecialDebtMode} dir="rtl">
+                    <SelectTrigger className="h-11 rounded-xl" dir="rtl">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent dir="rtl" className="rounded-xl">
+                      <SelectItem value="all">הכל</SelectItem>
+                      <SelectItem value="gt0">רק עם חוב</SelectItem>
+                      <SelectItem value="eq0">רק ללא חוב</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              {/* שגיאה */}
+              {filterError && (
+                <Alert variant="destructive" className="rounded-xl" dir="rtl">
+                  <AlertDescription className="text-right">{filterError}</AlertDescription>
+                </Alert>
+              )}
+
+              {/* כפתורי פעולה */}
+              <div className="flex gap-3 justify-end">
+                <Button
+                  variant="outline"
+                  onClick={clearAdvancedFilters}
+                  className="rounded-xl h-11 px-6 gap-2"
+                >
+                  <X className="w-4 h-4" />
+                  נקה סינון
+                </Button>
+                <Button
+                  onClick={applyAdvancedFilters}
+                  className="rounded-xl h-11 px-6 bg-gradient-to-l from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+                >
+                  <Filter className="w-4 h-4 ml-2" />
+                  החל סינון
+                </Button>
+              </div>
+            </div>
+          </div>
+        )}
       </CardHeader>
 
       <CardContent className="p-0">
