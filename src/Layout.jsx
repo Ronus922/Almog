@@ -128,7 +128,7 @@ export default function Layout({ children, currentPageName }) {
 
         {/* תפריט Mobile */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-200 bg-white shadow-lg">
+          <div className="md:hidden border-t border-slate-200 bg-white shadow-lg" dir="rtl">
             <nav className="px-4 py-3 space-y-1">
               {filteredNavItems.map((item) => {
                 const isActive = currentPageName === item.name;
@@ -138,19 +138,20 @@ export default function Layout({ children, currentPageName }) {
                     to={createPageUrl(item.name)}
                     onClick={() => setIsMobileMenuOpen(false)}
                     className={`
-                      flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors
+                      flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-right
                       ${isActive 
                         ? 'bg-blue-50 text-blue-700 font-semibold' 
                         : 'text-slate-700 hover:bg-slate-50'}
                     `}
+                    dir="rtl"
                   >
-                    <item.icon className="w-5 h-5" />
-                    {item.label}
+                    <item.icon className="w-5 h-5 flex-shrink-0" />
+                    <span className="flex-1 text-right">{item.label}</span>
                   </Link>
                 );
               })}
               <div className="pt-2 mt-2 border-t border-slate-200">
-                <div className="px-4 py-2">
+                <div className="px-4 py-2 text-right">
                   <p className="text-xs text-slate-500 font-medium">משתמש מחובר</p>
                   <p className="text-sm font-semibold text-slate-800 mt-1">{user?.full_name || user?.email}</p>
                   <div className="mt-2">
@@ -162,10 +163,11 @@ export default function Layout({ children, currentPageName }) {
                     setIsMobileMenuOpen(false);
                     handleLogout();
                   }}
-                  className="w-full flex items-center gap-2 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors text-right"
+                  dir="rtl"
                 >
-                  <LogOut className="w-4 h-4" />
-                  התנתק
+                  <LogOut className="w-4 h-4 flex-shrink-0" />
+                  <span className="flex-1 text-right">התנתק</span>
                 </button>
               </div>
             </nav>
