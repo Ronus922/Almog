@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Building2, RefreshCw } from "lucide-react";
 
 import KPICards from '../components/dashboard/KPICards';
-import DebtCharts from '../components/dashboard/DebtCharts';
 import DebtorsTable from '../components/dashboard/DebtorsTable';
 import ApartmentDetailModal from '../components/dashboard/ApartmentDetailModal';
 import CopyLoginLink from '../components/CopyLoginLink';
@@ -95,9 +94,6 @@ export default function Dashboard() {
 
         {/* כרטיסי KPI */}
         <KPICards records={records} settings={settings} />
-
-        {/* גרפים */}
-        <DebtCharts records={records} />
 
         {/* טבלת חייבים */}
         <DebtorsTable 

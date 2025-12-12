@@ -16,7 +16,7 @@ import * as XLSX from 'xlsx';
 const FIELD_MAPPINGS = {
   apartmentNumber: { label: 'מספר דירה', patterns: ['דירה', 'apartment', 'מס דירה'], required: true },
   ownerName: { label: 'בעל דירה', patterns: ['דייר', 'tenant', 'שוכר', 'בעלים'], required: false },
-  phones: { label: 'טלפון', patterns: ['טלפון', 'phone', 'נייד'], required: false },
+  phonePrimary: { label: 'טלפון', patterns: ['טלפון', 'phone', 'נייד'], required: false },
   totalDebt: { label: 'סה״כ חוב', patterns: ['סה"כ חוב', 'סה״כ חוב', 'total debt', 'חוב כולל'], required: true },
   monthlyDebt: { label: 'חוב חודשי', patterns: ['חוב לתשלום חודשי', 'סה״כ חוב לתשלום חודשי', 'monthly'], required: false },
   specialDebt: { label: 'חוב מיוחד', patterns: ['חוב מיוחד', 'special'], required: false },
@@ -295,23 +295,42 @@ export default function ExcelImporter({ onImportComplete }) {
   const parseNumber = (val) => {
     if (val === null || val === undefined || val === '') return 0;
     if (typeof val === 'number') return val;
-    
+
     // הסרת תווים מיוחדים (₪, פסיקים, רווחים)
     const cleaned = String(val)
       .replace(/₪/g, '')
       .replace(/,/g, '')
       .replace(/\s/g, '')
       .trim();
-    
+
     if (cleaned === '' || cleaned === '-') return 0;
-    
+
     const num = parseFloat(cleaned);
     if (isNaN(num)) {
       console.warn(`[Excel Import - parseNumber] Failed to parse: "${val}" → "${cleaned}"`);
       return 0;
     }
-    
+
     return num;
+  };
+
+  const parsePhoneNumber = (phoneText) => {
+    if (!phoneText) return '';
+
+    // הסרת תווים לא רלוונטיים ושמירת מספרים בלבד
+    const cleaned = String(phoneText)
+      .replace(/[^\d+]/g, '') // שמירת ספרות ו-+ בלבד
+      .trim();
+
+    // חילוץ מספר טלפון ישראלי (10 ספרות שמתחיל ב-0 או +972)
+    const israeliMatch = cleaned.match(/(?:0|\+?972)(\d{9})|0(\d{8,9})/);
+    if (israeliMatch) {
+      const digits = israeliMatch[1] || israeliMatch[2];
+      return digits ? `0${digits}` : cleaned;
+    }
+
+    // אם לא נמצא פורמט תקין, להחזיר את המספר המנוקה
+    return cleaned.substring(0, 15); // מגבלה של 15 תווים
   };
 
   const getColumnValue = (row, columnName) => {
@@ -393,11 +412,12 @@ export default function ExcelImporter({ onImportComplete }) {
           }
 
           const ownerNameRaw = (getColumnValue(row, mappings.ownerName) || '').toString().trim();
+          const phoneRaw = (getColumnValue(row, mappings.phonePrimary) || '').toString().trim();
 
           const record = {
             apartmentNumber,
             ownerName: ownerNameRaw.split(/[\/,]/)[0]?.trim() || '', // רק בעל הדירה, ללא שוכר
-            phones: (getColumnValue(row, mappings.phones) || '').toString().trim(),
+            phonePrimary: parsePhoneNumber(phoneRaw),
             totalDebt: parseNumber(getColumnValue(row, mappings.totalDebt)),
             monthlyDebt: parseNumber(getColumnValue(row, mappings.monthlyDebt)),
             specialDebt: parseNumber(getColumnValue(row, mappings.specialDebt)),

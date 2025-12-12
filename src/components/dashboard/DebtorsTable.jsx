@@ -52,7 +52,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
       result = result.filter(r => 
         r.apartmentNumber?.toLowerCase().includes(s) ||
         r.ownerName?.toLowerCase().includes(s) ||
-        r.phones?.toLowerCase().includes(s)
+        r.phonePrimary?.toLowerCase().includes(s)
       );
     }
 
@@ -193,7 +193,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
                   >
                     <TableCell className="font-medium">{record.apartmentNumber}</TableCell>
                     <TableCell>{record.ownerName || '-'}</TableCell>
-                    <TableCell className="text-sm">{record.phones || '-'}</TableCell>
+                    <TableCell className="text-sm" dir="ltr">{record.phonePrimary || 'אין מספר'}</TableCell>
                     <TableCell className="font-semibold text-rose-600">{formatCurrency(record.totalDebt)}</TableCell>
                     <TableCell>{formatCurrency(record.monthlyDebt)}</TableCell>
                     <TableCell>{formatCurrency(record.specialDebt)}</TableCell>

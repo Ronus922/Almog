@@ -87,7 +87,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               <h3 className="font-semibold text-slate-700 pb-2 border-b">פרטי דירה</h3>
               <InfoRow icon={Home} label="מספר דירה" value={editedRecord?.apartmentNumber} />
               <InfoRow icon={User} label="בעל דירה" value={editedRecord?.ownerName || 'לא צוין'} />
-              <InfoRow icon={Phone} label="טלפונים" value={editedRecord?.phones || 'לא צוין'} />
+              <InfoRow icon={Phone} label="טלפון" value={editedRecord?.phonePrimary || 'אין מספר'} />
             </div>
             
             <div className="space-y-4">
