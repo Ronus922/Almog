@@ -259,17 +259,16 @@ export default function StatusManagement() {
                       </TableCell>
                       <TableCell className="text-left">
                         <div className="flex gap-2">
-                          {!status.is_system && usageCount === 0 ? (
+                          {!status.is_system && (
                             <Button 
                               variant="outline" 
                               size="sm" 
                               onClick={() => handleDelete(status)}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              disabled={usageCount > 0}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
-                          ) : (
-                            <div className="w-9 h-9" />
                           )}
                           <Button variant="outline" size="sm" onClick={() => handleEdit(status)}>
                             <Edit className="w-4 h-4" />
