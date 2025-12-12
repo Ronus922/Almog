@@ -209,6 +209,9 @@ export default function Layout({ children, currentPageName }) {
         body {
           font-weight: 400;
         }
+        p.text-xs.text-slate-600.font-bold.uppercase.tracking-wide.line-clamp-2.mb-1.md\:mb-2 {
+          font-size: 18px !important;
+        }
       `}</style>
       <LayoutContent children={children} currentPageName={currentPageName} />
     </AuthProvider>
