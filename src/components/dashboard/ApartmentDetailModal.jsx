@@ -233,6 +233,18 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 </Select>
               </div>
 
+              <div className="text-right">
+                <Label className="text-sm font-bold text-slate-700 mb-2 block">חודשי פיגור</Label>
+                <Input 
+                  type="number" 
+                  min="0"
+                  value={editedRecord?.monthsInArrears || 0} 
+                  onChange={(e) => setEditedRecord({...editedRecord, monthsInArrears: parseInt(e.target.value) || 0})}
+                  className="mt-2 h-12 rounded-xl text-right"
+                  dir="rtl"
+                />
+              </div>
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                 <div className="text-right">
                   <Label className="text-sm font-bold text-slate-700 mb-2 block">תאריך קשר אחרון</Label>
