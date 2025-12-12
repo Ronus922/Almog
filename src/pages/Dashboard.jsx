@@ -206,6 +206,7 @@ function DashboardContent() {
           isAdmin={isAdmin}
           settings={settings}
           initialStatusFilter={statusFilterFromUrl}
+          allStatuses={allStatuses}
         />
 
         {/* מודל פרטי דירה */}
