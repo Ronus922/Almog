@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Edit, Trash2, Shield, Loader2, Save, X } from "lucide-react";
+import { Plus, Edit, Trash2, Shield, Loader2, Save, X, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 
 const COLOR_OPTIONS = [
@@ -315,15 +315,25 @@ export default function StatusManagement() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6" dir="rtl">
       <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div>
             <h1 className="text-3xl font-bold text-slate-800">ניהול סטטוסים משפטיים</h1>
             <p className="text-slate-600 mt-1">ניהול סטטוסים משפטיים המקושרים לרשומות החייבים</p>
           </div>
-          <Button onClick={handleAdd} className="gap-2">
-            <Plus className="w-5 h-5" />
-            הוסף סטטוס
-          </Button>
+          <div className="flex gap-3">
+            <Button 
+              variant="outline" 
+              onClick={() => navigate(createPageUrl('StatusWorkflow'))}
+              className="gap-2"
+            >
+              <ArrowRight className="w-5 h-5" />
+              טיפול דירה-דירה
+            </Button>
+            <Button onClick={handleAdd} className="gap-2">
+              <Plus className="w-5 h-5" />
+              הוסף סטטוס
+            </Button>
+          </div>
         </div>
 
         <Card>
@@ -357,7 +367,13 @@ export default function StatusManagement() {
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <button
-                                onClick={() => navigate(createPageUrl('LinkedRecords') + `?statusId=${status.id}&statusName=${encodeURIComponent(status.name)}`)}
+                                onClick={() => {
+                                  if (status.is_default && usageCount > 0) {
+                                    navigate(createPageUrl('StatusWorkflow'));
+                                  } else {
+                                    navigate(createPageUrl('LinkedRecords') + `?statusId=${status.id}&statusName=${encodeURIComponent(status.name)}`);
+                                  }
+                                }}
                                 className={`font-bold underline decoration-2 transition-all text-lg ${
                                   status.is_default && usageCount > 0
                                     ? 'text-orange-600 hover:text-orange-800 hover:decoration-orange-800 animate-pulse'
@@ -370,7 +386,7 @@ export default function StatusManagement() {
                             <TooltipContent>
                               <p className="text-sm font-semibold">
                                 {status.is_default && usageCount > 0
-                                  ? `${usageCount} דירות שעדיין לא הוגדר להן סטטוס משפטי`
+                                  ? `${usageCount} דירות שעדיין לא הוגדר להן סטטוס משפטי - לחץ לטיפול`
                                   : `${usageCount} דירות מקושרות לסטטוס זה`}
                               </p>
                             </TooltipContent>
