@@ -25,10 +25,6 @@ const FIELD_MAPPINGS = {
 };
 
 const ALLOWED_FILE_EXTENSIONS = ['.xlsx', '.xls'];
-const ALLOWED_MIME_TYPES = [
-  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
-  'application/vnd.ms-excel'
-];
 
 export default function ExcelImporter({ onImportComplete }) {
   const [step, setStep] = useState(1);
@@ -48,17 +44,13 @@ export default function ExcelImporter({ onImportComplete }) {
     const fileName = file.name.toLowerCase();
     const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
     
-    // בדיקת סיומת
+    // בדיקת סיומת בלבד - לא לסמוך על MIME
+    // XLSX יכול להגיע כ-zip, octet-stream, וכו'
     if (!ALLOWED_FILE_EXTENSIONS.includes(fileExtension)) {
       return {
         valid: false,
         error: 'סוג הקובץ אינו נתמך. ניתן להעלות רק קבצי Excel בפורמט ‎.xlsx‎ או ‎.xls‎'
       };
-    }
-
-    // בדיקת MIME type (אם זמין)
-    if (file.type && !ALLOWED_MIME_TYPES.some(mime => file.type.includes(mime.split('/')[1]))) {
-      console.warn('MIME type mismatch:', file.type);
     }
 
     return { valid: true };
@@ -107,15 +99,17 @@ export default function ExcelImporter({ onImportComplete }) {
     setIsUploading(true);
     setError(null);
 
-    console.log(`[Excel Import] Starting upload for file: ${selectedFile.name}, type: ${selectedFile.type}, size: ${selectedFile.size} bytes`);
+    console.log(`[Excel Import] Starting upload for file: ${selectedFile.name}`);
+    console.log(`[Excel Import] File details - Extension: ${selectedFile.name.substring(selectedFile.name.lastIndexOf('.'))}, MIME: ${selectedFile.type || 'unknown'}, Size: ${selectedFile.size} bytes`);
 
     try {
       // העלאת הקובץ
       const { file_url } = await base44.integrations.Core.UploadFile({ file: selectedFile });
-      console.log(`[Excel Import] File uploaded successfully: ${file_url}`);
+      console.log(`[Excel Import] File uploaded successfully to: ${file_url}`);
       setFileUrl(file_url);
 
       // חילוץ נתונים מהאקסל
+      console.log(`[Excel Import] Attempting to extract Excel data...`);
       const extractResult = await base44.integrations.Core.ExtractDataFromUploadedFile({
         file_url,
         json_schema: {
@@ -134,7 +128,16 @@ export default function ExcelImporter({ onImportComplete }) {
       });
 
       if (extractResult.status === 'error') {
-        console.error(`[Excel Import] Extraction failed:`, extractResult.details);
+        const errorMsg = extractResult.details || 'Unknown error';
+        console.error(`[Excel Import] Extraction failed with error:`, errorMsg);
+        console.error(`[Excel Import] Full error object:`, extractResult);
+        
+        // בדיקה אם השגיאה מצביעה על סוג קובץ לא נתמך
+        if (errorMsg.includes('Unsupported file type') || errorMsg.includes('unsupported')) {
+          console.error(`[Excel Import] Server rejected file type despite .xlsx/.xls extension`);
+          throw new Error('unsupported_by_server');
+        }
+        
         throw new Error('extraction_failed');
       }
 
@@ -177,25 +180,33 @@ export default function ExcelImporter({ onImportComplete }) {
       console.log(`[Excel Import] Validation successful, proceeding to step 2`);
       setStep(2);
     } catch (err) {
-      console.error('[Excel Import] Error:', err);
+      console.error('[Excel Import] Error details:', {
+        message: err.message,
+        stack: err.stack,
+        fileName: selectedFile.name,
+        fileSize: selectedFile.size,
+        fileType: selectedFile.type
+      });
       
-      // הודעות שגיאה ברורות
-      if (err.message === 'extraction_failed') {
-        setError('העלאת הקובץ נכשלה. ייתכן שהקובץ פגום או בפורמט לא תקין.');
+      // הודעות שגיאה ברורות למשתמש
+      if (err.message === 'unsupported_by_server') {
+        setError('הקובץ נראה כ-Excel אך לא ניתן לקרוא אותו. ייתכן שהוא פגום או מוגן. אנא בדוק את הקובץ ונסה שוב.');
+      } else if (err.message === 'extraction_failed') {
+        setError('הקובץ נראה כ-Excel אך לא ניתן לקרוא אותו. ייתכן שהוא פגום או מוגן.');
       } else if (err.message === 'empty_file') {
         setError('הקובץ ריק או אינו מכיל נתונים. אנא בדוק את תוכן הקובץ.');
       } else if (err.message.includes('חסרות עמודות חובה')) {
         setError(err.message);
-      } else if (err.message.includes('Unsupported file type')) {
-        setError('סוג הקובץ אינו נתמך. ניתן להעלות רק קבצי Excel בפורמט ‎.xlsx‎ או ‎.xls‎');
       } else if (err.message.includes('Network') || err.message.includes('timeout')) {
         setError('אירעה שגיאה בעת עיבוד הקובץ. אנא נסה שוב מאוחר יותר. אם הבעיה חוזרת – פנה למנהל המערכת.');
       } else {
-        setError('אירעה שגיאה בלתי צפויה. אנא נסה שוב או פנה לתמיכה טכנית.');
+        setError('אירעה שגיאה בעת עיבוד הקובץ. אנא ווידא שהקובץ תקין ונסה שוב.');
       }
       
       // איפוס שדה הקובץ
-      e.target.value = '';
+      if (e.target) {
+        e.target.value = '';
+      }
     } finally {
       setIsUploading(false);
     }
