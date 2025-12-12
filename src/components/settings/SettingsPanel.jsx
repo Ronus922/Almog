@@ -73,15 +73,6 @@ export default function SettingsPanel() {
         setSettingsId(created.id);
       }
       
-      // Recalculate all records
-      const records = await base44.entities.DebtorRecord.list();
-      for (const record of records) {
-        const newStatus = calculateDebtStatus(record.totalDebt || 0);
-        if (record.debt_status_auto !== newStatus) {
-          await base44.entities.DebtorRecord.update(record.id, { debt_status_auto: newStatus });
-        }
-      }
-      
       setSaveSuccess(true);
       setTimeout(() => setSaveSuccess(false), 3000);
     } catch (err) {
@@ -89,12 +80,6 @@ export default function SettingsPanel() {
     } finally {
       setIsSaving(false);
     }
-  };
-
-  const calculateDebtStatus = (totalDebt) => {
-    if (totalDebt <= settings.threshold_ok_max) return 'תקין';
-    if (totalDebt > settings.threshold_ok_max && totalDebt < settings.threshold_legal_from) return 'לגבייה מיידית';
-    return 'לטיפול משפטי';
   };
 
   if (isLoading) {
@@ -251,7 +236,7 @@ export default function SettingsPanel() {
       {saveSuccess && (
         <Alert className="bg-green-50 border-green-200">
           <CheckCircle2 className="w-4 h-4 text-green-600" />
-          <AlertDescription className="text-green-700">ההגדרות נשמרו והסטטוסים עודכנו בהתאם לספים החדשים</AlertDescription>
+          <AlertDescription className="text-green-700">ההגדרות נשמרו בהצלחה</AlertDescription>
         </Alert>
       )}
 
