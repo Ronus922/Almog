@@ -11,15 +11,15 @@ import {
 } from "lucide-react";
 
 const KPICard = ({ title, value, icon: Icon, color, subtext }) => (
-  <Card className="p-6 bg-white/80 backdrop-blur border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-full rounded-2xl group hover:scale-105">
-    <div className="flex items-center gap-5">
-      <div className={`flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center ${color.replace('text-', 'bg-').replace('-600', '-100').replace('-700', '-100')} group-hover:scale-110 transition-transform`}>
-        <Icon className={`w-8 h-8 ${color}`} />
+  <Card className="p-4 md:p-6 bg-white/80 backdrop-blur border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-full rounded-2xl group hover:scale-105">
+    <div className="flex items-center gap-3 md:gap-5">
+      <div className={`flex-shrink-0 w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl flex items-center justify-center ${color.replace('text-', 'bg-').replace('-600', '-100').replace('-700', '-100')} group-hover:scale-110 transition-transform`}>
+        <Icon className={`w-6 h-6 md:w-8 md:h-8 ${color}`} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs text-slate-600 font-bold uppercase tracking-wide line-clamp-2 mb-2">{title}</p>
-        <p className={`text-3xl font-extrabold ${color} leading-tight`} title={value}>{value}</p>
-        {subtext && <p className="text-xs text-slate-500 mt-2 line-clamp-1 font-medium">{subtext}</p>}
+        <p className="text-xs text-slate-600 font-bold uppercase tracking-wide line-clamp-2 mb-1 md:mb-2">{title}</p>
+        <p className={`text-xl md:text-3xl font-extrabold ${color} leading-tight`} title={value}>{value}</p>
+        {subtext && <p className="text-xs text-slate-500 mt-1 md:mt-2 line-clamp-1 font-medium">{subtext}</p>}
       </div>
     </div>
   </Card>
@@ -84,26 +84,11 @@ export default function KPICards({ records, settings }) {
     }
   ];
 
-  // חלוקה לשתי שורות
-  const midPoint = Math.ceil(kpis.length / 2);
-  const row1 = kpis.slice(0, midPoint);
-  const row2 = kpis.slice(midPoint);
-
   return (
-    <div className="space-y-4">
-      {/* שורה ראשונה */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-        {row1.map((kpi, idx) => (
-          <KPICard key={idx} {...kpi} />
-        ))}
-      </div>
-      
-      {/* שורה שנייה */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-        {row2.map((kpi, idx) => (
-          <KPICard key={idx} {...kpi} />
-        ))}
-      </div>
+    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+      {kpis.map((kpi, idx) => (
+        <KPICard key={idx} {...kpi} />
+      ))}
     </div>
   );
 }
