@@ -62,7 +62,8 @@ export default function StatusManagement() {
     description: '',
     color: 'bg-slate-100 text-slate-700',
     order: 0,
-    is_active: true
+    is_active: true,
+    is_default: false
   });
 
   const queryClient = useQueryClient();
@@ -151,7 +152,8 @@ export default function StatusManagement() {
       description: '',
       color: 'bg-slate-100 text-slate-700',
       order: 0,
-      is_active: true
+      is_active: true,
+      is_default: false
     });
   };
 
@@ -168,12 +170,17 @@ export default function StatusManagement() {
       description: status.description || '',
       color: status.color,
       order: status.order,
-      is_active: status.is_active
+      is_active: status.is_active,
+      is_default: status.is_default || false
     });
     setIsEditDialogOpen(true);
   };
 
   const handleDelete = (status) => {
+    if (status.is_default) {
+      toast.error('לא ניתן למחוק סטטוס ברירת מחדל');
+      return;
+    }
     const usageCount = debtorRecords.filter(r => r.legal_status_id === status.id).length;
     setDeleteConfirm({ status, usageCount });
   };
@@ -213,6 +220,21 @@ export default function StatusManagement() {
   const handleSubmit = () => {
     if (!formData.name.trim()) {
       toast.error('שם הסטטוס חובה');
+      return;
+    }
+
+    // אם מגדירים כ-default, צריך לוודא שרק אחד כזה
+    if (formData.is_default) {
+      const otherDefault = statuses.find(s => s.is_default && s.id !== editingStatus?.id);
+      if (otherDefault) {
+        toast.error('כבר קיים סטטוס ברירת מחדל. ניתן להגדיר רק אחד.');
+        return;
+      }
+    }
+
+    // אם זה סטטוס default, לא לאפשר השבתה
+    if (editingStatus?.is_default && !formData.is_active) {
+      toast.error('לא ניתן להשבית סטטוס ברירת מחדל');
       return;
     }
 
@@ -314,9 +336,9 @@ export default function StatusManagement() {
                             variant="outline" 
                             size="sm" 
                             onClick={() => handleDelete(status)}
-                            disabled={usageCount > 0}
+                            disabled={usageCount > 0 || status.is_default}
                             className="text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                            title={usageCount > 0 ? 'לא ניתן למחוק סטטוס מקושר לרשומות' : ''}
+                            title={status.is_default ? 'לא ניתן למחוק סטטוס ברירת מחדל' : (usageCount > 0 ? 'לא ניתן למחוק סטטוס מקושר לרשומות' : '')}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
@@ -398,6 +420,17 @@ export default function StatusManagement() {
               <Switch
                 checked={formData.is_active}
                 onCheckedChange={(checked) => setFormData({...formData, is_active: checked})}
+                disabled={editingStatus?.is_default}
+              />
+            </div>
+            <div className="flex items-center justify-between">
+              <div>
+                <Label>סטטוס ברירת מחדל</Label>
+                <p className="text-xs text-slate-500">רשומות חדשות יקבלו סטטוס זה</p>
+              </div>
+              <Switch
+                checked={formData.is_default}
+                onCheckedChange={(checked) => setFormData({...formData, is_default: checked})}
               />
             </div>
           </div>

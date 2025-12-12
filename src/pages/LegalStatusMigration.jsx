@@ -10,14 +10,15 @@ import { PlayCircle, CheckCircle2, XCircle, AlertTriangle, Loader2, Shield } fro
 import { toast } from "sonner";
 
 const DEFAULT_LEGAL_STATUSES = [
-  { name: 'חייב משמעותי', order: 1, color: 'bg-red-100 text-red-700' },
-  { name: 'מכתב התראה', order: 2, color: 'bg-orange-100 text-orange-700' },
-  { name: 'מועמד לתביעה', order: 3, color: 'bg-amber-100 text-amber-700' },
-  { name: 'תביעה משפטית', order: 4, color: 'bg-rose-100 text-rose-700' },
-  { name: 'הסדר תשלומים', order: 5, color: 'bg-blue-100 text-blue-700' },
-  { name: 'בפריסה', order: 6, color: 'bg-indigo-100 text-indigo-700' },
-  { name: 'לא עונה', order: 7, color: 'bg-slate-100 text-slate-700' },
-  { name: 'סדיר', order: 8, color: 'bg-green-100 text-green-700' }
+  { name: 'לא הוגדר', order: 0, color: 'bg-blue-100 text-blue-700', description: 'סטטוס זמני – נדרש לקבוע סטטוס משפטי', is_default: true },
+  { name: 'חייב משמעותי', order: 1, color: 'bg-red-100 text-red-700', is_default: false },
+  { name: 'מכתב התראה', order: 2, color: 'bg-orange-100 text-orange-700', is_default: false },
+  { name: 'מועמד לתביעה', order: 3, color: 'bg-amber-100 text-amber-700', is_default: false },
+  { name: 'תביעה משפטית', order: 4, color: 'bg-rose-100 text-rose-700', is_default: false },
+  { name: 'הסדר תשלומים', order: 5, color: 'bg-blue-100 text-blue-700', is_default: false },
+  { name: 'בפריסה', order: 6, color: 'bg-indigo-100 text-indigo-700', is_default: false },
+  { name: 'לא עונה', order: 7, color: 'bg-slate-100 text-slate-700', is_default: false },
+  { name: 'סדיר', order: 8, color: 'bg-green-100 text-green-700', is_default: false }
 ];
 
 export default function LegalStatusMigration() {
@@ -70,13 +71,19 @@ export default function LegalStatusMigration() {
 
         if (existing) {
           result.seedSkipped++;
+          // עדכן is_default אם צריך
+          if (defaultStatus.is_default && !existing.is_default) {
+            await base44.entities.Status.update(existing.id, { is_default: true });
+          }
         } else {
           await base44.entities.Status.create({
             name: defaultStatus.name,
             type: 'LEGAL',
+            description: defaultStatus.description || '',
             color: defaultStatus.color,
             order: defaultStatus.order,
-            is_active: true
+            is_active: true,
+            is_default: defaultStatus.is_default || false
           });
           result.seedCreated++;
         }
@@ -86,18 +93,29 @@ export default function LegalStatusMigration() {
       await queryClient.invalidateQueries({ queryKey: ['statuses'] });
       const updatedStatuses = await base44.entities.Status.list();
       const updatedLegalStatuses = updatedStatuses.filter(s => s.type === 'LEGAL');
+      
+      // מציאת סטטוס ברירת מחדל
+      const defaultStatus = updatedLegalStatuses.find(s => s.is_default === true);
 
       // שלב 2: מיגרציה של רשומות DebtorRecord
       for (const record of debtorRecords) {
-        // אם כבר יש legal_status_id - דלג
-        if (record.legal_status_id) {
+        // אם כבר יש legal_status_id תקין - דלג
+        const hasValidStatus = record.legal_status_id && updatedLegalStatuses.find(s => s.id === record.legal_status_id);
+        if (hasValidStatus) {
           result.recordsSkipped++;
           continue;
         }
 
-        // אם אין legal_status_manual או ריק - דלג
+        // אם אין legal_status_manual או ריק - הצב default
         if (!record.legal_status_manual || record.legal_status_manual.trim() === '') {
-          result.recordsNoStatus++;
+          if (defaultStatus) {
+            await base44.entities.DebtorRecord.update(record.id, {
+              legal_status_id: defaultStatus.id
+            });
+            result.recordsUpdated++;
+          } else {
+            result.recordsNoStatus++;
+          }
           continue;
         }
 
