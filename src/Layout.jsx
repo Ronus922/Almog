@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { 
   LayoutDashboard, Upload, Settings, LogOut, 
-  User, ChevronDown, Building2, Menu, X
+  User, ChevronDown, Building2, Menu, X, SlidersHorizontal
 } from "lucide-react";
 import RoleIndicator from './components/RoleIndicator';
 
