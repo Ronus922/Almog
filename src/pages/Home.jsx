@@ -23,7 +23,7 @@ export default function Home() {
       if (publicEnabled) {
         navigate(createPageUrl('Dashboard'), { replace: true });
       } else {
-        navigate(createPageUrl('AppLogin'), { replace: true });
+        navigate(createPageUrl('Login'), { replace: true });
       }
     };
 

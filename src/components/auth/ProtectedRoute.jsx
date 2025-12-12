@@ -24,7 +24,7 @@ export default function ProtectedRoute({ children, allowedRoles = [], pageName }
 
       // If no user and not public dashboard, redirect to login
       if (!currentUser) {
-        navigate(createPageUrl('Login'), { replace: true });
+        navigate(createPageUrl('AppLogin'), { replace: true });
         return;
       }
 
