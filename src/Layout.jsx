@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/components/auth/AuthContext';
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,29 +12,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { 
   LayoutDashboard, Upload, Settings, LogOut, 
-  User, ChevronDown, Building2, Menu, X, SlidersHorizontal
+  User, ChevronDown, Building2, Menu, X, SlidersHorizontal, Users as UsersIcon
 } from "lucide-react";
-import RoleIndicator from './components/RoleIndicator';
 
 import { Toaster } from 'sonner';
 
 export default function Layout({ children, currentPageName }) {
-  const [user, setUser] = useState(null);
+  const { currentUser, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  useEffect(() => {
-    const loadUser = async () => {
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
-    };
-    loadUser();
-  }, []);
-
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = currentUser?.role === 'admin';
 
   const navItems = [
     { name: 'Dashboard', label: 'דשבורד', icon: LayoutDashboard, adminOnly: false },
-    { name: 'StatusManagement', label: 'ניהול סטטוסים', icon: SlidersHorizontal, adminOnly: true },
+    { name: 'UserManagement', label: 'משתמשים', icon: UsersIcon, adminOnly: true },
+    { name: 'StatusManagement', label: 'סטטוסים', icon: SlidersHorizontal, adminOnly: true },
     { name: 'Import', label: 'ייבוא', icon: Upload, adminOnly: true },
     { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true },
   ];
@@ -42,7 +34,7 @@ export default function Layout({ children, currentPageName }) {
   const filteredNavItems = navItems.filter(item => !item.adminOnly || isAdmin);
 
   const handleLogout = () => {
-    base44.auth.logout();
+    logout();
   };
 
   return (
@@ -51,15 +43,15 @@ export default function Layout({ children, currentPageName }) {
       <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/60 sticky top-0 z-50 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            {/* לוגו ושם המערכת - ימין */}
-            <div className="flex items-center gap-3">
+            {/* לוגו אחד בלבד - ימין */}
+            <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
               <div className="p-2.5 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl shadow-md">
                 <Building2 className="w-5 h-5 text-white" />
               </div>
               <div className="hidden sm:block">
                 <span className="font-bold text-lg text-slate-800">ניהול חייבים</span>
               </div>
-            </div>
+            </Link>
 
             {/* ניווט Desktop - מרכז */}
             <nav className="hidden md:flex items-center gap-1">
@@ -85,33 +77,39 @@ export default function Layout({ children, currentPageName }) {
 
             {/* תפריט משתמש - שמאל */}
             <div className="flex items-center gap-2">
-              <div className="hidden md:block">
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" className="gap-2 h-9">
-                      <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center">
-                        <User className="w-4 h-4 text-slate-600" />
+              {currentUser && (
+                <div className="hidden md:block">
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" className="gap-2 h-9">
+                        <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center">
+                          <User className="w-4 h-4 text-slate-600" />
+                        </div>
+                        <span className="text-sm font-medium">שלום, {currentUser.username}</span>
+                        <ChevronDown className="w-3 h-3 text-slate-400" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="start" className="w-56">
+                      <div className="px-3 py-3">
+                        <p className="text-sm font-semibold text-slate-800">{currentUser.username}</p>
+                        <p className="text-xs text-slate-500 mt-0.5">
+                          {currentUser.role === 'admin' ? 'מנהל מערכת' : 'צופה'}
+                        </p>
                       </div>
-                      <span className="text-sm font-medium">{user?.full_name || user?.email}</span>
-                      <ChevronDown className="w-3 h-3 text-slate-400" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="start" className="w-56">
-                    <div className="px-3 py-3">
-                      <p className="text-sm font-semibold text-slate-800">{user?.full_name}</p>
-                      <p className="text-xs text-slate-500 mt-0.5">{user?.email}</p>
-                      <div className="mt-2">
-                        <RoleIndicator role={user?.role} />
-                      </div>
-                    </div>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer">
-                      <LogOut className="w-4 h-4 ml-2" />
-                      התנתק
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer">
+                        <LogOut className="w-4 h-4 ml-2" />
+                        התנתק
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+              )}
+              {!currentUser && (
+                <div className="hidden md:block text-sm text-slate-600 font-medium">
+                  שלום, אורח
+                </div>
+              )}
 
               {/* כפתור תפריט מובייל */}
               <Button 
@@ -150,26 +148,36 @@ export default function Layout({ children, currentPageName }) {
                   </Link>
                 );
               })}
-              <div className="pt-2 mt-2 border-t border-slate-200">
-                <div className="px-4 py-2 text-right">
-                  <p className="text-xs text-slate-500 font-medium">משתמש מחובר</p>
-                  <p className="text-sm font-semibold text-slate-800 mt-1">{user?.full_name || user?.email}</p>
-                  <div className="mt-2">
-                    <RoleIndicator role={user?.role} />
+              {currentUser && (
+                <div className="pt-2 mt-2 border-t border-slate-200">
+                  <div className="px-4 py-2 text-right">
+                    <p className="text-xs text-slate-500 font-medium">משתמש מחובר</p>
+                    <p className="text-sm font-semibold text-slate-800 mt-1">{currentUser.username}</p>
+                    <p className="text-xs text-slate-500 mt-1">
+                      {currentUser.role === 'admin' ? 'מנהל מערכת' : 'צופה'}
+                    </p>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      handleLogout();
+                    }}
+                    className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors text-right"
+                    dir="rtl"
+                  >
+                    <LogOut className="w-4 h-4 flex-shrink-0" />
+                    <span className="flex-1 text-right">התנתק</span>
+                  </button>
+                </div>
+              )}
+              {!currentUser && (
+                <div className="pt-2 mt-2 border-t border-slate-200">
+                  <div className="px-4 py-2 text-right">
+                    <p className="text-sm font-semibold text-slate-800">שלום, אורח</p>
+                    <p className="text-xs text-slate-500 mt-1">מצב צפייה ציבורי</p>
                   </div>
                 </div>
-                <button
-                  onClick={() => {
-                    setIsMobileMenuOpen(false);
-                    handleLogout();
-                  }}
-                  className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors text-right"
-                  dir="rtl"
-                >
-                  <LogOut className="w-4 h-4 flex-shrink-0" />
-                  <span className="flex-1 text-right">התנתק</span>
-                </button>
-              </div>
+              )}
             </nav>
           </div>
         )}

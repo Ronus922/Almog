@@ -3,6 +3,7 @@ import Import from './pages/Import';
 import Settings from './pages/Settings';
 import StatusManagement from './pages/StatusManagement';
 import Home from './pages/Home';
+import UserManagement from './pages/UserManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -12,6 +13,7 @@ export const PAGES = {
     "Settings": Settings,
     "StatusManagement": StatusManagement,
     "Home": Home,
+    "UserManagement": UserManagement,
 }
 
 export const pagesConfig = {
