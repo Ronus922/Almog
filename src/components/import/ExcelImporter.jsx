@@ -507,11 +507,16 @@ export default function ExcelImporter({ onImportComplete }) {
             console.log(`[Excel Import - dbInsert] Updated apartment ${record.apartmentNumber} (mode: ${importMode})`);
           } else {
             // New record - debt_status_auto already calculated above
-            // legal_status_manual_id is null by default
+            // Assign default legal status
+            const defaultLegalStatus = (await base44.entities.Status.list()).find(s => s.type === 'LEGAL' && s.is_default === true);
+            if (defaultLegalStatus) {
+              record.legal_status_id = defaultLegalStatus.id;
+              record.legal_status_overridden = false;
+            }
             
             await base44.entities.DebtorRecord.create(record);
             created++;
-            console.log(`[Excel Import - dbInsert] Created apartment ${record.apartmentNumber}`);
+            console.log(`[Excel Import - dbInsert] Created apartment ${record.apartmentNumber} with default status`);
           }
         } catch (rowError) {
           console.error(`[Excel Import - dbInsert] Error importing row ${i + 1}:`, {
