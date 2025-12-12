@@ -11,6 +11,7 @@ import {
   ArrowLeft, Loader2, RefreshCw, Database
 } from "lucide-react";
 import { base44 } from '@/api/base44Client';
+import * as XLSX from 'xlsx';
 
 const FIELD_MAPPINGS = {
   apartmentNumber: { label: 'מספר דירה', patterns: ['דירה', 'apartment', 'מס דירה'], required: true },
@@ -277,9 +278,23 @@ export default function ExcelImporter({ onImportComplete }) {
   const parseNumber = (val) => {
     if (val === null || val === undefined || val === '') return 0;
     if (typeof val === 'number') return val;
-    // הסרת סימני מטבע, פסיקים וכל תו שאינו מספר
-    const cleaned = String(val).replace(/[^\d.-]/g, '');
-    return parseFloat(cleaned) || 0;
+    
+    // הסרת תווים מיוחדים (₪, פסיקים, רווחים)
+    const cleaned = String(val)
+      .replace(/₪/g, '')
+      .replace(/,/g, '')
+      .replace(/\s/g, '')
+      .trim();
+    
+    if (cleaned === '' || cleaned === '-') return 0;
+    
+    const num = parseFloat(cleaned);
+    if (isNaN(num)) {
+      console.warn(`[Excel Import - parseNumber] Failed to parse: "${val}" → "${cleaned}"`);
+      return 0;
+    }
+    
+    return num;
   };
 
   const getColumnValue = (row, columnName) => {
