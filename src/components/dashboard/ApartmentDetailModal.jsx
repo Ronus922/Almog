@@ -584,7 +584,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                     {activeLegalStatuses.map((status) => (
                       <SelectItem key={status.id} value={status.id}>
                         <div className="flex items-center gap-2">
-                          <Badge className={status.color + ' text-xs transition-colors'}>
+                          <Badge className={`${status.color} text-xs transition-colors`}>
                             {status.name}
                           </Badge>
                         </div>
