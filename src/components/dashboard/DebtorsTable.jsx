@@ -20,8 +20,6 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X, SlidersHorizontal } from "lucide-react";
-import { useQuery } from '@tanstack/react-query';
-import { base44 } from '@/api/base44Client';
 import DebtorCard from './DebtorCard';
 
 const STATUS_COLORS = {
@@ -31,16 +29,6 @@ const STATUS_COLORS = {
 };
 
 export default function DebtorsTable({ records, onRowClick, isAdmin, settings }) {
-  const { data: legalStatuses = [] } = useQuery({
-    queryKey: ['legalStatuses'],
-    queryFn: () => base44.entities.LegalStatus.list(),
-  });
-
-  const getLegalStatusName = (statusId) => {
-    if (!statusId) return null;
-    const status = legalStatuses.find(s => s.id === statusId);
-    return status?.name || null;
-  };
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortField, setSortField] = useState('totalDebt');
@@ -522,7 +510,12 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
                       {record.apartmentNumber}
                     </TableCell>
                     <TableCell className="text-slate-700 text-base py-5 px-6 align-middle">
-                      {record.ownerName || '-'}
+                      {record.ownerName ? (
+                        <>
+                          {record.ownerName.split(/[\/,]/)[0]?.trim() || record.ownerName}
+                          {record.ownerName.includes('/') || record.ownerName.includes(',') ? ' (שוכר)' : ''}
+                        </>
+                      ) : '-'}
                     </TableCell>
                     <TableCell className="text-base font-medium text-slate-600 py-5 px-6 align-middle text-right" dir="rtl">{formatPhone(record.phonePrimary)}</TableCell>
                     <TableCell className="py-5 px-6 align-middle text-center">
@@ -540,9 +533,9 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
                       </Badge>
                     </TableCell>
                     <TableCell className="text-slate-700 text-base py-5 px-6 align-middle text-center">
-                      {getLegalStatusName(record.legal_status_id) ? (
+                      {record.legal_status_manual ? (
                         <Badge variant="outline" className="bg-slate-100 text-slate-700 border-slate-300 font-semibold text-sm">
-                          {getLegalStatusName(record.legal_status_id)}
+                          {record.legal_status_manual}
                         </Badge>
                       ) : (
                         <span className="text-slate-400">—</span>

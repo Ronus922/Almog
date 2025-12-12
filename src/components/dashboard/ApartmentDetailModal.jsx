@@ -22,6 +22,12 @@ import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
 export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin }) {
+  const { data: legalStatuses = [] } = useQuery({
+    queryKey: ['legalStatuses'],
+    queryFn: () => base44.entities.LegalStatus.list('order'),
+  });
+
+  const activeLegalStatuses = legalStatuses.filter(s => s.is_active);
   const [editedRecord, setEditedRecord] = useState(record);
   const [isSaving, setIsSaving] = useState(false);
   const [lastContactDateError, setLastContactDateError] = useState('');
@@ -54,13 +60,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   const [savingPayment, setSavingPayment] = useState(false);
 
   const queryClient = useQueryClient();
-
-  const { data: legalStatuses = [] } = useQuery({
-    queryKey: ['legalStatuses'],
-    queryFn: () => base44.entities.LegalStatus.list('order'),
-  });
-
-  const activeLegalStatuses = legalStatuses.filter(s => s.is_active);
 
   React.useEffect(() => {
     setEditedRecord(record);
@@ -552,8 +551,8 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               <div className="text-right">
                 <Label className="text-sm font-bold text-slate-700 mb-2 block">סטטוס משפטי</Label>
                 <Select 
-                  value={editedRecord?.legal_status_id || ''} 
-                  onValueChange={(v) => setEditedRecord({...editedRecord, legal_status_id: v || null})}
+                  value={editedRecord?.legal_status_manual || ''} 
+                  onValueChange={(v) => setEditedRecord({...editedRecord, legal_status_manual: v || null})}
                 >
                   <SelectTrigger className="mt-2 h-12 rounded-xl text-right">
                     <SelectValue placeholder="בחר סטטוס משפטי" />
@@ -561,7 +560,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                   <SelectContent className="rounded-xl">
                     <SelectItem value={null}>לא הוגדר</SelectItem>
                     {activeLegalStatuses.map((status) => (
-                      <SelectItem key={status.id} value={status.id}>
+                      <SelectItem key={status.id} value={status.name}>
                         {status.name}
                       </SelectItem>
                     ))}
