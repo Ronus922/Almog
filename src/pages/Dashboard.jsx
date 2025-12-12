@@ -1,27 +1,21 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useAuth } from '@/components/auth/AuthContext';
 import { Button } from "@/components/ui/button";
 import { Loader2, Building2, RefreshCw } from "lucide-react";
+import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
 import KPICards from '../components/dashboard/KPICards';
 import DebtorsTable from '../components/dashboard/DebtorsTable';
 import ApartmentDetailModal from '../components/dashboard/ApartmentDetailModal';
 import CopyLoginLink from '../components/CopyLoginLink';
 
-export default function Dashboard() {
-  const [user, setUser] = useState(null);
+function DashboardContent() {
+  const { currentUser } = useAuth();
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const queryClient = useQueryClient();
-
-  useEffect(() => {
-    const loadUser = async () => {
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
-    };
-    loadUser();
-  }, []);
 
   const { data: records = [], isLoading: recordsLoading, refetch: refetchRecords } = useQuery({
     queryKey: ['debtorRecords'],
@@ -34,7 +28,7 @@ export default function Dashboard() {
   });
 
   const settings = settingsList[0] || { highDebtThreshold: 1000, monthsBeforeLawsuit: 3 };
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = currentUser?.role === 'admin';
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.DebtorRecord.update(id, data),
@@ -73,21 +67,27 @@ export default function Dashboard() {
         {/* כותרת */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
           <div className="flex items-center gap-3 md:gap-4">
-            <div className="p-3 md:p-4 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl md:rounded-2xl shadow-xl">
-              <Building2 className="w-6 h-6 md:w-8 md:h-8 text-white" />
-            </div>
             <div>
-              <h1 className="text-xl md:text-3xl font-extrabold bg-gradient-to-l from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                {settings.buildingName || 'דשבורד חייבים'}
-              </h1>
-              <p className="text-xs md:text-sm text-slate-600 font-medium mt-0.5 md:mt-1">{settings.buildingAddress || ''}</p>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl md:text-3xl font-extrabold bg-gradient-to-l from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                  {currentUser ? `שלום, ${currentUser.username}` : 'שלום, אורח'}
+                </h1>
+              </div>
+              <p className="text-xs md:text-sm text-slate-600 font-medium mt-0.5 md:mt-1">
+                {settings.buildingName || 'דשבורד חייבים'} • {settings.buildingAddress || ''}
+              </p>
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 md:gap-3">
             {isAdmin && <CopyLoginLink />}
-            {!isAdmin && (
+            {currentUser && !isAdmin && (
               <div className="text-xs md:text-sm bg-gradient-to-l from-blue-50 to-blue-100 text-blue-700 px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl border border-blue-200 font-semibold shadow-sm">
                 צפייה בלבד
+              </div>
+            )}
+            {!currentUser && (
+              <div className="text-xs md:text-sm bg-gradient-to-l from-slate-50 to-slate-100 text-slate-700 px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl border border-slate-200 font-semibold shadow-sm">
+                מצב ציבורי
               </div>
             )}
             <Button variant="outline" size="sm" className="rounded-lg md:rounded-xl h-9 md:h-10 px-3 md:px-4 font-semibold text-xs md:text-sm" onClick={() => refetchRecords()}>
@@ -118,5 +118,13 @@ export default function Dashboard() {
         />
       </div>
     </div>
+  );
+}
+
+export default function Dashboard() {
+  return (
+    <ProtectedRoute allowedRoles={['admin', 'viewer_password']} pageName="Dashboard">
+      <DashboardContent />
+    </ProtectedRoute>
   );
 }
