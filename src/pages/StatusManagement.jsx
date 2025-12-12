@@ -651,7 +651,7 @@ export default function StatusManagement() {
                           .map((status) => (
                             <SelectItem key={status.id} value={status.id}>
                               <div className="flex items-center gap-2">
-                                <Badge className={status.color + ' text-xs transition-colors'}>
+                                <Badge className={`${status.color} text-xs transition-all duration-200 hover:opacity-80`}>
                                   {status.name}
                                 </Badge>
                               </div>
