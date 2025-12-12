@@ -467,6 +467,11 @@ export default function ExcelImporter({ onImportComplete }) {
           // בדיקה אם דירה קיימת
           const existing = existingRecords.find(r => r.apartmentNumber === record.apartmentNumber);
 
+          // Fetch all legal statuses once
+          const allStatuses = await base44.entities.Status.list();
+          const legalStatuses = allStatuses.filter(s => s.type === 'LEGAL' && s.is_active);
+          const defaultLegalStatus = allStatuses.find(s => s.type === 'LEGAL' && s.is_default === true);
+
           if (existing) {
             // Apply import mode logic
             const updateData = { ...record };
@@ -499,8 +504,25 @@ export default function ExcelImporter({ onImportComplete }) {
             updateData.notes = existing.notes;
             updateData.lastContactDate = existing.lastContactDate;
             updateData.nextActionDate = existing.nextActionDate;
-            // CRITICAL: Never update legal_status_manual from import
             updateData.legal_status_manual = existing.legal_status_manual;
+            
+            // CRITICAL: Protect existing valid legal status - never overwrite from import
+            const existingHasValidStatus = existing.legal_status_id && 
+              legalStatuses.some(s => s.id === existing.legal_status_id);
+            
+            if (existingHasValidStatus) {
+              // Existing record has valid legal status - preserve it
+              updateData.legal_status_id = existing.legal_status_id;
+              updateData.legal_status_overridden = existing.legal_status_overridden;
+              console.log(`[Excel Import - dbInsert] Protected existing status for apartment ${record.apartmentNumber}`);
+            } else {
+              // Invalid or missing status - fix it with default
+              if (defaultLegalStatus) {
+                updateData.legal_status_id = defaultLegalStatus.id;
+                updateData.legal_status_overridden = false;
+                console.log(`[Excel Import - dbInsert] Fixed invalid status for apartment ${record.apartmentNumber}`);
+              }
+            }
             
             await base44.entities.DebtorRecord.update(existing.id, updateData);
             updated++;
@@ -508,7 +530,6 @@ export default function ExcelImporter({ onImportComplete }) {
           } else {
             // New record - debt_status_auto already calculated above
             // Assign default legal status
-            const defaultLegalStatus = (await base44.entities.Status.list()).find(s => s.type === 'LEGAL' && s.is_default === true);
             if (defaultLegalStatus) {
               record.legal_status_id = defaultLegalStatus.id;
               record.legal_status_overridden = false;
