@@ -25,6 +25,12 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import {
   AlertDialog,
   AlertDialogAction,
   AlertDialogCancel,
@@ -347,12 +353,29 @@ export default function StatusManagement() {
                         <Badge className={status.color}>{status.name}</Badge>
                       </TableCell>
                       <TableCell className="text-center">
-                        <button
-                          onClick={() => navigate(createPageUrl('LinkedRecords') + `?statusId=${status.id}&statusName=${encodeURIComponent(status.name)}`)}
-                          className="text-blue-600 hover:text-blue-800 font-bold underline decoration-2 hover:decoration-blue-800 transition-all text-lg"
-                        >
-                          {usageCount}
-                        </button>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={() => navigate(createPageUrl('LinkedRecords') + `?statusId=${status.id}&statusName=${encodeURIComponent(status.name)}`)}
+                                className={`font-bold underline decoration-2 transition-all text-lg ${
+                                  status.is_default && usageCount > 0
+                                    ? 'text-orange-600 hover:text-orange-800 hover:decoration-orange-800 animate-pulse'
+                                    : 'text-blue-600 hover:text-blue-800 hover:decoration-blue-800'
+                                }`}
+                              >
+                                {usageCount}
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p className="text-sm font-semibold">
+                                {status.is_default && usageCount > 0
+                                  ? `${usageCount} דירות שעדיין לא הוגדר להן סטטוס משפטי`
+                                  : `${usageCount} דירות מקושרות לסטטוס זה`}
+                              </p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </TableCell>
                       <TableCell className="text-center">
                         {status.is_active ? (
