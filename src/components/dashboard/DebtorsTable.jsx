@@ -31,7 +31,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, i
   const [statusFilter, setStatusFilter] = useState(initialStatusFilter || 'all');
   const [debtFilter, setDebtFilter] = useState('all');
   const [legalStatusFilter, setLegalStatusFilter] = useState('all');
-  const [sortField, setSortField] = useState('totalDebt');
+  const [sortField, setSortField] = useState('total_debt');
   const [sortDir, setSortDir] = useState('desc');
   const [page, setPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -180,7 +180,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, i
     });
 
     return result;
-  }, [records, search, statusFilter, debtFilter, sortField, sortDir, minDebt, maxDebt, ownerNameFilter, phoneFilter, minMonthsArrears, maxMonthsArrears, fromDate, toDate]);
+  }, [records, search, statusFilter, legalStatusFilter, debtFilter, sortField, sortDir, minDebt, maxDebt, ownerNameFilter, phoneFilter, minMonthsArrears, maxMonthsArrears, fromDate, toDate]);
 
   const totalPages = Math.ceil(filteredRecords.length / pageSize);
   const paginatedRecords = filteredRecords.slice((page - 1) * pageSize, page * pageSize);
@@ -610,7 +610,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, i
               {/* Filter Actions Row */}
               {showAdvancedFilters && (
                 <TableRow className="bg-blue-50/30 border-b border-blue-200">
-                  <TableHead colSpan={8} className="py-3 px-6">
+                  <TableHead colSpan={6} className="py-3 px-6">
                     <div className="flex items-center gap-3 justify-between" dir="rtl">
                       <div className="flex gap-2 items-center">
                         <span className="text-xs text-slate-600 font-semibold">תאריך קשר אחרון:</span>
@@ -649,7 +649,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, i
                 <TableBody>
                 {paginatedRecords.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={8} className="text-center py-12">
+                    <TableCell colSpan={6} className="text-center py-12">
                       <div className="flex flex-col items-center gap-3">
                         <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center">
                           <Filter className="w-8 h-8 text-slate-400" />
@@ -661,10 +661,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, i
                   </TableRow>
                 ) : (
                 paginatedRecords.map((record, idx) => {
-                  const severityColor = getDebtSeverityColor(record.totalDebt, settings);
-                  const borderColor = severityColor === 'green' ? 'border-r-green-500' : 
-                                    severityColor === 'orange' ? 'border-r-orange-500' : 
-                                    'border-r-red-500';
+                  const borderColor = getBorderColor(record.debt_status_auto);
 
                   return (
                   <TableRow 
@@ -673,38 +670,25 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, i
                     onClick={() => onRowClick(record)}
                   >
                     <TableCell className="font-bold text-slate-800 text-base py-5 px-6 align-middle">
-                      <div className="flex items-center gap-2">
-                        {record.apartmentNumber}
-                        {record.needs_status_review && (
-                          <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs">
-                            בדוק סטטוס
-                          </Badge>
-                        )}
-                      </div>
+                      {record.apartmentNumber}
                     </TableCell>
                     <TableCell className="text-slate-700 text-base py-5 px-6 align-middle">{record.ownerName || '-'}</TableCell>
                     <TableCell className="text-base font-medium text-slate-600 py-5 px-6 align-middle text-right" dir="rtl">{formatPhone(record.phonePrimary)}</TableCell>
-                    <TableCell className="py-5 px-6 align-middle">
-                      <div className="flex flex-col items-center gap-1">
-                        <span className="font-bold text-lg text-rose-600">{formatCurrency(record.totalDebt)}</span>
-                        <DebtSeverityBadge debt={record.totalDebt} settings={settings} />
-                      </div>
+                    <TableCell className="text-center py-5 px-6 align-middle">
+                      <span className="font-bold text-lg text-slate-800">{formatCurrency(record.total_debt)}</span>
                     </TableCell>
-                    <TableCell className="text-amber-600 font-semibold text-base py-5 px-6 align-middle text-center">{formatCurrency(record.monthlyDebt)}</TableCell>
-                    <TableCell className="text-purple-600 font-semibold text-base py-5 px-6 align-middle text-center">{formatCurrency(record.specialDebt)}</TableCell>
-                    <TableCell className="py-5 px-6 align-middle">
-                      <div className="flex flex-col items-center gap-1">
-                        <Badge variant="outline" className={`${STATUS_COLORS[record.status] || 'bg-slate-100 text-slate-700'} font-semibold text-sm`}>
-                          {record.status || 'סדיר'}
+                    <TableCell className="text-center py-5 px-6 align-middle">
+                      <DebtStatusBadge debtStatusAuto={record.debt_status_auto} />
+                    </TableCell>
+                    <TableCell className="text-center py-5 px-6 align-middle">
+                      {record.legal_status_manual ? (
+                        <Badge variant="outline" className="bg-slate-100 text-slate-700 border-slate-300 font-medium">
+                          {record.legal_status_manual}
                         </Badge>
-                        {record.debt_state && (
-                          <Badge variant="outline" className={`text-xs ${record.debt_state === 'ללא חוב' ? 'bg-green-50 text-green-700 border-green-200' : 'bg-slate-100 text-slate-600'}`}>
-                            {record.debt_state}
-                          </Badge>
-                        )}
-                      </div>
+                      ) : (
+                        <span className="text-slate-400 text-sm">-</span>
+                      )}
                     </TableCell>
-                    <TableCell className="text-center font-bold text-slate-700 text-base py-5 px-6 align-middle">{record.monthsInArrears || 0}</TableCell>
                   </TableRow>
                 )})
                 )}
