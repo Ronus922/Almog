@@ -45,7 +45,6 @@ export default function DebtorCard({ record, onClick, settings }) {
             <Badge variant="outline" className={`${STATUS_COLORS[record.status] || 'bg-slate-100 text-slate-700'} font-semibold text-xs`}>
               {record.status || 'סדיר'}
             </Badge>
-            <DebtSeverityBadge debt={record.totalDebt} settings={settings} />
             {record.needs_status_review && (
               <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs">
                 בדוק
@@ -73,6 +72,9 @@ export default function DebtorCard({ record, onClick, settings }) {
           <div className="text-center">
             <div className="text-xs text-slate-500 mb-1">סה״כ חוב</div>
             <div className="text-sm font-bold text-rose-600">{formatCurrency(record.totalDebt)}</div>
+            <div className="mt-1">
+              <DebtSeverityBadge debt={record.totalDebt} settings={settings} />
+            </div>
           </div>
           <div className="text-center border-x border-slate-200">
             <div className="text-xs text-slate-500 mb-1">חודשי</div>
