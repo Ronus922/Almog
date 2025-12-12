@@ -13,16 +13,22 @@ import {
 import { base44 } from '@/api/base44Client';
 
 const FIELD_MAPPINGS = {
-  apartmentNumber: { label: 'מספר דירה', patterns: ['דירה', 'apartment', 'מס דירה'] },
-  rawTenantField: { label: 'דייר/ת', patterns: ['דייר', 'tenant', 'שוכר', 'בעלים'] },
-  phones: { label: 'טלפון', patterns: ['טלפון', 'phone', 'נייד'] },
-  totalDebt: { label: 'סה״כ חוב', patterns: ['סה"כ חוב', 'סה״כ חוב', 'total debt', 'חוב כולל'] },
-  monthlyDebt: { label: 'חוב חודשי', patterns: ['חוב לתשלום חודשי', 'monthly', 'תשלום חודשי'] },
-  specialDebt: { label: 'חוב מיוחד', patterns: ['חוב מיוחד', 'special'] },
-  detailsMonthly: { label: 'פרטים חודשיים', patterns: ['פרטים'] },
-  detailsSpecial: { label: 'פרטים מיוחדים', patterns: ['פרטים.1'] },
-  monthlyPayment: { label: 'תשלום חודשי', patterns: ['תשלום חודשי', 'payment'] }
+  apartmentNumber: { label: 'מספר דירה', patterns: ['דירה', 'apartment', 'מס דירה'], required: true },
+  rawTenantField: { label: 'דייר/ת', patterns: ['דייר', 'tenant', 'שוכר', 'בעלים'], required: false },
+  phones: { label: 'טלפון', patterns: ['טלפון', 'phone', 'נייד'], required: false },
+  totalDebt: { label: 'סה״כ חוב', patterns: ['סה"כ חוב', 'סה״כ חוב', 'total debt', 'חוב כולל'], required: true },
+  monthlyDebt: { label: 'חוב חודשי', patterns: ['חוב לתשלום חודשי', 'סה״כ חוב לתשלום חודשי', 'monthly'], required: false },
+  specialDebt: { label: 'חוב מיוחד', patterns: ['חוב מיוחד', 'special'], required: false },
+  detailsMonthly: { label: 'פרטים חודשיים', patterns: ['פרטים'], required: false },
+  detailsSpecial: { label: 'פרטים מיוחדים', patterns: ['פרטים.1'], required: false },
+  monthlyPayment: { label: 'תשלום חודשי', patterns: ['תשלום חודשי', 'payment'], required: false }
 };
+
+const ALLOWED_FILE_EXTENSIONS = ['.xlsx', '.xls'];
+const ALLOWED_MIME_TYPES = [
+  'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'application/vnd.ms-excel'
+];
 
 export default function ExcelImporter({ onImportComplete }) {
   const [step, setStep] = useState(1);
@@ -38,14 +44,62 @@ export default function ExcelImporter({ onImportComplete }) {
   const [error, setError] = useState(null);
   const [importResult, setImportResult] = useState(null);
 
+  const validateFileType = (file) => {
+    const fileName = file.name.toLowerCase();
+    const fileExtension = fileName.substring(fileName.lastIndexOf('.'));
+    
+    // בדיקת סיומת
+    if (!ALLOWED_FILE_EXTENSIONS.includes(fileExtension)) {
+      return {
+        valid: false,
+        error: 'סוג הקובץ אינו נתמך. ניתן להעלות רק קבצי Excel בפורמט ‎.xlsx‎ או ‎.xls‎'
+      };
+    }
+
+    // בדיקת MIME type (אם זמין)
+    if (file.type && !ALLOWED_MIME_TYPES.some(mime => file.type.includes(mime.split('/')[1]))) {
+      console.warn('MIME type mismatch:', file.type);
+    }
+
+    return { valid: true };
+  };
+
+  const validateRequiredColumns = (headers, mappings) => {
+    const missingColumns = [];
+    
+    Object.entries(FIELD_MAPPINGS).forEach(([field, config]) => {
+      if (config.required && !mappings[field]) {
+        missingColumns.push(config.label);
+      }
+    });
+
+    if (missingColumns.length > 0) {
+      return {
+        valid: false,
+        error: `מבנה הקובץ אינו תואם למערכת. חסרות עמודות חובה: ${missingColumns.join(', ')}`
+      };
+    }
+
+    return { valid: true };
+  };
+
+  const normalizeHeaders = (headers) => {
+    return headers.map(h => {
+      if (!h) return '';
+      // ניקוי רווחים, תווים מיוחדים
+      return h.toString().trim().replace(/\s+/g, ' ');
+    });
+  };
+
   const handleFileSelect = async (e) => {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
 
     // בדיקת סוג הקובץ
-    const fileName = selectedFile.name.toLowerCase();
-    if (!fileName.endsWith('.xlsx') && !fileName.endsWith('.xls')) {
-      setError('סוג הקובץ אינו נתמך. ניתן להעלות רק קבצי Excel בפורמט .xlsx או .xls');
+    const fileValidation = validateFileType(selectedFile);
+    if (!fileValidation.valid) {
+      setError(fileValidation.error);
+      e.target.value = ''; // איפוס שדה הקובץ
       return;
     }
 
@@ -53,9 +107,12 @@ export default function ExcelImporter({ onImportComplete }) {
     setIsUploading(true);
     setError(null);
 
+    console.log(`[Excel Import] Starting upload for file: ${selectedFile.name}, type: ${selectedFile.type}, size: ${selectedFile.size} bytes`);
+
     try {
       // העלאת הקובץ
       const { file_url } = await base44.integrations.Core.UploadFile({ file: selectedFile });
+      console.log(`[Excel Import] File uploaded successfully: ${file_url}`);
       setFileUrl(file_url);
 
       // חילוץ נתונים מהאקסל
@@ -77,40 +134,68 @@ export default function ExcelImporter({ onImportComplete }) {
       });
 
       if (extractResult.status === 'error') {
-        throw new Error('העלאת הקובץ נכשלה. ייתכן שהקובץ פגום או בפורמט לא תקין.');
+        console.error(`[Excel Import] Extraction failed:`, extractResult.details);
+        throw new Error('extraction_failed');
       }
 
       const data = extractResult.output;
-      // ניקוי רווחים משמות העמודות (trim)
-      const rawHeaders = data.headers || Object.keys(data.rows?.[0] || {});
-      const extractedHeaders = rawHeaders.map(h => (h || '').trim());
+      
+      if (!data || !data.rows || data.rows.length === 0) {
+        throw new Error('empty_file');
+      }
+
+      // ניקוי שמות העמודות
+      const rawHeaders = data.headers || Object.keys(data.rows[0] || {});
+      const extractedHeaders = normalizeHeaders(rawHeaders);
+      
+      console.log(`[Excel Import] Extracted ${extractedHeaders.length} headers:`, extractedHeaders);
+      console.log(`[Excel Import] Found ${data.rows.length} data rows`);
       
       setHeaders(extractedHeaders);
       setExcelData(data.rows || []);
 
-      // ניסיון מיפוי אוטומטי (אחרי trim)
+      // מיפוי אוטומטי
       const autoMappings = {};
       Object.entries(FIELD_MAPPINGS).forEach(([field, config]) => {
         const matchedHeader = extractedHeaders.find(h => 
-          config.patterns.some(p => h.toLowerCase().includes(p.toLowerCase().trim()))
+          config.patterns.some(p => h.toLowerCase().includes(p.toLowerCase()))
         );
         if (matchedHeader) {
           autoMappings[field] = matchedHeader;
+          console.log(`[Excel Import] Auto-mapped field "${field}" to column "${matchedHeader}"`);
         }
       });
       setMappings(autoMappings);
 
+      // בדיקת עמודות חובה
+      const validation = validateRequiredColumns(extractedHeaders, autoMappings);
+      if (!validation.valid) {
+        console.error(`[Excel Import] Missing required columns`);
+        throw new Error(validation.error);
+      }
+
+      console.log(`[Excel Import] Validation successful, proceeding to step 2`);
       setStep(2);
     } catch (err) {
-      // הודעת שגיאה ברורה למשתמש
-      if (err.message.includes('Unsupported file type')) {
-        setError('סוג הקובץ אינו נתמך. ניתן להעלות רק קבצי Excel בפורמט .xlsx או .xls');
-      } else if (err.message.includes('פגום') || err.message.includes('תקין')) {
+      console.error('[Excel Import] Error:', err);
+      
+      // הודעות שגיאה ברורות
+      if (err.message === 'extraction_failed') {
+        setError('העלאת הקובץ נכשלה. ייתכן שהקובץ פגום או בפורמט לא תקין.');
+      } else if (err.message === 'empty_file') {
+        setError('הקובץ ריק או אינו מכיל נתונים. אנא בדוק את תוכן הקובץ.');
+      } else if (err.message.includes('חסרות עמודות חובה')) {
         setError(err.message);
+      } else if (err.message.includes('Unsupported file type')) {
+        setError('סוג הקובץ אינו נתמך. ניתן להעלות רק קבצי Excel בפורמט ‎.xlsx‎ או ‎.xls‎');
+      } else if (err.message.includes('Network') || err.message.includes('timeout')) {
+        setError('אירעה שגיאה בעת עיבוד הקובץ. אנא נסה שוב מאוחר יותר. אם הבעיה חוזרת – פנה למנהל המערכת.');
       } else {
-        setError('העלאת הקובץ נכשלה. אנא נסה שוב או בדוק את תקינות הקובץ.');
+        setError('אירעה שגיאה בלתי צפויה. אנא נסה שוב או פנה לתמיכה טכנית.');
       }
-      console.error('Error uploading file:', err);
+      
+      // איפוס שדה הקובץ
+      e.target.value = '';
     } finally {
       setIsUploading(false);
     }
@@ -163,9 +248,18 @@ export default function ExcelImporter({ onImportComplete }) {
   };
 
   const handleImport = async () => {
+    // בדיקה אחרונה של עמודות חובה לפני הייבוא
+    const validation = validateRequiredColumns(headers, mappings);
+    if (!validation.valid) {
+      setError(validation.error);
+      return;
+    }
+
     setIsImporting(true);
     setProgress(0);
     setError(null);
+
+    console.log(`[Excel Import] Starting import of ${excelData.length} rows in mode: ${importMode}`);
 
     try {
       // קבלת הגדרות
@@ -174,6 +268,7 @@ export default function ExcelImporter({ onImportComplete }) {
 
       // אם נבחר איפוס מלא - מחיקת כל הרשומות
       if (importMode === 'reset') {
+        console.log(`[Excel Import] Reset mode: deleting all existing records`);
         const existingRecords = await base44.entities.DebtorRecord.list();
         for (const record of existingRecords) {
           await base44.entities.DebtorRecord.delete(record.id);
@@ -184,20 +279,30 @@ export default function ExcelImporter({ onImportComplete }) {
       let existingRecords = [];
       if (importMode === 'update') {
         existingRecords = await base44.entities.DebtorRecord.list();
+        console.log(`[Excel Import] Update mode: found ${existingRecords.length} existing records`);
       }
 
       const totalRows = excelData.length;
       let created = 0;
       let updated = 0;
       let errors = 0;
+      const errorDetails = [];
 
       for (let i = 0; i < excelData.length; i++) {
         const row = excelData[i];
         
         try {
           // המרת שורה לרשומה (עם trim לכל הערכים)
+          const apartmentNumber = (getColumnValue(row, mappings.apartmentNumber) || '').toString().trim();
+          
+          // דילוג על שורות ריקות
+          if (!apartmentNumber) {
+            console.warn(`[Excel Import] Row ${i + 1}: Empty apartment number, skipping`);
+            continue;
+          }
+
           const record = {
-            apartmentNumber: (getColumnValue(row, mappings.apartmentNumber) || '').toString().trim(),
+            apartmentNumber,
             rawTenantField: (getColumnValue(row, mappings.rawTenantField) || '').toString().trim(),
             phones: (getColumnValue(row, mappings.phones) || '').toString().trim(),
             totalDebt: parseNumber(getColumnValue(row, mappings.totalDebt)),
@@ -235,22 +340,32 @@ export default function ExcelImporter({ onImportComplete }) {
             
             await base44.entities.DebtorRecord.update(existing.id, record);
             updated++;
+            console.log(`[Excel Import] Updated apartment ${record.apartmentNumber}`);
           } else {
             await base44.entities.DebtorRecord.create(record);
             created++;
+            console.log(`[Excel Import] Created apartment ${record.apartmentNumber}`);
           }
         } catch (rowError) {
-          console.error('Error importing row:', rowError);
+          console.error(`[Excel Import] Error importing row ${i + 1}:`, rowError);
           errors++;
+          errorDetails.push(`שורה ${i + 1}: ${rowError.message || 'שגיאה לא ידועה'}`);
         }
 
         setProgress(Math.round(((i + 1) / totalRows) * 100));
       }
 
+      console.log(`[Excel Import] Import completed: ${created} created, ${updated} updated, ${errors} errors`);
+      
+      if (errorDetails.length > 0) {
+        console.warn(`[Excel Import] Error details:`, errorDetails);
+      }
+
       setImportResult({ created, updated, errors, total: totalRows });
       setStep(3);
     } catch (err) {
-      setError(err.message || 'שגיאה בייבוא הנתונים');
+      console.error('[Excel Import] Fatal error during import:', err);
+      setError('אירעה שגיאה בעת ייבוא הנתונים. אנא נסה שוב או פנה לתמיכה טכנית.');
     } finally {
       setIsImporting(false);
     }
@@ -379,7 +494,7 @@ export default function ExcelImporter({ onImportComplete }) {
         {step === 3 && importResult && (
           <div className="text-center py-10">
             <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-slate-700 mb-2">הייבוא הושלם בהצלחה!</h3>
+            <h3 className="text-lg font-medium text-slate-700 mb-2">קובץ האקסל נטען בהצלחה. הנתונים עודכנו במערכת.</h3>
             
             <div className="flex justify-center gap-8 mt-6 text-sm">
               <div>
@@ -392,11 +507,17 @@ export default function ExcelImporter({ onImportComplete }) {
               </div>
               {importResult.errors > 0 && (
                 <div>
-                  <p className="text-2xl font-bold text-red-600">{importResult.errors}</p>
-                  <p className="text-slate-500">שגיאות</p>
+                  <p className="text-2xl font-bold text-amber-600">{importResult.errors}</p>
+                  <p className="text-slate-500">דילגו (שורות ריקות)</p>
                 </div>
               )}
             </div>
+            
+            {importResult.errors > 0 && (
+              <p className="text-xs text-slate-500 mt-4">
+                חלק מהשורות דולגו (שורות ריקות או עם שגיאות). בדוק את הקונסול לפרטים.
+              </p>
+            )}
           </div>
         )}
 
