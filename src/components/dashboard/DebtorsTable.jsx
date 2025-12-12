@@ -142,7 +142,8 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
               </SelectContent>
             </Select>
             </div>
-            </div>
+          </div>
+        </div>
       </CardHeader>
 
       <CardContent className="p-0">
