@@ -30,9 +30,13 @@ export default function KPICards({ records, settings }) {
   const totalMonthlyDebt = records.reduce((sum, r) => sum + (r.monthlyDebt || 0), 0);
   const totalSpecialDebt = records.reduce((sum, r) => sum + (r.specialDebt || 0), 0);
   const debtorCount = records.filter(r => (r.totalDebt || 0) > 0).length;
-  const significantDebtors = records.filter(r => (r.totalDebt || 0) >= (settings?.highDebtThreshold || 1000)).length;
-  const inLawsuit = records.filter(r => r.status === 'בתביעה').length;
-  const lawsuitCandidates = records.filter(r => r.status === 'מועמד לתביעה').length;
+  
+  const statusCounts = {
+    'תקין': records.filter(r => r.debt_status_auto === 'תקין').length,
+    'לגבייה': records.filter(r => r.debt_status_auto === 'לגבייה').length,
+    'מכתב התראה': records.filter(r => r.debt_status_auto === 'מכתב התראה').length,
+    'לטיפול משפטי': records.filter(r => r.debt_status_auto === 'לטיפול משפטי').length,
+  };
 
   const formatCurrency = (num) => 
     new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num);
@@ -64,23 +68,22 @@ export default function KPICards({ records, settings }) {
       subtext: `מתוך ${records.length} דירות`
     },
     { 
-      title: "חייבים משמעותיים", 
-      value: significantDebtors, 
+      title: "לגבייה", 
+      value: statusCounts['לגבייה'], 
       icon: Scale, 
-      color: "text-orange-600",
-      subtext: `מעל ${formatCurrency(settings?.highDebtThreshold || 1000)}`
+      color: "text-orange-600"
     },
     { 
-      title: "בתביעה", 
-      value: inLawsuit, 
+      title: "מכתב התראה", 
+      value: statusCounts['מכתב התראה'], 
+      icon: FileWarning, 
+      color: "text-yellow-700" 
+    },
+    { 
+      title: "לטיפול משפטי", 
+      value: statusCounts['לטיפול משפטי'], 
       icon: Gavel, 
       color: "text-red-700" 
-    },
-    { 
-      title: "מועמדים לתביעה", 
-      value: lawsuitCandidates, 
-      icon: FileWarning, 
-      color: "text-slate-700" 
     }
   ];
 
