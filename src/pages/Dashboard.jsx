@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/components/auth/AuthContext';
 import { Button } from "@/components/ui/button";
-import { Loader2, Building2, RefreshCw, X } from "lucide-react";
+import { Loader2, Building2, RefreshCw, X, ListChecks } from "lucide-react";
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 
@@ -12,11 +12,13 @@ import DebtorsTable from '../components/dashboard/DebtorsTable';
 import ApartmentDetailModal from '../components/dashboard/ApartmentDetailModal';
 import ExcelExporter from '../components/export/ExcelExporter';
 import PDFExporter from '../components/export/PDFExporter';
+import StatusWorkflowWizard from '../components/workflow/StatusWorkflowWizard';
 
 function DashboardContent() {
   const { currentUser } = useAuth();
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isWorkflowOpen, setIsWorkflowOpen] = useState(false);
   const [statusFilterFromUrl, setStatusFilterFromUrl] = useState(null);
   const queryClient = useQueryClient();
 
@@ -195,6 +197,19 @@ function DashboardContent() {
                 מצב ציבורי
               </div>
             )}
+            {isAdmin && (
+              <Button
+                onClick={handleOpenWorkflow}
+                variant="outline"
+                size="sm"
+                className="gap-2 bg-blue-50 hover:bg-blue-100 text-blue-700 border-blue-300 rounded-lg md:rounded-xl h-9 md:h-10 px-3 md:px-4 font-semibold text-xs md:text-sm"
+              >
+                <ListChecks className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                <span className="hidden sm:inline">עדכן דירה-דירה</span>
+                <span className="sm:hidden">דירה-דירה</span>
+              </Button>
+            )}
+            
             <Button variant="outline" size="sm" className="rounded-lg md:rounded-xl h-9 md:h-10 px-3 md:px-4 font-semibold text-xs md:text-sm" onClick={() => refetchRecords()}>
               <RefreshCw className="w-3.5 h-3.5 md:w-4 md:h-4 ml-1 md:ml-2" />
               <span className="hidden sm:inline">רענן נתונים</span>
@@ -229,6 +244,13 @@ function DashboardContent() {
           onClose={() => setIsModalOpen(false)}
           onSave={handleSaveRecord}
           isAdmin={isAdmin}
+        />
+
+        {/* Wizard עדכון דירה-דירה */}
+        <StatusWorkflowWizard
+          isOpen={isWorkflowOpen}
+          onClose={() => setIsWorkflowOpen(false)}
+          onOpenDetails={handleOpenDetailsFromWorkflow}
         />
       </div>
     </div>
