@@ -17,6 +17,8 @@ import {
   Home, Phone, Wallet, Calendar, FileText, Scale, 
   Save, X, AlertTriangle, Lock, User
 } from "lucide-react";
+import { useQuery } from '@tanstack/react-query';
+import { base44 } from '@/api/base44Client';
 
 const STATUS_COLORS = {
   'סדיר': 'bg-green-100 text-green-700',
@@ -32,6 +34,13 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   const [isSaving, setIsSaving] = useState(false);
   const [lastContactDateError, setLastContactDateError] = useState('');
   const [nextActionDateError, setNextActionDateError] = useState('');
+
+  const { data: statuses = [] } = useQuery({
+    queryKey: ['statuses'],
+    queryFn: () => base44.entities.Status.list('order'),
+  });
+
+  const activeStatuses = statuses.filter(s => s.is_active);
 
   React.useEffect(() => {
     setEditedRecord(record);
@@ -213,47 +222,24 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 ניהול משפטי
               </h3>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="text-right">
-                  <Label className="text-sm font-bold text-slate-700 mb-2 block">שלב משפטי</Label>
-                  <Select 
-                    value={editedRecord?.legalStage || 'אין'} 
-                    onValueChange={(v) => setEditedRecord({...editedRecord, legalStage: v})}
-                    dir="rtl"
-                  >
-                    <SelectTrigger className="mt-2 h-12 rounded-xl text-right" dir="rtl">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent dir="rtl" className="rounded-xl">
-                      <SelectItem value="אין">אין</SelectItem>
-                      <SelectItem value="פנייה ראשונית">פנייה ראשונית</SelectItem>
-                      <SelectItem value="מכתב התראה">מכתב התראה</SelectItem>
-                      <SelectItem value="בתביעה">בתביעה</SelectItem>
-                      <SelectItem value="הסדר תשלומים">הסדר תשלומים</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                <div className="text-right">
-                  <Label className="text-sm font-bold text-slate-700 mb-2 block">סטטוס (ידני)</Label>
-                  <Select 
-                    value={editedRecord?.status || 'סדיר'} 
-                    onValueChange={(v) => setEditedRecord({...editedRecord, status: v})}
-                    dir="rtl"
-                  >
-                    <SelectTrigger className="mt-2 h-12 rounded-xl text-right" dir="rtl">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent dir="rtl" className="rounded-xl">
-                      <SelectItem value="סדיר">סדיר</SelectItem>
-                      <SelectItem value="חייב">חייב</SelectItem>
-                      <SelectItem value="חייב משמעותי">חייב משמעותי</SelectItem>
-                      <SelectItem value="מועמד לתביעה">מועמד לתביעה</SelectItem>
-                      <SelectItem value="בתביעה">בתביעה</SelectItem>
-                      <SelectItem value="בהסדר">בהסדר</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div className="text-right">
+                <Label className="text-sm font-bold text-slate-700 mb-2 block">סטטוס</Label>
+                <Select 
+                  value={editedRecord?.status || ''} 
+                  onValueChange={(v) => setEditedRecord({...editedRecord, status: v})}
+                  dir="rtl"
+                >
+                  <SelectTrigger className="mt-2 h-12 rounded-xl text-right" dir="rtl">
+                    <SelectValue placeholder="בחר סטטוס..." />
+                  </SelectTrigger>
+                  <SelectContent dir="rtl" className="rounded-xl">
+                    {activeStatuses.map(status => (
+                      <SelectItem key={status.id} value={status.name}>
+                        {status.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

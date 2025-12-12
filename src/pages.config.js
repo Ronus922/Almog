@@ -1,6 +1,7 @@
 import Dashboard from './pages/Dashboard';
 import Import from './pages/Import';
 import Settings from './pages/Settings';
+import StatusManagement from './pages/StatusManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -8,6 +9,7 @@ export const PAGES = {
     "Dashboard": Dashboard,
     "Import": Import,
     "Settings": Settings,
+    "StatusManagement": StatusManagement,
 }
 
 export const pagesConfig = {
