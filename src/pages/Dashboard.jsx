@@ -9,7 +9,6 @@ import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import KPICards from '../components/dashboard/KPICards';
 import DebtorsTable from '../components/dashboard/DebtorsTable';
 import ApartmentDetailModal from '../components/dashboard/ApartmentDetailModal';
-import CopyLoginLink from '../components/CopyLoginLink';
 
 function DashboardContent() {
   const { currentUser } = useAuth();
