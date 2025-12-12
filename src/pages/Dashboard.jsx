@@ -52,7 +52,7 @@ function DashboardContent() {
   const settings = settingsList[0] || { highDebtThreshold: 1000, monthsBeforeLawsuit: 3 };
   const isAdmin = currentUser?.role === 'admin';
 
-  // תיקון אוטומטי לכל legal_status_id לא תקין
+  // תיקון אוטומטי לכל legal_status_id לא תקין - רק רשומות לא נעולות
   useEffect(() => {
     const fixInvalidStatuses = async () => {
       if (!records || records.length === 0 || !allStatuses || allStatuses.length === 0) return;
@@ -66,28 +66,41 @@ function DashboardContent() {
         .filter(s => s.type === 'LEGAL' && s.is_active)
         .map(s => s.id);
 
-      // מציאת רשומות עם סטטוס לא תקין
-      const recordsToFix = records.filter(r => 
-        !r.legal_status_id || !validLegalStatusIds.includes(r.legal_status_id)
-      );
+      // מציאת רשומות עם סטטוס לא תקין - רק לא נעולות
+      const recordsToFix = records.filter(r => {
+        // דלג על רשומות נעולות (שונו ידנית)
+        if (r.legal_status_lock === true) {
+          return false;
+        }
+        // תקן רק אם הסטטוס באמת לא תקין
+        return !r.legal_status_id || !validLegalStatusIds.includes(r.legal_status_id);
+      });
 
       if (recordsToFix.length > 0) {
-        console.log(`[Dashboard] Fixing ${recordsToFix.length} records with invalid legal_status_id`);
+        console.log(`[Dashboard AUTO-FIX] Fixing ${recordsToFix.length} records with invalid legal_status_id`);
         
         // תיקון כל הרשומות
         for (const record of recordsToFix) {
           try {
+            console.log(`[Dashboard AUTO-FIX] Fixing record ${record.apartmentNumber} (${record.id})`);
             await base44.entities.DebtorRecord.update(record.id, { 
               legal_status_id: defaultStatus.id,
-              legal_status_overridden: false
+              legal_status_overridden: false,
+              legal_status_source: 'AUTO_DEFAULT',
+              legal_status_updated_at: new Date().toISOString()
             });
           } catch (err) {
-            console.error(`[Dashboard] Failed to fix record ${record.id}:`, err);
+            console.error(`[Dashboard AUTO-FIX ERROR] Failed to fix record ${record.id}:`, err);
           }
         }
 
         // רענון הנתונים לאחר התיקון
         queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+      } else {
+        const lockedCount = records.filter(r => r.legal_status_lock === true).length;
+        if (lockedCount > 0) {
+          console.log(`[Dashboard AUTO-FIX] Skipped ${lockedCount} locked records`);
+        }
       }
     };
 
