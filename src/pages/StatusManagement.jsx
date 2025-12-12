@@ -192,7 +192,10 @@ export default function StatusManagement() {
   });
 
   const handleFixAll = async () => {
-    if (!defaultStatus) {
+    // חישוב defaultStatus בתוך הפונקציה
+    const currentDefaultStatus = statuses.find(s => s.type === 'LEGAL' && s.is_default === true);
+    
+    if (!currentDefaultStatus) {
       toast.error('לא נמצא סטטוס ברירת מחדל במערכת');
       return;
     }
@@ -216,7 +219,7 @@ export default function StatusManagement() {
 
         if (!hasValidStatus) {
           await base44.entities.DebtorRecord.update(record.id, {
-            legal_status_id: defaultStatus.id,
+            legal_status_id: currentDefaultStatus.id,
             legal_status_overridden: false
           });
           result.fixed++;
