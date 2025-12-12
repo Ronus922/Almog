@@ -1,48 +1,55 @@
 import React from 'react';
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle } from "lucide-react";
 
-export default function DebtSeverityBadge({ debt, settings }) {
-  const lowThreshold = settings?.low_threshold || 1500;
-  const midThreshold = settings?.mid_threshold || 5000;
-  const labelLow = settings?.label_low || '';
-  const labelMid = settings?.label_mid || 'חוב משמעותי';
-  const labelHigh = settings?.label_high || 'לטיפול משפטי';
+export default function DebtStatusBadge({ debtStatusAuto }) {
+  const statusConfig = {
+    'סך חוב תקין': {
+      className: 'bg-green-100 text-green-700 border-green-200',
+      borderColor: 'border-r-green-500'
+    },
+    'חוב משמעותי': {
+      className: 'bg-orange-100 text-orange-700 border-orange-200',
+      borderColor: 'border-r-orange-500'
+    },
+    'לטיפול משפטי': {
+      className: 'bg-red-100 text-red-700 border-red-200',
+      borderColor: 'border-r-red-500'
+    }
+  };
 
-  const amount = debt || 0;
+  const config = statusConfig[debtStatusAuto] || statusConfig['סך חוב תקין'];
 
-  if (amount < lowThreshold) {
-    // Green - low debt
-    if (!labelLow) return null; // No badge if label is empty
-    return (
-      <Badge className="bg-green-100 text-green-700 border-green-200 font-semibold text-xs">
-        {labelLow}
-      </Badge>
-    );
-  } else if (amount < midThreshold) {
-    // Orange - medium debt
-    return (
-      <Badge className="bg-orange-100 text-orange-700 border-orange-200 font-semibold text-xs">
-        {labelMid}
-      </Badge>
-    );
-  } else {
-    // Red - high debt
-    return (
-      <Badge className="bg-red-100 text-red-700 border-red-200 font-semibold text-xs flex items-center gap-1">
-        <AlertTriangle className="w-3 h-3" />
-        {labelHigh}
-      </Badge>
-    );
-  }
+  return (
+    <Badge className={`${config.className} font-semibold text-sm`}>
+      {debtStatusAuto}
+    </Badge>
+  );
 }
 
-export function getDebtSeverityColor(debt, settings) {
-  const lowThreshold = settings?.low_threshold || 1500;
-  const midThreshold = settings?.mid_threshold || 5000;
-  const amount = debt || 0;
+export function getDebtStatusColor(debtStatusAuto) {
+  const colorMap = {
+    'סך חוב תקין': 'green',
+    'חוב משמעותי': 'orange',
+    'לטיפול משפטי': 'red'
+  };
+  return colorMap[debtStatusAuto] || 'green';
+}
 
-  if (amount < lowThreshold) return 'green';
-  if (amount < midThreshold) return 'orange';
-  return 'red';
+export function getBorderColor(debtStatusAuto) {
+  const borderMap = {
+    'סך חוב תקין': 'border-r-green-500',
+    'חוב משמעותי': 'border-r-orange-500',
+    'לטיפול משפטי': 'border-r-red-500'
+  };
+  return borderMap[debtStatusAuto] || 'border-r-green-500';
+}
+
+export function calculateDebtStatus(totalDebt, settings) {
+  const thresholdOk = settings?.threshold_ok || 1000;
+  const thresholdLegal = settings?.threshold_legal || 5000;
+  const debt = totalDebt || 0;
+
+  if (debt <= thresholdOk) return 'סך חוב תקין';
+  if (debt < thresholdLegal) return 'חוב משמעותי';
+  return 'לטיפול משפטי';
 }

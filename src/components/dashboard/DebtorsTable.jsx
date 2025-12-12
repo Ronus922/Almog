@@ -22,21 +22,15 @@ import {
 import { Search, Filter, ArrowUpDown, Eye, ChevronLeft, ChevronRight, X, SlidersHorizontal } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import DebtorCard from './DebtorCard';
-import DebtSeverityBadge, { getDebtSeverityColor } from './DebtSeverityBadge';
+import DebtStatusBadge, { getBorderColor } from './DebtSeverityBadge';
 
-const STATUS_COLORS = {
-  'סדיר': 'bg-green-100 text-green-700 border-green-200',
-  'חייב': 'bg-yellow-100 text-yellow-700 border-yellow-200',
-  'חייב משמעותי': 'bg-orange-100 text-orange-700 border-orange-200',
-  'מועמד לתביעה': 'bg-slate-100 text-slate-700 border-slate-200',
-  'בתביעה': 'bg-red-100 text-red-700 border-red-200',
-  'בהסדר': 'bg-blue-100 text-blue-700 border-blue-200'
-};
+
 
 export default function DebtorsTable({ records, onRowClick, isAdmin, settings, initialStatusFilter }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState(initialStatusFilter || 'all');
   const [debtFilter, setDebtFilter] = useState('all');
+  const [legalStatusFilter, setLegalStatusFilter] = useState('all');
   const [sortField, setSortField] = useState('totalDebt');
   const [sortDir, setSortDir] = useState('desc');
   const [page, setPage] = useState(1);
@@ -62,6 +56,17 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, i
     }
   }, [initialStatusFilter]);
 
+  // Get unique legal statuses
+  const uniqueLegalStatuses = React.useMemo(() => {
+    const statuses = new Set();
+    records.forEach(r => {
+      if (r.legal_status_manual) {
+        statuses.add(r.legal_status_manual);
+      }
+    });
+    return Array.from(statuses).sort();
+  }, [records]);
+
   const formatCurrency = (num) => 
     new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num || 0);
 
@@ -85,9 +90,14 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, i
       );
     }
 
-    // סינון סטטוס
+    // סינון סטטוס אוטומטי
     if (statusFilter !== 'all') {
-      result = result.filter(r => r.status === statusFilter);
+      result = result.filter(r => r.debt_status_auto === statusFilter);
+    }
+
+    // סינון מצב משפטי
+    if (legalStatusFilter !== 'all') {
+      result = result.filter(r => r.legal_status_manual === legalStatusFilter);
     }
 
     // סינון חוב
@@ -187,6 +197,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, i
   const clearFilters = () => {
     setStatusFilter('all');
     setDebtFilter('all');
+    setLegalStatusFilter('all');
     setSearch('');
     setMinDebt('');
     setMaxDebt('');
@@ -211,7 +222,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, i
     setPage(1);
   };
 
-  const hasActiveFilters = statusFilter !== 'all' || debtFilter !== 'all' || search !== '';
+  const hasActiveFilters = statusFilter !== 'all' || debtFilter !== 'all' || legalStatusFilter !== 'all' || search !== '';
   const hasAdvancedFilters = minDebt !== '' || maxDebt !== '' || ownerNameFilter !== '' || phoneFilter !== '' || minMonthsArrears !== '' || maxMonthsArrears !== '' || fromDate !== '' || toDate !== '';
 
   return (
@@ -292,19 +303,31 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, i
                     </div>
 
                     <div>
-                      <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">סטטוס</label>
+                      <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">סטטוס חוב</label>
                       <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
                         <SelectTrigger className="w-full h-11 rounded-xl">
                           <SelectValue placeholder="כל הסטטוסים" />
                         </SelectTrigger>
                         <SelectContent className="rounded-xl">
                           <SelectItem value="all">כל הסטטוסים</SelectItem>
-                          <SelectItem value="סדיר">סדיר</SelectItem>
-                          <SelectItem value="חייב">חייב</SelectItem>
-                          <SelectItem value="חייב משמעותי">חייב משמעותי</SelectItem>
-                          <SelectItem value="מועמד לתביעה">מועמד לתביעה</SelectItem>
-                          <SelectItem value="בתביעה">בתביעה</SelectItem>
-                          <SelectItem value="בהסדר">בהסדר</SelectItem>
+                          <SelectItem value="סך חוב תקין">סך חוב תקין</SelectItem>
+                          <SelectItem value="חוב משמעותי">חוב משמעותי</SelectItem>
+                          <SelectItem value="לטיפול משפטי">לטיפול משפטי</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">מצב משפטי</label>
+                      <Select value={legalStatusFilter} onValueChange={(v) => { setLegalStatusFilter(v); setPage(1); }}>
+                        <SelectTrigger className="w-full h-11 rounded-xl">
+                          <SelectValue placeholder="הכל" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl">
+                          <SelectItem value="all">הכל</SelectItem>
+                          {uniqueLegalStatuses.map(status => (
+                            <SelectItem key={status} value={status}>{status}</SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
@@ -392,12 +415,21 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, i
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
                   <SelectItem value="all">כל הסטטוסים</SelectItem>
-                  <SelectItem value="סדיר">סדיר</SelectItem>
-                  <SelectItem value="חייב">חייב</SelectItem>
-                  <SelectItem value="חייב משמעותי">חייב משמעותי</SelectItem>
-                  <SelectItem value="מועמד לתביעה">מועמד לתביעה</SelectItem>
-                  <SelectItem value="בתביעה">בתביעה</SelectItem>
-                  <SelectItem value="בהסדר">בהסדר</SelectItem>
+                  <SelectItem value="סך חוב תקין">סך חוב תקין</SelectItem>
+                  <SelectItem value="חוב משמעותי">חוב משמעותי</SelectItem>
+                  <SelectItem value="לטיפול משפטי">לטיפול משפטי</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={legalStatusFilter} onValueChange={(v) => { setLegalStatusFilter(v); setPage(1); }}>
+                <SelectTrigger className="w-40 h-11 rounded-xl border-slate-300">
+                  <SelectValue placeholder="מצב משפטי" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="all">כל המצבים</SelectItem>
+                  {uniqueLegalStatuses.map(status => (
+                    <SelectItem key={status} value={status}>{status}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
 
@@ -457,7 +489,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, i
             </div>
           ) : (
             paginatedRecords.map((record) => (
-              <DebtorCard key={record.id} record={record} onClick={onRowClick} settings={settings} />
+              <DebtorCard key={record.id} record={record} onClick={onRowClick} />
             ))
           )}
         </div>
@@ -470,36 +502,19 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, i
                 <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">מס׳ דירה</TableHead>
                 <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">שם בעל הדירה</TableHead>
                 <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">טלפון</TableHead>
-                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('totalDebt')}>
-                  <div className="flex items-center gap-2 justify-end">
-                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'totalDebt' ? 'text-rose-600' : 'text-slate-400'}`} />
+                <TableHead className="text-center font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('total_debt')}>
+                  <div className="flex items-center gap-2 justify-center">
+                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'total_debt' ? 'text-slate-800' : 'text-slate-400'}`} />
                     סה״כ חוב
                   </div>
                 </TableHead>
-                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('monthlyDebt')}>
-                  <div className="flex items-center gap-2 justify-end">
-                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'monthlyDebt' ? 'text-amber-600' : 'text-slate-400'}`} />
-                    חוב חודשי
-                  </div>
-                </TableHead>
-                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('specialDebt')}>
-                  <div className="flex items-center gap-2 justify-end">
-                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'specialDebt' ? 'text-purple-600' : 'text-slate-400'}`} />
-                    חוב מיוחד
-                  </div>
-                </TableHead>
-                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('status')}>
-                  <div className="flex items-center gap-2 justify-end">
-                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'status' ? 'text-blue-600' : 'text-slate-400'}`} />
+                <TableHead className="text-center font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('debt_status_auto')}>
+                  <div className="flex items-center gap-2 justify-center">
+                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'debt_status_auto' ? 'text-blue-600' : 'text-slate-400'}`} />
                     סטטוס
                   </div>
                 </TableHead>
-                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('monthsInArrears')}>
-                  <div className="flex items-center gap-2 justify-end">
-                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'monthsInArrears' ? 'text-rose-600' : 'text-slate-400'}`} />
-                    חודשי פיגור
-                  </div>
-                </TableHead>
+                <TableHead className="text-center font-bold text-slate-700 text-base py-4 px-6">משפטי</TableHead>
               </TableRow>
               
               {/* Advanced Filter Row */}
@@ -557,18 +572,15 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, i
                   <TableHead className="py-3 px-4"></TableHead>
                   <TableHead className="py-3 px-4">
                     <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
-                      <SelectTrigger className="h-9 rounded-lg text-sm">
-                        <SelectValue placeholder="הכל" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-lg">
-                        <SelectItem value="all">הכל</SelectItem>
-                        <SelectItem value="סדיר">סדיר</SelectItem>
-                        <SelectItem value="חייב">חייב</SelectItem>
-                        <SelectItem value="חייב משמעותי">חייב משמעותי</SelectItem>
-                        <SelectItem value="מועמד לתביעה">מועמד לתביעה</SelectItem>
-                        <SelectItem value="בתביעה">בתביעה</SelectItem>
-                        <SelectItem value="בהסדר">בהסדר</SelectItem>
-                      </SelectContent>
+                    <SelectTrigger className="h-9 rounded-lg text-sm">
+                      <SelectValue placeholder="הכל" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-lg">
+                      <SelectItem value="all">הכל</SelectItem>
+                      <SelectItem value="סך חוב תקין">סך חוב תקין</SelectItem>
+                      <SelectItem value="חוב משמעותי">חוב משמעותי</SelectItem>
+                      <SelectItem value="לטיפול משפטי">לטיפול משפטי</SelectItem>
+                    </SelectContent>
                     </Select>
                   </TableHead>
                   <TableHead className="py-3 px-4">
