@@ -387,6 +387,42 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       
       console.log('[DEBUG] Server response:', updatedRecord);
 
+      // בדיקה: האם השרת החזיר את הסטטוס שביקשנו?
+      if (updatedRecord?.legal_status_id !== newStatusId) {
+        console.error('[ERROR] Status mismatch:', {
+          requested: newStatusId,
+          received: updatedRecord?.legal_status_id
+        });
+        
+        // החזרה לערך הקודם
+        setEditedRecord(prev => ({
+          ...prev,
+          legal_status_id: oldStatusId
+        }));
+        
+        // בדיקה אם הוחזר default
+        const isDefaultReturned = updatedRecord?.legal_status_id === defaultStatus?.id;
+        
+        if (isDefaultReturned) {
+          toast.error(
+            'השינוי לא נשמר',
+            {
+              description: 'הסטטוס שבחרת לא נשמר בפועל והוחזר לברירת המחדל. סביר שקיים תהליך אוטומטי (ייבוא / תיקון מערכת) שדרס את השינוי.'
+            }
+          );
+        } else {
+          toast.error(
+            'השינוי נדרס לאחר שמירה',
+            {
+              description: 'הסטטוס נשמר אך תהליך מערכת אחר שינה אותו מיד לאחר מכן. בדוק הגדרות Import / Auto-fix.'
+            }
+          );
+        }
+        
+        setSavingStatus(false);
+        return;
+      }
+
       // יצירת רשומת היסטוריה
       await base44.entities.LegalStatusHistory.create({
         debtor_record_id: record.id,
@@ -403,21 +439,31 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       // עדכון ה-state עם התשובה מהשרת
       setEditedRecord(prev => ({
         ...prev,
-        legal_status_id: updatedRecord?.legal_status_id || newStatusId,
+        legal_status_id: updatedRecord.legal_status_id,
         legal_status_overridden: true,
         legal_status_lock: true,
         legal_status_source: 'MANUAL',
-        legal_status_updated_at: updatedRecord?.legal_status_updated_at || now,
-        legal_status_updated_by: updatedRecord?.legal_status_updated_by || (currentUser.email || currentUser.username)
+        legal_status_updated_at: updatedRecord.legal_status_updated_at || now,
+        legal_status_updated_by: updatedRecord.legal_status_updated_by || (currentUser.email || currentUser.username)
       }));
 
       // רענון cache
       await queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
       
       setStatusSaveSuccess(true);
-      toast.success('סטטוס משפטי עודכן בהצלחה ✓');
       
-      console.log('[DEBUG] Status change completed successfully');
+      // הצלחה אמיתית בלבד
+      const userName = currentUser.email || currentUser.username;
+      const dateStr = new Date(now).toLocaleDateString('he-IL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+      
+      toast.success(
+        'סטטוס עודכן בהצלחה',
+        {
+          description: `עודכן ל־${newStatus?.name} · ${dateStr} · ע״י ${userName}`
+        }
+      );
+      
+      console.log('[SUCCESS] Status change completed successfully');
       
       setTimeout(() => setStatusSaveSuccess(false), 3000);
     } catch (err) {
@@ -434,7 +480,24 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         legal_status_id: oldStatusId
       }));
       
-      toast.error('שמירת הסטטוס נכשלה: ' + (err.message || 'שגיאה לא ידועה'));
+      // זיהוי סוג השגיאה
+      const errorMessage = err.message || '';
+      
+      if (errorMessage.includes('lock') || errorMessage.includes('protected')) {
+        toast.error(
+          'שינוי סטטוס חסום',
+          {
+            description: 'הסטטוס מוגן משינויים אוטומטיים. רק משתמש מורשה יכול לעדכן אותו.'
+          }
+        );
+      } else {
+        toast.error(
+          'שמירת הסטטוס נכשלה',
+          {
+            description: 'לא ניתן לשמור את השינוי. נסה שוב או פנה למנהל המערכת.'
+          }
+        );
+      }
     } finally {
       setSavingStatus(false);
     }
