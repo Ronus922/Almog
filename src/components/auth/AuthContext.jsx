@@ -18,6 +18,7 @@ export function AuthProvider({ children }) {
       if (base44User && base44User.role === 'admin') {
         setCurrentUser({
           username: base44User.email || base44User.full_name || 'Admin',
+          firstName: base44User.full_name || 'Admin',
           role: 'admin',
           isBase44Admin: true
         });
@@ -38,6 +39,8 @@ export function AuthProvider({ children }) {
         if (users.length > 0 && users[0].is_active) {
           setCurrentUser({
             username: session.username,
+            firstName: users[0].first_name,
+            lastName: users[0].last_name,
             role: users[0].role,
             isBase44Admin: false
           });
@@ -75,6 +78,8 @@ export function AuthProvider({ children }) {
     localStorage.setItem('app_session', JSON.stringify(session));
     setCurrentUser({
       username: user.username,
+      firstName: user.first_name,
+      lastName: user.last_name,
       role: user.role,
       isBase44Admin: false
     });

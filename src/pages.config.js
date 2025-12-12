@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import UserManagement from './pages/UserManagement';
 import app from './pages/_app';
 import AppLogin from './pages/AppLogin';
+import ShareDashboard from './pages/ShareDashboard';
 import __Layout from './Layout.jsx';
 
 
@@ -18,6 +19,7 @@ export const PAGES = {
     "UserManagement": UserManagement,
     "_app": app,
     "AppLogin": AppLogin,
+    "ShareDashboard": ShareDashboard,
 }
 
 export const pagesConfig = {

@@ -70,7 +70,7 @@ function DashboardContent() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl md:text-3xl font-extrabold bg-gradient-to-l from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                  {currentUser ? `שלום, ${currentUser.username}` : 'שלום, אורח'}
+                  {currentUser ? `שלום, ${currentUser.firstName || currentUser.username}` : 'שלום, אורח'}
                 </h1>
                 {currentUser?.isBase44Admin && (
                   <span className="text-xs bg-gradient-to-l from-purple-600 to-purple-700 text-white px-2 py-1 rounded-lg font-bold">
@@ -84,7 +84,6 @@ function DashboardContent() {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 md:gap-3">
-            {isAdmin && <CopyLoginLink />}
             {currentUser && !isAdmin && (
               <div className="text-xs md:text-sm bg-gradient-to-l from-blue-50 to-blue-100 text-blue-700 px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl border border-blue-200 font-semibold shadow-sm">
                 צפייה בלבד
