@@ -111,6 +111,15 @@ function DashboardContent() {
     setIsModalOpen(true);
   };
 
+  const handleOpenWorkflow = () => {
+    setIsWorkflowOpen(true);
+  };
+
+  const handleOpenDetailsFromWorkflow = (record) => {
+    setSelectedRecord(record);
+    setIsModalOpen(true);
+  };
+
   const handleSaveRecord = async (editedRecord) => {
     await updateMutation.mutateAsync({ id: editedRecord.id, data: editedRecord });
   };

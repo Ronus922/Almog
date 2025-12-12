@@ -10,6 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import StatusWorkflowWizard from '../components/workflow/StatusWorkflowWizard';
+import ApartmentDetailModal from '../components/dashboard/ApartmentDetailModal';
 import {
   Dialog,
   DialogContent,
@@ -65,6 +67,10 @@ export default function StatusManagement() {
   const [editingStatus, setEditingStatus] = useState(null);
   const [isFixing, setIsFixing] = useState(false);
   const [fixResult, setFixResult] = useState(null);
+  const [isWorkflowOpen, setIsWorkflowOpen] = useState(false);
+  const [workflowStatusId, setWorkflowStatusId] = useState(null);
+  const [selectedRecord, setSelectedRecord] = useState(null);
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     type: 'LEGAL',
@@ -295,6 +301,27 @@ export default function StatusManagement() {
     }
   };
 
+  const handleOpenWorkflow = (statusId) => {
+    setWorkflowStatusId(statusId);
+    setIsWorkflowOpen(true);
+  };
+
+  const handleOpenDetailsFromWorkflow = (record) => {
+    setSelectedRecord(record);
+    setIsDetailModalOpen(true);
+  };
+
+  const handleSaveDetail = async (updatedRecord) => {
+    try {
+      await base44.entities.DebtorRecord.update(updatedRecord.id, updatedRecord);
+      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+      setIsDetailModalOpen(false);
+      toast.success('הרשומה עודכנה בהצלחה');
+    } catch (err) {
+      toast.error('שמירה נכשלה');
+    }
+  };
+
   const handleReassign = () => {
     if (!reassignTargetId) {
       toast.error('יש לבחור סטטוס חלופי כדי להמשיך');
@@ -475,15 +502,28 @@ export default function StatusManagement() {
                               >
                                 {usageCount}
                               </button>
-                            </TooltipTrigger>
-                            <TooltipContent>
+                              </TooltipTrigger>
+                              <TooltipContent>
                               <p className="text-sm font-semibold">
                                 {usageCount} דירות מקושרות לסטטוס זה - לחץ לצפייה
                               </p>
-                            </TooltipContent>
-                          </Tooltip>
-                        </TooltipProvider>
-                      </TableCell>
+                              </TooltipContent>
+                              </Tooltip>
+                              </TooltipProvider>
+                              {usageCount > 0 && (
+                              <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenWorkflow(status.id);
+                              }}
+                              className="mr-2 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50"
+                              >
+                              עדכן דירה-דירה
+                              </Button>
+                              )}
+                              </TableCell>
                       <TableCell className="text-center">
                         {status.is_active ? (
                           <Badge className="bg-green-100 text-green-700">פעיל</Badge>
@@ -702,7 +742,27 @@ export default function StatusManagement() {
             )}
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
-    </div>
-  );
-}
+        </AlertDialog>
+
+        <StatusWorkflowWizard
+        isOpen={isWorkflowOpen}
+        onClose={() => {
+          setIsWorkflowOpen(false);
+          setWorkflowStatusId(null);
+        }}
+        initialStatusId={workflowStatusId}
+        onOpenDetails={handleOpenDetailsFromWorkflow}
+        />
+
+        {selectedRecord && (
+        <ApartmentDetailModal
+          record={selectedRecord}
+          isOpen={isDetailModalOpen}
+          onClose={() => setIsDetailModalOpen(false)}
+          onSave={handleSaveDetail}
+          isAdmin={user?.role === 'admin'}
+        />
+        )}
+        </div>
+        );
+        }
