@@ -33,9 +33,9 @@ const STATUS_COLORS = {
   'בהסדר': 'bg-blue-100 text-blue-700 border-blue-200'
 };
 
-export default function DebtorsTable({ records, onRowClick, isAdmin, settings }) {
+export default function DebtorsTable({ records, onRowClick, isAdmin, settings, initialStatusFilter }) {
   const [search, setSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
+  const [statusFilter, setStatusFilter] = useState(initialStatusFilter || 'all');
   const [debtFilter, setDebtFilter] = useState('all');
   const [sortField, setSortField] = useState('totalDebt');
   const [sortDir, setSortDir] = useState('desc');
@@ -54,6 +54,13 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
   const [toDate, setToDate] = useState('');
   
   const pageSize = 50;
+
+  // Update status filter when initialStatusFilter changes
+  React.useEffect(() => {
+    if (initialStatusFilter) {
+      setStatusFilter(initialStatusFilter);
+    }
+  }, [initialStatusFilter]);
 
   const formatCurrency = (num) => 
     new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num || 0);

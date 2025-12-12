@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/components/auth/AuthContext';
 import { Button } from "@/components/ui/button";
-import { Loader2, Building2, RefreshCw } from "lucide-react";
+import { Loader2, Building2, RefreshCw, X } from "lucide-react";
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 import KPICards from '../components/dashboard/KPICards';
 import DebtorsTable from '../components/dashboard/DebtorsTable';
@@ -14,7 +15,17 @@ function DashboardContent() {
   const { currentUser } = useAuth();
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [statusFilterFromUrl, setStatusFilterFromUrl] = useState(null);
   const queryClient = useQueryClient();
+
+  // Check URL for status filter
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const statusParam = urlParams.get('status');
+    if (statusParam) {
+      setStatusFilterFromUrl(decodeURIComponent(statusParam));
+    }
+  }, []);
 
   const { data: records = [], isLoading: recordsLoading, refetch: refetchRecords } = useQuery({
     queryKey: ['debtorRecords'],
@@ -63,6 +74,30 @@ function DashboardContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100" dir="rtl">
       <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8">
+        {/* Status filter indicator */}
+        {statusFilterFromUrl && (
+          <Alert className="bg-blue-50 border-blue-200">
+            <AlertDescription className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-blue-900">מסונן לפי סטטוס:</span>
+                <span className="text-blue-700">{statusFilterFromUrl}</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setStatusFilterFromUrl(null);
+                  window.history.pushState({}, '', window.location.pathname);
+                }}
+                className="text-blue-700 hover:text-blue-900 hover:bg-blue-100"
+              >
+                <X className="w-4 h-4 ml-1" />
+                נקה פילטר
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* כותרת */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
           <div className="flex items-center gap-3 md:gap-4">
@@ -110,6 +145,7 @@ function DashboardContent() {
           onRowClick={handleRowClick}
           isAdmin={isAdmin}
           settings={settings}
+          initialStatusFilter={statusFilterFromUrl}
         />
 
         {/* מודל פרטי דירה */}
