@@ -34,7 +34,7 @@ const STATUS_COLORS = {
   'לטיפול משפטי': 'bg-red-100 text-red-700 border-red-200'
 };
 
-export default function DebtorsTable({ records, onRowClick, isAdmin, settings, allStatuses = [] }) {
+export default function DebtorsTable({ records, onRowClick, isAdmin, settings, allStatuses = [], hideStatusFilter = false }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortField, setSortField] = useState('totalDebt');
@@ -269,22 +269,24 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, a
                       </Select>
                     </div>
 
-                    <div>
-                      <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">מצב משפטי</label>
-                      <Select value={legalStatusFilter} onValueChange={(v) => { setLegalStatusFilter(v); setPage(1); }}>
-                        <SelectTrigger className="w-full h-11 rounded-xl">
-                          <SelectValue placeholder="כל המצבים" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-xl">
-                          <SelectItem value="all">כל המצבים</SelectItem>
-                          {activeLegalStatuses.map(status => (
-                            <SelectItem key={status.id} value={status.id}>
-                              {status.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
+                    {!hideStatusFilter && (
+                      <div>
+                        <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">מצב משפטי</label>
+                        <Select value={legalStatusFilter} onValueChange={(v) => { setLegalStatusFilter(v); setPage(1); }}>
+                          <SelectTrigger className="w-full h-11 rounded-xl">
+                            <SelectValue placeholder="כל המצבים" />
+                          </SelectTrigger>
+                          <SelectContent className="rounded-xl">
+                            <SelectItem value="all">כל המצבים</SelectItem>
+                            {activeLegalStatuses.map(status => (
+                              <SelectItem key={status.id} value={status.id}>
+                                {status.name}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    )}
 
                     <div className="pt-4 flex gap-2">
                       <Button 
@@ -482,19 +484,21 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, a
                     </Select>
                   </TableHead>
                   <TableHead className="py-3 px-4">
-                    <Select value={legalStatusFilter} onValueChange={(v) => { setLegalStatusFilter(v); setPage(1); }}>
-                      <SelectTrigger className="h-9 rounded-lg text-sm">
-                        <SelectValue placeholder="הכל" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-lg">
-                        <SelectItem value="all">הכל</SelectItem>
-                        {activeLegalStatuses.map(status => (
-                          <SelectItem key={status.id} value={status.id}>
-                            {status.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+                    {!hideStatusFilter && (
+                      <Select value={legalStatusFilter} onValueChange={(v) => { setLegalStatusFilter(v); setPage(1); }}>
+                        <SelectTrigger className="h-9 rounded-lg text-sm">
+                          <SelectValue placeholder="הכל" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-lg">
+                          <SelectItem value="all">הכל</SelectItem>
+                          {activeLegalStatuses.map(status => (
+                            <SelectItem key={status.id} value={status.id}>
+                              {status.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
                   </TableHead>
                 </TableRow>
               )}
