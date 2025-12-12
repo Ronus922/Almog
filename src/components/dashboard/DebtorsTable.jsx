@@ -175,17 +175,17 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
                 </TableHeader>
                 <TableBody>
                 {paginatedRecords.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={11} className="text-center py-10">
-                    <div className="flex flex-col items-center gap-2">
-                      <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center">
-                        <Filter className="w-6 h-6 text-slate-400" />
+                  <TableRow>
+                    <TableCell colSpan={10} className="text-center py-10">
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="w-12 h-12 bg-slate-100 rounded-full flex items-center justify-center">
+                          <Filter className="w-6 h-6 text-slate-400" />
+                        </div>
+                        <p className="text-slate-500 font-medium">לא נמצאו רשומות</p>
+                        <p className="text-xs text-slate-400">נסה לשנות את הפילטרים או את החיפוש</p>
                       </div>
-                      <p className="text-slate-500 font-medium">לא נמצאו רשומות</p>
-                      <p className="text-xs text-slate-400">נסה לשנות את הפילטרים או את החיפוש</p>
-                    </div>
-                  </TableCell>
-                </TableRow>
+                    </TableCell>
+                  </TableRow>
                 ) : (
                 paginatedRecords.map((record) => (
                   <TableRow 
@@ -195,7 +195,6 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
                   >
                     <TableCell className="font-medium">{record.apartmentNumber}</TableCell>
                     <TableCell>{record.ownerName || '-'}</TableCell>
-                    <TableCell>{record.tenantName || '-'}</TableCell>
                     <TableCell className="text-sm">{record.phones || '-'}</TableCell>
                     <TableCell className="font-semibold text-rose-600">{formatCurrency(record.totalDebt)}</TableCell>
                     <TableCell>{formatCurrency(record.monthlyDebt)}</TableCell>

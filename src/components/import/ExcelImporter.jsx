@@ -15,7 +15,7 @@ import * as XLSX from 'xlsx';
 
 const FIELD_MAPPINGS = {
   apartmentNumber: { label: 'מספר דירה', patterns: ['דירה', 'apartment', 'מס דירה'], required: true },
-  rawTenantField: { label: 'דייר/ת', patterns: ['דייר', 'tenant', 'שוכר', 'בעלים'], required: false },
+  ownerName: { label: 'בעל דירה', patterns: ['דייר', 'tenant', 'שוכר', 'בעלים'], required: false },
   phones: { label: 'טלפון', patterns: ['טלפון', 'phone', 'נייד'], required: false },
   totalDebt: { label: 'סה״כ חוב', patterns: ['סה"כ חוב', 'סה״כ חוב', 'total debt', 'חוב כולל'], required: true },
   monthlyDebt: { label: 'חוב חודשי', patterns: ['חוב לתשלום חודשי', 'סה״כ חוב לתשלום חודשי', 'monthly'], required: false },
@@ -261,17 +261,34 @@ export default function ExcelImporter({ onImportComplete }) {
   };
 
   const calculateMonthsInArrears = (detailsText) => {
-    if (!detailsText) return 0;
-    
+    if (!detailsText || typeof detailsText !== 'string') return 0;
+
+    console.log(`[Excel Import - calculateMonthsInArrears] Processing: "${detailsText}"`);
+
     // חיפוש טווח תאריכים בפורמט MM/YY - MM/YY
     const rangeMatch = detailsText.match(/(\d{1,2})\/(\d{2})\s*-\s*(\d{1,2})\/(\d{2})/);
     if (rangeMatch) {
       const [, startMonth, startYear, endMonth, endYear] = rangeMatch;
-      const start = parseInt(startYear) * 12 + parseInt(startMonth);
-      const end = parseInt(endYear) * 12 + parseInt(endMonth);
-      return Math.abs(end - start) + 1;
+      // המרת YY ל-20YY
+      const fullStartYear = 2000 + parseInt(startYear);
+      const fullEndYear = 2000 + parseInt(endYear);
+
+      const start = fullStartYear * 12 + parseInt(startMonth);
+      const end = fullEndYear * 12 + parseInt(endMonth);
+      const months = Math.abs(end - start) + 1;
+
+      console.log(`[Excel Import - calculateMonthsInArrears] Range found: ${startMonth}/${startYear} - ${endMonth}/${endYear} = ${months} months`);
+      return months;
     }
-    
+
+    // חיפוש חודש בודד בפורמט MM/YY
+    const singleMatch = detailsText.match(/(\d{1,2})\/(\d{2})/);
+    if (singleMatch) {
+      console.log(`[Excel Import - calculateMonthsInArrears] Single month found: ${singleMatch[1]}/${singleMatch[2]} = 1 month`);
+      return 1;
+    }
+
+    console.log(`[Excel Import - calculateMonthsInArrears] No valid date pattern found`);
     return 0;
   };
 
@@ -375,9 +392,11 @@ export default function ExcelImporter({ onImportComplete }) {
             continue;
           }
 
+          const ownerNameRaw = (getColumnValue(row, mappings.ownerName) || '').toString().trim();
+
           const record = {
             apartmentNumber,
-            rawTenantField: (getColumnValue(row, mappings.rawTenantField) || '').toString().trim(),
+            ownerName: ownerNameRaw.split(/[\/,]/)[0]?.trim() || '', // רק בעל הדירה, ללא שוכר
             phones: (getColumnValue(row, mappings.phones) || '').toString().trim(),
             totalDebt: parseNumber(getColumnValue(row, mappings.totalDebt)),
             monthlyDebt: parseNumber(getColumnValue(row, mappings.monthlyDebt)),
@@ -387,15 +406,12 @@ export default function ExcelImporter({ onImportComplete }) {
             monthlyPayment: parseNumber(getColumnValue(row, mappings.monthlyPayment))
           };
 
-          // פיצול שם דייר לבעלים ושוכר (אם יש)
-          if (record.rawTenantField) {
-            const parts = record.rawTenantField.split(/[\/,]/);
-            record.ownerName = parts[0]?.trim() || '';
-            record.tenantName = parts[1]?.trim() || '';
-          }
-
-          // חישוב חודשי פיגור
+          // חישוב חודשי פיגור - רק מהעמודה "פרטים" (חוב חודשי)
           record.monthsInArrears = calculateMonthsInArrears(record.detailsMonthly);
+
+          if (record.monthsInArrears === 0 && record.detailsMonthly) {
+            console.warn(`[Excel Import - dbInsert] Row ${i + 1}: Could not calculate months in arrears from: "${record.detailsMonthly}"`);
+          }
 
           // חישוב סטטוס
           record.status = calculateStatus(record, settings);
