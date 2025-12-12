@@ -11,15 +11,15 @@ import {
 } from "lucide-react";
 
 const KPICard = ({ title, value, icon: Icon, color, subtext }) => (
-  <Card className="p-5 bg-white border-0 shadow-sm hover:shadow-md transition-all duration-300">
-    <div className="flex items-start justify-between">
-      <div className="space-y-1">
-        <p className="text-sm text-slate-500 font-medium">{title}</p>
-        <p className={`text-2xl font-bold ${color}`}>{value}</p>
-        {subtext && <p className="text-xs text-slate-400">{subtext}</p>}
+  <Card className="p-4 bg-white border-0 shadow-sm hover:shadow-md transition-all duration-300">
+    <div className="flex items-center gap-3">
+      <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${color.replace('text-', 'bg-').replace('-600', '-50').replace('-700', '-50')}`}>
+        <Icon className={`w-6 h-6 ${color}`} />
       </div>
-      <div className={`p-3 rounded-xl ${color.replace('text-', 'bg-').replace('-600', '-50').replace('-700', '-50')}`}>
-        <Icon className={`w-5 h-5 ${color}`} />
+      <div className="flex-1 min-w-0">
+        <p className="text-xs text-slate-500 font-medium truncate">{title}</p>
+        <p className={`text-xl font-bold ${color} truncate`}>{value}</p>
+        {subtext && <p className="text-xs text-slate-400 truncate">{subtext}</p>}
       </div>
     </div>
   </Card>
@@ -85,7 +85,7 @@ export default function KPICards({ records, settings }) {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-7 gap-3">
       {kpis.map((kpi, idx) => (
         <KPICard key={idx} {...kpi} />
       ))}

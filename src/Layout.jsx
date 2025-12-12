@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import RoleIndicator from './components/RoleIndicator';
 
+import { Toaster } from 'sonner';
+
 export default function Layout({ children, currentPageName }) {
   const [user, setUser] = useState(null);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -151,6 +153,8 @@ export default function Layout({ children, currentPageName }) {
       <main>
         {children}
       </main>
-    </div>
-  );
-}
+
+      <Toaster position="top-center" dir="rtl" richColors />
+      </div>
+      );
+      }

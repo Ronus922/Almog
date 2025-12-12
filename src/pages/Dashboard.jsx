@@ -8,6 +8,7 @@ import KPICards from '../components/dashboard/KPICards';
 import DebtCharts from '../components/dashboard/DebtCharts';
 import DebtorsTable from '../components/dashboard/DebtorsTable';
 import ApartmentDetailModal from '../components/dashboard/ApartmentDetailModal';
+import CopyLoginLink from '../components/CopyLoginLink';
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -78,7 +79,8 @@ export default function Dashboard() {
               <p className="text-sm text-slate-500">{settings.buildingAddress || ''}</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {isAdmin && <CopyLoginLink />}
             {!isAdmin && (
               <div className="text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg border border-blue-200">
                 מצב צפייה בלבד

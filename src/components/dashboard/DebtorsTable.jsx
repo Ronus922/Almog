@@ -36,7 +36,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
   const [statusFilter, setStatusFilter] = useState('all');
   const [debtFilter, setDebtFilter] = useState('all');
   const [sortField, setSortField] = useState('totalDebt');
-  const [sortDir, setSortDir] = useState('desc');
+  const [sortDir, setSortDir] = useState('desc'); // ברירת מחדל: מהגדול לקטן
   const [page, setPage] = useState(1);
   const pageSize = 15;
 
@@ -157,7 +157,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
                 <TableHead className="text-right font-semibold cursor-pointer" onClick={() => toggleSort('totalDebt')}>
                   <div className="flex items-center gap-1">
                     סה״כ חוב
-                    <ArrowUpDown className="w-3 h-3" />
+                    <ArrowUpDown className={`w-3 h-3 ${sortField === 'totalDebt' ? 'text-slate-700' : 'text-slate-400'}`} />
                   </div>
                 </TableHead>
                 <TableHead className="text-right font-semibold">חוב חודשי</TableHead>
