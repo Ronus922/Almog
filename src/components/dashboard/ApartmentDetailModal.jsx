@@ -584,7 +584,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                     {activeLegalStatuses.map((status) => (
                       <SelectItem key={status.id} value={status.id}>
                         <div className="flex items-center gap-2">
-                          <Badge className={`${status.color} text-xs transition-colors`}>
+                          <Badge className={`${status.color} text-xs transition-all duration-200 hover:opacity-80`}>
                             {status.name}
                           </Badge>
                         </div>
@@ -594,7 +594,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 </Select>
                 {currentStatus && (
                   <div className="mt-2">
-                    <Badge className={`${currentStatus.color} transition-colors`}>
+                    <Badge className={`${currentStatus.color} transition-all duration-200 hover:opacity-80`}>
                       {currentStatus.name}
                       {!currentStatus.is_active && ' (לא פעיל)'}
                     </Badge>

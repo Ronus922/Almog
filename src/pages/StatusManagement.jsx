@@ -453,7 +453,7 @@ export default function StatusManagement() {
                       <TableCell className="font-semibold">{status.name}</TableCell>
                       <TableCell className="text-slate-600">{status.description || '-'}</TableCell>
                       <TableCell>
-                        <Badge className={`${status.color} transition-colors`}>{status.name}</Badge>
+                        <Badge className={`${status.color} transition-all duration-200 hover:opacity-80`}>{status.name}</Badge>
                       </TableCell>
                       <TableCell className="text-center">
                         <TooltipProvider>
