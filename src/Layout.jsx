@@ -45,21 +45,24 @@ export default function Layout({ children, currentPageName }) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50" dir="rtl">
       {/* Header */}
-      <header className="bg-white border-b border-slate-200 sticky top-0 z-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="flex items-center justify-between h-16">
+      <header className="bg-white/80 backdrop-blur-md border-b border-slate-200/60 sticky top-0 z-50 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-18">
             {/* לוגו */}
-            <div className="flex items-center gap-3">
-              <div className="p-2 bg-gradient-to-br from-slate-700 to-slate-800 rounded-xl">
-                <Building2 className="w-5 h-5 text-white" />
+            <div className="flex items-center gap-4">
+              <div className="p-3 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg">
+                <Building2 className="w-6 h-6 text-white" />
               </div>
-              <span className="font-bold text-slate-800 hidden sm:block">ניהול חייבים</span>
+              <div className="hidden sm:block">
+                <span className="font-extrabold text-xl bg-gradient-to-l from-slate-800 to-slate-600 bg-clip-text text-transparent">ניהול חייבים</span>
+                <p className="text-xs text-slate-500 font-medium">מערכת ניהול מתקדמת</p>
+              </div>
             </div>
 
             {/* ניווט Desktop */}
-            <nav className="hidden md:flex items-center gap-1">
+            <nav className="hidden md:flex items-center gap-2">
               {filteredNavItems.map((item) => {
                 const isActive = currentPageName === item.name;
                 return (
@@ -67,13 +70,13 @@ export default function Layout({ children, currentPageName }) {
                     key={item.name}
                     to={createPageUrl(item.name)}
                     className={`
-                      flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors
+                      flex items-center gap-3 px-5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200
                       ${isActive 
-                        ? 'bg-slate-100 text-slate-900' 
-                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'}
+                        ? 'bg-gradient-to-l from-blue-600 to-blue-700 text-white shadow-lg shadow-blue-500/30' 
+                        : 'text-slate-700 hover:bg-slate-100 hover:text-slate-900'}
                     `}
                   >
-                    <item.icon className="w-4 h-4" />
+                    <item.icon className="w-5 h-5" />
                     {item.label}
                   </Link>
                 );

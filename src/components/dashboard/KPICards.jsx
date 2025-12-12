@@ -11,15 +11,15 @@ import {
 } from "lucide-react";
 
 const KPICard = ({ title, value, icon: Icon, color, subtext }) => (
-  <Card className="p-5 bg-white border-0 shadow-sm hover:shadow-md transition-all duration-300 h-full">
-    <div className="flex items-center gap-4">
-      <div className={`flex-shrink-0 w-14 h-14 rounded-xl flex items-center justify-center ${color.replace('text-', 'bg-').replace('-600', '-50').replace('-700', '-50')}`}>
-        <Icon className={`w-7 h-7 ${color}`} />
+  <Card className="p-6 bg-white/80 backdrop-blur border-0 shadow-lg hover:shadow-xl transition-all duration-300 h-full rounded-2xl group hover:scale-105">
+    <div className="flex items-center gap-5">
+      <div className={`flex-shrink-0 w-16 h-16 rounded-2xl flex items-center justify-center ${color.replace('text-', 'bg-').replace('-600', '-100').replace('-700', '-100')} group-hover:scale-110 transition-transform`}>
+        <Icon className={`w-8 h-8 ${color}`} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs text-slate-500 font-medium line-clamp-2 mb-1">{title}</p>
-        <p className={`text-2xl font-bold ${color} leading-tight`} title={value}>{value}</p>
-        {subtext && <p className="text-xs text-slate-400 mt-1 line-clamp-1">{subtext}</p>}
+        <p className="text-xs text-slate-600 font-bold uppercase tracking-wide line-clamp-2 mb-2">{title}</p>
+        <p className={`text-3xl font-extrabold ${color} leading-tight`} title={value}>{value}</p>
+        {subtext && <p className="text-xs text-slate-500 mt-2 line-clamp-1 font-medium">{subtext}</p>}
       </div>
     </div>
   </Card>

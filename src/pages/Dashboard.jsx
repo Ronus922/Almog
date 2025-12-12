@@ -55,39 +55,44 @@ export default function Dashboard() {
 
   if (recordsLoading || settingsLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="text-center">
-          <Loader2 className="w-8 h-8 animate-spin text-slate-400 mx-auto" />
-          <p className="text-sm text-slate-500 mt-2">טוען נתונים...</p>
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+          </div>
+          <p className="text-lg font-semibold text-slate-700">טוען נתונים...</p>
+          <p className="text-sm text-slate-500 mt-1">אנא המתן</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100" dir="rtl">
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100" dir="rtl">
+      <div className="max-w-7xl mx-auto p-6 lg:p-8 space-y-8">
         {/* כותרת */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-white rounded-xl shadow-sm">
-              <Building2 className="w-6 h-6 text-slate-700" />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+          <div className="flex items-center gap-4">
+            <div className="p-4 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-xl">
+              <Building2 className="w-8 h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-800">{settings.buildingName || 'דשבורד חייבים'}</h1>
-              <p className="text-sm text-slate-500">{settings.buildingAddress || ''}</p>
+              <h1 className="text-3xl font-extrabold bg-gradient-to-l from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                {settings.buildingName || 'דשבורד חייבים'}
+              </h1>
+              <p className="text-sm text-slate-600 font-medium mt-1">{settings.buildingAddress || ''}</p>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex flex-wrap items-center gap-3">
             {isAdmin && <CopyLoginLink />}
             {!isAdmin && (
-              <div className="text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg border border-blue-200">
+              <div className="text-sm bg-gradient-to-l from-blue-50 to-blue-100 text-blue-700 px-4 py-2.5 rounded-xl border border-blue-200 font-semibold shadow-sm">
                 מצב צפייה בלבד
               </div>
             )}
-            <Button variant="outline" size="sm" onClick={() => refetchRecords()}>
+            <Button variant="outline" size="sm" className="rounded-xl h-10 px-4 font-semibold" onClick={() => refetchRecords()}>
               <RefreshCw className="w-4 h-4 ml-2" />
-              רענן
+              רענן נתונים
             </Button>
           </div>
         </div>
