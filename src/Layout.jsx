@@ -93,7 +93,9 @@ function LayoutContent({ children, currentPageName }) {
                       <div className="px-3 py-3">
                         <p className="text-sm font-semibold text-slate-800">{currentUser.username}</p>
                         <p className="text-xs text-slate-500 mt-0.5">
-                          {currentUser.role === 'admin' ? 'מנהל מערכת' : 'צופה'}
+                          {currentUser.isBase44Admin 
+                            ? 'מנהל Base44' 
+                            : currentUser.role === 'admin' ? 'מנהל מערכת' : 'צופה'}
                         </p>
                       </div>
                       <DropdownMenuSeparator />

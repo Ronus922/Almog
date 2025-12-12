@@ -72,6 +72,11 @@ function DashboardContent() {
                 <h1 className="text-xl md:text-3xl font-extrabold bg-gradient-to-l from-slate-800 to-slate-600 bg-clip-text text-transparent">
                   {currentUser ? `שלום, ${currentUser.username}` : 'שלום, אורח'}
                 </h1>
+                {currentUser?.isBase44Admin && (
+                  <span className="text-xs bg-gradient-to-l from-purple-600 to-purple-700 text-white px-2 py-1 rounded-lg font-bold">
+                    Base44 Admin
+                  </span>
+                )}
               </div>
               <p className="text-xs md:text-sm text-slate-600 font-medium mt-0.5 md:mt-1">
                 {settings.buildingName || 'דשבורד חייבים'} • {settings.buildingAddress || ''}

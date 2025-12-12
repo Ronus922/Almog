@@ -12,6 +12,23 @@ export function AuthProvider({ children }) {
   }, []);
 
   const checkAuth = async () => {
+    // First check if user is Base44 admin
+    try {
+      const base44User = await base44.auth.me();
+      if (base44User && base44User.role === 'admin') {
+        setCurrentUser({
+          username: base44User.email || base44User.full_name || 'Admin',
+          role: 'admin',
+          isBase44Admin: true
+        });
+        setLoading(false);
+        return;
+      }
+    } catch (err) {
+      // Not logged in to Base44 or not admin, continue to check app session
+    }
+
+    // Check internal app session
     const sessionData = localStorage.getItem('app_session');
     if (sessionData) {
       try {
@@ -21,7 +38,8 @@ export function AuthProvider({ children }) {
         if (users.length > 0 && users[0].is_active) {
           setCurrentUser({
             username: session.username,
-            role: users[0].role
+            role: users[0].role,
+            isBase44Admin: false
           });
         } else {
           localStorage.removeItem('app_session');
@@ -57,13 +75,21 @@ export function AuthProvider({ children }) {
     localStorage.setItem('app_session', JSON.stringify(session));
     setCurrentUser({
       username: user.username,
-      role: user.role
+      role: user.role,
+      isBase44Admin: false
     });
 
     return user;
   };
 
   const logout = () => {
+    // If Base44 admin, logout from Base44
+    if (currentUser?.isBase44Admin) {
+      base44.auth.logout();
+      return;
+    }
+    
+    // Otherwise logout from internal system
     localStorage.removeItem('app_session');
     setCurrentUser(null);
     window.location.href = '/';
