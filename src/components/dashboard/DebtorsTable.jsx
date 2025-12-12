@@ -517,7 +517,14 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
                       {record.apartmentNumber}
                     </TableCell>
                     <TableCell className="text-slate-700 text-base py-5 px-6 align-middle">
-                      {formatOwnerName(record.ownerName)}
+                      {record.ownerName ? (
+                        <>
+                          {record.ownerName.split(/[\/,]/)[0]?.trim() || record.ownerName}
+                          {(record.ownerName.includes('/') || record.ownerName.includes(',')) && (
+                            <span style={{ unicodeBidi: 'plaintext' }}> (שוכר)</span>
+                          )}
+                        </>
+                      ) : '-'}
                     </TableCell>
                     <TableCell className="text-base font-medium text-slate-600 py-5 px-6 align-middle text-right" dir="rtl">{formatPhone(record.phonePrimary)}</TableCell>
                     <TableCell className="py-5 px-6 align-middle text-center">
