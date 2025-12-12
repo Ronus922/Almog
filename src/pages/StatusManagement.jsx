@@ -358,29 +358,6 @@ export default function StatusManagement() {
             <h1 className="text-3xl font-bold text-slate-800">ניהול סטטוסים משפטיים</h1>
             <p className="text-slate-600 mt-1">ניהול סטטוסים משפטיים המקושרים לרשומות החייבים</p>
             </div>
-
-            {fixResult && (
-            <Alert className="bg-blue-50 border-blue-300">
-              <AlertDescription className="space-y-2">
-                <div className="font-bold text-blue-900">תוצאות סריקה:</div>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <div className="text-slate-600">סה"כ נסרקו</div>
-                    <div className="text-xl font-bold text-slate-800">{fixResult.totalScanned}</div>
-                  </div>
-                  <div>
-                    <div className="text-slate-600">עם סטטוס תקין</div>
-                    <div className="text-xl font-bold text-green-600">{fixResult.alreadyValid}</div>
-                  </div>
-                  <div>
-                    <div className="text-slate-600">ללא סטטוס</div>
-                    <div className="text-xl font-bold text-orange-600">{fixResult.fixed}</div>
-                  </div>
-                </div>
-              </AlertDescription>
-            </Alert>
-            )}
-
             <div className="flex flex-wrap gap-3">
             <Button 
               variant="outline" 
@@ -396,7 +373,7 @@ export default function StatusManagement() {
               ) : (
                 <>
                   <Wrench className="w-5 h-5" />
-                  סרוק הכל
+                  סרוק ותקן הכל
                 </>
               )}
             </Button>
@@ -465,19 +442,6 @@ export default function StatusManagement() {
                               </TooltipContent>
                               </Tooltip>
                               </TooltipProvider>
-                              {usageCount > 0 && (
-                              <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                              e.stopPropagation();
-                              handleOpenWorkflow(status.id);
-                              }}
-                              className="mr-2 text-xs text-blue-600 hover:text-blue-800 hover:bg-blue-50"
-                              >
-                              עדכן דירה-דירה
-                              </Button>
-                              )}
                               </TableCell>
                       <TableCell className="text-center">
                         {status.is_active ? (
