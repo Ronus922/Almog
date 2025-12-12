@@ -418,33 +418,88 @@ export default function StatusManagement() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation */}
-      <AlertDialog open={!!deleteConfirm} onOpenChange={() => setDeleteConfirm(null)}>
-        <AlertDialogContent dir="rtl">
+      {/* Delete/Reassign Dialog */}
+      <AlertDialog open={!!deleteConfirm} onOpenChange={() => {
+        setDeleteConfirm(null);
+        setReassignTargetId('');
+      }}>
+        <AlertDialogContent dir="rtl" className="max-w-lg">
           <AlertDialogHeader>
-            <AlertDialogTitle>מחיקת סטטוס</AlertDialogTitle>
-            <AlertDialogDescription className="text-right">
+            <AlertDialogTitle>מחיקת סטטוס משפטי</AlertDialogTitle>
+            <AlertDialogDescription className="text-right space-y-4">
               {deleteConfirm?.usageCount > 0 ? (
+                <>
+                  <div className="space-y-2">
+                    <p className="text-red-600 font-semibold text-base">
+                      לא ניתן למחוק סטטוס שמקושר ל-{deleteConfirm?.usageCount} רשומות.
+                    </p>
+                    <p className="text-slate-700">
+                      כדי למחוק אותו, יש לבחור סטטוס חלופי ולהעביר אליו את כל הרשומות המקושרות.
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label className="text-sm font-bold text-slate-700">סטטוס חלופי להעברה</Label>
+                    <Select value={reassignTargetId} onValueChange={setReassignTargetId}>
+                      <SelectTrigger className="text-right">
+                        <SelectValue placeholder="בחר סטטוס…" />
+                      </SelectTrigger>
+                      <SelectContent dir="rtl">
+                        {statuses
+                          .filter(s => s.id !== deleteConfirm?.status.id && s.is_active)
+                          .map((status) => (
+                            <SelectItem key={status.id} value={status.id}>
+                              <div className="flex items-center gap-2">
+                                <Badge className={status.color + ' text-xs'}>
+                                  {status.name}
+                                </Badge>
+                              </div>
+                            </SelectItem>
+                          ))}
+                      </SelectContent>
+                    </Select>
+                    <p className="text-xs text-slate-500">
+                      הפעולה תעדכן את כל הרשומות המקושרות ותעביר אותן לסטטוס שבחרת.
+                    </p>
+                  </div>
+                </>
+              ) : (
                 <div className="space-y-2">
-                  <p className="text-red-600 font-semibold">
-                    הסטטוס "{deleteConfirm?.status.name}" נמצא בשימוש ב-{deleteConfirm?.usageCount} רשומות.
+                  <p className="text-slate-700">
+                    הסטטוס הזה אינו מקושר לאף דירה/חייב. ניתן למחוק אותו לצמיתות.
                   </p>
-                  <p>לא ניתן למחוק סטטוס שנמצא בשימוש.</p>
-                  <p className="text-sm text-slate-500">
-                    יש לעדכן את הרשומות לסטטוס אחר לפני המחיקה.
+                  <p className="text-sm text-amber-600 font-semibold">
+                    מחיקה היא פעולה בלתי הפיכה.
                   </p>
                 </div>
-              ) : (
-                <p>האם אתה בטוח שברצונך למחוק את הסטטוס "{deleteConfirm?.status.name}"?</p>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>ביטול</AlertDialogCancel>
-            {deleteConfirm?.usageCount === 0 && (
-              <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700">
-                מחק
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel disabled={reassignMutation.isPending}>ביטול</AlertDialogCancel>
+            {deleteConfirm?.usageCount === 0 ? (
+              <AlertDialogAction 
+                onClick={confirmDelete} 
+                className="bg-red-600 hover:bg-red-700"
+                disabled={deleteMutation.isPending}
+              >
+                {deleteMutation.isPending ? 'מוחק...' : 'מחק לצמיתות'}
               </AlertDialogAction>
+            ) : (
+              <Button
+                onClick={handleReassign}
+                disabled={reassignMutation.isPending || !reassignTargetId}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                {reassignMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+                    מעביר רשומות...
+                  </>
+                ) : (
+                  'העבר וקשר'
+                )}
+              </Button>
             )}
           </AlertDialogFooter>
         </AlertDialogContent>
