@@ -108,48 +108,140 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
 
   return (
     <Card className="border-0 shadow-xl rounded-2xl overflow-hidden">
-      <CardHeader className="pb-6 pt-6 bg-gradient-to-l from-white to-slate-50 border-b border-slate-200">
+      <CardHeader className="pb-4 md:pb-6 pt-4 md:pt-6 bg-gradient-to-l from-white to-slate-50 border-b border-slate-200">
         <div className="flex flex-col gap-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <CardTitle className="text-2xl font-bold text-slate-800">טבלת חייבים</CardTitle>
+            <CardTitle className="text-xl md:text-2xl font-bold text-slate-800">טבלת חייבים</CardTitle>
             
-            <div className="flex flex-wrap items-center gap-3">
-            <div className="relative">
-              <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-              <Input
-                placeholder="חיפוש לפי דירה, שם או טלפון..."
-                value={search}
-                onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                className="pr-12 w-64 h-11 rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500"
-              />
+            {/* Mobile filters */}
+            <div className="flex lg:hidden gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <Input
+                  placeholder="חיפוש..."
+                  value={search}
+                  onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                  className="pr-10 h-10 rounded-xl border-slate-300 text-sm"
+                />
+              </div>
+              <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-10 px-3 rounded-xl">
+                    <SlidersHorizontal className="w-4 h-4 ml-1" />
+                    סינון
+                    {hasActiveFilters && (
+                      <span className="mr-1 w-2 h-2 bg-blue-600 rounded-full"></span>
+                    )}
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-80">
+                  <SheetHeader>
+                    <SheetTitle>סינון רשומות</SheetTitle>
+                  </SheetHeader>
+                  <div className="mt-6 space-y-4">
+                    <div>
+                      <label className="text-sm font-semibold text-slate-700 mb-2 block">סטטוס</label>
+                      <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+                        <SelectTrigger className="w-full h-11 rounded-xl">
+                          <SelectValue placeholder="כל הסטטוסים" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl">
+                          <SelectItem value="all">כל הסטטוסים</SelectItem>
+                          <SelectItem value="סדיר">סדיר</SelectItem>
+                          <SelectItem value="חייב">חייב</SelectItem>
+                          <SelectItem value="חייב משמעותי">חייב משמעותי</SelectItem>
+                          <SelectItem value="מועמד לתביעה">מועמד לתביעה</SelectItem>
+                          <SelectItem value="בתביעה">בתביעה</SelectItem>
+                          <SelectItem value="בהסדר">בהסדר</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-semibold text-slate-700 mb-2 block">חוב</label>
+                      <Select value={debtFilter} onValueChange={(v) => { setDebtFilter(v); setPage(1); }}>
+                        <SelectTrigger className="w-full h-11 rounded-xl">
+                          <SelectValue placeholder="כל החובות" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl">
+                          <SelectItem value="all">כל החובות</SelectItem>
+                          <SelectItem value="above1000">מעל ₪1,000</SelectItem>
+                          <SelectItem value="above5000">מעל ₪5,000</SelectItem>
+                          <SelectItem value="special">חוב מיוחד בלבד</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="pt-4 flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        className="flex-1 rounded-xl"
+                        onClick={clearFilters}
+                      >
+                        נקה הכל
+                      </Button>
+                      <Button 
+                        className="flex-1 rounded-xl"
+                        onClick={() => setIsFilterOpen(false)}
+                      >
+                        החל
+                      </Button>
+                    </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
 
-            <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
-              <SelectTrigger className="w-44 h-11 rounded-xl border-slate-300">
-                <SelectValue placeholder="כל הסטטוסים" />
-              </SelectTrigger>
-              <SelectContent className="rounded-xl">
-                <SelectItem value="all">כל הסטטוסים</SelectItem>
-                <SelectItem value="סדיר">סדיר</SelectItem>
-                <SelectItem value="חייב">חייב</SelectItem>
-                <SelectItem value="חייב משמעותי">חייב משמעותי</SelectItem>
-                <SelectItem value="מועמד לתביעה">מועמד לתביעה</SelectItem>
-                <SelectItem value="בתביעה">בתביעה</SelectItem>
-                <SelectItem value="בהסדר">בהסדר</SelectItem>
-              </SelectContent>
-            </Select>
+            {/* Desktop filters */}
+            <div className="hidden lg:flex flex-wrap items-center gap-3">
+              <div className="relative">
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Input
+                  placeholder="חיפוש לפי דירה, שם או טלפון..."
+                  value={search}
+                  onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                  className="pr-12 w-64 h-11 rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                />
+              </div>
 
-            <Select value={debtFilter} onValueChange={(v) => { setDebtFilter(v); setPage(1); }}>
-              <SelectTrigger className="w-44 h-11 rounded-xl border-slate-300">
-                <SelectValue placeholder="כל החובות" />
-              </SelectTrigger>
-              <SelectContent className="rounded-xl">
-                <SelectItem value="all">כל החובות</SelectItem>
-                <SelectItem value="above1000">מעל ₪1,000</SelectItem>
-                <SelectItem value="above5000">מעל ₪5,000</SelectItem>
-                <SelectItem value="special">חוב מיוחד בלבד</SelectItem>
-              </SelectContent>
-            </Select>
+              <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+                <SelectTrigger className="w-44 h-11 rounded-xl border-slate-300">
+                  <SelectValue placeholder="כל הסטטוסים" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="all">כל הסטטוסים</SelectItem>
+                  <SelectItem value="סדיר">סדיר</SelectItem>
+                  <SelectItem value="חייב">חייב</SelectItem>
+                  <SelectItem value="חייב משמעותי">חייב משמעותי</SelectItem>
+                  <SelectItem value="מועמד לתביעה">מועמד לתביעה</SelectItem>
+                  <SelectItem value="בתביעה">בתביעה</SelectItem>
+                  <SelectItem value="בהסדר">בהסדר</SelectItem>
+                </SelectContent>
+              </Select>
+
+              <Select value={debtFilter} onValueChange={(v) => { setDebtFilter(v); setPage(1); }}>
+                <SelectTrigger className="w-44 h-11 rounded-xl border-slate-300">
+                  <SelectValue placeholder="כל החובות" />
+                </SelectTrigger>
+                <SelectContent className="rounded-xl">
+                  <SelectItem value="all">כל החובות</SelectItem>
+                  <SelectItem value="above1000">מעל ₪1,000</SelectItem>
+                  <SelectItem value="above5000">מעל ₪5,000</SelectItem>
+                  <SelectItem value="special">חוב מיוחד בלבד</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {hasActiveFilters && (
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  onClick={clearFilters}
+                  className="h-11 rounded-xl"
+                >
+                  <X className="w-4 h-4 ml-1" />
+                  נקה
+                </Button>
+              )}
             </div>
           </div>
         </div>
