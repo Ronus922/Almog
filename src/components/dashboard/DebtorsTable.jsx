@@ -426,28 +426,132 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
         <div className="overflow-x-auto">
           <Table className="border-separate border-spacing-0">
             <TableHeader>
-              <TableRow className="bg-gradient-to-l from-slate-50 to-slate-100 hover:bg-gradient-to-l border-b-2 border-slate-200">
-                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">מס׳ דירה</TableHead>
-                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">שם בעל הדירה</TableHead>
-                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">טלפון</TableHead>
-                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('totalDebt')}>
+              {/* שורת כותרות */}
+              <TableRow className="bg-gradient-to-l from-slate-50 to-slate-100 hover:bg-gradient-to-l border-b border-slate-200">
+                <TableHead className="text-right font-bold text-slate-700 text-base py-3 px-6">מס׳ דירה</TableHead>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-3 px-6">שם בעל הדירה</TableHead>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-3 px-6">טלפון</TableHead>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-3 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('totalDebt')}>
                   <div className="flex items-center gap-2 justify-end">
                     <ArrowUpDown className={`w-5 h-5 ${sortField === 'totalDebt' ? 'text-rose-600' : 'text-slate-400'}`} />
                     סה״כ חוב
                   </div>
                 </TableHead>
-                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">חוב חודשי</TableHead>
-                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">חוב מיוחד</TableHead>
-                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">סטטוס</TableHead>
-                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">שלב משפטי</TableHead>
-                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('monthsInArrears')}>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-3 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('monthlyDebt')}>
+                  <div className="flex items-center gap-2 justify-end">
+                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'monthlyDebt' ? 'text-amber-600' : 'text-slate-400'}`} />
+                    חוב חודשי
+                  </div>
+                </TableHead>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-3 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('specialDebt')}>
+                  <div className="flex items-center gap-2 justify-end">
+                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'specialDebt' ? 'text-purple-600' : 'text-slate-400'}`} />
+                    חוב מיוחד
+                  </div>
+                </TableHead>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-3 px-6">סטטוס</TableHead>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-3 px-6">שלב משפטי</TableHead>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-3 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('monthsInArrears')}>
                   <div className="flex items-center gap-2 justify-end">
                     <ArrowUpDown className={`w-5 h-5 ${sortField === 'monthsInArrears' ? 'text-rose-600' : 'text-slate-400'}`} />
                     חודשי פיגור
                   </div>
                 </TableHead>
-                </TableRow>
-                </TableHeader>
+              </TableRow>
+              
+              {/* שורת פילטרים */}
+              <TableRow className="bg-white border-b-2 border-slate-200">
+                <TableHead className="py-2 px-3"></TableHead>
+                <TableHead className="py-2 px-3"></TableHead>
+                <TableHead className="py-2 px-3"></TableHead>
+                <TableHead className="py-2 px-3"></TableHead>
+                
+                {/* פילטר חוב חודשי */}
+                <TableHead className="py-2 px-3">
+                  <div className="flex flex-col gap-1" onClick={(e) => e.stopPropagation()}>
+                    <Input
+                      type="number"
+                      placeholder="מינימום"
+                      value={monthlyDebtMin}
+                      onChange={(e) => { setMonthlyDebtMin(e.target.value); setPage(1); }}
+                      className="h-8 text-xs rounded-lg text-right"
+                      dir="rtl"
+                    />
+                    <Input
+                      type="number"
+                      placeholder="מקסימום"
+                      value={monthlyDebtMax}
+                      onChange={(e) => { setMonthlyDebtMax(e.target.value); setPage(1); }}
+                      className="h-8 text-xs rounded-lg text-right"
+                      dir="rtl"
+                    />
+                    <Select value={monthlyDebtMode} onValueChange={(v) => { setMonthlyDebtMode(v); setPage(1); }} dir="rtl">
+                      <SelectTrigger className="h-8 text-xs rounded-lg" dir="rtl">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent dir="rtl" className="rounded-lg">
+                        <SelectItem value="all">הכל</SelectItem>
+                        <SelectItem value="gt0">&gt; 0</SelectItem>
+                        <SelectItem value="eq0">= 0</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </TableHead>
+                
+                {/* פילטר חוב מיוחד */}
+                <TableHead className="py-2 px-3">
+                  <div className="flex flex-col gap-1" onClick={(e) => e.stopPropagation()}>
+                    <Input
+                      type="number"
+                      placeholder="מינימום"
+                      value={specialDebtMin}
+                      onChange={(e) => { setSpecialDebtMin(e.target.value); setPage(1); }}
+                      className="h-8 text-xs rounded-lg text-right"
+                      dir="rtl"
+                    />
+                    <Input
+                      type="number"
+                      placeholder="מקסימום"
+                      value={specialDebtMax}
+                      onChange={(e) => { setSpecialDebtMax(e.target.value); setPage(1); }}
+                      className="h-8 text-xs rounded-lg text-right"
+                      dir="rtl"
+                    />
+                    <Select value={specialDebtMode} onValueChange={(v) => { setSpecialDebtMode(v); setPage(1); }} dir="rtl">
+                      <SelectTrigger className="h-8 text-xs rounded-lg" dir="rtl">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent dir="rtl" className="rounded-lg">
+                        <SelectItem value="all">הכל</SelectItem>
+                        <SelectItem value="gt0">&gt; 0</SelectItem>
+                        <SelectItem value="eq0">= 0</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </TableHead>
+                
+                <TableHead className="py-2 px-3"></TableHead>
+                
+                {/* פילטר שלב משפטי */}
+                <TableHead className="py-2 px-3">
+                  <Select value={legalStageFilter} onValueChange={(v) => { setLegalStageFilter(v); setPage(1); }} dir="rtl">
+                    <SelectTrigger className="h-8 text-xs rounded-lg" dir="rtl">
+                      <SelectValue placeholder="בחר שלב..." />
+                    </SelectTrigger>
+                    <SelectContent dir="rtl" className="rounded-lg">
+                      <SelectItem value="all">הכל</SelectItem>
+                      <SelectItem value="אין">אין</SelectItem>
+                      <SelectItem value="פנייה ראשונית">פנייה ראשונית</SelectItem>
+                      <SelectItem value="מכתב התראה">מכתב התראה</SelectItem>
+                      <SelectItem value="בתביעה">בתביעה</SelectItem>
+                      <SelectItem value="הסדר תשלומים">הסדר תשלומים</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </TableHead>
+                
+                <TableHead className="py-2 px-3"></TableHead>
+              </TableRow>
+            </TableHeader>
                 <TableBody>
                 {paginatedRecords.length === 0 ? (
                   <TableRow>
@@ -498,6 +602,17 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
               מציג {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, filteredRecords.length)} מתוך {filteredRecords.length} רשומות
             </p>
             <div className="flex items-center gap-3">
+              {hasActiveAdvancedFilters && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="rounded-xl h-10 px-4 gap-2 text-red-600 hover:text-red-700 hover:bg-red-50"
+                  onClick={clearAdvancedFilters}
+                >
+                  <X className="w-4 h-4" />
+                  נקה פילטרים
+                </Button>
+              )}
               <Button
                 variant="outline"
                 size="sm"
