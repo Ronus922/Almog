@@ -55,6 +55,13 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
     return phone;
   };
 
+  const formatOwnerName = (ownerName) => {
+    if (!ownerName) return '-';
+    const isTenant = ownerName.includes('/') || ownerName.includes(',');
+    const mainName = ownerName.split(/[\/,]/)[0]?.trim() || ownerName;
+    return isTenant ? `${mainName} (שוכר)` : mainName;
+  };
+
   const filteredRecords = useMemo(() => {
     let result = [...records];
 
@@ -510,12 +517,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
                       {record.apartmentNumber}
                     </TableCell>
                     <TableCell className="text-slate-700 text-base py-5 px-6 align-middle">
-                      {record.ownerName ? (
-                        <>
-                          {record.ownerName.split(/[\/,]/)[0]?.trim() || record.ownerName}
-                          {record.ownerName.includes('/') || record.ownerName.includes(',') ? ' (שוכר)' : ''}
-                        </>
-                      ) : '-'}
+                      {formatOwnerName(record.ownerName)}
                     </TableCell>
                     <TableCell className="text-base font-medium text-slate-600 py-5 px-6 align-middle text-right" dir="rtl">{formatPhone(record.phonePrimary)}</TableCell>
                     <TableCell className="py-5 px-6 align-middle text-center">
