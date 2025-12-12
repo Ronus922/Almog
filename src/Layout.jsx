@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { useAuth } from '@/components/auth/AuthContext';
+import { AuthProvider, useAuth } from '@/components/auth/AuthContext';
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -17,7 +17,7 @@ import {
 
 import { Toaster } from 'sonner';
 
-export default function Layout({ children, currentPageName }) {
+function LayoutContent({ children, currentPageName }) {
   const { currentUser, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
@@ -189,6 +189,14 @@ export default function Layout({ children, currentPageName }) {
       </main>
 
       <Toaster position="top-center" dir="rtl" richColors />
-      </div>
-      );
-      }
+    </div>
+  );
+}
+
+export default function Layout({ children, currentPageName }) {
+  return (
+    <AuthProvider>
+      <LayoutContent children={children} currentPageName={currentPageName} />
+    </AuthProvider>
+  );
+}
