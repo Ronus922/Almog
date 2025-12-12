@@ -40,6 +40,18 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
   const [sortDir, setSortDir] = useState('desc');
   const [page, setPage] = useState(1);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
+  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
+  
+  // Advanced filters
+  const [minDebt, setMinDebt] = useState('');
+  const [maxDebt, setMaxDebt] = useState('');
+  const [ownerNameFilter, setOwnerNameFilter] = useState('');
+  const [phoneFilter, setPhoneFilter] = useState('');
+  const [minMonthsArrears, setMinMonthsArrears] = useState('');
+  const [maxMonthsArrears, setMaxMonthsArrears] = useState('');
+  const [fromDate, setFromDate] = useState('');
+  const [toDate, setToDate] = useState('');
+  
   const pageSize = 50;
 
   const formatCurrency = (num) => 
@@ -79,6 +91,64 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
       result = result.filter(r => (r.totalDebt || 0) >= 5000);
     }
 
+    // Advanced filters - טווח סכום
+    if (minDebt !== '') {
+      const min = parseFloat(minDebt);
+      if (!isNaN(min)) {
+        result = result.filter(r => (r.totalDebt || 0) >= min);
+      }
+    }
+    if (maxDebt !== '') {
+      const max = parseFloat(maxDebt);
+      if (!isNaN(max)) {
+        result = result.filter(r => (r.totalDebt || 0) <= max);
+      }
+    }
+
+    // סינון שם בעלים
+    if (ownerNameFilter) {
+      const s = ownerNameFilter.toLowerCase();
+      result = result.filter(r => r.ownerName?.toLowerCase().includes(s));
+    }
+
+    // סינון טלפון
+    if (phoneFilter) {
+      const s = phoneFilter.toLowerCase();
+      result = result.filter(r => 
+        r.phonePrimary?.toLowerCase().includes(s) ||
+        r.phoneOwner?.toLowerCase().includes(s) ||
+        r.phoneTenant?.toLowerCase().includes(s)
+      );
+    }
+
+    // חודשי פיגור
+    if (minMonthsArrears !== '') {
+      const min = parseInt(minMonthsArrears);
+      if (!isNaN(min)) {
+        result = result.filter(r => (r.monthsInArrears || 0) >= min);
+      }
+    }
+    if (maxMonthsArrears !== '') {
+      const max = parseInt(maxMonthsArrears);
+      if (!isNaN(max)) {
+        result = result.filter(r => (r.monthsInArrears || 0) <= max);
+      }
+    }
+
+    // תאריכים
+    if (fromDate) {
+      result = result.filter(r => {
+        if (!r.lastContactDate) return false;
+        return new Date(r.lastContactDate) >= new Date(fromDate);
+      });
+    }
+    if (toDate) {
+      result = result.filter(r => {
+        if (!r.lastContactDate) return false;
+        return new Date(r.lastContactDate) <= new Date(toDate);
+      });
+    }
+
     // מיון
     result.sort((a, b) => {
       let aVal = a[sortField];
@@ -92,7 +162,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
     });
 
     return result;
-  }, [records, search, statusFilter, debtFilter, sortField, sortDir]);
+  }, [records, search, statusFilter, debtFilter, sortField, sortDir, minDebt, maxDebt, ownerNameFilter, phoneFilter, minMonthsArrears, maxMonthsArrears, fromDate, toDate]);
 
   const totalPages = Math.ceil(filteredRecords.length / pageSize);
   const paginatedRecords = filteredRecords.slice((page - 1) * pageSize, page * pageSize);
@@ -110,10 +180,31 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
     setStatusFilter('all');
     setDebtFilter('all');
     setSearch('');
+    setMinDebt('');
+    setMaxDebt('');
+    setOwnerNameFilter('');
+    setPhoneFilter('');
+    setMinMonthsArrears('');
+    setMaxMonthsArrears('');
+    setFromDate('');
+    setToDate('');
+    setPage(1);
+  };
+
+  const clearAdvancedFilters = () => {
+    setMinDebt('');
+    setMaxDebt('');
+    setOwnerNameFilter('');
+    setPhoneFilter('');
+    setMinMonthsArrears('');
+    setMaxMonthsArrears('');
+    setFromDate('');
+    setToDate('');
     setPage(1);
   };
 
   const hasActiveFilters = statusFilter !== 'all' || debtFilter !== 'all' || search !== '';
+  const hasAdvancedFilters = minDebt !== '' || maxDebt !== '' || ownerNameFilter !== '' || phoneFilter !== '' || minMonthsArrears !== '' || maxMonthsArrears !== '' || fromDate !== '' || toDate !== '';
 
   return (
     <Card className="border-0 shadow-xl rounded-2xl overflow-hidden">
@@ -137,19 +228,63 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
                 <SheetTrigger asChild>
                   <Button variant="outline" size="sm" className="h-10 px-3 rounded-xl">
                     <SlidersHorizontal className="w-4 h-4 ml-1" />
-                    סינון
-                    {hasActiveFilters && (
+                    חיפוש מורחב
+                    {(hasActiveFilters || hasAdvancedFilters) && (
                       <span className="mr-1 w-2 h-2 bg-blue-600 rounded-full"></span>
                     )}
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-80">
+                <SheetContent side="right" className="w-80 overflow-y-auto" dir="rtl">
                   <SheetHeader>
-                    <SheetTitle>סינון רשומות</SheetTitle>
+                    <SheetTitle className="text-right">חיפוש מורחב</SheetTitle>
                   </SheetHeader>
                   <div className="mt-6 space-y-4">
                     <div>
-                      <label className="text-sm font-semibold text-slate-700 mb-2 block">סטטוס</label>
+                      <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">שם בעלים</label>
+                      <Input
+                        placeholder="חיפוש לפי שם"
+                        value={ownerNameFilter}
+                        onChange={(e) => { setOwnerNameFilter(e.target.value); setPage(1); }}
+                        className="h-11 rounded-xl text-right"
+                        dir="rtl"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">טלפון</label>
+                      <Input
+                        placeholder="חיפוש לפי טלפון"
+                        value={phoneFilter}
+                        onChange={(e) => { setPhoneFilter(e.target.value); setPage(1); }}
+                        className="h-11 rounded-xl text-right"
+                        dir="rtl"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">טווח סכום חוב</label>
+                      <div className="flex gap-2" dir="rtl">
+                        <Input
+                          type="number"
+                          placeholder="מסכום"
+                          value={minDebt}
+                          onChange={(e) => { setMinDebt(e.target.value); setPage(1); }}
+                          className="h-11 rounded-xl text-right flex-1"
+                          dir="rtl"
+                        />
+                        <Input
+                          type="number"
+                          placeholder="עד סכום"
+                          value={maxDebt}
+                          onChange={(e) => { setMaxDebt(e.target.value); setPage(1); }}
+                          className="h-11 rounded-xl text-right flex-1"
+                          dir="rtl"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">סטטוס</label>
                       <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
                         <SelectTrigger className="w-full h-11 rounded-xl">
                           <SelectValue placeholder="כל הסטטוסים" />
@@ -167,18 +302,47 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
                     </div>
 
                     <div>
-                      <label className="text-sm font-semibold text-slate-700 mb-2 block">חוב</label>
-                      <Select value={debtFilter} onValueChange={(v) => { setDebtFilter(v); setPage(1); }}>
-                        <SelectTrigger className="w-full h-11 rounded-xl">
-                          <SelectValue placeholder="כל החובות" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-xl">
-                          <SelectItem value="all">כל החובות</SelectItem>
-                          <SelectItem value="above1000">מעל ₪1,000</SelectItem>
-                          <SelectItem value="above5000">מעל ₪5,000</SelectItem>
-                          <SelectItem value="special">חוב מיוחד בלבד</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">חודשי פיגור</label>
+                      <div className="flex gap-2" dir="rtl">
+                        <Input
+                          type="number"
+                          placeholder="מ־"
+                          value={minMonthsArrears}
+                          onChange={(e) => { setMinMonthsArrears(e.target.value); setPage(1); }}
+                          className="h-11 rounded-xl text-right flex-1"
+                          dir="rtl"
+                        />
+                        <Input
+                          type="number"
+                          placeholder="עד"
+                          value={maxMonthsArrears}
+                          onChange={(e) => { setMaxMonthsArrears(e.target.value); setPage(1); }}
+                          className="h-11 rounded-xl text-right flex-1"
+                          dir="rtl"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">תאריך קשר אחרון</label>
+                      <div className="flex gap-2" dir="rtl">
+                        <Input
+                          type="date"
+                          placeholder="מתאריך"
+                          value={fromDate}
+                          onChange={(e) => { setFromDate(e.target.value); setPage(1); }}
+                          className="h-11 rounded-xl text-right flex-1"
+                          dir="rtl"
+                        />
+                        <Input
+                          type="date"
+                          placeholder="עד תאריך"
+                          value={toDate}
+                          onChange={(e) => { setToDate(e.target.value); setPage(1); }}
+                          className="h-11 rounded-xl text-right flex-1"
+                          dir="rtl"
+                        />
+                      </div>
                     </div>
 
                     <div className="pt-4 flex gap-2">
@@ -187,13 +351,14 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
                         className="flex-1 rounded-xl"
                         onClick={clearFilters}
                       >
-                        נקה הכל
+                        <X className="w-4 h-4 ml-1" />
+                        נקה פילטרים
                       </Button>
                       <Button 
                         className="flex-1 rounded-xl"
                         onClick={() => setIsFilterOpen(false)}
                       >
-                        החל
+                        סגור
                       </Button>
                     </div>
                   </div>
@@ -240,7 +405,20 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
                 </SelectContent>
               </Select>
 
-              {hasActiveFilters && (
+              <Button 
+                variant={showAdvancedFilters ? "default" : "outline"}
+                size="sm" 
+                onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                className="h-11 rounded-xl"
+              >
+                <SlidersHorizontal className="w-4 h-4 ml-1" />
+                חיפוש מורחב
+                {hasAdvancedFilters && (
+                  <span className="mr-2 w-2 h-2 bg-white rounded-full"></span>
+                )}
+              </Button>
+
+              {(hasActiveFilters || hasAdvancedFilters) && (
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -248,7 +426,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
                   className="h-11 rounded-xl"
                 >
                   <X className="w-4 h-4 ml-1" />
-                  נקה
+                  נקה הכל
                 </Button>
               )}
             </div>
@@ -315,6 +493,138 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
                   </div>
                 </TableHead>
               </TableRow>
+              
+              {/* Advanced Filter Row */}
+              {showAdvancedFilters && (
+                <TableRow className="bg-blue-50/50 border-b-2 border-blue-200">
+                  <TableHead className="py-3 px-4">
+                    <Input
+                      placeholder="מספר דירה"
+                      value={search}
+                      onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                      className="h-9 rounded-lg text-sm text-right"
+                      dir="rtl"
+                    />
+                  </TableHead>
+                  <TableHead className="py-3 px-4">
+                    <Input
+                      placeholder="שם בעלים"
+                      value={ownerNameFilter}
+                      onChange={(e) => { setOwnerNameFilter(e.target.value); setPage(1); }}
+                      className="h-9 rounded-lg text-sm text-right"
+                      dir="rtl"
+                    />
+                  </TableHead>
+                  <TableHead className="py-3 px-4">
+                    <Input
+                      placeholder="טלפון"
+                      value={phoneFilter}
+                      onChange={(e) => { setPhoneFilter(e.target.value); setPage(1); }}
+                      className="h-9 rounded-lg text-sm text-right"
+                      dir="rtl"
+                    />
+                  </TableHead>
+                  <TableHead className="py-3 px-4">
+                    <div className="flex gap-2 items-center justify-end" dir="rtl">
+                      <Input
+                        type="number"
+                        placeholder="מסכום"
+                        value={minDebt}
+                        onChange={(e) => { setMinDebt(e.target.value); setPage(1); }}
+                        className="h-9 rounded-lg text-sm w-20 text-right"
+                        dir="rtl"
+                      />
+                      <span className="text-xs text-slate-500">-</span>
+                      <Input
+                        type="number"
+                        placeholder="עד"
+                        value={maxDebt}
+                        onChange={(e) => { setMaxDebt(e.target.value); setPage(1); }}
+                        className="h-9 rounded-lg text-sm w-20 text-right"
+                        dir="rtl"
+                      />
+                    </div>
+                  </TableHead>
+                  <TableHead className="py-3 px-4"></TableHead>
+                  <TableHead className="py-3 px-4"></TableHead>
+                  <TableHead className="py-3 px-4">
+                    <Select value={statusFilter} onValueChange={(v) => { setStatusFilter(v); setPage(1); }}>
+                      <SelectTrigger className="h-9 rounded-lg text-sm">
+                        <SelectValue placeholder="הכל" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-lg">
+                        <SelectItem value="all">הכל</SelectItem>
+                        <SelectItem value="סדיר">סדיר</SelectItem>
+                        <SelectItem value="חייב">חייב</SelectItem>
+                        <SelectItem value="חייב משמעותי">חייב משמעותי</SelectItem>
+                        <SelectItem value="מועמד לתביעה">מועמד לתביעה</SelectItem>
+                        <SelectItem value="בתביעה">בתביעה</SelectItem>
+                        <SelectItem value="בהסדר">בהסדר</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </TableHead>
+                  <TableHead className="py-3 px-4">
+                    <div className="flex gap-2 items-center justify-end" dir="rtl">
+                      <Input
+                        type="number"
+                        placeholder="מ־"
+                        value={minMonthsArrears}
+                        onChange={(e) => { setMinMonthsArrears(e.target.value); setPage(1); }}
+                        className="h-9 rounded-lg text-sm w-16 text-right"
+                        dir="rtl"
+                      />
+                      <span className="text-xs text-slate-500">-</span>
+                      <Input
+                        type="number"
+                        placeholder="עד"
+                        value={maxMonthsArrears}
+                        onChange={(e) => { setMaxMonthsArrears(e.target.value); setPage(1); }}
+                        className="h-9 rounded-lg text-sm w-16 text-right"
+                        dir="rtl"
+                      />
+                    </div>
+                  </TableHead>
+                </TableRow>
+              )}
+              
+              {/* Filter Actions Row */}
+              {showAdvancedFilters && (
+                <TableRow className="bg-blue-50/30 border-b border-blue-200">
+                  <TableHead colSpan={8} className="py-3 px-6">
+                    <div className="flex items-center gap-3 justify-between" dir="rtl">
+                      <div className="flex gap-2 items-center">
+                        <span className="text-xs text-slate-600 font-semibold">תאריך קשר אחרון:</span>
+                        <Input
+                          type="date"
+                          placeholder="מתאריך"
+                          value={fromDate}
+                          onChange={(e) => { setFromDate(e.target.value); setPage(1); }}
+                          className="h-9 rounded-lg text-sm w-36 text-right"
+                          dir="rtl"
+                        />
+                        <span className="text-xs text-slate-500">עד</span>
+                        <Input
+                          type="date"
+                          placeholder="עד תאריך"
+                          value={toDate}
+                          onChange={(e) => { setToDate(e.target.value); setPage(1); }}
+                          className="h-9 rounded-lg text-sm w-36 text-right"
+                          dir="rtl"
+                        />
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={clearAdvancedFilters}
+                        className="h-9 rounded-lg"
+                      >
+                        <X className="w-4 h-4 ml-1" />
+                        נקה פילטרים
+                      </Button>
+                    </div>
+                  </TableHead>
+                </TableRow>
+              )}
             </TableHeader>
                 <TableBody>
                 {paginatedRecords.length === 0 ? (
