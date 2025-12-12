@@ -44,6 +44,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
   // פילטרים מתקדמים
   const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
   const [apartmentFilter, setApartmentFilter] = useState('');
+  const [legalStageFilter, setLegalStageFilter] = useState('all');
   
   // חוב חודשי
   const [monthlyDebtMin, setMonthlyDebtMin] = useState('');
@@ -95,6 +96,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
 
   const clearAdvancedFilters = () => {
     setApartmentFilter('');
+    setLegalStageFilter('all');
     setMonthlyDebtMin('');
     setMonthlyDebtMax('');
     setMonthlyDebtMode('all');
@@ -122,6 +124,11 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
     if (apartmentFilter) {
       const apt = apartmentFilter.toLowerCase();
       result = result.filter(r => r.apartmentNumber?.toLowerCase().includes(apt));
+    }
+
+    // סינון לפי שלב משפטי
+    if (legalStageFilter !== 'all') {
+      result = result.filter(r => r.legalStage === legalStageFilter);
     }
 
     // סינון חוב חודשי
@@ -185,7 +192,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
     });
 
     return result;
-  }, [records, search, apartmentFilter, monthlyDebtMin, monthlyDebtMax, monthlyDebtMode, 
+  }, [records, search, apartmentFilter, legalStageFilter, monthlyDebtMin, monthlyDebtMax, monthlyDebtMode, 
       specialDebtMin, specialDebtMax, specialDebtMode, statusFilter, debtFilter, sortField, sortDir]);
 
   const totalPages = Math.ceil(filteredRecords.length / pageSize);
@@ -200,7 +207,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
     }
   };
 
-  const hasActiveAdvancedFilters = apartmentFilter || monthlyDebtMin || monthlyDebtMax || 
+  const hasActiveAdvancedFilters = apartmentFilter || legalStageFilter !== 'all' || monthlyDebtMin || monthlyDebtMax || 
     monthlyDebtMode !== 'all' || specialDebtMin || specialDebtMax || specialDebtMode !== 'all';
 
   return (
@@ -267,25 +274,46 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
             {showAdvancedFilters && (
           <div className="mt-4 p-6 bg-gradient-to-l from-slate-50 to-slate-100 rounded-2xl border border-slate-200" dir="rtl">
             <div className="space-y-6">
-              {/* מספר דירה */}
-              <div>
-                <label className="text-sm font-bold text-slate-700 mb-2 block">מספר דירה</label>
-                <div className="relative">
-                  <Input
-                    placeholder="הקלד מספר דירה..."
-                    value={apartmentFilter}
-                    onChange={(e) => setApartmentFilter(e.target.value)}
-                    className="h-11 rounded-xl pr-4 pl-10 text-right"
-                    dir="rtl"
-                  />
-                  {apartmentFilter && (
-                    <button
-                      onClick={() => setApartmentFilter('')}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                    >
-                      <X className="w-4 h-4" />
-                    </button>
-                  )}
+              {/* שורה ראשונה */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* מספר דירה */}
+                <div>
+                  <label className="text-sm font-bold text-slate-700 mb-2 block">מספר דירה</label>
+                  <div className="relative">
+                    <Input
+                      placeholder="הקלד מספר דירה..."
+                      value={apartmentFilter}
+                      onChange={(e) => setApartmentFilter(e.target.value)}
+                      className="h-11 rounded-xl pr-4 pl-10 text-right"
+                      dir="rtl"
+                    />
+                    {apartmentFilter && (
+                      <button
+                        onClick={() => setApartmentFilter('')}
+                        className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* שלב משפטי */}
+                <div>
+                  <label className="text-sm font-bold text-slate-700 mb-2 block">שלב משפטי</label>
+                  <Select value={legalStageFilter} onValueChange={setLegalStageFilter} dir="rtl">
+                    <SelectTrigger className="h-11 rounded-xl" dir="rtl">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent dir="rtl" className="rounded-xl">
+                      <SelectItem value="all">כל השלבים</SelectItem>
+                      <SelectItem value="אין">אין</SelectItem>
+                      <SelectItem value="פנייה ראשונית">פנייה ראשונית</SelectItem>
+                      <SelectItem value="מכתב התראה">מכתב התראה</SelectItem>
+                      <SelectItem value="בתביעה">בתביעה</SelectItem>
+                      <SelectItem value="הסדר תשלומים">הסדר תשלומים</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
 

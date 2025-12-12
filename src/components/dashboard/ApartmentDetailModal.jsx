@@ -30,11 +30,13 @@ const STATUS_COLORS = {
 export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin }) {
   const [editedRecord, setEditedRecord] = useState(record);
   const [isSaving, setIsSaving] = useState(false);
-  const [dateError, setDateError] = useState('');
+  const [lastContactDateError, setLastContactDateError] = useState('');
+  const [nextActionDateError, setNextActionDateError] = useState('');
 
   React.useEffect(() => {
     setEditedRecord(record);
-    setDateError('');
+    setLastContactDateError('');
+    setNextActionDateError('');
   }, [record]);
 
   if (!record) return null;
@@ -58,7 +60,8 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   };
 
   const handleSave = async () => {
-    setDateError('');
+    setLastContactDateError('');
+    setNextActionDateError('');
     
     // ולידציה: תאריך קשר אחרון לא יכול להיות עתידי
     if (editedRecord?.lastContactDate) {
@@ -68,7 +71,20 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       selectedDate.setHours(0, 0, 0, 0);
       
       if (selectedDate > today) {
-        setDateError('לא ניתן לבחור תאריך עתידי');
+        setLastContactDateError('לא ניתן לבחור תאריך עתידי');
+        return;
+      }
+    }
+    
+    // ולידציה: תאריך פעולה הבאה לא יכול להיות בעבר
+    if (editedRecord?.nextActionDate) {
+      const selectedDate = new Date(editedRecord.nextActionDate);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      selectedDate.setHours(0, 0, 0, 0);
+      
+      if (selectedDate < today) {
+        setNextActionDateError('לא ניתן לבחור תאריך עבר');
         return;
       }
     }
@@ -249,15 +265,15 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                     max={getTodayDate()}
                     onChange={(e) => {
                       setEditedRecord({...editedRecord, lastContactDate: e.target.value});
-                      setDateError('');
+                      setLastContactDateError('');
                     }}
-                    className={`mt-2 h-12 rounded-xl text-right ${dateError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
+                    className={`mt-2 h-12 rounded-xl text-right ${lastContactDateError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
                     dir="rtl"
                   />
-                  {dateError && (
+                  {lastContactDateError && (
                     <p className="text-xs text-red-600 font-semibold mt-2 text-right flex items-center gap-2">
                       <AlertTriangle className="w-4 h-4" />
-                      {dateError}
+                      {lastContactDateError}
                     </p>
                   )}
                 </div>
@@ -266,10 +282,20 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                   <Input 
                     type="date" 
                     value={editedRecord?.nextActionDate || ''} 
-                    onChange={(e) => setEditedRecord({...editedRecord, nextActionDate: e.target.value})}
-                    className="mt-2 h-12 rounded-xl text-right"
+                    min={getTodayDate()}
+                    onChange={(e) => {
+                      setEditedRecord({...editedRecord, nextActionDate: e.target.value});
+                      setNextActionDateError('');
+                    }}
+                    className={`mt-2 h-12 rounded-xl text-right ${nextActionDateError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
                     dir="rtl"
                   />
+                  {nextActionDateError && (
+                    <p className="text-xs text-red-600 font-semibold mt-2 text-right flex items-center gap-2">
+                      <AlertTriangle className="w-4 h-4" />
+                      {nextActionDateError}
+                    </p>
+                  )}
                 </div>
               </div>
 
