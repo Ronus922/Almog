@@ -552,8 +552,8 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               <div className="text-right">
                 <Label className="text-sm font-bold text-slate-700 mb-2 block">סטטוס משפטי</Label>
                 <Select 
-                  value={editedRecord?.legal_status_manual || ''} 
-                  onValueChange={(v) => setEditedRecord({...editedRecord, legal_status_manual: v || null})}
+                  value={editedRecord?.legal_status_id || ''} 
+                  onValueChange={(v) => setEditedRecord({...editedRecord, legal_status_id: v || null})}
                 >
                   <SelectTrigger className="mt-2 h-12 rounded-xl text-right">
                     <SelectValue placeholder="בחר סטטוס משפטי" />
@@ -561,7 +561,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                   <SelectContent className="rounded-xl">
                     <SelectItem value={null}>לא הוגדר</SelectItem>
                     {activeLegalStatuses.map((status) => (
-                      <SelectItem key={status.id} value={status.name}>
+                      <SelectItem key={status.id} value={status.id}>
                         {status.name}
                       </SelectItem>
                     ))}
