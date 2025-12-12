@@ -23,7 +23,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Users, Plus, Trash2, Power, PowerOff, AlertCircle, Shield, Eye } from "lucide-react";
+import { Users, Plus, Trash2, Power, PowerOff, AlertCircle, Shield, Eye, Copy, RefreshCw } from "lucide-react";
 import { toast } from 'sonner';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 
@@ -32,11 +32,14 @@ function UserManagementContent() {
   const queryClient = useQueryClient();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [newUser, setNewUser] = useState({
+    first_name: '',
+    last_name: '',
     username: '',
     password: '',
     role: 'viewer_password'
   });
   const [formError, setFormError] = useState('');
+  const [shareToken, setShareToken] = useState('');
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['appUsers'],
@@ -53,6 +56,8 @@ function UserManagementContent() {
       // Hash password
       const passwordHash = btoa(userData.password);
       return base44.entities.AppUser.create({
+        first_name: userData.first_name,
+        last_name: userData.last_name || '',
         username: userData.username,
         password_hash: passwordHash,
         role: userData.role,
@@ -62,7 +67,7 @@ function UserManagementContent() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['appUsers'] });
       setIsAddDialogOpen(false);
-      setNewUser({ username: '', password: '', role: 'viewer_password' });
+      setNewUser({ first_name: '', last_name: '', username: '', password: '', role: 'viewer_password' });
       setFormError('');
       toast.success('המשתמש נוצר בהצלחה');
     },
@@ -89,13 +94,24 @@ function UserManagementContent() {
 
   const togglePublicAccessMutation = useMutation({
     mutationFn: async (enabled) => {
+      let token = null;
+      
+      if (enabled) {
+        // Generate new token
+        token = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      }
+      
       if (settings.length > 0) {
         return base44.entities.AppSettings.update(settings[0].id, {
-          dashboard_public_enabled: enabled
+          dashboard_public_enabled: enabled,
+          dashboard_share_token: token,
+          dashboard_share_created_at: enabled ? new Date().toISOString() : null
         });
       } else {
         return base44.entities.AppSettings.create({
-          dashboard_public_enabled: enabled
+          dashboard_public_enabled: enabled,
+          dashboard_share_token: token,
+          dashboard_share_created_at: enabled ? new Date().toISOString() : null
         });
       }
     },
@@ -105,10 +121,32 @@ function UserManagementContent() {
     }
   });
 
+  const regenerateTokenMutation = useMutation({
+    mutationFn: async () => {
+      const newToken = Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+      
+      if (settings.length > 0) {
+        return base44.entities.AppSettings.update(settings[0].id, {
+          dashboard_share_token: newToken,
+          dashboard_share_created_at: new Date().toISOString()
+        });
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['appSettings'] });
+      toast.success('נוצר קישור חדש');
+    }
+  });
+
   const handleCreateUser = () => {
     setFormError('');
 
     // Validation
+    if (!newUser.first_name.trim()) {
+      setFormError('יש להזין שם פרטי');
+      return;
+    }
+
     if (!newUser.username.trim()) {
       setFormError('נא להזין שם משתמש');
       return;
@@ -141,6 +179,17 @@ function UserManagementContent() {
   };
 
   const publicAccessEnabled = settings.length > 0 ? settings[0].dashboard_public_enabled : false;
+  const currentToken = settings.length > 0 ? settings[0].dashboard_share_token : '';
+  const shareUrl = currentToken ? `${window.location.origin}/share/dashboard/${currentToken}` : '';
+
+  const handleCopyShareLink = async () => {
+    try {
+      await navigator.clipboard.writeText(shareUrl);
+      toast.success('הקישור הועתק');
+    } catch (err) {
+      toast.error('לא ניתן להעתיק, נסה שוב');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -178,12 +227,12 @@ function UserManagementContent() {
               צפייה ציבורית
             </CardTitle>
           </CardHeader>
-          <CardContent className="p-6">
+          <CardContent className="p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div className="text-right">
                 <p className="font-semibold text-slate-800">אפשר צפייה ללא סיסמה לדשבורד</p>
                 <p className="text-sm text-slate-500 mt-1">
-                  כאשר מופעל, כל אחד יכול לגשת לדשבורד ללא התחברות
+                  יצירת קישור שיתוף ייחודי לצפייה בלבד
                 </p>
               </div>
               <Button
@@ -194,6 +243,52 @@ function UserManagementContent() {
                 {publicAccessEnabled ? 'מופעל' : 'כבוי'}
               </Button>
             </div>
+
+            {publicAccessEnabled && shareUrl && (
+              <div className="bg-blue-50 rounded-xl p-4 space-y-3">
+                <Label className="text-sm font-bold text-slate-700 block text-right">
+                  קישור צפייה לדשבורד
+                </Label>
+                <div className="flex gap-2" dir="ltr">
+                  <Input
+                    value={shareUrl}
+                    readOnly
+                    className="h-11 rounded-lg text-left flex-1 bg-white"
+                    dir="ltr"
+                  />
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={handleCopyShareLink}
+                    className="h-11 w-11 rounded-lg"
+                    title="העתק קישור"
+                  >
+                    <Copy className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => regenerateTokenMutation.mutate()}
+                    className="h-11 w-11 rounded-lg"
+                    title="צור קישור חדש"
+                    disabled={regenerateTokenMutation.isPending}
+                  >
+                    <RefreshCw className={`w-4 h-4 ${regenerateTokenMutation.isPending ? 'animate-spin' : ''}`} />
+                  </Button>
+                </div>
+                <p className="text-xs text-slate-600 text-right">
+                  שתף קישור זה עם אנשים שאתה רוצה שיוכלו לצפות בדשבורד ללא התחברות
+                </p>
+              </div>
+            )}
+
+            {!publicAccessEnabled && (
+              <Alert className="bg-slate-50 border-slate-200">
+                <AlertDescription className="text-slate-600 text-sm text-right">
+                  הצפייה ללא סיסמה כבויה. הפעל כדי ליצור קישור שיתוף.
+                </AlertDescription>
+              </Alert>
+            )}
           </CardContent>
         </Card>
 
@@ -209,6 +304,8 @@ function UserManagementContent() {
             <Table>
               <TableHeader>
                 <TableRow className="bg-slate-50">
+                  <TableHead className="text-right font-bold">שם פרטי</TableHead>
+                  <TableHead className="text-right font-bold">שם משפחה</TableHead>
                   <TableHead className="text-right font-bold">שם משתמש</TableHead>
                   <TableHead className="text-right font-bold">תפקיד</TableHead>
                   <TableHead className="text-right font-bold">סטטוס</TableHead>
@@ -218,6 +315,12 @@ function UserManagementContent() {
               <TableBody>
                 {users.map((user) => (
                   <TableRow key={user.id}>
+                    <TableCell className="font-medium">
+                      {user.first_name || '-'}
+                    </TableCell>
+                    <TableCell className="text-slate-600">
+                      {user.last_name || '-'}
+                    </TableCell>
                     <TableCell className="font-medium" dir="ltr" style={{ textAlign: 'right' }}>
                       {user.username}
                     </TableCell>
@@ -302,7 +405,33 @@ function UserManagementContent() {
             <div className="space-y-4">
               <div className="text-right">
                 <Label className="text-sm font-bold text-slate-700 mb-2 block">
-                  שם משתמש (אנגלית בלבד)
+                  שם פרטי <span className="text-red-600">*</span>
+                </Label>
+                <Input
+                  placeholder="שם פרטי"
+                  value={newUser.first_name}
+                  onChange={(e) => setNewUser({ ...newUser, first_name: e.target.value })}
+                  className="h-11 rounded-xl text-right"
+                  dir="rtl"
+                />
+              </div>
+
+              <div className="text-right">
+                <Label className="text-sm font-bold text-slate-700 mb-2 block">
+                  שם משפחה
+                </Label>
+                <Input
+                  placeholder="שם משפחה (אופציונלי)"
+                  value={newUser.last_name}
+                  onChange={(e) => setNewUser({ ...newUser, last_name: e.target.value })}
+                  className="h-11 rounded-xl text-right"
+                  dir="rtl"
+                />
+              </div>
+
+              <div className="text-right">
+                <Label className="text-sm font-bold text-slate-700 mb-2 block">
+                  שם משתמש (אנגלית בלבד) <span className="text-red-600">*</span>
                 </Label>
                 <Input
                   placeholder="username"
@@ -315,7 +444,7 @@ function UserManagementContent() {
 
               <div className="text-right">
                 <Label className="text-sm font-bold text-slate-700 mb-2 block">
-                  סיסמה (6-10 תווים)
+                  סיסמה (6-10 תווים) <span className="text-red-600">*</span>
                 </Label>
                 <Input
                   type="password"
@@ -348,7 +477,7 @@ function UserManagementContent() {
                   variant="outline"
                   onClick={() => {
                     setIsAddDialogOpen(false);
-                    setNewUser({ username: '', password: '', role: 'viewer_password' });
+                    setNewUser({ first_name: '', last_name: '', username: '', password: '', role: 'viewer_password' });
                     setFormError('');
                   }}
                   className="flex-1 rounded-xl"

@@ -84,6 +84,8 @@ export default function AppLogin() {
       if (isFirstUser) {
         const passwordHash = btoa(password);
         await base44.entities.AppUser.create({
+          first_name: username,
+          last_name: '',
           username,
           password_hash: passwordHash,
           role: 'admin',
