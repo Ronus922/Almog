@@ -42,6 +42,13 @@ export default function ExcelImporter({ onImportComplete }) {
     const selectedFile = e.target.files[0];
     if (!selectedFile) return;
 
+    // בדיקת סוג הקובץ
+    const fileName = selectedFile.name.toLowerCase();
+    if (!fileName.endsWith('.xlsx') && !fileName.endsWith('.xls')) {
+      setError('סוג הקובץ אינו נתמך. ניתן להעלות רק קבצי Excel בפורמט .xlsx או .xls');
+      return;
+    }
+
     setFile(selectedFile);
     setIsUploading(true);
     setError(null);
@@ -70,20 +77,22 @@ export default function ExcelImporter({ onImportComplete }) {
       });
 
       if (extractResult.status === 'error') {
-        throw new Error(extractResult.details || 'שגיאה בקריאת הקובץ');
+        throw new Error('העלאת הקובץ נכשלה. ייתכן שהקובץ פגום או בפורמט לא תקין.');
       }
 
       const data = extractResult.output;
-      const extractedHeaders = data.headers || Object.keys(data.rows?.[0] || {});
+      // ניקוי רווחים משמות העמודות (trim)
+      const rawHeaders = data.headers || Object.keys(data.rows?.[0] || {});
+      const extractedHeaders = rawHeaders.map(h => (h || '').trim());
       
       setHeaders(extractedHeaders);
       setExcelData(data.rows || []);
 
-      // ניסיון מיפוי אוטומטי
+      // ניסיון מיפוי אוטומטי (אחרי trim)
       const autoMappings = {};
       Object.entries(FIELD_MAPPINGS).forEach(([field, config]) => {
         const matchedHeader = extractedHeaders.find(h => 
-          config.patterns.some(p => h.toLowerCase().includes(p.toLowerCase()))
+          config.patterns.some(p => h.toLowerCase().includes(p.toLowerCase().trim()))
         );
         if (matchedHeader) {
           autoMappings[field] = matchedHeader;
@@ -93,7 +102,15 @@ export default function ExcelImporter({ onImportComplete }) {
 
       setStep(2);
     } catch (err) {
-      setError(err.message || 'שגיאה בהעלאת הקובץ');
+      // הודעת שגיאה ברורה למשתמש
+      if (err.message.includes('Unsupported file type')) {
+        setError('סוג הקובץ אינו נתמך. ניתן להעלות רק קבצי Excel בפורמט .xlsx או .xls');
+      } else if (err.message.includes('פגום') || err.message.includes('תקין')) {
+        setError(err.message);
+      } else {
+        setError('העלאת הקובץ נכשלה. אנא נסה שוב או בדוק את תקינות הקובץ.');
+      }
+      console.error('Error uploading file:', err);
     } finally {
       setIsUploading(false);
     }
@@ -117,8 +134,17 @@ export default function ExcelImporter({ onImportComplete }) {
   const parseNumber = (val) => {
     if (val === null || val === undefined || val === '') return 0;
     if (typeof val === 'number') return val;
+    // הסרת סימני מטבע, פסיקים וכל תו שאינו מספר
     const cleaned = String(val).replace(/[^\d.-]/g, '');
     return parseFloat(cleaned) || 0;
+  };
+
+  const getColumnValue = (row, columnName) => {
+    // קבלת ערך עמודה עם trim
+    if (!columnName) return '';
+    // חיפוש לפי שם העמודה המדויק או עם/בלי רווחים
+    const value = row[columnName] || row[columnName.trim()] || '';
+    return value;
   };
 
   const calculateStatus = (record, settings) => {
@@ -169,17 +195,17 @@ export default function ExcelImporter({ onImportComplete }) {
         const row = excelData[i];
         
         try {
-          // המרת שורה לרשומה
+          // המרת שורה לרשומה (עם trim לכל הערכים)
           const record = {
-            apartmentNumber: row[mappings.apartmentNumber] || '',
-            rawTenantField: row[mappings.rawTenantField] || '',
-            phones: row[mappings.phones] || '',
-            totalDebt: parseNumber(row[mappings.totalDebt]),
-            monthlyDebt: parseNumber(row[mappings.monthlyDebt]),
-            specialDebt: parseNumber(row[mappings.specialDebt]),
-            detailsMonthly: row[mappings.detailsMonthly] || '',
-            detailsSpecial: row[mappings.detailsSpecial] || '',
-            monthlyPayment: parseNumber(row[mappings.monthlyPayment])
+            apartmentNumber: (getColumnValue(row, mappings.apartmentNumber) || '').toString().trim(),
+            rawTenantField: (getColumnValue(row, mappings.rawTenantField) || '').toString().trim(),
+            phones: (getColumnValue(row, mappings.phones) || '').toString().trim(),
+            totalDebt: parseNumber(getColumnValue(row, mappings.totalDebt)),
+            monthlyDebt: parseNumber(getColumnValue(row, mappings.monthlyDebt)),
+            specialDebt: parseNumber(getColumnValue(row, mappings.specialDebt)),
+            detailsMonthly: (getColumnValue(row, mappings.detailsMonthly) || '').toString().trim(),
+            detailsSpecial: (getColumnValue(row, mappings.detailsSpecial) || '').toString().trim(),
+            monthlyPayment: parseNumber(getColumnValue(row, mappings.monthlyPayment))
           };
 
           // פיצול שם דייר לבעלים ושוכר (אם יש)
@@ -254,7 +280,7 @@ export default function ExcelImporter({ onImportComplete }) {
             <label className="cursor-pointer">
               <input
                 type="file"
-                accept=".xls,.xlsx"
+                accept=".xlsx,.xls"
                 onChange={handleFileSelect}
                 className="hidden"
               />
@@ -263,17 +289,20 @@ export default function ExcelImporter({ onImportComplete }) {
                   {isUploading ? (
                     <>
                       <Loader2 className="w-4 h-4 ml-2 animate-spin" />
-                      מעלה...
+                      מעלה קובץ...
                     </>
                   ) : (
                     <>
                       <Upload className="w-4 h-4 ml-2" />
-                      בחר קובץ
+                      בחר קובץ Excel
                     </>
                   )}
                 </span>
               </Button>
             </label>
+            <p className="text-xs text-slate-400 mt-2">
+              קבצים נתמכים: .xlsx, .xls
+            </p>
 
             {error && (
               <Alert variant="destructive" className="mt-4">
@@ -287,10 +316,12 @@ export default function ExcelImporter({ onImportComplete }) {
         {/* שלב 2: מיפוי עמודות */}
         {step === 2 && (
           <div className="space-y-6">
-            <div className="flex items-center gap-2 text-sm text-slate-600">
-              <CheckCircle2 className="w-4 h-4 text-green-500" />
-              <span>נמצאו {excelData.length} שורות בקובץ</span>
-            </div>
+            <Alert className="bg-green-50 border-green-200">
+              <CheckCircle2 className="w-4 h-4 text-green-600" />
+              <AlertDescription className="text-green-700">
+                קובץ האקסל נטען בהצלחה. נמצאו {excelData.length} שורות לייבוא.
+              </AlertDescription>
+            </Alert>
 
             <div>
               <h4 className="font-medium text-slate-700 mb-3">מיפוי עמודות</h4>
