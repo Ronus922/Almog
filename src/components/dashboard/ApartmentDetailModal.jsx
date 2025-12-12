@@ -29,6 +29,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
   const legalStatuses = allStatuses.filter(s => s.type === 'LEGAL');
   const activeLegalStatuses = legalStatuses.filter(s => s.is_active);
+  const defaultStatus = legalStatuses.find(s => s.is_default === true);
   
   // מציאת הסטטוס הנוכחי (כולל לא פעילים)
   const currentStatus = legalStatuses.find(s => s.id === record?.legal_status_id);
@@ -66,7 +67,20 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   const queryClient = useQueryClient();
 
   React.useEffect(() => {
-    setEditedRecord(record);
+    // תיקון אוטומטי של legal_status_id לא תקין
+    if (record && defaultStatus) {
+      const validLegalStatusIds = legalStatuses.filter(s => s.is_active).map(s => s.id);
+      const needsFix = !record.legal_status_id || !validLegalStatusIds.includes(record.legal_status_id);
+      
+      if (needsFix) {
+        setEditedRecord({ ...record, legal_status_id: defaultStatus.id, legal_status_overridden: false });
+      } else {
+        setEditedRecord(record);
+      }
+    } else {
+      setEditedRecord(record);
+    }
+    
     setLastContactDateError('');
     setNextActionDateError('');
     setEditingPhoneOwner(false);
@@ -79,7 +93,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     setPhoneError('');
     setMonthsError('');
     setPaymentError('');
-  }, [record]);
+  }, [record, defaultStatus, legalStatuses]);
 
   if (!record) return null;
 
@@ -556,13 +570,12 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 <Label className="text-sm font-bold text-slate-700 mb-2 block">סטטוס משפטי</Label>
                 <Select 
                   value={editedRecord?.legal_status_id || ''} 
-                  onValueChange={(v) => setEditedRecord({...editedRecord, legal_status_id: v || null, legal_status_overridden: true})}
+                  onValueChange={(v) => setEditedRecord({...editedRecord, legal_status_id: v || defaultStatus?.id, legal_status_overridden: true})}
                 >
                   <SelectTrigger className="mt-2 h-12 rounded-xl text-right">
                     <SelectValue placeholder="בחר סטטוס משפטי" />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl">
-                    <SelectItem value={null}>לא הוגדר</SelectItem>
                     {currentStatus && !currentStatus.is_active && (
                       <SelectItem key={currentStatus.id} value={currentStatus.id}>
                         {currentStatus.name} (לא פעיל)

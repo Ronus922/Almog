@@ -44,8 +44,55 @@ function DashboardContent() {
     queryFn: () => base44.entities.LegalStatus.list('order'),
   });
 
+  const { data: allStatuses = [] } = useQuery({
+    queryKey: ['statuses'],
+    queryFn: () => base44.entities.Status.list(),
+  });
+
   const settings = settingsList[0] || { highDebtThreshold: 1000, monthsBeforeLawsuit: 3 };
   const isAdmin = currentUser?.role === 'admin';
+
+  // תיקון אוטומטי לכל legal_status_id לא תקין
+  useEffect(() => {
+    const fixInvalidStatuses = async () => {
+      if (!records || records.length === 0 || !allStatuses || allStatuses.length === 0) return;
+
+      // מציאת סטטוס ברירת מחדל
+      const defaultStatus = allStatuses.find(s => s.type === 'LEGAL' && s.is_default === true);
+      if (!defaultStatus) return;
+
+      // רשימת כל הסטטוסים המשפטיים התקינים
+      const validLegalStatusIds = allStatuses
+        .filter(s => s.type === 'LEGAL' && s.is_active)
+        .map(s => s.id);
+
+      // מציאת רשומות עם סטטוס לא תקין
+      const recordsToFix = records.filter(r => 
+        !r.legal_status_id || !validLegalStatusIds.includes(r.legal_status_id)
+      );
+
+      if (recordsToFix.length > 0) {
+        console.log(`[Dashboard] Fixing ${recordsToFix.length} records with invalid legal_status_id`);
+        
+        // תיקון כל הרשומות
+        for (const record of recordsToFix) {
+          try {
+            await base44.entities.DebtorRecord.update(record.id, { 
+              legal_status_id: defaultStatus.id,
+              legal_status_overridden: false
+            });
+          } catch (err) {
+            console.error(`[Dashboard] Failed to fix record ${record.id}:`, err);
+          }
+        }
+
+        // רענון הנתונים לאחר התיקון
+        queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+      }
+    };
+
+    fixInvalidStatuses();
+  }, [records, allStatuses, queryClient]);
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.DebtorRecord.update(id, data),
