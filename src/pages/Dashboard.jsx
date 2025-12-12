@@ -69,30 +69,31 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100" dir="rtl">
-      <div className="max-w-7xl mx-auto p-6 lg:p-8 space-y-8">
+      <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8">
         {/* כותרת */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="flex items-center gap-4">
-            <div className="p-4 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-xl">
-              <Building2 className="w-8 h-8 text-white" />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
+          <div className="flex items-center gap-3 md:gap-4">
+            <div className="p-3 md:p-4 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl md:rounded-2xl shadow-xl">
+              <Building2 className="w-6 h-6 md:w-8 md:h-8 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-extrabold bg-gradient-to-l from-slate-800 to-slate-600 bg-clip-text text-transparent">
+              <h1 className="text-xl md:text-3xl font-extrabold bg-gradient-to-l from-slate-800 to-slate-600 bg-clip-text text-transparent">
                 {settings.buildingName || 'דשבורד חייבים'}
               </h1>
-              <p className="text-sm text-slate-600 font-medium mt-1">{settings.buildingAddress || ''}</p>
+              <p className="text-xs md:text-sm text-slate-600 font-medium mt-0.5 md:mt-1">{settings.buildingAddress || ''}</p>
             </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 md:gap-3">
             {isAdmin && <CopyLoginLink />}
             {!isAdmin && (
-              <div className="text-sm bg-gradient-to-l from-blue-50 to-blue-100 text-blue-700 px-4 py-2.5 rounded-xl border border-blue-200 font-semibold shadow-sm">
-                מצב צפייה בלבד
+              <div className="text-xs md:text-sm bg-gradient-to-l from-blue-50 to-blue-100 text-blue-700 px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl border border-blue-200 font-semibold shadow-sm">
+                צפייה בלבד
               </div>
             )}
-            <Button variant="outline" size="sm" className="rounded-xl h-10 px-4 font-semibold" onClick={() => refetchRecords()}>
-              <RefreshCw className="w-4 h-4 ml-2" />
-              רענן נתונים
+            <Button variant="outline" size="sm" className="rounded-lg md:rounded-xl h-9 md:h-10 px-3 md:px-4 font-semibold text-xs md:text-sm" onClick={() => refetchRecords()}>
+              <RefreshCw className="w-3.5 h-3.5 md:w-4 md:h-4 ml-1 md:ml-2" />
+              <span className="hidden sm:inline">רענן נתונים</span>
+              <span className="sm:hidden">רענן</span>
             </Button>
           </div>
         </div>
