@@ -36,7 +36,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Edit, Trash2, Shield, Loader2, Save, X } from "lucide-react";
+import { Plus, Edit, Trash2, Loader2, Save, X } from "lucide-react";
 import { toast } from "sonner";
 
 const COLOR_OPTIONS = [
@@ -60,8 +60,7 @@ export default function StatusManagement() {
     description: '',
     color: 'bg-slate-100 text-slate-700',
     order: 0,
-    is_active: true,
-    is_system: false
+    is_active: true
   });
 
   const queryClient = useQueryClient();
@@ -120,8 +119,7 @@ export default function StatusManagement() {
       description: '',
       color: 'bg-slate-100 text-slate-700',
       order: 0,
-      is_active: true,
-      is_system: false
+      is_active: true
     });
   };
 
@@ -137,8 +135,7 @@ export default function StatusManagement() {
       description: status.description || '',
       color: status.color,
       order: status.order,
-      is_active: status.is_active,
-      is_system: status.is_system
+      is_active: status.is_active
     });
     setIsEditDialogOpen(true);
   };
@@ -217,7 +214,6 @@ export default function StatusManagement() {
                   <TableHead className="text-center">סדר</TableHead>
                   <TableHead className="text-center">מקושרים</TableHead>
                   <TableHead className="text-center">פעיל</TableHead>
-                  <TableHead className="text-center">סוג</TableHead>
                   <TableHead className="text-left">פעולות</TableHead>
                 </TableRow>
               </TableHeader>
@@ -247,29 +243,17 @@ export default function StatusManagement() {
                           <Badge className="bg-slate-100 text-slate-500">לא פעיל</Badge>
                         )}
                       </TableCell>
-                      <TableCell className="text-center">
-                        {status.is_system ? (
-                          <Badge variant="outline" className="gap-1">
-                            <Shield className="w-3 h-3" />
-                            מערכת
-                          </Badge>
-                        ) : (
-                          <span className="text-slate-400 text-xs">-</span>
-                        )}
-                      </TableCell>
                       <TableCell className="text-left">
                         <div className="flex gap-2">
-                          {!status.is_system && (
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              onClick={() => handleDelete(status)}
-                              disabled={usageCount > 0}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          )}
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={() => handleDelete(status)}
+                            disabled={usageCount > 0}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
                           <Button variant="outline" size="sm" onClick={() => handleEdit(status)}>
                             <Edit className="w-4 h-4" />
                           </Button>
@@ -353,15 +337,6 @@ export default function StatusManagement() {
                 onCheckedChange={(checked) => setFormData({...formData, is_active: checked})}
               />
             </div>
-            {!editingStatus && (
-              <div className="flex items-center justify-between">
-                <Label>סטטוס מערכת (לא ניתן למחיקה)</Label>
-                <Switch
-                  checked={formData.is_system}
-                  onCheckedChange={(checked) => setFormData({...formData, is_system: checked})}
-                />
-              </div>
-            )}
           </div>
           <DialogFooter className="gap-2">
             <Button variant="outline" onClick={() => {
