@@ -314,23 +314,49 @@ export default function ExcelImporter({ onImportComplete }) {
     return num;
   };
 
-  const parsePhoneNumber = (phoneText) => {
-    if (!phoneText) return '';
+  const extractPhoneNumbers = (phoneText) => {
+    if (!phoneText) return { phoneOwner: '', phoneTenant: '', phonePrimary: '' };
 
-    // הסרת תווים לא רלוונטיים ושמירת מספרים בלבד
-    const cleaned = String(phoneText)
-      .replace(/[^\d+]/g, '') // שמירת ספרות ו-+ בלבד
-      .trim();
+    const raw = String(phoneText).trim();
 
-    // חילוץ מספר טלפון ישראלי (10 ספרות שמתחיל ב-0 או +972)
-    const israeliMatch = cleaned.match(/(?:0|\+?972)(\d{9})|0(\d{8,9})/);
-    if (israeliMatch) {
-      const digits = israeliMatch[1] || israeliMatch[2];
-      return digits ? `0${digits}` : cleaned;
+    // המרת +972 ל-0
+    let normalized = raw.replace(/\+972[\s-]*/g, '0');
+
+    // פיצול לפי מפרידים נפוצים
+    const potentialNumbers = normalized.split(/[\/,;|\n]+/);
+
+    const validNumbers = [];
+
+    for (let part of potentialNumbers) {
+      // ניקוי - השארת ספרות בלבד
+      const digitsOnly = part.replace(/\D/g, '');
+
+      // בדיקת אורך תקין (9-10 ספרות אחרי ניקוי, או 12-13 עם קידומת)
+      if (digitsOnly.length >= 9 && digitsOnly.length <= 13) {
+        let cleanNumber = digitsOnly;
+
+        // טיפול בקידומת 972
+        if (cleanNumber.startsWith('972')) {
+          cleanNumber = '0' + cleanNumber.substring(3);
+        }
+
+        // וידוא שמתחיל ב-0 ואורך 9-10
+        if (cleanNumber.startsWith('0') && cleanNumber.length >= 9 && cleanNumber.length <= 10) {
+          validNumbers.push(cleanNumber);
+        } else if (cleanNumber.length === 9 && !cleanNumber.startsWith('0')) {
+          // מספר ללא 0 בהתחלה - נוסיף
+          validNumbers.push('0' + cleanNumber);
+        }
+      }
     }
 
-    // אם לא נמצא פורמט תקין, להחזיר את המספר המנוקה
-    return cleaned.substring(0, 15); // מגבלה של 15 תווים
+    console.log(`[Excel Import - extractPhones] Raw: "${raw}" → Valid: ${validNumbers.join(', ')}`);
+
+    const phoneOwner = validNumbers[0] || '';
+    const phoneTenant = validNumbers[1] || '';
+    const phonePrimary = phoneOwner || phoneTenant || '';
+
+    return { phoneOwner, phoneTenant, phonePrimary };
   };
 
   const getColumnValue = (row, columnName) => {
@@ -414,10 +440,15 @@ export default function ExcelImporter({ onImportComplete }) {
           const ownerNameRaw = (getColumnValue(row, mappings.ownerName) || '').toString().trim();
           const phoneRaw = (getColumnValue(row, mappings.phonePrimary) || '').toString().trim();
 
+          const { phoneOwner, phoneTenant, phonePrimary } = extractPhoneNumbers(phoneRaw);
+
           const record = {
             apartmentNumber,
             ownerName: ownerNameRaw.split(/[\/,]/)[0]?.trim() || '', // רק בעל הדירה, ללא שוכר
-            phonePrimary: parsePhoneNumber(phoneRaw),
+            phoneOwner,
+            phoneTenant,
+            phonePrimary,
+            phonesRaw: phoneRaw,
             totalDebt: parseNumber(getColumnValue(row, mappings.totalDebt)),
             monthlyDebt: parseNumber(getColumnValue(row, mappings.monthlyDebt)),
             specialDebt: parseNumber(getColumnValue(row, mappings.specialDebt)),

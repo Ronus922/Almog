@@ -38,7 +38,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
   const [sortField, setSortField] = useState('totalDebt');
   const [sortDir, setSortDir] = useState('desc'); // ברירת מחדל: מהגדול לקטן
   const [page, setPage] = useState(1);
-  const pageSize = 15;
+  const pageSize = 50;
 
   const formatCurrency = (num) => 
     new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num || 0);
