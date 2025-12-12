@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -63,6 +65,7 @@ export default function StatusManagement() {
   });
 
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     const loadUser = async () => {
@@ -212,6 +215,7 @@ export default function StatusManagement() {
                   <TableHead className="text-right">תיאור</TableHead>
                   <TableHead className="text-right">תצוגה</TableHead>
                   <TableHead className="text-right">סדר</TableHead>
+                  <TableHead className="text-right">מקושרים</TableHead>
                   <TableHead className="text-right">פעיל</TableHead>
                   <TableHead className="text-right">סוג</TableHead>
                   <TableHead className="text-right">פעולות</TableHead>
@@ -228,6 +232,14 @@ export default function StatusManagement() {
                         <Badge className={status.color}>{status.name}</Badge>
                       </TableCell>
                       <TableCell>{status.order}</TableCell>
+                      <TableCell className="text-center">
+                        <button
+                          onClick={() => navigate(createPageUrl('Dashboard') + `?status=${encodeURIComponent(status.name)}`)}
+                          className="text-blue-600 hover:text-blue-800 font-bold underline decoration-2 hover:decoration-blue-800 transition-all text-lg"
+                        >
+                          {usageCount}
+                        </button>
+                      </TableCell>
                       <TableCell>
                         {status.is_active ? (
                           <Badge className="bg-green-100 text-green-700">פעיל</Badge>
