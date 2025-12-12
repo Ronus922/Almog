@@ -5,6 +5,7 @@ import StatusManagement from './pages/StatusManagement';
 import Home from './pages/Home';
 import UserManagement from './pages/UserManagement';
 import app from './pages/_app';
+import AppLogin from './pages/AppLogin';
 import __Layout from './Layout.jsx';
 
 
@@ -16,6 +17,7 @@ export const PAGES = {
     "Home": Home,
     "UserManagement": UserManagement,
     "_app": app,
+    "AppLogin": AppLogin,
 }
 
 export const pagesConfig = {
