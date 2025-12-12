@@ -1,18 +1,21 @@
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Phone, Wallet, Calendar, ChevronLeft } from "lucide-react";
+import { Phone, Home, Wallet } from "lucide-react";
 
 const STATUS_COLORS = {
-  'סדיר': 'bg-green-100 text-green-700 border-green-200',
-  'חייב': 'bg-yellow-100 text-yellow-700 border-yellow-200',
-  'חייב משמעותי': 'bg-orange-100 text-orange-700 border-orange-200',
-  'מועמד לתביעה': 'bg-slate-100 text-slate-700 border-slate-200',
-  'בתביעה': 'bg-red-100 text-red-700 border-red-200',
-  'בהסדר': 'bg-blue-100 text-blue-700 border-blue-200'
+  'תקין': 'bg-green-100 text-green-700 border-green-200',
+  'לגבייה': 'bg-orange-100 text-orange-700 border-orange-200',
+  'מכתב התראה': 'bg-yellow-100 text-yellow-700 border-yellow-200',
+  'לטיפול משפטי': 'bg-red-100 text-red-700 border-red-200'
 };
 
-import DebtSeverityBadge, { getDebtSeverityColor } from './DebtSeverityBadge';
+const BORDER_COLORS = {
+  'תקין': 'border-r-green-500',
+  'לגבייה': 'border-r-orange-500',
+  'מכתב התראה': 'border-r-yellow-500',
+  'לטיפול משפטי': 'border-r-red-500'
+};
 
 export default function DebtorCard({ record, onClick, settings }) {
   const formatCurrency = (num) => 
@@ -25,75 +28,57 @@ export default function DebtorCard({ record, onClick, settings }) {
     return phone;
   };
 
-  const severityColor = getDebtSeverityColor(record.totalDebt, settings);
-  const borderColor = severityColor === 'green' ? 'border-r-green-500' : 
-                      severityColor === 'orange' ? 'border-r-orange-500' : 
-                      'border-r-red-500';
+  const status = record.debt_status_auto || 'תקין';
+  const borderColor = BORDER_COLORS[status] || BORDER_COLORS['תקין'];
 
   return (
     <Card 
-      className={`hover:shadow-lg transition-all duration-200 cursor-pointer border-r-4 ${borderColor}`}
+      className={`p-4 hover:shadow-lg transition-all cursor-pointer border-r-4 ${borderColor}`}
       onClick={() => onClick(record)}
+      dir="rtl"
     >
-      <CardContent className="p-4">
-        <div className="flex items-start justify-between mb-3">
-          <div>
-            <div className="text-xs text-slate-500 font-semibold mb-1">דירה</div>
-            <div className="text-2xl font-bold text-slate-800">{record.apartmentNumber}</div>
-          </div>
-          <div className="flex flex-col items-end gap-1">
-            <Badge variant="outline" className={`${STATUS_COLORS[record.status] || 'bg-slate-100 text-slate-700'} font-semibold text-xs`}>
-              {record.status || 'סדיר'}
-            </Badge>
-            {record.needs_status_review && (
-              <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-xs">
-                בדוק
-              </Badge>
-            )}
-          </div>
-        </div>
-
-        <div className="space-y-2 mb-3">
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-500">בעל דירה</span>
-            <span className="text-sm font-semibold text-slate-700">{record.ownerName || '-'}</span>
-          </div>
-          
-          <div className="flex items-center justify-between">
-            <span className="text-xs text-slate-500 flex items-center gap-1">
-              <Phone className="w-3 h-3" />
-              טלפון
-            </span>
-            <span className="text-sm font-medium text-slate-700" dir="ltr">{formatPhone(record.phonePrimary)}</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-2 mb-3 pt-3 border-t">
-          <div className="text-center">
-            <div className="text-xs text-slate-500 mb-1">סה״כ חוב</div>
-            <div className="text-sm font-bold text-rose-600">{formatCurrency(record.totalDebt)}</div>
-            <div className="mt-1">
-              <DebtSeverityBadge debt={record.totalDebt} settings={settings} />
+      <div className="space-y-3">
+        {/* Header */}
+        <div className="flex items-start justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center">
+              <Home className="w-5 h-5 text-slate-600" />
+            </div>
+            <div>
+              <h3 className="font-bold text-lg text-slate-800">דירה {record.apartmentNumber}</h3>
+              <p className="text-sm text-slate-600">{record.ownerName || 'לא צוין'}</p>
             </div>
           </div>
-          <div className="text-center border-x border-slate-200">
-            <div className="text-xs text-slate-500 mb-1">חודשי</div>
-            <div className="text-sm font-semibold text-amber-600">{formatCurrency(record.monthlyDebt)}</div>
-          </div>
-          <div className="text-center">
-            <div className="text-xs text-slate-500 mb-1">מיוחד</div>
-            <div className="text-sm font-semibold text-purple-600">{formatCurrency(record.specialDebt)}</div>
+          <Badge variant="outline" className={`${STATUS_COLORS[status]} font-semibold text-xs`}>
+            {status}
+          </Badge>
+        </div>
+
+        {/* Phone */}
+        <div className="flex items-center gap-2 text-sm">
+          <Phone className="w-4 h-4 text-slate-400" />
+          <span className="text-slate-700 font-medium">{formatPhone(record.phonePrimary)}</span>
+        </div>
+
+        {/* Debt Summary */}
+        <div className="pt-2 border-t border-slate-200">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Wallet className="w-4 h-4 text-slate-400" />
+              <span className="text-sm text-slate-600">סה"כ חוב:</span>
+            </div>
+            <span className="text-lg font-bold text-slate-800">{formatCurrency(record.totalDebt)}</span>
           </div>
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t text-xs text-slate-500">
-          <div className="flex items-center gap-1">
-            <Calendar className="w-3 h-3" />
-            <span>{record.monthsInArrears || 0} חודשי פיגור</span>
+        {/* Legal Status */}
+        {record.legal_status_manual && (
+          <div className="pt-2 border-t border-slate-200">
+            <p className="text-xs text-slate-500">מצב משפטי:</p>
+            <p className="text-sm font-semibold text-slate-700 mt-1">{record.legal_status_manual}</p>
           </div>
-          <ChevronLeft className="w-4 h-4 text-blue-500" />
-        </div>
-      </CardContent>
+        )}
+      </div>
     </Card>
   );
 }
