@@ -85,7 +85,7 @@ export default function KPICards({ records, settings }) {
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-4">
       {kpis.map((kpi, idx) => (
         <KPICard key={idx} {...kpi} />
       ))}
