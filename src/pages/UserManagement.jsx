@@ -23,14 +23,17 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Users, Plus, Trash2, Power, PowerOff, AlertCircle, Shield, Eye, Copy, RefreshCw } from "lucide-react";
+import { Users, Plus, Trash2, Power, PowerOff, AlertCircle, Shield, Eye, Copy, RefreshCw, Pencil } from "lucide-react";
 import { toast } from 'sonner';
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
+import EditUserDialog from '@/components/users/EditUserDialog';
 
 function UserManagementContent() {
   const { currentUser } = useAuth();
   const queryClient = useQueryClient();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [editingUser, setEditingUser] = useState(null);
   const [newUser, setNewUser] = useState({
     first_name: '',
     last_name: '',
@@ -138,6 +141,34 @@ function UserManagementContent() {
     }
   });
 
+  const updateUserMutation = useMutation({
+    mutationFn: ({ id, userData }) => {
+      const updateData = {
+        first_name: userData.first_name,
+        last_name: userData.last_name || '',
+        username: userData.username,
+        role: userData.role,
+        is_active: userData.is_active
+      };
+      
+      // Only update password if provided
+      if (userData.password) {
+        updateData.password_hash = btoa(userData.password);
+      }
+      
+      return base44.entities.AppUser.update(id, updateData);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['appUsers'] });
+      setIsEditDialogOpen(false);
+      setEditingUser(null);
+      toast.success('המשתמש עודכן בהצלחה');
+    },
+    onError: () => {
+      toast.error('שגיאה בעדכון המשתמש');
+    }
+  });
+
   const handleCreateUser = () => {
     setFormError('');
 
@@ -189,6 +220,15 @@ function UserManagementContent() {
     } catch (err) {
       toast.error('לא ניתן להעתיק, נסה שוב');
     }
+  };
+
+  const handleEditUser = (user) => {
+    setEditingUser(user);
+    setIsEditDialogOpen(true);
+  };
+
+  const handleSaveEditedUser = (userData) => {
+    updateUserMutation.mutate({ id: editingUser.id, userData });
   };
 
   if (isLoading) {
@@ -314,7 +354,11 @@ function UserManagementContent() {
               </TableHeader>
               <TableBody>
                 {users.map((user) => (
-                  <TableRow key={user.id}>
+                  <TableRow 
+                    key={user.id}
+                    className="hover:bg-slate-50 cursor-pointer"
+                    onClick={() => handleEditUser(user)}
+                  >
                     <TableCell className="font-medium">
                       {user.first_name || '-'}
                     </TableCell>
@@ -345,7 +389,16 @@ function UserManagementContent() {
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-2 justify-end">
+                      <div className="flex gap-2 justify-end" onClick={(e) => e.stopPropagation()}>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEditUser(user)}
+                          className="rounded-lg"
+                          title="ערוך"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </Button>
                         <Button
                           size="sm"
                           variant="outline"
@@ -355,6 +408,7 @@ function UserManagementContent() {
                           })}
                           className="rounded-lg"
                           disabled={user.username === currentUser?.username}
+                          title={user.is_active ? "השבת" : "הפעל"}
                         >
                           {user.is_active ? (
                             <PowerOff className="w-4 h-4" />
@@ -372,6 +426,7 @@ function UserManagementContent() {
                           }}
                           className="rounded-lg text-red-600 hover:bg-red-50"
                           disabled={user.username === currentUser?.username}
+                          title="מחק"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -495,6 +550,18 @@ function UserManagementContent() {
             </div>
           </DialogContent>
         </Dialog>
+
+        {/* Edit User Dialog */}
+        <EditUserDialog
+          user={editingUser}
+          isOpen={isEditDialogOpen}
+          onClose={() => {
+            setIsEditDialogOpen(false);
+            setEditingUser(null);
+          }}
+          onSave={handleSaveEditedUser}
+          existingUsernames={users.map(u => u.username)}
+        />
       </div>
     </div>
   );

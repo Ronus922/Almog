@@ -28,10 +28,25 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   const [nextActionDateError, setNextActionDateError] = useState('');
   
   // Inline edit states
+  const [editingPhoneOwner, setEditingPhoneOwner] = useState(false);
+  const [phoneOwnerValue, setPhoneOwnerValue] = useState('');
+  const [phoneOwnerError, setPhoneOwnerError] = useState('');
+  const [savingPhoneOwner, setSavingPhoneOwner] = useState(false);
+
+  const [editingPhoneTenant, setEditingPhoneTenant] = useState(false);
+  const [phoneTenantValue, setPhoneTenantValue] = useState('');
+  const [phoneTenantError, setPhoneTenantError] = useState('');
+  const [savingPhoneTenant, setSavingPhoneTenant] = useState(false);
+
   const [editingPhone, setEditingPhone] = useState(false);
   const [phoneValue, setPhoneValue] = useState('');
   const [phoneError, setPhoneError] = useState('');
   const [savingPhone, setSavingPhone] = useState(false);
+
+  const [editingMonths, setEditingMonths] = useState(false);
+  const [monthsValue, setMonthsValue] = useState('');
+  const [monthsError, setMonthsError] = useState('');
+  const [savingMonths, setSavingMonths] = useState(false);
   
   const [editingPayment, setEditingPayment] = useState(false);
   const [paymentValue, setPaymentValue] = useState('');
@@ -51,9 +66,15 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     setEditedRecord(record);
     setLastContactDateError('');
     setNextActionDateError('');
+    setEditingPhoneOwner(false);
+    setEditingPhoneTenant(false);
     setEditingPhone(false);
+    setEditingMonths(false);
     setEditingPayment(false);
+    setPhoneOwnerError('');
+    setPhoneTenantError('');
     setPhoneError('');
+    setMonthsError('');
     setPaymentError('');
   }, [record]);
 
@@ -113,10 +134,19 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   };
 
   const validatePhone = (phone) => {
-    if (!phone || phone.trim() === '') return 'נא להזין מספר טלפון';
+    if (!phone || phone.trim() === '') return '';
     const cleaned = phone.replace(/\D/g, '');
-    if (cleaned.length < 7 || cleaned.length > 15) {
+    if (cleaned.length < 7 || cleaned.length > 11) {
       return 'מספר טלפון לא תקין';
+    }
+    return '';
+  };
+
+  const validateMonths = (months) => {
+    if (months === '' || months === null) return '';
+    const num = parseInt(months);
+    if (isNaN(num) || num < 0) {
+      return 'חודשי פיגור חייב להיות מספר שלם חיובי';
     }
     return '';
   };
@@ -127,6 +157,70 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       return 'תשלום חודשי חייב להיות מספר תקין';
     }
     return '';
+  };
+
+  const handleEditPhoneOwner = () => {
+    setPhoneOwnerValue(editedRecord?.phoneOwner || '');
+    setPhoneOwnerError('');
+    setEditingPhoneOwner(true);
+  };
+
+  const handleCancelPhoneOwner = () => {
+    setEditingPhoneOwner(false);
+    setPhoneOwnerError('');
+  };
+
+  const handleSavePhoneOwner = async () => {
+    const error = validatePhone(phoneOwnerValue);
+    if (error) {
+      setPhoneOwnerError(error);
+      return;
+    }
+
+    setSavingPhoneOwner(true);
+    try {
+      await base44.entities.DebtorRecord.update(record.id, { phoneOwner: phoneOwnerValue });
+      setEditedRecord({ ...editedRecord, phoneOwner: phoneOwnerValue });
+      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+      toast.success('טלפון בעלים עודכן בהצלחה');
+      setEditingPhoneOwner(false);
+    } catch (err) {
+      toast.error('שגיאה בעדכון, נסה שוב');
+    } finally {
+      setSavingPhoneOwner(false);
+    }
+  };
+
+  const handleEditPhoneTenant = () => {
+    setPhoneTenantValue(editedRecord?.phoneTenant || '');
+    setPhoneTenantError('');
+    setEditingPhoneTenant(true);
+  };
+
+  const handleCancelPhoneTenant = () => {
+    setEditingPhoneTenant(false);
+    setPhoneTenantError('');
+  };
+
+  const handleSavePhoneTenant = async () => {
+    const error = validatePhone(phoneTenantValue);
+    if (error) {
+      setPhoneTenantError(error);
+      return;
+    }
+
+    setSavingPhoneTenant(true);
+    try {
+      await base44.entities.DebtorRecord.update(record.id, { phoneTenant: phoneTenantValue });
+      setEditedRecord({ ...editedRecord, phoneTenant: phoneTenantValue });
+      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+      toast.success('טלפון שוכר עודכן בהצלחה');
+      setEditingPhoneTenant(false);
+    } catch (err) {
+      toast.error('שגיאה בעדכון, נסה שוב');
+    } finally {
+      setSavingPhoneTenant(false);
+    }
   };
 
   const handleEditPhone = () => {
@@ -158,6 +252,39 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       toast.error('שגיאה בעדכון, נסה שוב');
     } finally {
       setSavingPhone(false);
+    }
+  };
+
+  const handleEditMonths = () => {
+    setMonthsValue(editedRecord?.monthsInArrears?.toString() || '');
+    setMonthsError('');
+    setEditingMonths(true);
+  };
+
+  const handleCancelMonths = () => {
+    setEditingMonths(false);
+    setMonthsError('');
+  };
+
+  const handleSaveMonths = async () => {
+    const error = validateMonths(monthsValue);
+    if (error) {
+      setMonthsError(error);
+      return;
+    }
+
+    setSavingMonths(true);
+    try {
+      const numValue = monthsValue === '' ? null : parseInt(monthsValue);
+      await base44.entities.DebtorRecord.update(record.id, { monthsInArrears: numValue });
+      setEditedRecord({ ...editedRecord, monthsInArrears: numValue });
+      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+      toast.success('חודשי פיגור עודכן בהצלחה');
+      setEditingMonths(false);
+    } catch (err) {
+      toast.error('שגיאה בעדכון, נסה שוב');
+    } finally {
+      setSavingMonths(false);
     }
   };
 
@@ -318,8 +445,34 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               </h3>
               <InfoRow icon={Home} label="מספר דירה" value={editedRecord?.apartmentNumber} />
               <InfoRow icon={User} label="בעל דירה" value={editedRecord?.ownerName || 'לא צוין'} />
-              <InfoRow icon={Phone} label="טלפון בעלים" value={formatPhone(editedRecord?.phoneOwner)} />
-              <InfoRow icon={Phone} label="טלפון שוכר" value={formatPhone(editedRecord?.phoneTenant)} />
+              <EditableInfoRow
+                icon={Phone}
+                label="טלפון בעלים"
+                value={editedRecord?.phoneOwner}
+                isEditing={editingPhoneOwner}
+                editValue={phoneOwnerValue}
+                onEdit={handleEditPhoneOwner}
+                onCancel={handleCancelPhoneOwner}
+                onSave={handleSavePhoneOwner}
+                onChange={setPhoneOwnerValue}
+                error={phoneOwnerError}
+                saving={savingPhoneOwner}
+                formatDisplay={formatPhone}
+              />
+              <EditableInfoRow
+                icon={Phone}
+                label="טלפון שוכר"
+                value={editedRecord?.phoneTenant}
+                isEditing={editingPhoneTenant}
+                editValue={phoneTenantValue}
+                onEdit={handleEditPhoneTenant}
+                onCancel={handleCancelPhoneTenant}
+                onSave={handleSavePhoneTenant}
+                onChange={setPhoneTenantValue}
+                error={phoneTenantError}
+                saving={savingPhoneTenant}
+                formatDisplay={formatPhone}
+              />
               <EditableInfoRow
                 icon={Phone}
                 label="טלפון להצגה"
@@ -341,7 +494,20 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 <Wallet className="w-4 h-4 md:w-5 md:h-5 text-amber-600" />
                 מידע נוסף
               </h3>
-              <InfoRow icon={Calendar} label="חודשי פיגור" value={editedRecord?.monthsInArrears || 0} />
+              <EditableInfoRow
+                icon={Calendar}
+                label="חודשי פיגור"
+                value={editedRecord?.monthsInArrears}
+                isEditing={editingMonths}
+                editValue={monthsValue}
+                onEdit={handleEditMonths}
+                onCancel={handleCancelMonths}
+                onSave={handleSaveMonths}
+                onChange={setMonthsValue}
+                error={monthsError}
+                saving={savingMonths}
+                formatDisplay={(val) => val || val === 0 ? val : '-'}
+              />
               <EditableInfoRow
                 icon={Wallet}
                 label="תשלום חודשי"

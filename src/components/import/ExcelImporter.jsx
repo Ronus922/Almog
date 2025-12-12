@@ -34,7 +34,7 @@ export default function ExcelImporter({ onImportComplete }) {
   const [excelData, setExcelData] = useState(null);
   const [headers, setHeaders] = useState([]);
   const [mappings, setMappings] = useState({});
-  const [importMode, setImportMode] = useState('update');
+  const [importMode, setImportMode] = useState('fill_missing'); // Changed default
   const [isUploading, setIsUploading] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -412,9 +412,9 @@ export default function ExcelImporter({ onImportComplete }) {
 
       // קבלת רשומות קיימות למצב עדכון
       let existingRecords = [];
-      if (importMode === 'update') {
+      if (importMode !== 'reset') {
         existingRecords = await base44.entities.DebtorRecord.list();
-        console.log(`[Excel Import] Update mode: found ${existingRecords.length} existing records`);
+        console.log(`[Excel Import] Mode ${importMode}: found ${existingRecords.length} existing records`);
       }
 
       const totalRows = excelData.length;
@@ -464,25 +464,52 @@ export default function ExcelImporter({ onImportComplete }) {
             console.warn(`[Excel Import - dbInsert] Row ${i + 1}: Could not calculate months in arrears from: "${record.detailsMonthly}"`);
           }
 
-          // חישוב סטטוס
-          record.status = calculateStatus(record, settings);
-          record.legalStage = 'אין';
-
           // בדיקה אם דירה קיימת
           const existing = existingRecords.find(r => r.apartmentNumber === record.apartmentNumber);
 
           if (existing) {
-            // שמירה על שדות קיימים שלא באים מהאקסל
-            record.legalStage = existing.legalStage || 'אין';
-            record.notes = existing.notes;
-            record.lastContactDate = existing.lastContactDate;
-            record.nextActionDate = existing.nextActionDate;
-            record.status = calculateStatus({ ...record, legalStage: existing.legalStage }, settings);
+            // Apply import mode logic
+            const updateData = { ...record };
             
-            await base44.entities.DebtorRecord.update(existing.id, record);
+            // Helper: check if value is empty
+            const isEmpty = (val) => {
+              if (val === null || val === undefined || val === '') return true;
+              const str = String(val).trim();
+              return str === '' || str === 'אין מספר' || str === '-' || str === 'לא ידוע' || /^0+$/.test(str);
+            };
+
+            if (importMode === 'fill_missing') {
+              // Fill missing only - keep existing values if not empty
+              if (!isEmpty(existing.phoneOwner)) updateData.phoneOwner = existing.phoneOwner;
+              if (!isEmpty(existing.phoneTenant)) updateData.phoneTenant = existing.phoneTenant;
+              if (!isEmpty(existing.phonePrimary)) updateData.phonePrimary = existing.phonePrimary;
+              if (existing.monthsInArrears !== null && existing.monthsInArrears !== undefined && existing.monthsInArrears !== 0) {
+                updateData.monthsInArrears = existing.monthsInArrears;
+              }
+            } else if (importMode === 'skip_phones') {
+              // Skip phone/months fields entirely
+              updateData.phoneOwner = existing.phoneOwner;
+              updateData.phoneTenant = existing.phoneTenant;
+              updateData.phonePrimary = existing.phonePrimary;
+              updateData.monthsInArrears = existing.monthsInArrears;
+            }
+            // else: overwrite mode - use all new values
+
+            // Always preserve these fields (never from import)
+            updateData.legalStage = existing.legalStage;
+            updateData.notes = existing.notes;
+            updateData.lastContactDate = existing.lastContactDate;
+            updateData.nextActionDate = existing.nextActionDate;
+            updateData.status = existing.status; // CRITICAL: Never update status from import
+            
+            await base44.entities.DebtorRecord.update(existing.id, updateData);
             updated++;
-            console.log(`[Excel Import - dbInsert] Updated apartment ${record.apartmentNumber}`);
+            console.log(`[Excel Import - dbInsert] Updated apartment ${record.apartmentNumber} (mode: ${importMode})`);
           } else {
+            // New record - calculate status
+            record.status = calculateStatus(record, settings);
+            record.legalStage = 'אין';
+            
             await base44.entities.DebtorRecord.create(record);
             created++;
             console.log(`[Excel Import - dbInsert] Created apartment ${record.apartmentNumber}`);
@@ -610,18 +637,50 @@ export default function ExcelImporter({ onImportComplete }) {
 
             <div>
               <h4 className="font-medium text-slate-700 mb-3">מצב ייבוא</h4>
-              <RadioGroup value={importMode} onValueChange={setImportMode} className="space-y-2">
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem value="update" id="update" />
-                  <Label htmlFor="update" className="cursor-pointer">
-                    עדכון לפי דירה - עדכן קיימות, צור חדשות
-                  </Label>
+              <RadioGroup value={importMode} onValueChange={setImportMode} className="space-y-3">
+                <div className="flex items-start gap-3 p-3 rounded-lg border-2 border-blue-200 bg-blue-50">
+                  <RadioGroupItem value="fill_missing" id="fill_missing" className="mt-0.5" />
+                  <div className="flex-1">
+                    <Label htmlFor="fill_missing" className="cursor-pointer font-semibold text-blue-900">
+                      השלמה בלבד – עדכן רק שדות חסרים (מומלץ)
+                    </Label>
+                    <p className="text-xs text-blue-700 mt-1">
+                      טלפונים וחודשי פיגור יתעדכנו רק אם ריקים. ערכים קיימים יישמרו.
+                    </p>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem value="reset" id="reset" />
-                  <Label htmlFor="reset" className="cursor-pointer text-red-600">
-                    איפוס מלא - מחק הכל וטען מחדש
-                  </Label>
+                <div className="flex items-start gap-3 p-3 rounded-lg border border-slate-200">
+                  <RadioGroupItem value="overwrite" id="overwrite" className="mt-0.5" />
+                  <div className="flex-1">
+                    <Label htmlFor="overwrite" className="cursor-pointer font-semibold">
+                      דרוס תמיד לפי הייבוא
+                    </Label>
+                    <p className="text-xs text-slate-500 mt-1">
+                      כל הנתונים מהאקסל ידרסו את הקיים במערכת.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 rounded-lg border border-slate-200">
+                  <RadioGroupItem value="skip_phones" id="skip_phones" className="mt-0.5" />
+                  <div className="flex-1">
+                    <Label htmlFor="skip_phones" className="cursor-pointer font-semibold">
+                      אל תיגע בשדות טלפון/חודשי פיגור בכלל
+                    </Label>
+                    <p className="text-xs text-slate-500 mt-1">
+                      רק חובות ופרטים כלליים יתעדכנו, ללא שינוי בטלפונים או חודשי פיגור.
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3 p-3 rounded-lg border border-red-200">
+                  <RadioGroupItem value="reset" id="reset" className="mt-0.5" />
+                  <div className="flex-1">
+                    <Label htmlFor="reset" className="cursor-pointer font-semibold text-red-600">
+                      איפוס מלא - מחק הכל וטען מחדש
+                    </Label>
+                    <p className="text-xs text-red-600 mt-1">
+                      ⚠️ פעולה בלתי הפיכה! כל הנתונים הקיימים יימחקו.
+                    </p>
+                  </div>
                 </div>
               </RadioGroup>
             </div>
