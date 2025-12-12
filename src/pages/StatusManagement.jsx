@@ -429,6 +429,15 @@ export default function StatusManagement() {
               )}
             </Button>
 
+            <Button
+              variant="outline"
+              onClick={() => setIsWorkflowOpen(true)}
+              className="gap-2 bg-blue-50 hover:bg-blue-100 border-blue-300 text-blue-700"
+            >
+              <SlidersHorizontal className="w-5 h-5" />
+              עדכן דירה-דירה
+            </Button>
+
             <Button onClick={handleAdd} className="gap-2">
               <Plus className="w-5 h-5" />
               הוסף סטטוס
