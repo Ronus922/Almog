@@ -378,10 +378,15 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
                 <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('debt_status_auto')}>
                   <div className="flex items-center gap-2 justify-end">
                     <ArrowUpDown className={`w-5 h-5 ${sortField === 'debt_status_auto' ? 'text-blue-600' : 'text-slate-400'}`} />
-                    סטטוס
+                    סטטוס חוב
                   </div>
                 </TableHead>
-                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">משפטי</TableHead>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('legal_status_manual')}>
+                  <div className="flex items-center gap-2 justify-end">
+                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'legal_status_manual' ? 'text-blue-600' : 'text-slate-400'}`} />
+                    סטטוס משפטי
+                  </div>
+                </TableHead>
               </TableRow>
               
               {/* Advanced Filter Row */}
@@ -452,7 +457,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
                   </TableHead>
                   <TableHead className="py-3 px-4">
                     <Input
-                      placeholder="משפטי"
+                      placeholder="סטטוס משפטי"
                       value={legalStatusFilter}
                       onChange={(e) => { setLegalStatusFilter(e.target.value); setPage(1); }}
                       className="h-9 rounded-lg text-sm text-right"
@@ -521,7 +526,13 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
                       </Badge>
                     </TableCell>
                     <TableCell className="text-slate-700 text-base py-5 px-6 align-middle text-center">
-                      {record.legal_status_manual || '—'}
+                      {record.legal_status_manual ? (
+                        <Badge variant="outline" className="bg-slate-100 text-slate-700 border-slate-300 font-semibold text-sm">
+                          {record.legal_status_manual}
+                        </Badge>
+                      ) : (
+                        <span className="text-slate-400">—</span>
+                      )}
                     </TableCell>
                   </TableRow>
                 ))

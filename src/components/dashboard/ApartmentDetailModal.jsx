@@ -537,22 +537,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             </div>
           </div>
 
-          {/* פרטים נוספים */}
-          <div className="space-y-4">
-            <div className="text-right">
-              <Label className="text-sm font-bold text-slate-700 mb-2 block">פרטים חודשיים</Label>
-              <p className="text-sm bg-slate-50 rounded-xl p-4 text-right" style={{ direction: 'rtl', unicodeBidi: 'plaintext' }}>
-                {record.detailsMonthly || 'אין'}
-              </p>
-            </div>
-            <div className="text-right">
-              <Label className="text-sm font-bold text-slate-700 mb-2 block">פרטים מיוחדים</Label>
-              <p className="text-sm bg-slate-50 rounded-xl p-4 text-right" style={{ direction: 'rtl', unicodeBidi: 'plaintext' }}>
-                {record.detailsSpecial || 'אין'}
-              </p>
-            </div>
-          </div>
-
           <Separator className="my-6" />
 
           {/* שדות עריכה למנהל */}
