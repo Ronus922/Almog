@@ -208,7 +208,8 @@ export default function StatusManagement() {
       const result = {
         totalScanned: debtorRecords.length,
         fixed: 0,
-        alreadyValid: 0
+        alreadyValid: 0,
+        skippedLocked: 0
       };
 
       const validLegalStatusIds = statuses
@@ -216,12 +217,20 @@ export default function StatusManagement() {
         .map(s => s.id);
 
       for (const record of debtorRecords) {
+        // דלג על רשומות נעולות
+        if (record.legal_status_lock === true) {
+          result.skippedLocked++;
+          continue;
+        }
+
         const hasValidStatus = record.legal_status_id && validLegalStatusIds.includes(record.legal_status_id);
 
         if (!hasValidStatus) {
           await base44.entities.DebtorRecord.update(record.id, {
             legal_status_id: currentDefaultStatus.id,
-            legal_status_overridden: false
+            legal_status_overridden: false,
+            legal_status_source: 'SYSTEM_FIX',
+            legal_status_updated_at: new Date().toISOString()
           });
           result.fixed++;
         } else {
@@ -233,7 +242,7 @@ export default function StatusManagement() {
       await queryClient.invalidateQueries({ queryKey: ['statuses'] });
       
       setFixResult(result);
-      toast.success(`תיקון הושלם: ${result.fixed} רשומות תוקנו`);
+      toast.success(`תיקון הושלם: ${result.fixed} רשומות תוקנו, ${result.skippedLocked} דולגו (נעולות)`);
     } catch (error) {
       console.error('Error fixing statuses:', error);
       toast.error('שגיאה בתיקון הסטטוסים');
@@ -402,25 +411,31 @@ export default function StatusManagement() {
 
         {fixResult && (
           <Alert className="bg-green-50 border-green-300">
-            <AlertDescription className="space-y-2">
-              <div className="font-bold text-green-900">תוצאות תיקון אוטומטי:</div>
-              <div className="grid grid-cols-3 gap-4 text-sm">
-                <div>
-                  <div className="text-slate-600">סה"כ נסרקו</div>
-                  <div className="text-xl font-bold text-slate-800">{fixResult.totalScanned}</div>
+              <AlertDescription className="space-y-2">
+                <div className="font-bold text-green-900">תוצאות תיקון אוטומטי:</div>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                  <div>
+                    <div className="text-slate-600">סה"כ נסרקו</div>
+                    <div className="text-xl font-bold text-slate-800">{fixResult.totalScanned}</div>
+                  </div>
+                  <div>
+                    <div className="text-slate-600">תוקנו</div>
+                    <div className="text-xl font-bold text-green-600">{fixResult.fixed}</div>
+                  </div>
+                  <div>
+                    <div className="text-slate-600">היו תקינות</div>
+                    <div className="text-xl font-bold text-blue-600">{fixResult.alreadyValid}</div>
+                  </div>
+                  {fixResult.skippedLocked > 0 && (
+                    <div>
+                      <div className="text-slate-600">דולגו (נעולות)</div>
+                      <div className="text-xl font-bold text-amber-600">{fixResult.skippedLocked}</div>
+                    </div>
+                  )}
                 </div>
-                <div>
-                  <div className="text-slate-600">תוקנו</div>
-                  <div className="text-xl font-bold text-green-600">{fixResult.fixed}</div>
-                </div>
-                <div>
-                  <div className="text-slate-600">היו תקינות</div>
-                  <div className="text-xl font-bold text-blue-600">{fixResult.alreadyValid}</div>
-                </div>
-              </div>
-            </AlertDescription>
-          </Alert>
-        )}
+              </AlertDescription>
+            </Alert>
+          )}
 
         <Card>
           <CardHeader>

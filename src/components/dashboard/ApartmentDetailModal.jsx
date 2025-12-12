@@ -64,6 +64,9 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   const [paymentError, setPaymentError] = useState('');
   const [savingPayment, setSavingPayment] = useState(false);
 
+  const [savingStatus, setSavingStatus] = useState(false);
+  const [statusSaveSuccess, setStatusSaveSuccess] = useState(false);
+
   const queryClient = useQueryClient();
 
   React.useEffect(() => {
@@ -338,6 +341,81 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     }
   };
 
+  const handleLegalStatusChange = async (newStatusId) => {
+    console.log('Changing legal status to:', newStatusId, typeof newStatusId);
+    
+    // עדכון מיידי ב-UI (Optimistic)
+    const oldStatusId = editedRecord.legal_status_id;
+    const newStatus = legalStatuses.find(s => s.id === newStatusId);
+    const oldStatus = legalStatuses.find(s => s.id === oldStatusId);
+    
+    setEditedRecord({
+      ...editedRecord, 
+      legal_status_id: newStatusId,
+      legal_status_overridden: true,
+      legal_status_lock: true,
+      legal_status_source: 'MANUAL'
+    });
+    
+    setSavingStatus(true);
+    setStatusSaveSuccess(false);
+    
+    try {
+      const currentUser = await base44.auth.me();
+      const now = new Date().toISOString();
+      
+      // עדכון הרשומה עם audit fields
+      await base44.entities.DebtorRecord.update(record.id, {
+        legal_status_id: newStatusId,
+        legal_status_overridden: true,
+        legal_status_lock: true,
+        legal_status_source: 'MANUAL',
+        legal_status_updated_at: now,
+        legal_status_updated_by: currentUser.email || currentUser.username
+      });
+
+      // יצירת רשומת היסטוריה
+      await base44.entities.LegalStatusHistory.create({
+        debtor_record_id: record.id,
+        apartment_number: record.apartmentNumber,
+        old_status_id: oldStatusId,
+        old_status_name: oldStatus?.name || 'לא הוגדר',
+        new_status_id: newStatusId,
+        new_status_name: newStatus?.name || '',
+        changed_at: now,
+        changed_by: currentUser.email || currentUser.username,
+        source: 'MANUAL'
+      });
+
+      // עדכון ה-state עם ה-audit fields
+      setEditedRecord({
+        ...editedRecord,
+        legal_status_id: newStatusId,
+        legal_status_overridden: true,
+        legal_status_lock: true,
+        legal_status_source: 'MANUAL',
+        legal_status_updated_at: now,
+        legal_status_updated_by: currentUser.email || currentUser.username
+      });
+
+      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+      setStatusSaveSuccess(true);
+      toast.success('סטטוס משפטי עודכן בהצלחה ✓');
+      
+      setTimeout(() => setStatusSaveSuccess(false), 3000);
+    } catch (err) {
+      console.error('Failed to save legal status:', err);
+      // החזרה לערך הקודם בכשל
+      setEditedRecord({
+        ...editedRecord,
+        legal_status_id: oldStatusId
+      });
+      toast.error('שמירת הסטטוס נכשלה. אנא נסה שוב.');
+    } finally {
+      setSavingStatus(false);
+    }
+  };
+
   const InfoRow = ({ icon: Icon, label, value }) => (
     <div className="flex items-start gap-3 md:gap-4 py-2 md:py-3" dir="rtl">
       <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-slate-100 flex items-center justify-center">
@@ -570,11 +648,8 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 <Label className="text-sm font-bold text-slate-700 mb-2 block">סטטוס משפטי</Label>
                 <Select 
                   value={editedRecord?.legal_status_id || defaultStatus?.id || ''} 
-                  onValueChange={(v) => {
-                    console.log('Selected status ID:', v, typeof v);
-                    setEditedRecord({...editedRecord, legal_status_id: v, legal_status_overridden: true});
-                  }}
-                  disabled={!editedRecord || activeLegalStatuses.length === 0}
+                  onValueChange={handleLegalStatusChange}
+                  disabled={!editedRecord || activeLegalStatuses.length === 0 || savingStatus}
                 >
                   <SelectTrigger className="mt-2 h-12 rounded-xl text-right">
                     <SelectValue placeholder={activeLegalStatuses.length === 0 ? "אין סטטוסים זמינים" : "בחר סטטוס משפטי"} />
@@ -596,14 +671,45 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                     ))}
                   </SelectContent>
                 </Select>
-                {currentStatus && (
-                  <div className="mt-2">
-                    <Badge className={`${currentStatus.color} transition-all duration-200 hover:opacity-80`}>
-                      {currentStatus.name}
-                      {!currentStatus.is_active && ' (לא פעיל)'}
-                    </Badge>
-                  </div>
-                )}
+                
+                {/* סטטוס נוכחי + מידע Audit */}
+                <div className="mt-3 space-y-2">
+                  {currentStatus && (
+                    <div className="flex items-center gap-2">
+                      <Badge className={`${currentStatus.color} transition-all duration-200 hover:opacity-80`}>
+                        {currentStatus.name}
+                        {!currentStatus.is_active && ' (לא פעיל)'}
+                      </Badge>
+                      {savingStatus && (
+                        <span className="text-xs text-blue-600 font-semibold animate-pulse">שומר...</span>
+                      )}
+                      {statusSaveSuccess && (
+                        <span className="text-xs text-green-600 font-semibold">✓ נשמר</span>
+                      )}
+                    </div>
+                  )}
+                  
+                  {editedRecord?.legal_status_updated_at && (
+                    <div className="text-xs text-slate-600 bg-slate-50 rounded-lg p-2">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold">עודכן לאחרונה:</span>
+                        <span>{new Date(editedRecord.legal_status_updated_at).toLocaleString('he-IL')}</span>
+                      </div>
+                      {editedRecord.legal_status_updated_by && (
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="font-semibold">על ידי:</span>
+                          <span>{editedRecord.legal_status_updated_by}</span>
+                        </div>
+                      )}
+                      {editedRecord.legal_status_lock && (
+                        <div className="flex items-center gap-2 mt-1">
+                          <Lock className="w-3 h-3 text-amber-600" />
+                          <span className="text-amber-600 font-semibold">נעול מפני דריסה בייבוא</span>
+                        </div>
+                      )}
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
