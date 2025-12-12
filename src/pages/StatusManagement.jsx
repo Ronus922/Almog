@@ -77,6 +77,28 @@ export default function StatusManagement() {
     loadUser();
   }, []);
 
+  const { data: allStatuses = [], isLoading } = useQuery({
+    queryKey: ['statuses'],
+    queryFn: () => base44.entities.Status.list('order'),
+  });
+
+  const statuses = allStatuses
+    .filter(s => s.type === 'LEGAL')
+    .sort((a, b) => {
+      // סטטוס default תמיד ראשון
+      if (a.is_default && !b.is_default) return -1;
+      if (!a.is_default && b.is_default) return 1;
+      // אחר כך לפי order
+      if (a.order !== b.order) return a.order - b.order;
+      // אחר כך לפי שם
+      return (a.name || '').localeCompare(b.name || '');
+    });
+
+  const { data: debtorRecords = [] } = useQuery({
+    queryKey: ['debtorRecords'],
+    queryFn: () => base44.entities.DebtorRecord.list(),
+  });
+
   React.useEffect(() => {
     const ensureDefaultStatus = async () => {
       if (!allStatuses || allStatuses.length === 0) return;
@@ -108,28 +130,6 @@ export default function StatusManagement() {
       ensureDefaultStatus();
     }
   }, [allStatuses, user, queryClient]);
-
-  const { data: allStatuses = [], isLoading } = useQuery({
-    queryKey: ['statuses'],
-    queryFn: () => base44.entities.Status.list('order'),
-  });
-
-  const statuses = allStatuses
-    .filter(s => s.type === 'LEGAL')
-    .sort((a, b) => {
-      // סטטוס default תמיד ראשון
-      if (a.is_default && !b.is_default) return -1;
-      if (!a.is_default && b.is_default) return 1;
-      // אחר כך לפי order
-      if (a.order !== b.order) return a.order - b.order;
-      // אחר כך לפי שם
-      return (a.name || '').localeCompare(b.name || '');
-    });
-
-  const { data: debtorRecords = [] } = useQuery({
-    queryKey: ['debtorRecords'],
-    queryFn: () => base44.entities.DebtorRecord.list(),
-  });
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Status.create(data),
