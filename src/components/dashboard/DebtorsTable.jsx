@@ -151,7 +151,6 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
               <TableRow className="bg-slate-50 hover:bg-slate-50">
                 <TableHead className="text-right font-semibold">דירה</TableHead>
                 <TableHead className="text-right font-semibold">בעלים</TableHead>
-                <TableHead className="text-right font-semibold">שוכר</TableHead>
                 <TableHead className="text-right font-semibold">טלפון</TableHead>
                 <TableHead className="text-right font-semibold cursor-pointer" onClick={() => toggleSort('totalDebt')}>
                   <div className="flex items-center gap-1">
@@ -163,10 +162,10 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
                 <TableHead className="text-right font-semibold">חוב מיוחד</TableHead>
                 <TableHead className="text-right font-semibold">סטטוס</TableHead>
                 <TableHead className="text-right font-semibold">שלב משפטי</TableHead>
-                <TableHead className="text-right font-semibold cursor-pointer" onClick={() => toggleSort('monthsInArrears')}>
-                  <div className="flex items-center gap-1">
+                <TableHead className="text-center font-semibold cursor-pointer" onClick={() => toggleSort('monthsInArrears')}>
+                  <div className="flex items-center justify-center gap-1">
                     חודשי פיגור
-                    <ArrowUpDown className="w-3 h-3" />
+                    <ArrowUpDown className={`w-3 h-3 ${sortField === 'monthsInArrears' ? 'text-slate-700' : 'text-slate-400'}`} />
                   </div>
                 </TableHead>
                 <TableHead className="text-center font-semibold">פעולות</TableHead>
