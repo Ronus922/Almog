@@ -31,8 +31,8 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   const activeLegalStatuses = legalStatuses.filter(s => s.is_active);
   const defaultStatus = legalStatuses.find(s => s.is_default === true);
   
-  // מציאת הסטטוס הנוכחי (כולל לא פעילים)
-  const currentStatus = legalStatuses.find(s => s.id === record?.legal_status_id);
+  // State מקומי לסטטוס משפטי - נפרד מ-editedRecord
+  const [selectedLegalStatusId, setSelectedLegalStatusId] = useState('');
   const [editedRecord, setEditedRecord] = useState(record);
   const [isSaving, setIsSaving] = useState(false);
   const [lastContactDateError, setLastContactDateError] = useState('');
@@ -70,19 +70,13 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   const queryClient = useQueryClient();
 
   React.useEffect(() => {
-    // תיקון אוטומטי של legal_status_id לא תקין
-    if (record && defaultStatus) {
-      const validLegalStatusIds = legalStatuses.filter(s => s.is_active).map(s => s.id);
-      const needsFix = !record.legal_status_id || !validLegalStatusIds.includes(record.legal_status_id);
-      
-      if (needsFix) {
-        setEditedRecord({ ...record, legal_status_id: defaultStatus.id, legal_status_overridden: false });
-      } else {
-        setEditedRecord(record);
-      }
-    } else {
-      setEditedRecord(record);
-    }
+    if (!record) return;
+    
+    setEditedRecord(record);
+    
+    // אתחול state מקומי לסטטוס משפטי
+    const initialStatusId = record.legal_status_id || defaultStatus?.id || '';
+    setSelectedLegalStatusId(String(initialStatusId));
     
     setLastContactDateError('');
     setNextActionDateError('');
@@ -96,7 +90,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     setPhoneError('');
     setMonthsError('');
     setPaymentError('');
-  }, [record, defaultStatus, legalStatuses]);
+  }, [record, defaultStatus]);
 
   if (!record) return null;
 
@@ -342,27 +336,20 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   };
 
   const handleLegalStatusChange = async (newStatusId) => {
-    console.log('[DEBUG] Changing legal status:', {
+    console.log('[MANUAL CHANGE] Legal status:', {
       recordId: record.id,
       apartmentNumber: record.apartmentNumber,
+      oldStatusId: selectedLegalStatusId,
       newStatusId,
-      newStatusIdType: typeof newStatusId,
-      oldStatusId: editedRecord.legal_status_id
+      statusIdType: typeof newStatusId
     });
     
-    // שמירת ערך ישן לשחזור במקרה של כשל
+    // עדכון מיידי של ה-UI (State מקומי)
+    setSelectedLegalStatusId(String(newStatusId));
+    
     const oldStatusId = editedRecord.legal_status_id;
     const newStatus = legalStatuses.find(s => s.id === newStatusId);
     const oldStatus = legalStatuses.find(s => s.id === oldStatusId);
-    
-    // עדכון מיידי ב-UI (Optimistic)
-    setEditedRecord(prev => ({
-      ...prev, 
-      legal_status_id: newStatusId,
-      legal_status_overridden: true,
-      legal_status_lock: true,
-      legal_status_source: 'MANUAL'
-    }));
     
     setSavingStatus(true);
     setStatusSaveSuccess(false);
@@ -380,50 +367,43 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         legal_status_updated_by: currentUser.email || currentUser.username
       };
 
-      console.log('[DEBUG] Update payload:', updatePayload);
+      console.log('[MANUAL CHANGE] Payload:', updatePayload);
       
-      // עדכון הרשומה עם audit fields
+      // עדכון הרשומה
       const updatedRecord = await base44.entities.DebtorRecord.update(record.id, updatePayload);
       
-      console.log('[DEBUG] Server response:', updatedRecord);
+      console.log('[MANUAL CHANGE] Server response:', {
+        requestedId: newStatusId,
+        receivedId: updatedRecord?.legal_status_id,
+        match: updatedRecord?.legal_status_id === newStatusId
+      });
 
-      // בדיקה: האם השרת החזיר את הסטטוס שביקשנו?
+      // וידוא: השרת החזיר את הסטטוס שביקשנו
       if (updatedRecord?.legal_status_id !== newStatusId) {
-        console.error('[ERROR] Status mismatch:', {
+        console.error('[OVERRIDE DETECTED] Status was overridden!', {
           requested: newStatusId,
           received: updatedRecord?.legal_status_id
         });
         
         // החזרה לערך הקודם
-        setEditedRecord(prev => ({
-          ...prev,
-          legal_status_id: oldStatusId
-        }));
+        setSelectedLegalStatusId(String(oldStatusId || defaultStatus?.id || ''));
         
-        // בדיקה אם הוחזר default
         const isDefaultReturned = updatedRecord?.legal_status_id === defaultStatus?.id;
         
-        if (isDefaultReturned) {
-          toast.error(
-            'השינוי לא נשמר',
-            {
-              description: 'הסטטוס שבחרת לא נשמר בפועל והוחזר לברירת המחדל. סביר שקיים תהליך אוטומטי (ייבוא / תיקון מערכת) שדרס את השינוי.'
-            }
-          );
-        } else {
-          toast.error(
-            'השינוי נדרס לאחר שמירה',
-            {
-              description: 'הסטטוס נשמר אך תהליך מערכת אחר שינה אותו מיד לאחר מכן. בדוק הגדרות Import / Auto-fix.'
-            }
-          );
-        }
+        toast.error(
+          isDefaultReturned ? 'השינוי לא נשמר' : 'השינוי נדרס לאחר שמירה',
+          {
+            description: isDefaultReturned 
+              ? 'הסטטוס שבחרת לא נשמר בפועל והוחזר לברירת המחדל. סביר שקיים תהליך אוטומטי שדרס את השינוי.'
+              : 'הסטטוס נשמר אך תהליך מערכת אחר שינה אותו מיד לאחר מכן. בדוק הגדרות Auto-fix.'
+          }
+        );
         
         setSavingStatus(false);
         return;
       }
 
-      // יצירת רשומת היסטוריה
+      // רישום היסטוריה
       await base44.entities.LegalStatusHistory.create({
         debtor_record_id: record.id,
         apartment_number: record.apartmentNumber,
@@ -436,7 +416,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         source: 'MANUAL'
       });
 
-      // עדכון ה-state עם התשובה מהשרת
+      // עדכון state עם תשובת השרת
       setEditedRecord(prev => ({
         ...prev,
         legal_status_id: updatedRecord.legal_status_id,
@@ -447,12 +427,14 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         legal_status_updated_by: updatedRecord.legal_status_updated_by || (currentUser.email || currentUser.username)
       }));
 
-      // רענון cache
-      await queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+      // רענון cache אך לא בזמן שהמודאל פתוח
+      queryClient.setQueryData(['debtorRecords'], (old) => {
+        if (!old) return old;
+        return old.map(r => r.id === record.id ? { ...r, ...updatedRecord } : r);
+      });
       
       setStatusSaveSuccess(true);
       
-      // הצלחה אמיתית בלבד
       const userName = currentUser.email || currentUser.username;
       const dateStr = new Date(now).toLocaleDateString('he-IL', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
       
@@ -463,40 +445,25 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         }
       );
       
-      console.log('[SUCCESS] Status change completed successfully');
+      console.log('[SUCCESS] Manual status change completed');
       
       setTimeout(() => setStatusSaveSuccess(false), 3000);
     } catch (err) {
-      console.error('[ERROR] Failed to save legal status:', err);
-      console.error('[ERROR] Error details:', {
-        message: err.message,
-        response: err.response,
-        stack: err.stack
-      });
+      console.error('[ERROR] Failed to save:', err);
       
-      // החזרה לערך הקודם בכשל
-      setEditedRecord(prev => ({
-        ...prev,
-        legal_status_id: oldStatusId
-      }));
+      // החזרה לערך הקודם
+      setSelectedLegalStatusId(String(oldStatusId || defaultStatus?.id || ''));
       
-      // זיהוי סוג השגיאה
       const errorMessage = err.message || '';
       
       if (errorMessage.includes('lock') || errorMessage.includes('protected')) {
-        toast.error(
-          'שינוי סטטוס חסום',
-          {
-            description: 'הסטטוס מוגן משינויים אוטומטיים. רק משתמש מורשה יכול לעדכן אותו.'
-          }
-        );
+        toast.error('שינוי סטטוס חסום', {
+          description: 'הסטטוס מוגן משינויים. רק משתמש מורשה יכול לעדכן אותו.'
+        });
       } else {
-        toast.error(
-          'שמירת הסטטוס נכשלה',
-          {
-            description: 'לא ניתן לשמור את השינוי. נסה שוב או פנה למנהל המערכת.'
-          }
-        );
+        toast.error('שמירת הסטטוס נכשלה', {
+          description: 'לא ניתן לשמור את השינוי. נסה שוב.'
+        });
       }
     } finally {
       setSavingStatus(false);
@@ -734,7 +701,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               <div className="text-right">
                 <Label className="text-sm font-bold text-slate-700 mb-2 block">סטטוס משפטי</Label>
                 <Select 
-                  value={editedRecord?.legal_status_id || defaultStatus?.id || ''} 
+                  value={selectedLegalStatusId} 
                   onValueChange={handleLegalStatusChange}
                   disabled={!editedRecord || activeLegalStatuses.length === 0 || savingStatus}
                 >
@@ -742,13 +709,8 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                     <SelectValue placeholder={activeLegalStatuses.length === 0 ? "אין סטטוסים זמינים" : "בחר סטטוס משפטי"} />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl z-[9999]" position="popper">
-                    {currentStatus && !currentStatus.is_active && (
-                      <SelectItem key={currentStatus.id} value={currentStatus.id}>
-                        {currentStatus.name} (לא פעיל)
-                      </SelectItem>
-                    )}
                     {activeLegalStatuses.map((status) => (
-                      <SelectItem key={status.id} value={status.id}>
+                      <SelectItem key={status.id} value={String(status.id)}>
                         <div className="flex items-center gap-2">
                           <Badge className={`${status.color} text-xs transition-all duration-200 hover:opacity-80`}>
                             {status.name}
@@ -761,20 +723,22 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 
                 {/* סטטוס נוכחי + מידע Audit */}
                 <div className="mt-3 space-y-2">
-                  {currentStatus && (
-                    <div className="flex items-center gap-2">
-                      <Badge className={`${currentStatus.color} transition-all duration-200 hover:opacity-80`}>
-                        {currentStatus.name}
-                        {!currentStatus.is_active && ' (לא פעיל)'}
-                      </Badge>
-                      {savingStatus && (
-                        <span className="text-xs text-blue-600 font-semibold animate-pulse">שומר...</span>
-                      )}
-                      {statusSaveSuccess && (
-                        <span className="text-xs text-green-600 font-semibold">✓ נשמר</span>
-                      )}
-                    </div>
-                  )}
+                  {(() => {
+                    const currentStatus = legalStatuses.find(s => s.id === selectedLegalStatusId);
+                    return currentStatus && (
+                      <div className="flex items-center gap-2">
+                        <Badge className={`${currentStatus.color} transition-all duration-200 hover:opacity-80`}>
+                          {currentStatus.name}
+                        </Badge>
+                        {savingStatus && (
+                          <span className="text-xs text-blue-600 font-semibold animate-pulse">שומר...</span>
+                        )}
+                        {statusSaveSuccess && (
+                          <span className="text-xs text-green-600 font-semibold">✓ נשמר</span>
+                        )}
+                      </div>
+                    );
+                  })()}
                   
                   {editedRecord?.legal_status_updated_at && (
                     <div className="text-xs text-slate-600 bg-slate-50 rounded-lg p-2">

@@ -52,37 +52,32 @@ function DashboardContent() {
   const settings = settingsList[0] || { highDebtThreshold: 1000, monthsBeforeLawsuit: 3 };
   const isAdmin = currentUser?.role === 'admin';
 
-  // תיקון אוטומטי לכל legal_status_id לא תקין - רק רשומות לא נעולות
+  // *** AUTO-FIX מושבת זמנית - רק תיקון חד-פעמי בטעינה ראשונית ***
+  const [autoFixRan, setAutoFixRan] = React.useState(false);
+  
   useEffect(() => {
-    const fixInvalidStatuses = async () => {
-      if (!records || records.length === 0 || !allStatuses || allStatuses.length === 0) return;
+    // רק פעם אחת בטעינה ראשונית
+    if (autoFixRan || !records || records.length === 0 || !allStatuses || allStatuses.length === 0) return;
 
-      // מציאת סטטוס ברירת מחדל
+    const fixInvalidStatuses = async () => {
       const defaultStatus = allStatuses.find(s => s.type === 'LEGAL' && s.is_default === true);
       if (!defaultStatus) return;
 
-      // רשימת כל הסטטוסים המשפטיים התקינים
       const validLegalStatusIds = allStatuses
         .filter(s => s.type === 'LEGAL' && s.is_active)
         .map(s => s.id);
 
-      // מציאת רשומות עם סטטוס לא תקין - רק לא נעולות
-      const recordsToFix = records.filter(r => {
-        // דלג על רשומות נעולות (שונו ידנית)
-        if (r.legal_status_lock === true) {
-          return false;
-        }
-        // תקן רק אם הסטטוס באמת לא תקין
-        return !r.legal_status_id || !validLegalStatusIds.includes(r.legal_status_id);
-      });
+      // רק רשומות לא נעולות עם סטטוס לא תקין
+      const recordsToFix = records.filter(r => 
+        r.legal_status_lock !== true && 
+        (!r.legal_status_id || !validLegalStatusIds.includes(r.legal_status_id))
+      );
 
       if (recordsToFix.length > 0) {
-        console.log(`[Dashboard AUTO-FIX] Fixing ${recordsToFix.length} records with invalid legal_status_id`);
+        console.log(`[AUTO-FIX INITIAL] Fixing ${recordsToFix.length} records`);
         
-        // תיקון כל הרשומות
         for (const record of recordsToFix) {
           try {
-            console.log(`[Dashboard AUTO-FIX] Fixing record ${record.apartmentNumber} (${record.id})`);
             await base44.entities.DebtorRecord.update(record.id, { 
               legal_status_id: defaultStatus.id,
               legal_status_overridden: false,
@@ -90,22 +85,18 @@ function DashboardContent() {
               legal_status_updated_at: new Date().toISOString()
             });
           } catch (err) {
-            console.error(`[Dashboard AUTO-FIX ERROR] Failed to fix record ${record.id}:`, err);
+            console.error(`[AUTO-FIX ERROR] ${record.id}:`, err);
           }
         }
 
-        // רענון הנתונים לאחר התיקון
         queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
-      } else {
-        const lockedCount = records.filter(r => r.legal_status_lock === true).length;
-        if (lockedCount > 0) {
-          console.log(`[Dashboard AUTO-FIX] Skipped ${lockedCount} locked records`);
-        }
       }
+      
+      setAutoFixRan(true);
     };
 
     fixInvalidStatuses();
-  }, [records, allStatuses, queryClient]);
+  }, [records, allStatuses, queryClient, autoFixRan]);
 
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.DebtorRecord.update(id, data),
