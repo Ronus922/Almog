@@ -40,6 +40,13 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   const formatCurrency = (num) => 
     new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num || 0);
 
+  const formatPhone = (phone) => {
+    if (!phone) return 'אין מספר';
+    const cleaned = phone.replace(/\D/g, '');
+    if (/^0+$/.test(cleaned)) return 'אין מספר';
+    return phone;
+  };
+
   const handleSave = async () => {
     setIsSaving(true);
     await onSave(editedRecord);
@@ -96,9 +103,9 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               </h3>
               <InfoRow icon={Home} label="מספר דירה" value={editedRecord?.apartmentNumber} />
               <InfoRow icon={User} label="בעל דירה" value={editedRecord?.ownerName || 'לא צוין'} />
-              <InfoRow icon={Phone} label="טלפון בעלים" value={editedRecord?.phoneOwner || 'אין'} />
-              <InfoRow icon={Phone} label="טלפון שוכר" value={editedRecord?.phoneTenant || 'אין'} />
-              <InfoRow icon={Phone} label="טלפון להצגה" value={editedRecord?.phonePrimary || 'אין מספר'} />
+              <InfoRow icon={Phone} label="טלפון בעלים" value={formatPhone(editedRecord?.phoneOwner)} />
+              <InfoRow icon={Phone} label="טלפון שוכר" value={formatPhone(editedRecord?.phoneTenant)} />
+              <InfoRow icon={Phone} label="טלפון להצגה" value={formatPhone(editedRecord?.phonePrimary)} />
             </div>
             
             <div className="space-y-2 bg-slate-50/50 rounded-2xl p-6">

@@ -43,6 +43,13 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
   const formatCurrency = (num) => 
     new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num || 0);
 
+  const formatPhone = (phone) => {
+    if (!phone) return 'אין מספר';
+    const cleaned = phone.replace(/\D/g, '');
+    if (/^0+$/.test(cleaned)) return 'אין מספר';
+    return phone;
+  };
+
   const filteredRecords = useMemo(() => {
     let result = [...records];
 
@@ -149,22 +156,22 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
           <Table className="border-separate border-spacing-0">
             <TableHeader>
               <TableRow className="bg-gradient-to-l from-slate-50 to-slate-100 hover:bg-gradient-to-l border-b-2 border-slate-200">
-                <TableHead className="text-right font-bold text-slate-700">מס׳ דירה</TableHead>
-                <TableHead className="text-right font-bold text-slate-700">שם בעל הדירה</TableHead>
-                <TableHead className="text-right font-bold text-slate-700">טלפון</TableHead>
-                <TableHead className="text-right font-bold text-slate-700 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('totalDebt')}>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">מס׳ דירה</TableHead>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">שם בעל הדירה</TableHead>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">טלפון</TableHead>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('totalDebt')}>
                   <div className="flex items-center gap-2 justify-end">
-                    <ArrowUpDown className={`w-4 h-4 ${sortField === 'totalDebt' ? 'text-rose-600' : 'text-slate-400'}`} />
+                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'totalDebt' ? 'text-rose-600' : 'text-slate-400'}`} />
                     סה״כ חוב
                   </div>
                 </TableHead>
-                <TableHead className="text-right font-bold text-slate-700">חוב חודשי</TableHead>
-                <TableHead className="text-right font-bold text-slate-700">חוב מיוחד</TableHead>
-                <TableHead className="text-right font-bold text-slate-700">סטטוס</TableHead>
-                <TableHead className="text-right font-bold text-slate-700">שלב משפטי</TableHead>
-                <TableHead className="text-right font-bold text-slate-700 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('monthsInArrears')}>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">חוב חודשי</TableHead>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">חוב מיוחד</TableHead>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">סטטוס</TableHead>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">שלב משפטי</TableHead>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('monthsInArrears')}>
                   <div className="flex items-center gap-2 justify-end">
-                    <ArrowUpDown className={`w-4 h-4 ${sortField === 'monthsInArrears' ? 'text-rose-600' : 'text-slate-400'}`} />
+                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'monthsInArrears' ? 'text-rose-600' : 'text-slate-400'}`} />
                     חודשי פיגור
                   </div>
                 </TableHead>
@@ -190,23 +197,23 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
                     className={`hover:bg-blue-50/50 cursor-pointer transition-all duration-200 border-b border-slate-100 ${idx % 2 === 1 ? 'bg-slate-50/30' : 'bg-white'}`}
                     onClick={() => onRowClick(record)}
                   >
-                    <TableCell className="font-bold text-slate-800">{record.apartmentNumber}</TableCell>
-                    <TableCell className="text-slate-700">{record.ownerName || '-'}</TableCell>
-                    <TableCell className="text-sm font-mono text-slate-600" dir="ltr">{record.phonePrimary || 'אין מספר'}</TableCell>
-                    <TableCell className="font-bold text-lg text-rose-600">{formatCurrency(record.totalDebt)}</TableCell>
-                    <TableCell className="text-amber-600 font-semibold">{formatCurrency(record.monthlyDebt)}</TableCell>
-                    <TableCell className="text-purple-600 font-semibold">{formatCurrency(record.specialDebt)}</TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className={`${STATUS_COLORS[record.status] || ''} font-medium`}>
+                    <TableCell className="font-bold text-slate-800 text-base py-5 px-6 align-middle">{record.apartmentNumber}</TableCell>
+                    <TableCell className="text-slate-700 text-base py-5 px-6 align-middle">{record.ownerName || '-'}</TableCell>
+                    <TableCell className="text-base font-medium text-slate-600 py-5 px-6 align-middle text-right" dir="rtl">{formatPhone(record.phonePrimary)}</TableCell>
+                    <TableCell className="font-bold text-lg text-rose-600 py-5 px-6 align-middle text-center">{formatCurrency(record.totalDebt)}</TableCell>
+                    <TableCell className="text-amber-600 font-semibold text-base py-5 px-6 align-middle text-center">{formatCurrency(record.monthlyDebt)}</TableCell>
+                    <TableCell className="text-purple-600 font-semibold text-base py-5 px-6 align-middle text-center">{formatCurrency(record.specialDebt)}</TableCell>
+                    <TableCell className="py-5 px-6 align-middle">
+                      <Badge variant="outline" className={`${STATUS_COLORS[record.status] || ''} font-semibold text-sm`}>
                         {record.status}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      <Badge variant="secondary" className={`${LEGAL_STAGE_COLORS[record.legalStage] || ''} font-medium`}>
+                    <TableCell className="py-5 px-6 align-middle">
+                      <Badge variant="secondary" className={`${LEGAL_STAGE_COLORS[record.legalStage] || ''} font-semibold text-sm`}>
                         {record.legalStage || 'אין'}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-center font-bold text-slate-700">{record.monthsInArrears || 0}</TableCell>
+                    <TableCell className="text-center font-bold text-slate-700 text-base py-5 px-6 align-middle">{record.monthsInArrears || 0}</TableCell>
                   </TableRow>
                 ))
                 )}
