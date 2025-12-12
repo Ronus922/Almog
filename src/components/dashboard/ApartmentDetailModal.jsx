@@ -22,6 +22,12 @@ import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
 export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin }) {
+  const { data: legalStatuses = [] } = useQuery({
+    queryKey: ['legalStatuses'],
+    queryFn: () => base44.entities.LegalStatus.list('order'),
+  });
+
+  const activeLegalStatuses = legalStatuses.filter(s => s.is_active);
   const [editedRecord, setEditedRecord] = useState(record);
   const [isSaving, setIsSaving] = useState(false);
   const [lastContactDateError, setLastContactDateError] = useState('');
@@ -54,13 +60,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   const [savingPayment, setSavingPayment] = useState(false);
 
   const queryClient = useQueryClient();
-
-  const { data: legalStatuses = [] } = useQuery({
-    queryKey: ['legalStatuses'],
-    queryFn: () => base44.entities.LegalStatus.list('order'),
-  });
-
-  const activeLegalStatuses = legalStatuses.filter(s => s.is_active);
 
   React.useEffect(() => {
     setEditedRecord(record);
@@ -550,15 +549,23 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               </h3>
 
               <div className="text-right">
-                <Label className="text-sm font-bold text-slate-700 mb-2 block">מצב משפטי (טקסט חופשי)</Label>
-                <Input
-                  type="text"
-                  value={editedRecord?.legal_status_manual || ''}
-                  onChange={(e) => setEditedRecord({...editedRecord, legal_status_manual: e.target.value})}
-                  placeholder="הקלד מצב משפטי..."
-                  className="mt-2 h-12 rounded-xl text-right"
-                  dir="rtl"
-                />
+                <Label className="text-sm font-bold text-slate-700 mb-2 block">סטטוס משפטי</Label>
+                <Select 
+                  value={editedRecord?.legal_status_manual || ''} 
+                  onValueChange={(v) => setEditedRecord({...editedRecord, legal_status_manual: v || null})}
+                >
+                  <SelectTrigger className="mt-2 h-12 rounded-xl text-right">
+                    <SelectValue placeholder="בחר סטטוס משפטי" />
+                  </SelectTrigger>
+                  <SelectContent className="rounded-xl">
+                    <SelectItem value={null}>לא הוגדר</SelectItem>
+                    {activeLegalStatuses.map((status) => (
+                      <SelectItem key={status.id} value={status.name}>
+                        {status.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
