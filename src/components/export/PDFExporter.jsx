@@ -35,13 +35,13 @@ export default function PDFExporter({ records, legalStatuses, settings }) {
               <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">שם בעל הדירה</th>
               <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">טלפון</th>
               <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">סה״כ חוב</th>
-              <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">סטטוס חוב</th>
-              <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">מצב משפטי</th>
+              <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">חוב חודשי</th>
+              <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">חוב מיוחד</th>
+              <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">סטטוס</th>
             </tr>
           </thead>
           <tbody>
             ${records.map((record, idx) => {
-              const legalStatus = legalStatuses.find(s => s.id === record.legal_status_manual_id);
               const bgColor = idx % 2 === 0 ? '#fff' : '#f8fafc';
               
               return `
@@ -50,8 +50,9 @@ export default function PDFExporter({ records, legalStatuses, settings }) {
                   <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${record.ownerName || ''}</td>
                   <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${record.phonePrimary || ''}</td>
                   <td style="padding: 10px; border: 1px solid #ddd; text-align: right; font-weight: bold;">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.totalDebt || 0)}</td>
-                  <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${record.debt_status_auto || 'סך חוב תקין'}</td>
-                  <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${legalStatus ? legalStatus.name : '—'}</td>
+                  <td style="padding: 10px; border: 1px solid #ddd; text-align: right; font-weight: bold;">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.monthlyDebt || 0)}</td>
+                  <td style="padding: 10px; border: 1px solid #ddd; text-align: right; font-weight: bold;">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.specialDebt || 0)}</td>
+                  <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${record.debt_status_auto || 'תקין'}</td>
                 </tr>
               `;
             }).join('')}
