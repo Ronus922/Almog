@@ -2,7 +2,7 @@ import React from 'react';
 import { Button } from "@/components/ui/button";
 import { FileText } from "lucide-react";
 import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import autoTable from 'jspdf-autotable';
 
 export default function PDFExporter({ records, legalStatuses, settings }) {
   const handleExport = () => {
@@ -45,7 +45,7 @@ export default function PDFExporter({ records, legalStatuses, settings }) {
     });
 
     // Add table
-    doc.autoTable({
+    autoTable(doc, {
       startY: 30,
       head: [['מספר דירה', 'שם בעל הדירה', 'טלפון', 'סה״כ חוב', 'סטטוס חוב', 'מצב משפטי']],
       body: tableData,
