@@ -19,7 +19,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X, SlidersHorizontal } from "lucide-react";
+import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X, SlidersHorizontal, AlertCircle } from "lucide-react";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import DebtorCard from './DebtorCard';
 
 const STATUS_COLORS = {
@@ -28,7 +34,7 @@ const STATUS_COLORS = {
   'לטיפול משפטי': 'bg-red-100 text-red-700 border-red-200'
 };
 
-export default function DebtorsTable({ records, onRowClick, isAdmin, settings }) {
+export default function DebtorsTable({ records, onRowClick, isAdmin, settings, allStatuses = [] }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sortField, setSortField] = useState('totalDebt');
@@ -41,9 +47,19 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
   const [maxDebt, setMaxDebt] = useState('');
   const [ownerNameFilter, setOwnerNameFilter] = useState('');
   const [phoneFilter, setPhoneFilter] = useState('');
-  const [legalStatusFilter, setLegalStatusFilter] = useState('');
+  const [legalStatusFilter, setLegalStatusFilter] = useState('all');
   
   const pageSize = 50;
+
+  const legalStatuses = allStatuses.filter(s => s.type === 'LEGAL');
+  const activeLegalStatuses = legalStatuses.filter(s => s.is_active);
+  const defaultStatus = legalStatuses.find(s => s.is_default === true);
+
+  const getLegalStatusForRecord = (record) => {
+    if (!record.legal_status_id) return defaultStatus;
+    const status = legalStatuses.find(s => s.id === record.legal_status_id);
+    return status || defaultStatus;
+  };
 
   const formatCurrency = (num) => 
     new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num || 0);
@@ -105,9 +121,11 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
       );
     }
 
-    if (legalStatusFilter) {
-      const s = legalStatusFilter.toLowerCase();
-      result = result.filter(r => r.legal_status_manual?.toLowerCase().includes(s));
+    if (legalStatusFilter && legalStatusFilter !== 'all') {
+      result = result.filter(r => {
+        const legalStatus = getLegalStatusForRecord(r);
+        return legalStatus && legalStatus.id === legalStatusFilter;
+      });
     }
 
     result.sort((a, b) => {
@@ -122,7 +140,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
     });
 
     return result;
-  }, [records, search, statusFilter, sortField, sortDir, minDebt, maxDebt, ownerNameFilter, phoneFilter, legalStatusFilter]);
+  }, [records, search, statusFilter, sortField, sortDir, minDebt, maxDebt, ownerNameFilter, phoneFilter, legalStatusFilter, allStatuses]);
 
   const totalPages = Math.ceil(filteredRecords.length / pageSize);
   const paginatedRecords = filteredRecords.slice((page - 1) * pageSize, page * pageSize);
@@ -143,7 +161,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
     setMaxDebt('');
     setOwnerNameFilter('');
     setPhoneFilter('');
-    setLegalStatusFilter('');
+    setLegalStatusFilter('all');
     setPage(1);
   };
 
@@ -152,12 +170,12 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
     setMaxDebt('');
     setOwnerNameFilter('');
     setPhoneFilter('');
-    setLegalStatusFilter('');
+    setLegalStatusFilter('all');
     setPage(1);
   };
 
   const hasActiveFilters = statusFilter !== 'all' || search !== '';
-  const hasAdvancedFilters = minDebt !== '' || maxDebt !== '' || ownerNameFilter !== '' || phoneFilter !== '' || legalStatusFilter !== '';
+  const hasAdvancedFilters = minDebt !== '' || maxDebt !== '' || ownerNameFilter !== '' || phoneFilter !== '' || legalStatusFilter !== 'all';
 
   return (
     <Card className="border-0 shadow-xl rounded-2xl overflow-hidden">
@@ -253,13 +271,19 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
 
                     <div>
                       <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">מצב משפטי</label>
-                      <Input
-                        placeholder="חיפוש טקסט חופשי"
-                        value={legalStatusFilter}
-                        onChange={(e) => { setLegalStatusFilter(e.target.value); setPage(1); }}
-                        className="h-11 rounded-xl text-right"
-                        dir="rtl"
-                      />
+                      <Select value={legalStatusFilter} onValueChange={(v) => { setLegalStatusFilter(v); setPage(1); }}>
+                        <SelectTrigger className="w-full h-11 rounded-xl">
+                          <SelectValue placeholder="כל המצבים" />
+                        </SelectTrigger>
+                        <SelectContent className="rounded-xl">
+                          <SelectItem value="all">כל המצבים</SelectItem>
+                          {activeLegalStatuses.map(status => (
+                            <SelectItem key={status.id} value={status.id}>
+                              {status.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     <div className="pt-4 flex gap-2">
@@ -388,6 +412,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
                     סטטוס
                   </div>
                 </TableHead>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">מצב משפטי</TableHead>
               </TableRow>
               
               {/* Advanced Filter Row */}
@@ -456,13 +481,28 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
                       </SelectContent>
                     </Select>
                   </TableHead>
+                  <TableHead className="py-3 px-4">
+                    <Select value={legalStatusFilter} onValueChange={(v) => { setLegalStatusFilter(v); setPage(1); }}>
+                      <SelectTrigger className="h-9 rounded-lg text-sm">
+                        <SelectValue placeholder="הכל" />
+                      </SelectTrigger>
+                      <SelectContent className="rounded-lg">
+                        <SelectItem value="all">הכל</SelectItem>
+                        {activeLegalStatuses.map(status => (
+                          <SelectItem key={status.id} value={status.id}>
+                            {status.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </TableHead>
                 </TableRow>
               )}
               
               {/* Filter Actions Row */}
               {showAdvancedFilters && (
                 <TableRow className="bg-blue-50/30 border-b border-blue-200">
-                  <TableHead colSpan={7} className="py-3 px-6">
+                  <TableHead colSpan={8} className="py-3 px-6">
                     <div className="flex items-center justify-end" dir="rtl">
                       <Button 
                         variant="outline" 
@@ -481,7 +521,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
             <TableBody>
               {paginatedRecords.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-12">
+                  <TableCell colSpan={8} className="text-center py-12">
                     <div className="flex flex-col items-center gap-3">
                       <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center">
                         <Filter className="w-8 h-8 text-slate-400" />
@@ -525,6 +565,36 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
                       <Badge variant="outline" className={`${STATUS_COLORS[record.debt_status_auto] || STATUS_COLORS['תקין']} font-semibold text-sm`}>
                         {record.debt_status_auto || 'תקין'}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="py-6 px-6 align-middle text-center">
+                      {(() => {
+                        const legalStatus = getLegalStatusForRecord(record);
+                        const isDefault = legalStatus?.is_default === true;
+                        
+                        return legalStatus ? (
+                          <TooltipProvider>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="inline-flex items-center gap-1.5">
+                                  <Badge className={legalStatus.color}>
+                                    {legalStatus.name}
+                                  </Badge>
+                                  {isDefault && (
+                                    <AlertCircle className="w-3.5 h-3.5 text-orange-500" />
+                                  )}
+                                </div>
+                              </TooltipTrigger>
+                              {isDefault && (
+                                <TooltipContent>
+                                  <p className="text-xs font-semibold">ברירת מחדל – נדרש לקבוע סטטוס</p>
+                                </TooltipContent>
+                              )}
+                            </Tooltip>
+                          </TooltipProvider>
+                        ) : (
+                          <Badge className="bg-slate-100 text-slate-500">לא מקושר</Badge>
+                        );
+                      })()}
                     </TableCell>
                   </TableRow>
                 ))
