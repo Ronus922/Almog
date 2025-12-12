@@ -160,23 +160,22 @@ export default function StatusWorkflow() {
       <div className="max-w-4xl mx-auto space-y-6">
         {/* כותרת ומונה */}
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <Button
-              variant="outline"
-              onClick={() => navigate(createPageUrl('StatusManagement'))}
-              className="rounded-xl"
-            >
-              <ArrowRight className="w-4 h-4 ml-2" />
-              חזרה
-            </Button>
-            <div>
-              <h1 className="text-3xl font-bold text-slate-800">טיפול דירה-דירה</h1>
-              <p className="text-slate-600 mt-1">שיוך סטטוס משפטי לכל דירה</p>
-            </div>
+          <div>
+            <h1 className="text-3xl font-bold text-slate-800">טיפול דירה-דירה</h1>
+            <p className="text-slate-600 mt-1">שיוך סטטוס משפטי לכל דירה</p>
           </div>
           <div className="text-left">
             <div className="text-sm text-slate-500 font-semibold">נותרו לטיפול</div>
             <div className="text-4xl font-extrabold text-orange-600">{remainingCount}</div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => navigate(createPageUrl('StatusManagement'))}
+              className="rounded-xl mt-3 w-full"
+            >
+              <ArrowRight className="w-4 h-4 ml-2" />
+              חזרה לסטטוסים
+            </Button>
           </div>
         </div>
 
