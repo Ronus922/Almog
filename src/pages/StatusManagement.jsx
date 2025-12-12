@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Edit, Trash2, Shield, Loader2, Save, X, ArrowRight } from "lucide-react";
+import { Plus, Edit, Trash2, Shield, Loader2, Save, X, ArrowRight, Wrench } from "lucide-react";
 import { toast } from "sonner";
 
 const COLOR_OPTIONS = [
@@ -62,6 +62,8 @@ export default function StatusManagement() {
   const [deleteConfirm, setDeleteConfirm] = useState(null);
   const [reassignTargetId, setReassignTargetId] = useState('');
   const [editingStatus, setEditingStatus] = useState(null);
+  const [isFixing, setIsFixing] = useState(false);
+  const [fixResult, setFixResult] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     type: 'LEGAL',
@@ -188,6 +190,53 @@ export default function StatusManagement() {
       toast.error('כשל בביצוע ההעברה. לא בוצעו שינויים.');
     }
   });
+
+  const handleFixAll = async () => {
+    if (!defaultStatus) {
+      toast.error('לא נמצא סטטוס ברירת מחדל במערכת');
+      return;
+    }
+
+    setIsFixing(true);
+    setFixResult(null);
+
+    try {
+      const result = {
+        totalScanned: debtorRecords.length,
+        fixed: 0,
+        alreadyValid: 0
+      };
+
+      const validLegalStatusIds = statuses
+        .filter(s => s.type === 'LEGAL' && s.is_active)
+        .map(s => s.id);
+
+      for (const record of debtorRecords) {
+        const hasValidStatus = record.legal_status_id && validLegalStatusIds.includes(record.legal_status_id);
+
+        if (!hasValidStatus) {
+          await base44.entities.DebtorRecord.update(record.id, {
+            legal_status_id: defaultStatus.id,
+            legal_status_overridden: false
+          });
+          result.fixed++;
+        } else {
+          result.alreadyValid++;
+        }
+      }
+
+      await queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+      await queryClient.invalidateQueries({ queryKey: ['statuses'] });
+      
+      setFixResult(result);
+      toast.success(`תיקון הושלם: ${result.fixed} רשומות תוקנו`);
+    } catch (error) {
+      console.error('Error fixing statuses:', error);
+      toast.error('שגיאה בתיקון הסטטוסים');
+    } finally {
+      setIsFixing(false);
+    }
+  };
 
   const resetForm = () => {
     setFormData({
@@ -320,7 +369,25 @@ export default function StatusManagement() {
             <h1 className="text-3xl font-bold text-slate-800">ניהול סטטוסים משפטיים</h1>
             <p className="text-slate-600 mt-1">ניהול סטטוסים משפטיים המקושרים לרשומות החייבים</p>
           </div>
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-3">
+            <Button 
+              variant="outline" 
+              onClick={handleFixAll}
+              disabled={isFixing}
+              className="gap-2 bg-orange-50 hover:bg-orange-100 border-orange-300 text-orange-700"
+            >
+              {isFixing ? (
+                <>
+                  <Loader2 className="w-5 h-5 animate-spin" />
+                  מתקן...
+                </>
+              ) : (
+                <>
+                  <Wrench className="w-5 h-5" />
+                  תקן הכל עכשיו
+                </>
+              )}
+            </Button>
             <Button 
               variant="outline" 
               onClick={() => navigate(createPageUrl('StatusWorkflow'))}
@@ -335,6 +402,28 @@ export default function StatusManagement() {
             </Button>
           </div>
         </div>
+
+        {fixResult && (
+          <Alert className="bg-green-50 border-green-300">
+            <AlertDescription className="space-y-2">
+              <div className="font-bold text-green-900">תוצאות תיקון אוטומטי:</div>
+              <div className="grid grid-cols-3 gap-4 text-sm">
+                <div>
+                  <div className="text-slate-600">סה"כ נסרקו</div>
+                  <div className="text-xl font-bold text-slate-800">{fixResult.totalScanned}</div>
+                </div>
+                <div>
+                  <div className="text-slate-600">תוקנו</div>
+                  <div className="text-xl font-bold text-green-600">{fixResult.fixed}</div>
+                </div>
+                <div>
+                  <div className="text-slate-600">היו תקינות</div>
+                  <div className="text-xl font-bold text-blue-600">{fixResult.alreadyValid}</div>
+                </div>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
 
         <Card>
           <CardHeader>
