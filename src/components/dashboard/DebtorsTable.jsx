@@ -106,6 +106,15 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
     }
   };
 
+  const clearFilters = () => {
+    setStatusFilter('all');
+    setDebtFilter('all');
+    setSearch('');
+    setPage(1);
+  };
+
+  const hasActiveFilters = statusFilter !== 'all' || debtFilter !== 'all' || search !== '';
+
   return (
     <Card className="border-0 shadow-xl rounded-2xl overflow-hidden">
       <CardHeader className="pb-4 md:pb-6 pt-4 md:pt-6 bg-gradient-to-l from-white to-slate-50 border-b border-slate-200">
@@ -344,7 +353,6 @@ export default function DebtorsTable({ records, onRowClick, isAdmin }) {
                 )}
                 </TableBody>
           </Table>
-        </div>
         </div>
 
         {totalPages > 1 && (
