@@ -34,6 +34,7 @@ export default function Layout({ children, currentPageName }) {
 
   const navItems = [
     { name: 'Dashboard', label: 'דשבורד', icon: LayoutDashboard, adminOnly: false },
+    { name: 'StatusManagement', label: 'ניהול סטטוסים', icon: SlidersHorizontal, adminOnly: true },
     { name: 'Import', label: 'ייבוא', icon: Upload, adminOnly: true },
     { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true },
   ];
