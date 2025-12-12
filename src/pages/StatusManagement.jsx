@@ -259,7 +259,7 @@ export default function StatusManagement() {
                       </TableCell>
                       <TableCell className="text-left">
                         <div className="flex gap-2">
-                          {!status.is_system && usageCount === 0 && (
+                          {!status.is_system && usageCount === 0 ? (
                             <Button 
                               variant="outline" 
                               size="sm" 
@@ -268,6 +268,8 @@ export default function StatusManagement() {
                             >
                               <Trash2 className="w-4 h-4" />
                             </Button>
+                          ) : (
+                            <div className="w-9 h-9" />
                           )}
                           <Button variant="outline" size="sm" onClick={() => handleEdit(status)}>
                             <Edit className="w-4 h-4" />
