@@ -521,7 +521,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings })
                         <>
                           {record.ownerName.split(/[\/,]/)[0]?.trim() || record.ownerName}
                           {(record.ownerName.includes('/') || record.ownerName.includes(',')) && (
-                            <span style={{ unicodeBidi: 'plaintext' }}> (שוכר)</span>
+                            <span> {'\u200F(שוכר)\u200F'}</span>
                           )}
                         </>
                       ) : '-'}
