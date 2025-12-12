@@ -7,6 +7,8 @@ import UserManagement from './pages/UserManagement';
 import app from './pages/_app';
 import AppLogin from './pages/AppLogin';
 import ShareDashboard from './pages/ShareDashboard';
+import LegalStatusMigration from './pages/LegalStatusMigration';
+import LinkedRecords from './pages/LinkedRecords';
 import __Layout from './Layout.jsx';
 
 
@@ -20,6 +22,8 @@ export const PAGES = {
     "_app": app,
     "AppLogin": AppLogin,
     "ShareDashboard": ShareDashboard,
+    "LegalStatusMigration": LegalStatusMigration,
+    "LinkedRecords": LinkedRecords,
 }
 
 export const pagesConfig = {

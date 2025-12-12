@@ -22,12 +22,16 @@ import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
 export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin }) {
-  const { data: legalStatuses = [] } = useQuery({
-    queryKey: ['legalStatuses'],
-    queryFn: () => base44.entities.LegalStatus.list('order'),
+  const { data: allStatuses = [] } = useQuery({
+    queryKey: ['statuses'],
+    queryFn: () => base44.entities.Status.list('order'),
   });
 
+  const legalStatuses = allStatuses.filter(s => s.type === 'LEGAL');
   const activeLegalStatuses = legalStatuses.filter(s => s.is_active);
+  
+  // מציאת הסטטוס הנוכחי (כולל לא פעילים)
+  const currentStatus = legalStatuses.find(s => s.id === record?.legal_status_id);
   const [editedRecord, setEditedRecord] = useState(record);
   const [isSaving, setIsSaving] = useState(false);
   const [lastContactDateError, setLastContactDateError] = useState('');
@@ -551,21 +555,38 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               <div className="text-right">
                 <Label className="text-sm font-bold text-slate-700 mb-2 block">סטטוס משפטי</Label>
                 <Select 
-                  value={editedRecord?.legal_status_manual || ''} 
-                  onValueChange={(v) => setEditedRecord({...editedRecord, legal_status_manual: v || null})}
+                  value={editedRecord?.legal_status_id || ''} 
+                  onValueChange={(v) => setEditedRecord({...editedRecord, legal_status_id: v || null})}
                 >
                   <SelectTrigger className="mt-2 h-12 rounded-xl text-right">
                     <SelectValue placeholder="בחר סטטוס משפטי" />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl">
                     <SelectItem value={null}>לא הוגדר</SelectItem>
+                    {currentStatus && !currentStatus.is_active && (
+                      <SelectItem key={currentStatus.id} value={currentStatus.id}>
+                        {currentStatus.name} (לא פעיל)
+                      </SelectItem>
+                    )}
                     {activeLegalStatuses.map((status) => (
-                      <SelectItem key={status.id} value={status.name}>
-                        {status.name}
+                      <SelectItem key={status.id} value={status.id}>
+                        <div className="flex items-center gap-2">
+                          <Badge className={status.color + ' text-xs'}>
+                            {status.name}
+                          </Badge>
+                        </div>
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
+                {currentStatus && (
+                  <div className="mt-2">
+                    <Badge className={currentStatus.color}>
+                      {currentStatus.name}
+                      {!currentStatus.is_active && ' (לא פעיל)'}
+                    </Badge>
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">

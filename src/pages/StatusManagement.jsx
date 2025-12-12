@@ -57,6 +57,7 @@ export default function StatusManagement() {
   const [editingStatus, setEditingStatus] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
+    type: 'LEGAL',
     description: '',
     color: 'bg-slate-100 text-slate-700',
     order: 0,
@@ -74,10 +75,12 @@ export default function StatusManagement() {
     loadUser();
   }, []);
 
-  const { data: statuses = [], isLoading } = useQuery({
+  const { data: allStatuses = [], isLoading } = useQuery({
     queryKey: ['statuses'],
     queryFn: () => base44.entities.Status.list('order'),
   });
+
+  const statuses = allStatuses.filter(s => s.type === 'LEGAL');
 
   const { data: debtorRecords = [] } = useQuery({
     queryKey: ['debtorRecords'],
@@ -116,6 +119,7 @@ export default function StatusManagement() {
   const resetForm = () => {
     setFormData({
       name: '',
+      type: 'LEGAL',
       description: '',
       color: 'bg-slate-100 text-slate-700',
       order: 0,
@@ -132,6 +136,7 @@ export default function StatusManagement() {
     setEditingStatus(status);
     setFormData({
       name: status.name,
+      type: status.type || 'LEGAL',
       description: status.description || '',
       color: status.color,
       order: status.order,
@@ -141,7 +146,7 @@ export default function StatusManagement() {
   };
 
   const handleDelete = (status) => {
-    const usageCount = debtorRecords.filter(r => r.status === status.name).length;
+    const usageCount = debtorRecords.filter(r => r.legal_status_id === status.id).length;
     setDeleteConfirm({ status, usageCount });
   };
 
@@ -193,7 +198,10 @@ export default function StatusManagement() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6" dir="rtl">
       <div className="max-w-6xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
-          <h1 className="text-3xl font-bold text-slate-800">ניהול סטטוסים</h1>
+          <div>
+            <h1 className="text-3xl font-bold text-slate-800">ניהול סטטוסים משפטיים</h1>
+            <p className="text-slate-600 mt-1">ניהול סטטוסים משפטיים המקושרים לרשומות החייבים</p>
+          </div>
           <Button onClick={handleAdd} className="gap-2">
             <Plus className="w-5 h-5" />
             הוסף סטטוס
@@ -219,7 +227,7 @@ export default function StatusManagement() {
               </TableHeader>
               <TableBody>
                 {statuses.map((status) => {
-                  const usageCount = debtorRecords.filter(r => r.status === status.name).length;
+                  const usageCount = debtorRecords.filter(r => r.legal_status_id === status.id).length;
                   return (
                     <TableRow key={status.id}>
                       <TableCell className="font-semibold">{status.name}</TableCell>
@@ -230,7 +238,7 @@ export default function StatusManagement() {
                       <TableCell className="text-center">{status.order}</TableCell>
                       <TableCell className="text-center">
                         <button
-                          onClick={() => navigate(createPageUrl('Dashboard') + `?status=${encodeURIComponent(status.name)}`)}
+                          onClick={() => navigate(createPageUrl('LinkedRecords') + `?statusId=${status.id}&statusName=${encodeURIComponent(status.name)}`)}
                           className="text-blue-600 hover:text-blue-800 font-bold underline decoration-2 hover:decoration-blue-800 transition-all text-lg"
                         >
                           {usageCount}
@@ -254,6 +262,7 @@ export default function StatusManagement() {
                             onClick={() => handleDelete(status)}
                             disabled={usageCount > 0}
                             className="text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title={usageCount > 0 ? 'לא ניתן למחוק סטטוס מקושר לרשומות' : ''}
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
