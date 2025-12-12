@@ -214,7 +214,7 @@ export default function StatusManagement() {
                   <TableHead className="text-center">סדר</TableHead>
                   <TableHead className="text-center">מקושרים</TableHead>
                   <TableHead className="text-center">פעיל</TableHead>
-                  <TableHead className="text-left">פעולות</TableHead>
+                  <TableHead className="text-center">פעולות</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -243,8 +243,11 @@ export default function StatusManagement() {
                           <Badge className="bg-slate-100 text-slate-500">לא פעיל</Badge>
                         )}
                       </TableCell>
-                      <TableCell className="text-left">
-                        <div className="flex gap-2">
+                      <TableCell className="text-center">
+                        <div className="flex gap-2 justify-center">
+                          <Button variant="outline" size="sm" onClick={() => handleEdit(status)}>
+                            <Edit className="w-4 h-4" />
+                          </Button>
                           <Button 
                             variant="outline" 
                             size="sm" 
@@ -253,9 +256,6 @@ export default function StatusManagement() {
                             className="text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             <Trash2 className="w-4 h-4" />
-                          </Button>
-                          <Button variant="outline" size="sm" onClick={() => handleEdit(status)}>
-                            <Edit className="w-4 h-4" />
                           </Button>
                         </div>
                       </TableCell>
