@@ -10,15 +10,15 @@ import { PlayCircle, CheckCircle2, XCircle, AlertTriangle, Loader2, Shield } fro
 import { toast } from "sonner";
 
 const DEFAULT_LEGAL_STATUSES = [
-  { name: 'לא הוגדר', order: 0, color: 'bg-blue-100 text-blue-700', description: 'סטטוס זמני – נדרש לקבוע סטטוס משפטי', is_default: true },
-  { name: 'חייב משמעותי', order: 1, color: 'bg-red-100 text-red-700', is_default: false },
-  { name: 'מכתב התראה', order: 2, color: 'bg-orange-100 text-orange-700', is_default: false },
-  { name: 'מועמד לתביעה', order: 3, color: 'bg-amber-100 text-amber-700', is_default: false },
-  { name: 'תביעה משפטית', order: 4, color: 'bg-rose-100 text-rose-700', is_default: false },
-  { name: 'הסדר תשלומים', order: 5, color: 'bg-blue-100 text-blue-700', is_default: false },
-  { name: 'בפריסה', order: 6, color: 'bg-indigo-100 text-indigo-700', is_default: false },
-  { name: 'לא עונה', order: 7, color: 'bg-slate-100 text-slate-700', is_default: false },
-  { name: 'סדיר', order: 8, color: 'bg-green-100 text-green-700', is_default: false }
+  { name: 'לא הוגדר', color: 'bg-blue-100 text-blue-700', description: 'סטטוס זמני – נדרש לקבוע סטטוס משפטי', is_default: true },
+  { name: 'חייב משמעותי', color: 'bg-red-100 text-red-700', is_default: false },
+  { name: 'מכתב התראה', color: 'bg-orange-100 text-orange-700', is_default: false },
+  { name: 'מועמד לתביעה', color: 'bg-amber-100 text-amber-700', is_default: false },
+  { name: 'תביעה משפטית', color: 'bg-rose-100 text-rose-700', is_default: false },
+  { name: 'הסדר תשלומים', color: 'bg-blue-100 text-blue-700', is_default: false },
+  { name: 'בפריסה', color: 'bg-indigo-100 text-indigo-700', is_default: false },
+  { name: 'לא עונה', color: 'bg-slate-100 text-slate-700', is_default: false },
+  { name: 'סדיר', color: 'bg-green-100 text-green-700', is_default: false }
 ];
 
 export default function LegalStatusMigration() {
@@ -81,7 +81,6 @@ export default function LegalStatusMigration() {
             type: 'LEGAL',
             description: defaultStatus.description || '',
             color: defaultStatus.color,
-            order: defaultStatus.order,
             is_active: true,
             is_default: defaultStatus.is_default || false
           });

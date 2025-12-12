@@ -61,7 +61,6 @@ export default function StatusManagement() {
     type: 'LEGAL',
     description: '',
     color: 'bg-slate-100 text-slate-700',
-    order: 0,
     is_active: true,
     is_default: false
   });
@@ -88,9 +87,7 @@ export default function StatusManagement() {
       // סטטוס default תמיד ראשון
       if (a.is_default && !b.is_default) return -1;
       if (!a.is_default && b.is_default) return 1;
-      // אחר כך לפי order
-      if (a.order !== b.order) return a.order - b.order;
-      // אחר כך לפי שם
+      // שאר הסטטוסים לפי שם (א-ב)
       return (a.name || '').localeCompare(b.name || '');
     });
 
@@ -114,7 +111,6 @@ export default function StatusManagement() {
             type: 'LEGAL',
             description: 'סטטוס זמני – נדרש לקבוע סטטוס משפטי',
             color: 'bg-blue-100 text-blue-700',
-            order: 0,
             is_active: true,
             is_default: true
           });
@@ -193,7 +189,6 @@ export default function StatusManagement() {
       type: 'LEGAL',
       description: '',
       color: 'bg-slate-100 text-slate-700',
-      order: 0,
       is_active: true,
       is_default: false
     });
@@ -211,7 +206,6 @@ export default function StatusManagement() {
       type: status.type || 'LEGAL',
       description: status.description || '',
       color: status.color,
-      order: status.order,
       is_active: status.is_active,
       is_default: status.is_default || false
     });
@@ -337,7 +331,6 @@ export default function StatusManagement() {
                   <TableHead className="text-right">שם סטטוס</TableHead>
                   <TableHead className="text-right">תיאור</TableHead>
                   <TableHead className="text-right">תצוגה</TableHead>
-                  <TableHead className="text-center">סדר</TableHead>
                   <TableHead className="text-center">מקושרים</TableHead>
                   <TableHead className="text-center">פעיל</TableHead>
                   <TableHead className="text-center">פעולות</TableHead>
@@ -353,7 +346,6 @@ export default function StatusManagement() {
                       <TableCell>
                         <Badge className={status.color}>{status.name}</Badge>
                       </TableCell>
-                      <TableCell className="text-center">{status.order}</TableCell>
                       <TableCell className="text-center">
                         <button
                           onClick={() => navigate(createPageUrl('LinkedRecords') + `?statusId=${status.id}&statusName=${encodeURIComponent(status.name)}`)}
@@ -458,16 +450,6 @@ export default function StatusManagement() {
                   ))}
                 </SelectContent>
               </Select>
-            </div>
-            <div>
-              <Label>סדר תצוגה</Label>
-              <Input
-                type="number"
-                value={formData.order}
-                onChange={(e) => setFormData({...formData, order: parseInt(e.target.value) || 0})}
-                className="text-right"
-                dir="rtl"
-              />
             </div>
             <div className="flex items-center justify-between">
               <Label>סטטוס פעיל</Label>
