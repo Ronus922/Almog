@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    direction: rtl;
+  }
+  
+  body {
+    @apply bg-background text-foreground;
+    direction: rtl;
+    text-align: right;
+  }
+}
