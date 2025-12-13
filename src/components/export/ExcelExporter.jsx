@@ -18,6 +18,10 @@ export default function ExcelExporter({ records, legalStatuses }) {
     try {
     // Prepare data for export
     const exportData = records.map(record => {
+      // Find legal status name
+      const legalStatus = legalStatuses?.find(s => s.id === record.legal_status_id);
+      const legalStatusName = legalStatus?.name || 'לא הוגדר';
+      
       return {
         'מספר דירה': record.apartmentNumber || '',
         'שם בעל הדירה': record.ownerName || '',
@@ -26,6 +30,7 @@ export default function ExcelExporter({ records, legalStatuses }) {
         'חוב חודשי': record.monthlyDebt || 0,
         'חוב מיוחד': record.specialDebt || 0,
         'סטטוס': record.debt_status_auto || 'תקין',
+        'מצב משפטי': legalStatusName,
         'תאריך ייצוא': new Date().toLocaleDateString('he-IL')
       };
     });
@@ -44,6 +49,7 @@ export default function ExcelExporter({ records, legalStatuses }) {
       { wch: 12 },  // חוב חודשי
       { wch: 12 },  // חוב מיוחד
       { wch: 18 },  // סטטוס
+      { wch: 20 },  // מצב משפטי
       { wch: 15 }   // תאריך ייצוא
     ];
 

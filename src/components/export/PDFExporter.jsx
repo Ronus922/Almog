@@ -38,31 +38,35 @@ export default function PDFExporter({ records, legalStatuses, settings }) {
       <div style="font-family: Arial, sans-serif;">
         <h1 style="text-align: center; margin-bottom: 10px; font-size: 24px;">דו״ח חייבים</h1>
         <p style="text-align: center; color: #666; margin-bottom: 30px; font-size: 14px;">תאריך הפקה: ${exportDate}</p>
-        <table style="width: 100%; border-collapse: collapse; font-size: 12px;">
+        <table style="width: 100%; border-collapse: collapse; font-size: 11px;">
           <thead>
             <tr style="background: #334155; color: white;">
-              <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">מספר דירה</th>
-              <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">שם בעל הדירה</th>
-              <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">טלפון</th>
-              <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">סה״כ חוב</th>
-              <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">חוב חודשי</th>
-              <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">חוב מיוחד</th>
-              <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">סטטוס</th>
+              <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">מספר דירה</th>
+              <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">שם בעל הדירה</th>
+              <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">טלפון</th>
+              <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">סה״כ חוב</th>
+              <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">חוב חודשי</th>
+              <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">חוב מיוחד</th>
+              <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">סטטוס</th>
+              <th style="padding: 10px; border: 1px solid #ddd; text-align: right;">מצב משפטי</th>
             </tr>
           </thead>
           <tbody>
             ${records.map((record, idx) => {
               const bgColor = idx % 2 === 0 ? '#fff' : '#f8fafc';
+              const legalStatus = legalStatuses?.find(s => s.id === record.legal_status_id);
+              const legalStatusName = legalStatus?.name || 'לא הוגדר';
               
               return `
                 <tr style="background: ${bgColor};">
-                  <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${record.apartmentNumber || ''}</td>
-                  <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${record.ownerName || ''}</td>
-                  <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${record.phonePrimary || ''}</td>
-                  <td style="padding: 10px; border: 1px solid #ddd; text-align: right; font-weight: bold;">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.totalDebt || 0)}</td>
-                  <td style="padding: 10px; border: 1px solid #ddd; text-align: right; font-weight: bold;">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.monthlyDebt || 0)}</td>
-                  <td style="padding: 10px; border: 1px solid #ddd; text-align: right; font-weight: bold;">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.specialDebt || 0)}</td>
-                  <td style="padding: 10px; border: 1px solid #ddd; text-align: right;">${record.debt_status_auto || 'תקין'}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${record.apartmentNumber || ''}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${record.ownerName || ''}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${record.phonePrimary || ''}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold;">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.totalDebt || 0)}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold;">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.monthlyDebt || 0)}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold;">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.specialDebt || 0)}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: right;">${record.debt_status_auto || 'תקין'}</td>
+                  <td style="padding: 8px; border: 1px solid #ddd; text-align: right; font-weight: bold;">${legalStatusName}</td>
                 </tr>
               `;
             }).join('')}
