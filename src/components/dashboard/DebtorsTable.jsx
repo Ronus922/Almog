@@ -35,6 +35,7 @@ export default function DebtorsTable({
   settings, 
   allStatuses = [], 
   hideStatusFilter = false,
+  initialFilterKey = null,
   initialStatusFilter = null,
   initialAutoStatusFilter = null
 }) {
@@ -57,16 +58,43 @@ export default function DebtorsTable({
 
   // Apply URL filters
   useEffect(() => {
-    if (initialStatusFilter) {
-      const matchingStatus = allStatuses.find(s => s.name === initialStatusFilter);
-      if (matchingStatus) {
-        setLegalStatusFilter(matchingStatus.id);
+    // Map filterKey to actual filters
+    if (initialFilterKey) {
+      switch (initialFilterKey) {
+        case 'IMMEDIATE_COLLECTION':
+          setAutoStatusFilter('לגבייה מיידית');
+          break;
+        case 'REQUIRES_LEGAL_ACTION':
+          setAutoStatusFilter('לטיפול משפטי');
+          break;
+        case 'LEGAL_PROCESS': {
+          const lawsuitStatus = allStatuses.find(s => s.type === 'LEGAL' && s.name === 'תביעה משפטית');
+          if (lawsuitStatus) {
+            setLegalStatusFilter(lawsuitStatus.id);
+          }
+          break;
+        }
+        case 'WARNING_LETTER': {
+          const warningStatus = allStatuses.find(s => s.type === 'LEGAL' && s.name === 'מכתב התראה');
+          if (warningStatus) {
+            setLegalStatusFilter(warningStatus.id);
+          }
+          break;
+        }
+      }
+    } else {
+      // Legacy filter support
+      if (initialStatusFilter) {
+        const matchingStatus = allStatuses.find(s => s.name === initialStatusFilter);
+        if (matchingStatus) {
+          setLegalStatusFilter(matchingStatus.id);
+        }
+      }
+      if (initialAutoStatusFilter) {
+        setAutoStatusFilter(initialAutoStatusFilter);
       }
     }
-    if (initialAutoStatusFilter) {
-      setAutoStatusFilter(initialAutoStatusFilter);
-    }
-  }, [initialStatusFilter, initialAutoStatusFilter, allStatuses]);
+  }, [initialFilterKey, initialStatusFilter, initialAutoStatusFilter, allStatuses]);
 
   const legalStatuses = allStatuses.filter(s => s.type === 'LEGAL');
   const activeLegalStatuses = legalStatuses.filter(s => s.is_active);

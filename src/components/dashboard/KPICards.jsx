@@ -59,13 +59,16 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
   const formatCurrency = (num) => 
     new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num);
 
-  const handleCardClick = (filterType, statusName = null) => {
-    if (statusName) {
-      navigate(`${createPageUrl('Dashboard')}?status=${encodeURIComponent(statusName)}`);
-    } else if (filterType === 'collect') {
-      navigate(`${createPageUrl('Dashboard')}?autoStatus=${encodeURIComponent('לגבייה מיידית')}`);
-    } else if (filterType === 'legal') {
-      navigate(`${createPageUrl('Dashboard')}?autoStatus=${encodeURIComponent('לטיפול משפטי')}`);
+  const handleCardClick = (filterKey) => {
+    if (filterKey) {
+      navigate(`${createPageUrl('Dashboard')}?filterKey=${filterKey}`);
+      // Small delay to ensure navigation completes before scrolling
+      setTimeout(() => {
+        const tableElement = document.querySelector('[data-debtors-table]');
+        if (tableElement) {
+          tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100);
     }
   };
 
@@ -105,7 +108,7 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
       icon: Scale, 
       color: "text-orange-600",
       isClickable: true,
-      onClick: () => handleCardClick('collect')
+      onClick: () => handleCardClick('IMMEDIATE_COLLECTION')
     },
     { 
       title: "דרוש טיפול משפטי", 
@@ -113,7 +116,7 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
       icon: Gavel, 
       color: "text-red-700",
       isClickable: true,
-      onClick: () => handleCardClick('legal')
+      onClick: () => handleCardClick('REQUIRES_LEGAL_ACTION')
     },
     ...(legalLawsuitStatus ? [{
       title: "בהליך משפטי",
@@ -121,7 +124,7 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
       icon: FileWarning,
       color: "text-red-600",
       isClickable: true,
-      onClick: () => handleCardClick(null, 'תביעה משפטית')
+      onClick: () => handleCardClick('LEGAL_PROCESS')
     }] : []),
     ...(legalWarningStatus ? [{
       title: "מכתבי התראה",
@@ -129,7 +132,7 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
       icon: AlertTriangle,
       color: "text-yellow-600",
       isClickable: true,
-      onClick: () => handleCardClick(null, 'מכתב התראה')
+      onClick: () => handleCardClick('WARNING_LETTER')
     }] : [])
   ];
 

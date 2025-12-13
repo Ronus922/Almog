@@ -27,11 +27,26 @@ function DashboardContent() {
     return <Navigate to={createPageUrl('AppLogin')} replace />;
   }
 
-  // Check URL for status filter
+  // Check URL for filters
+  const [filterKeyFromUrl, setFilterKeyFromUrl] = useState(null);
+  const [filterDisplayName, setFilterDisplayName] = useState('');
+
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
+    const filterKeyParam = urlParams.get('filterKey');
     const statusParam = urlParams.get('status');
-    if (statusParam) {
+
+    if (filterKeyParam) {
+      setFilterKeyFromUrl(filterKeyParam);
+      // Map filterKey to display name
+      const filterNames = {
+        'IMMEDIATE_COLLECTION': 'לגבייה מיידית',
+        'REQUIRES_LEGAL_ACTION': 'דרוש טיפול משפטי',
+        'LEGAL_PROCESS': 'בהליך משפטי',
+        'WARNING_LETTER': 'מכתבי התראה'
+      };
+      setFilterDisplayName(filterNames[filterKeyParam] || filterKeyParam);
+    } else if (statusParam) {
       setStatusFilterFromUrl(decodeURIComponent(statusParam));
     }
   }, []);
@@ -112,8 +127,32 @@ function DashboardContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100" dir="rtl">
       <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8">
-        {/* Status filter indicators */}
-        {statusFilterFromUrl && (
+        {/* Filter indicators */}
+        {filterKeyFromUrl && (
+          <Alert className="bg-blue-50 border-blue-200">
+            <AlertDescription className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-blue-900">מציג:</span>
+                <span className="text-blue-700">{filterDisplayName}</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setFilterKeyFromUrl(null);
+                  setFilterDisplayName('');
+                  window.history.pushState({}, '', window.location.pathname);
+                }}
+                className="text-blue-700 hover:text-blue-900 hover:bg-blue-100"
+              >
+                <X className="w-4 h-4 ml-1" />
+                נקה פילטר
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {statusFilterFromUrl && !filterKeyFromUrl && (
           <Alert className="bg-blue-50 border-blue-200">
             <AlertDescription className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -136,7 +175,7 @@ function DashboardContent() {
           </Alert>
         )}
 
-        {autoStatusFilter && (
+        {autoStatusFilter && !filterKeyFromUrl && (
           <Alert className="bg-orange-50 border-orange-200">
             <AlertDescription className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -202,15 +241,18 @@ function DashboardContent() {
         <KPICards records={records} settings={settings} allStatuses={allStatuses} />
 
         {/* טבלת חייבים */}
-        <DebtorsTable 
-          records={records} 
-          onRowClick={handleRowClick}
-          isAdmin={isAdmin}
-          settings={settings}
-          initialStatusFilter={statusFilterFromUrl}
-          initialAutoStatusFilter={autoStatusFilter}
-          allStatuses={allStatuses}
-        />
+        <div data-debtors-table>
+          <DebtorsTable 
+            records={records} 
+            onRowClick={handleRowClick}
+            isAdmin={isAdmin}
+            settings={settings}
+            initialFilterKey={filterKeyFromUrl}
+            initialStatusFilter={statusFilterFromUrl}
+            initialAutoStatusFilter={autoStatusFilter}
+            allStatuses={allStatuses}
+          />
+        </div>
 
         {/* מודל פרטי דירה */}
         <ApartmentDetailModal
