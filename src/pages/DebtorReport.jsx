@@ -124,25 +124,25 @@ export default function DebtorReport() {
       <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8">
         
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-          <div>
-            <div className="flex items-center gap-3 mb-2">
+        <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 border border-slate-200">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div className="order-2 md:order-1 flex-1">
+              <h1 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-l from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                דוח: {reportTitle}
+              </h1>
+              <p className="text-sm text-slate-600 font-medium mt-1">
+                {filteredRecords.length} רשומות
+              </p>
+            </div>
+            <div className="order-1 md:order-2">
               <Button
-                variant="ghost"
-                size="sm"
                 onClick={handleBackToDashboard}
-                className="text-slate-600 hover:text-slate-900"
+                className="w-full md:w-auto bg-gradient-to-l from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md hover:shadow-xl transition-all duration-200 h-12 md:h-14 px-6 md:px-8 text-base md:text-lg font-bold rounded-xl"
               >
-                <ArrowRight className="w-4 h-4 ml-1" />
+                <ArrowRight className="w-5 h-5 md:w-6 md:h-6 ml-2" />
                 חזרה לדשבורד
               </Button>
             </div>
-            <h1 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-l from-slate-800 to-slate-600 bg-clip-text text-transparent">
-              דוח: {reportTitle}
-            </h1>
-            <p className="text-sm text-slate-600 font-medium mt-1">
-              {filteredRecords.length} רשומות
-            </p>
           </div>
         </div>
 

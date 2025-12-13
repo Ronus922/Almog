@@ -107,7 +107,7 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
       title: "חריגה מופרזת", 
       value: statusCounts['חריגה מופרזת'], 
       icon: Gavel, 
-      color: "text-red-700",
+      color: "text-[#c087c9]",
       isClickable: true,
       onClick: () => handleCardClick('REQUIRES_LEGAL_ACTION')
     },
