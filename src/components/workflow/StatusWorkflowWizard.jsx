@@ -86,6 +86,7 @@ export default function StatusWorkflowWizard({ isOpen, onClose, initialStatusId 
       const updatePayload = {
         legal_status_id: newStatusId,
         legal_status_source: 'MANUAL',
+        legal_status_lock: true,
         legal_status_updated_at: now,
         legal_status_updated_by: currentUser.email || currentUser.username
       };
@@ -98,6 +99,11 @@ export default function StatusWorkflowWizard({ isOpen, onClose, initialStatusId 
       });
 
       const updatedRecord = await base44.entities.DebtorRecord.update(currentRecord.id, updatePayload);
+      
+      console.log('[WIZARD] Server response:', {
+        statusId: updatedRecord?.legal_status_id,
+        lock: updatedRecord?.legal_status_lock
+      });
 
       // רישום היסטוריה
       const newStatus = legalStatuses.find(s => s.id === newStatusId);
