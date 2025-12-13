@@ -2,137 +2,33 @@ import React, { useState } from 'react';
 import AppButton from "@/components/ui/app-button";
 import { FileText } from "lucide-react";
 import { toast } from 'sonner';
-import pdfMake from 'pdfmake/build/pdfmake';
-import * as pdfFonts from 'pdfmake/build/vfs_fonts';
-
-// Initialize pdfMake with fonts
-if (pdfFonts && pdfFonts.pdfMake && pdfFonts.pdfMake.vfs) {
-  pdfMake.vfs = pdfFonts.pdfMake.vfs;
-}
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 // Pure function to build PDF document definition
 export function buildDebtorsPdfDoc({ year, rows, statuses }) {
-  const exportDate = new Date().toLocaleDateString('he-IL', { 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  });
-
-  // Build table body: header + all rows
-  const tableBody = [
-    // Header row
-    [
-      { text: 'מספר דירה', style: 'tableHeader', alignment: 'right' },
-      { text: 'שם בעל הדירה', style: 'tableHeader', alignment: 'right' },
-      { text: 'טלפון', style: 'tableHeader', alignment: 'right' },
-      { text: 'סה״כ חוב', style: 'tableHeader', alignment: 'right' },
-      { text: 'חוב חודשי', style: 'tableHeader', alignment: 'right' },
-      { text: 'חוב מיוחד', style: 'tableHeader', alignment: 'right' },
-      { text: 'סטטוס', style: 'tableHeader', alignment: 'right' },
-      { text: 'מצב משפטי', style: 'tableHeader', alignment: 'right' }
-    ]
-  ];
-
-  // Add all data rows
-  rows.forEach(record => {
+  // Build table data with ALL rows
+  const tableData = rows.map(record => {
     const legalStatus = statuses?.find(s => s.id === record.legal_status_id && s.type === 'LEGAL');
     const legalStatusName = legalStatus?.name || 'לא הוגדר';
     
-    tableBody.push([
-      { text: record.apartmentNumber || '', alignment: 'right' },
-      { text: record.ownerName || '', alignment: 'right' },
-      { text: record.phonePrimary || '', alignment: 'right' },
-      { text: new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.totalDebt || 0), style: 'bold', alignment: 'right' },
-      { text: new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.monthlyDebt || 0), style: 'bold', alignment: 'right' },
-      { text: new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.specialDebt || 0), style: 'bold', alignment: 'right' },
-      { text: record.debt_status_auto || 'תקין', alignment: 'right' },
-      { text: legalStatusName, style: 'bold', alignment: 'right' }
-    ]);
+    return [
+      record.apartmentNumber || '',
+      record.ownerName || '',
+      record.phonePrimary || '',
+      new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.totalDebt || 0),
+      new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.monthlyDebt || 0),
+      new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.specialDebt || 0),
+      record.debt_status_auto || 'תקין',
+      legalStatusName
+    ];
   });
 
-  const docDefinition = {
-    pageSize: 'A4',
-    pageOrientation: 'landscape',
-    pageMargins: [20, 60, 20, 40],
-    
-    header: (currentPage, pageCount) => {
-      return {
-        margin: [20, 15, 20, 0],
-        columns: [
-          { 
-            text: `עמוד ${currentPage} מתוך ${pageCount}`,
-            alignment: 'left',
-            fontSize: 8,
-            color: '#666'
-          },
-          { 
-            text: 'דו״ח חייבים',
-            alignment: 'center',
-            fontSize: 16,
-            bold: true
-          },
-          { 
-            text: exportDate,
-            alignment: 'right',
-            fontSize: 8,
-            color: '#666'
-          }
-        ]
-      };
-    },
-
-    footer: (currentPage, pageCount) => {
-      return {
-        margin: [20, 10],
-        text: `סה״כ רשומות: ${rows.length}`,
-        alignment: 'center',
-        fontSize: 8,
-        color: '#666'
-      };
-    },
-
-    content: [
-      {
-        table: {
-          headerRows: 1,
-          widths: ['auto', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
-          body: tableBody
-        },
-        layout: {
-          fillColor: (rowIndex) => {
-            if (rowIndex === 0) return '#334155';
-            return (rowIndex % 2 === 0) ? '#f8fafc' : null;
-          },
-          hLineWidth: () => 0.5,
-          vLineWidth: () => 0.5,
-          hLineColor: () => '#e2e8f0',
-          vLineColor: () => '#e2e8f0'
-        }
-      }
-    ],
-
-    defaultStyle: {
-      font: 'Roboto',
-      fontSize: 9,
-      alignment: 'right'
-    },
-
-    styles: {
-      tableHeader: {
-        bold: true,
-        fontSize: 10,
-        color: 'white',
-        fillColor: '#334155'
-      },
-      bold: {
-        bold: true
-      }
-    }
+  return {
+    headers: ['מספר דירה', 'שם בעל הדירה', 'טלפון', 'סה״כ חוב', 'חוב חודשי', 'חוב מיוחד', 'סטטוס', 'מצב משפטי'],
+    data: tableData,
+    totalRows: rows.length
   };
-
-  return docDefinition;
 }
 
 export default function PDFExporter({ records, statuses, settings }) {
@@ -150,24 +46,106 @@ export default function PDFExporter({ records, statuses, settings }) {
     
     try {
       const year = new Date().getFullYear();
+      const exportDate = new Date().toLocaleDateString('he-IL', { 
+        year: 'numeric', 
+        month: 'long', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
       
-      // Build document definition with ALL records
-      const docDefinition = buildDebtorsPdfDoc({
+      // Build table data with ALL records
+      const { headers, data, totalRows } = buildDebtorsPdfDoc({
         year,
         rows: records,
         statuses
       });
       
-      console.log(`[PDF Export] renderedRows=${records.length}`);
-      console.log(`[PDF Export] tableBody length=${docDefinition.content[0].table.body.length} (includes header)`);
+      console.log(`[PDF Export] renderedRows=${totalRows}`);
+      console.log(`[PDF Export] totalCount=${totalRows}`);
+      
+      // Create PDF with jsPDF
+      const doc = new jsPDF({
+        orientation: 'landscape',
+        unit: 'mm',
+        format: 'a4'
+      });
+      
+      // Set RTL support
+      doc.setR2L(true);
+      doc.setLanguage('he');
+      
+      // Title and metadata
+      let yPos = 15;
+      doc.setFontSize(18);
+      doc.setFont('helvetica', 'bold');
+      doc.text('דו״ח חייבים', doc.internal.pageSize.width / 2, yPos, { align: 'center' });
+      
+      yPos += 8;
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`תאריך הפקה: ${exportDate}`, doc.internal.pageSize.width / 2, yPos, { align: 'center' });
+      
+      yPos += 5;
+      doc.setFontSize(9);
+      doc.text(`סה״כ רשומות: ${totalRows}`, doc.internal.pageSize.width / 2, yPos, { align: 'center' });
+      
+      // Generate table with autotable
+      doc.autoTable({
+        startY: yPos + 5,
+        head: [headers],
+        body: data,
+        styles: {
+          font: 'helvetica',
+          fontSize: 8,
+          cellPadding: 2,
+          halign: 'right',
+          valign: 'middle',
+          lineColor: [226, 232, 240],
+          lineWidth: 0.1
+        },
+        headStyles: {
+          fillColor: [51, 65, 85],
+          textColor: 255,
+          fontStyle: 'bold',
+          halign: 'right',
+          fontSize: 9
+        },
+        alternateRowStyles: {
+          fillColor: [248, 250, 252]
+        },
+        columnStyles: {
+          0: { cellWidth: 25 },  // מספר דירה
+          1: { cellWidth: 'auto' },  // שם בעל הדירה
+          2: { cellWidth: 30 },  // טלפון
+          3: { cellWidth: 28, fontStyle: 'bold' },  // סה״כ חוב
+          4: { cellWidth: 28, fontStyle: 'bold' },  // חוב חודשי
+          5: { cellWidth: 28, fontStyle: 'bold' },  // חוב מיוחד
+          6: { cellWidth: 30 },  // סטטוס
+          7: { cellWidth: 35, fontStyle: 'bold' }   // מצב משפטי
+        },
+        margin: { right: 10, left: 10 },
+        didDrawPage: (data) => {
+          // Footer on each page
+          const pageCount = doc.internal.getNumberOfPages();
+          const currentPage = doc.internal.getCurrentPageInfo().pageNumber;
+          
+          doc.setFontSize(8);
+          doc.setFont('helvetica', 'normal');
+          doc.text(
+            `עמוד ${currentPage} מתוך ${pageCount}`,
+            doc.internal.pageSize.width / 2,
+            doc.internal.pageSize.height - 10,
+            { align: 'center' }
+          );
+        }
+      });
       
       const filename = `חייבים_${new Date().toISOString().split('T')[0]}.pdf`;
+      doc.save(filename);
       
-      // Generate and download PDF
-      pdfMake.createPdf(docDefinition).download(filename);
-      
-      console.log(`[PDF Export] Successfully exported ${records.length} records`);
-      toast.success(`הקובץ יוצא בהצלחה (${records.length} רשומות)`);
+      console.log(`[PDF Export] Successfully exported ${totalRows} records`);
+      toast.success(`הקובץ יוצא בהצלחה (${totalRows} רשומות)`);
     } catch (error) {
       console.error('[PDF Export] Error:', error);
       toast.error('שגיאה בייצוא ל-PDF');
