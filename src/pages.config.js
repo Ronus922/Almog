@@ -10,6 +10,7 @@ import ShareDashboard from './pages/ShareDashboard';
 import LegalStatusMigration from './pages/LegalStatusMigration';
 import LinkedRecords from './pages/LinkedRecords';
 import StatusWorkflow from './pages/StatusWorkflow';
+import DebtorReport from './pages/DebtorReport';
 import __Layout from './Layout.jsx';
 
 
@@ -26,6 +27,7 @@ export const PAGES = {
     "LegalStatusMigration": LegalStatusMigration,
     "LinkedRecords": LinkedRecords,
     "StatusWorkflow": StatusWorkflow,
+    "DebtorReport": DebtorReport,
 }
 
 export const pagesConfig = {

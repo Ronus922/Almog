@@ -59,16 +59,9 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
   const formatCurrency = (num) => 
     new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num);
 
-  const handleCardClick = (filterKey) => {
-    if (filterKey) {
-      navigate(`${createPageUrl('Dashboard')}?filterKey=${filterKey}`);
-      // Small delay to ensure navigation completes before scrolling
-      setTimeout(() => {
-        const tableElement = document.querySelector('[data-debtors-table]');
-        if (tableElement) {
-          tableElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 100);
+  const handleCardClick = (reportKey) => {
+    if (reportKey) {
+      navigate(`${createPageUrl('DebtorReport')}?reportKey=${reportKey}`);
     }
   };
 
