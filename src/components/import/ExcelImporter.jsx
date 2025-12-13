@@ -500,11 +500,18 @@ export default function ExcelImporter({ onImportComplete }) {
             }
             // else: overwrite mode - use all new values
 
-            // Always preserve these fields (never from import)
+            // CRITICAL: Always preserve manually edited fields (NEVER overwrite from import)
             updateData.notes = existing.notes;
             updateData.lastContactDate = existing.lastContactDate;
             updateData.nextActionDate = existing.nextActionDate;
             updateData.legal_status_manual = existing.legal_status_manual;
+            
+            // Preserve phones in all modes except overwrite
+            if (importMode !== 'overwrite') {
+              if (existing.phoneOwner) updateData.phoneOwner = existing.phoneOwner;
+              if (existing.phoneTenant) updateData.phoneTenant = existing.phoneTenant;
+              if (existing.phonePrimary) updateData.phonePrimary = existing.phonePrimary;
+            }
             
             // CRITICAL: Protect existing valid legal status - never overwrite from import
             const existingHasValidStatus = existing.legal_status_id && 

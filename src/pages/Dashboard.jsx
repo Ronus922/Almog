@@ -56,6 +56,16 @@ function DashboardContent() {
     queryFn: () => base44.entities.Status.list(),
   });
 
+  // Extract autoStatus filter from URL
+  const [autoStatusFilter, setAutoStatusFilter] = useState(null);
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const autoStatusParam = urlParams.get('autoStatus');
+    if (autoStatusParam) {
+      setAutoStatusFilter(decodeURIComponent(autoStatusParam));
+    }
+  }, []);
+
   const settings = settingsList[0] || { highDebtThreshold: 1000, monthsBeforeLawsuit: 3 };
   const isAdmin = isManagerRole(currentUser);
 
@@ -102,12 +112,12 @@ function DashboardContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100" dir="rtl">
       <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8">
-        {/* Status filter indicator */}
+        {/* Status filter indicators */}
         {statusFilterFromUrl && (
           <Alert className="bg-blue-50 border-blue-200">
             <AlertDescription className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <span className="font-bold text-blue-900">מסונן לפי סטטוס:</span>
+                <span className="font-bold text-blue-900">מסונן לפי סטטוס משפטי:</span>
                 <span className="text-blue-700">{statusFilterFromUrl}</span>
               </div>
               <Button
@@ -118,6 +128,29 @@ function DashboardContent() {
                   window.history.pushState({}, '', window.location.pathname);
                 }}
                 className="text-blue-700 hover:text-blue-900 hover:bg-blue-100"
+              >
+                <X className="w-4 h-4 ml-1" />
+                נקה פילטר
+              </Button>
+            </AlertDescription>
+          </Alert>
+        )}
+
+        {autoStatusFilter && (
+          <Alert className="bg-orange-50 border-orange-200">
+            <AlertDescription className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-orange-900">מסונן לפי סטטוס אוטומטי:</span>
+                <span className="text-orange-700">{autoStatusFilter}</span>
+              </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setAutoStatusFilter(null);
+                  window.history.pushState({}, '', window.location.pathname);
+                }}
+                className="text-orange-700 hover:text-orange-900 hover:bg-orange-100"
               >
                 <X className="w-4 h-4 ml-1" />
                 נקה פילטר
@@ -166,7 +199,7 @@ function DashboardContent() {
             </div>
 
         {/* כרטיסי KPI */}
-        <KPICards records={records} settings={settings} />
+        <KPICards records={records} settings={settings} allStatuses={allStatuses} />
 
         {/* טבלת חייבים */}
         <DebtorsTable 
@@ -175,6 +208,7 @@ function DashboardContent() {
           isAdmin={isAdmin}
           settings={settings}
           initialStatusFilter={statusFilterFromUrl}
+          initialAutoStatusFilter={autoStatusFilter}
           allStatuses={allStatuses}
         />
 

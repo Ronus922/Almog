@@ -226,8 +226,10 @@ export default function Layout({ children, currentPageName }) {
   return (
     <AuthProvider>
       <style>{`
+        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap');
+
         * {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
+          font-family: 'Heebo', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
           letter-spacing: -0.01em;
         }
         html {
@@ -236,8 +238,15 @@ export default function Layout({ children, currentPageName }) {
         body {
           font-weight: 400;
         }
-        h1, h2, h3, h4, h5, h6, p, span, div, button, input, select, textarea, label {
-          font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
+        h1, h2, h3 {
+          font-weight: 800;
+          letter-spacing: -0.02em;
+        }
+        h4, h5, h6 {
+          font-weight: 700;
+        }
+        strong, b {
+          font-weight: 700;
         }
       `}</style>
       <LayoutContent children={children} currentPageName={currentPageName} />
