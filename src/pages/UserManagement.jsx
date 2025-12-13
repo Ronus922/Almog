@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { Navigate } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { useAuth } from '@/components/auth/AuthContext';
+import { isManagerRole } from '@/components/utils/roles';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,13 +26,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Users, Plus, Trash2, Power, PowerOff, AlertCircle, Shield, Eye, Copy, RefreshCw, Pencil } from "lucide-react";
+import { Users, Plus, Trash2, Power, PowerOff, AlertCircle, Shield, Eye, Copy, RefreshCw, Pencil, Loader2 } from "lucide-react";
 import { toast } from 'sonner';
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import EditUserDialog from '@/components/users/EditUserDialog';
 
-function UserManagementContent() {
-  const { currentUser } = useAuth();
+export default function UserManagement() {
+  const { currentUser, loading } = useAuth();
   const queryClient = useQueryClient();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
@@ -231,15 +233,20 @@ function UserManagementContent() {
     updateUserMutation.mutate({ id: editingUser.id, userData });
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <div className="text-center">
-          <div className="inline-block w-12 h-12 border-4 border-blue-600 border-t-transparent rounded-full animate-spin mb-4"></div>
-          <p className="text-slate-600 font-medium">טוען...</p>
-        </div>
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
     );
+  }
+
+  if (!currentUser) {
+    return <Navigate to={createPageUrl('AppLogin')} replace />;
+  }
+
+  if (!isManagerRole(currentUser)) {
+    return <Navigate to={createPageUrl('Dashboard')} replace />;
   }
 
   return (
@@ -564,13 +571,5 @@ function UserManagementContent() {
         />
       </div>
     </div>
-  );
-}
-
-export default function UserManagement() {
-  return (
-    <ProtectedRoute allowedRoles={['admin']} pageName="UserManagement">
-      <UserManagementContent />
-    </ProtectedRoute>
   );
 }

@@ -4,7 +4,6 @@ import { base44 } from '@/api/base44Client';
 import { useAuth } from '@/components/auth/AuthContext';
 import { Button } from "@/components/ui/button";
 import { Loader2, Building2, RefreshCw, X } from "lucide-react";
-import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { isManagerRole } from '@/components/utils/roles';
 
@@ -184,9 +183,5 @@ function DashboardContent() {
 }
 
 export default function Dashboard() {
-  return (
-    <ProtectedRoute allowedRoles={['admin', 'viewer_password']} pageName="Dashboard">
-      <DashboardContent />
-    </ProtectedRoute>
-  );
+  return <DashboardContent />;
 }

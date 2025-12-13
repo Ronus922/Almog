@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-import { useNavigate } from 'react-router-dom';
+import { Navigate, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { useAuth } from '@/components/auth/AuthContext';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -62,7 +63,7 @@ const COLOR_OPTIONS = [
 ];
 
 export default function StatusManagement() {
-  const [user, setUser] = useState(null);
+  const { currentUser, loading: authLoading } = useAuth();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [deleteConfirm, setDeleteConfirm] = useState(null);
@@ -86,43 +87,7 @@ export default function StatusManagement() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  const [error, setError] = React.useState(null);
 
-  React.useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const timeoutId = setTimeout(() => {
-          setError('הטעינה לוקחת יותר מדי זמן - אנא רענן את הדף');
-        }, 10000);
-
-        const currentUser = await base44.auth.me().catch((e) => {
-          console.error('[StatusManagement] Auth error:', e);
-          clearTimeout(timeoutId);
-          
-          // 401 = לא מחובר - הפנה ללוגין
-          if (e.message?.includes('Authentication required') || e.status === 401) {
-            window.location.href = '/app-login?next=' + encodeURIComponent(window.location.pathname);
-            return null;
-          }
-          
-          return null;
-        });
-
-        clearTimeout(timeoutId);
-        
-        if (!currentUser) {
-          setError('לא ניתן לטעון נתוני משתמש - נסה להתחבר מחדש');
-          return;
-        }
-        
-        setUser(currentUser);
-      } catch (err) {
-        console.error('[StatusManagement] Load user error:', err);
-        setError('שגיאה בטעינת נתוני משתמש - נסה להתחבר מחדש');
-      }
-    };
-    loadUser();
-  }, []);
 
   const { data: allStatuses = [], isLoading, error: statusError } = useQuery({
     queryKey: ['statuses'],
@@ -372,7 +337,19 @@ export default function StatusManagement() {
     }
   };
 
-  if (error || statusError) {
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return <Navigate to={createPageUrl('AppLogin')} replace />;
+  }
+
+  if (statusError) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-6" dir="rtl">
         <Card className="max-w-md">
@@ -381,13 +358,13 @@ export default function StatusManagement() {
               <AlertCircle className="w-16 h-16 mx-auto text-orange-400 mb-4" />
               <h2 className="text-xl font-bold text-slate-800 mb-2">שגיאה בטעינה</h2>
               <p className="text-slate-600 mb-4">
-                {error || statusError?.message || 'לא ניתן לטעון את הנתונים'}
+                {statusError?.message || 'לא ניתן לטעון את הנתונים'}
               </p>
               <div className="flex gap-3 justify-center">
                 <Button onClick={() => window.location.reload()}>
                   נסה שוב
                 </Button>
-                <Button variant="outline" onClick={() => window.location.href = '/'}>
+                <Button variant="outline" onClick={() => navigate(createPageUrl('Dashboard'))}>
                   חזור לדשבורד
                 </Button>
               </div>
@@ -398,17 +375,9 @@ export default function StatusManagement() {
     );
   }
 
-  const isAdmin = isManagerRole(user);
+  const isAdmin = isManagerRole(currentUser);
 
-  console.log('[StatusManagement] Access check:', { 
-    user: user?.username || user?.email, 
-    role: user?.role, 
-    isBase44Admin: user?.isBase44Admin,
-    isAdmin,
-    displayRole: getUserRoleDisplay(user)
-  });
-
-  if (!user || !isAdmin) {
+  if (!isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100" dir="rtl">
         <Card className="max-w-md">
@@ -418,7 +387,7 @@ export default function StatusManagement() {
               <h2 className="text-xl font-bold text-slate-800 mb-2">גישה מוגבלת</h2>
               <p className="text-slate-600 mb-4">
                 אין לך הרשאה לגשת לדף זה<br />
-                תפקיד נוכחי: {getUserRoleDisplay(user)}
+                תפקיד נוכחי: {getUserRoleDisplay(currentUser)}
               </p>
               <Button onClick={() => window.location.href = '/'}>חזור לדשבורד</Button>
             </div>
@@ -765,12 +734,12 @@ export default function StatusManagement() {
           isOpen={isDetailModalOpen}
           onClose={() => setIsDetailModalOpen(false)}
           onSave={handleSaveDetail}
-          isAdmin={user?.role === 'admin'}
+          isAdmin={isAdmin}
           />
           )}
 
           {/* Debug Panel */}
-          <AuthDebugPanel currentUser={user} />
+          <AuthDebugPanel currentUser={currentUser} />
           </div>
           );
           }
