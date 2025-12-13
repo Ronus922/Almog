@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { isManagerRole } from '@/utils/roles';
+import { isManagerRole } from '@/components/utils/roles';
 import { AuthProvider, useAuth } from '@/components/auth/AuthContext';
 import { Button } from "@/components/ui/button";
 import {

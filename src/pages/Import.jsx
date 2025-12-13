@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
-import { isManagerRole, getUserRoleDisplay } from '@/utils/roles';
+import { isManagerRole, getUserRoleDisplay } from '@/components/utils/roles';
 import { base44 } from '@/api/base44Client';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";

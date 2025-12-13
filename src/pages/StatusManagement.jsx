@@ -48,7 +48,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Plus, Edit, Trash2, Shield, Loader2, Save, X, ArrowRight, SlidersHorizontal, Wrench } from "lucide-react";
 import { toast } from "sonner";
-import { isManagerRole, getUserRoleDisplay } from '@/utils/roles';
+import { isManagerRole, getUserRoleDisplay } from '@/components/utils/roles';
 
 const COLOR_OPTIONS = [
   { value: 'bg-green-100 text-green-700', label: 'ירוק', preview: 'bg-green-100' },
