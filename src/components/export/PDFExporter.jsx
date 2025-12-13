@@ -1,8 +1,137 @@
 import React, { useState } from 'react';
 import AppButton from "@/components/ui/app-button";
 import { FileText } from "lucide-react";
-import html2pdf from 'html2pdf.js';
 import { toast } from 'sonner';
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
+
+// Initialize pdfMake with fonts
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
+
+// Pure function to build PDF document definition
+export function buildDebtorsPdfDoc({ year, rows, statuses }) {
+  const exportDate = new Date().toLocaleDateString('he-IL', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  });
+
+  // Build table body: header + all rows
+  const tableBody = [
+    // Header row
+    [
+      { text: 'מספר דירה', style: 'tableHeader', alignment: 'right' },
+      { text: 'שם בעל הדירה', style: 'tableHeader', alignment: 'right' },
+      { text: 'טלפון', style: 'tableHeader', alignment: 'right' },
+      { text: 'סה״כ חוב', style: 'tableHeader', alignment: 'right' },
+      { text: 'חוב חודשי', style: 'tableHeader', alignment: 'right' },
+      { text: 'חוב מיוחד', style: 'tableHeader', alignment: 'right' },
+      { text: 'סטטוס', style: 'tableHeader', alignment: 'right' },
+      { text: 'מצב משפטי', style: 'tableHeader', alignment: 'right' }
+    ]
+  ];
+
+  // Add all data rows
+  rows.forEach(record => {
+    const legalStatus = statuses?.find(s => s.id === record.legal_status_id && s.type === 'LEGAL');
+    const legalStatusName = legalStatus?.name || 'לא הוגדר';
+    
+    tableBody.push([
+      { text: record.apartmentNumber || '', alignment: 'right' },
+      { text: record.ownerName || '', alignment: 'right' },
+      { text: record.phonePrimary || '', alignment: 'right' },
+      { text: new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.totalDebt || 0), style: 'bold', alignment: 'right' },
+      { text: new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.monthlyDebt || 0), style: 'bold', alignment: 'right' },
+      { text: new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.specialDebt || 0), style: 'bold', alignment: 'right' },
+      { text: record.debt_status_auto || 'תקין', alignment: 'right' },
+      { text: legalStatusName, style: 'bold', alignment: 'right' }
+    ]);
+  });
+
+  const docDefinition = {
+    pageSize: 'A4',
+    pageOrientation: 'landscape',
+    pageMargins: [20, 60, 20, 40],
+    
+    header: (currentPage, pageCount) => {
+      return {
+        margin: [20, 15, 20, 0],
+        columns: [
+          { 
+            text: `עמוד ${currentPage} מתוך ${pageCount}`,
+            alignment: 'left',
+            fontSize: 8,
+            color: '#666'
+          },
+          { 
+            text: 'דו״ח חייבים',
+            alignment: 'center',
+            fontSize: 16,
+            bold: true
+          },
+          { 
+            text: exportDate,
+            alignment: 'right',
+            fontSize: 8,
+            color: '#666'
+          }
+        ]
+      };
+    },
+
+    footer: (currentPage, pageCount) => {
+      return {
+        margin: [20, 10],
+        text: `סה״כ רשומות: ${rows.length}`,
+        alignment: 'center',
+        fontSize: 8,
+        color: '#666'
+      };
+    },
+
+    content: [
+      {
+        table: {
+          headerRows: 1,
+          widths: ['auto', '*', 'auto', 'auto', 'auto', 'auto', 'auto', 'auto'],
+          body: tableBody
+        },
+        layout: {
+          fillColor: (rowIndex) => {
+            if (rowIndex === 0) return '#334155';
+            return (rowIndex % 2 === 0) ? '#f8fafc' : null;
+          },
+          hLineWidth: () => 0.5,
+          vLineWidth: () => 0.5,
+          hLineColor: () => '#e2e8f0',
+          vLineColor: () => '#e2e8f0'
+        }
+      }
+    ],
+
+    defaultStyle: {
+      font: 'Roboto',
+      fontSize: 9,
+      alignment: 'right'
+    },
+
+    styles: {
+      tableHeader: {
+        bold: true,
+        fontSize: 10,
+        color: 'white',
+        fillColor: '#334155'
+      },
+      bold: {
+        bold: true
+      }
+    }
+  };
+
+  return docDefinition;
+}
 
 export default function PDFExporter({ records, statuses, settings }) {
   const [isExporting, setIsExporting] = useState(false);
@@ -14,143 +143,26 @@ export default function PDFExporter({ records, statuses, settings }) {
     }
     
     console.log(`[PDF Export] Starting export of ${records.length} records`);
+    console.log(`[PDF Export] fetchedRows=${records.length}`);
     setIsExporting(true);
     
     try {
-      const exportDate = new Date().toLocaleDateString('he-IL', { 
-        year: 'numeric', 
-        month: 'long', 
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit'
+      const year = new Date().getFullYear();
+      
+      // Build document definition with ALL records
+      const docDefinition = buildDebtorsPdfDoc({
+        year,
+        rows: records,
+        statuses
       });
       
-      // Build HTML content with proper Hebrew support
-      const htmlContent = `
-        <!DOCTYPE html>
-        <html dir="rtl" lang="he">
-        <head>
-          <meta charset="UTF-8">
-          <link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap" rel="stylesheet">
-          <style>
-            * {
-              font-family: 'Heebo', Arial, sans-serif;
-              direction: rtl;
-            }
-            body {
-              margin: 0;
-              padding: 20px;
-              direction: rtl;
-            }
-            h1 {
-              text-align: center;
-              margin-bottom: 5px;
-              font-size: 24px;
-              font-weight: 700;
-            }
-            .subtitle {
-              text-align: center;
-              color: #666;
-              margin-bottom: 20px;
-              font-size: 12px;
-            }
-            table {
-              width: 100%;
-              border-collapse: collapse;
-              font-size: 10px;
-              direction: rtl;
-            }
-            thead {
-              background: #334155;
-              color: white;
-            }
-            th {
-              padding: 8px 4px;
-              border: 1px solid #ddd;
-              text-align: right;
-              font-weight: 700;
-            }
-            td {
-              padding: 6px 4px;
-              border: 1px solid #ddd;
-              text-align: right;
-            }
-            tbody tr:nth-child(even) {
-              background: #f8fafc;
-            }
-            .bold {
-              font-weight: 700;
-            }
-          </style>
-        </head>
-        <body>
-          <h1>דו״ח חייבים</h1>
-          <div class="subtitle">תאריך הפקה: ${exportDate}</div>
-          <table>
-            <thead>
-              <tr>
-                <th style="width: 60px;">מספר דירה</th>
-                <th style="width: 120px;">שם בעל הדירה</th>
-                <th style="width: 80px;">טלפון</th>
-                <th style="width: 70px;">סה״כ חוב</th>
-                <th style="width: 70px;">חוב חודשי</th>
-                <th style="width: 70px;">חוב מיוחד</th>
-                <th style="width: 80px;">סטטוס</th>
-                <th style="width: 100px;">מצב משפטי</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${records.map(record => {
-                const legalStatus = statuses?.find(s => s.id === record.legal_status_id && s.type === 'LEGAL');
-                const legalStatusName = legalStatus?.name || 'לא הוגדר';
-                
-                return `
-                  <tr>
-                    <td>${record.apartmentNumber || ''}</td>
-                    <td>${record.ownerName || ''}</td>
-                    <td>${record.phonePrimary || ''}</td>
-                    <td class="bold">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.totalDebt || 0)}</td>
-                    <td class="bold">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.monthlyDebt || 0)}</td>
-                    <td class="bold">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.specialDebt || 0)}</td>
-                    <td>${record.debt_status_auto || 'תקין'}</td>
-                    <td class="bold">${legalStatusName}</td>
-                  </tr>
-                `;
-              }).join('')}
-            </tbody>
-          </table>
-        </body>
-        </html>
-      `;
+      console.log(`[PDF Export] renderedRows=${records.length}`);
+      console.log(`[PDF Export] tableBody length=${docDefinition.content[0].table.body.length} (includes header)`);
       
-      // Create temporary element
-      const element = document.createElement('div');
-      element.innerHTML = htmlContent;
-      element.style.position = 'absolute';
-      element.style.left = '-9999px';
-      document.body.appendChild(element);
+      const filename = `חייבים_${new Date().toISOString().split('T')[0]}.pdf`;
       
-      const opt = {
-        margin: [10, 10, 15, 10],
-        filename: `חייבים_${new Date().toISOString().split('T')[0]}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { 
-          scale: 2,
-          useCORS: true,
-          letterRendering: true,
-          logging: false
-        },
-        jsPDF: { 
-          unit: 'mm', 
-          format: 'a4', 
-          orientation: 'landscape'
-        },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
-      };
-      
-      await html2pdf().set(opt).from(element).save();
-      
-      document.body.removeChild(element);
+      // Generate and download PDF
+      pdfMake.createPdf(docDefinition).download(filename);
       
       console.log(`[PDF Export] Successfully exported ${records.length} records`);
       toast.success(`הקובץ יוצא בהצלחה (${records.length} רשומות)`);
