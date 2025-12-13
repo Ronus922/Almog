@@ -13,7 +13,7 @@ import { base44 } from '@/api/base44Client';
 
 export default function AppLogin() {
   const navigate = useNavigate();
-  const { login, currentUser } = useAuth();
+  const { login, currentUser, authChecked } = useAuth();
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [rememberUsername, setRememberUsername] = useState(false);
@@ -24,6 +24,9 @@ export default function AppLogin() {
 
   useEffect(() => {
     const checkFirstUser = async () => {
+      // Wait for auth check to complete
+      if (!authChecked) return;
+      
       // If already logged in, redirect to dashboard
       if (currentUser) {
         navigate(createPageUrl('Dashboard'), { replace: true });
@@ -48,7 +51,7 @@ export default function AppLogin() {
     };
 
     checkFirstUser();
-  }, [currentUser, navigate]);
+  }, [authChecked, currentUser, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

@@ -115,8 +115,10 @@ function LayoutContent({ children, currentPageName }) {
                         <p className="text-sm font-semibold text-slate-800">{currentUser.username}</p>
                         <p className="text-xs text-slate-500 mt-0.5">
                           {currentUser.isBase44Admin 
-                            ? 'מנהל Base44' 
-                            : currentUser.role === 'admin' ? 'מנהל מערכת' : 'צופה'}
+                            ? 'Base44 Super Admin' 
+                            : currentUser.role === 'SUPER_ADMIN' ? 'Super Admin'
+                            : currentUser.role === 'ADMIN' ? 'Admin'
+                            : 'Viewer'}
                         </p>
                       </div>
                       <DropdownMenuSeparator />
@@ -128,11 +130,7 @@ function LayoutContent({ children, currentPageName }) {
                   </DropdownMenu>
                 </div>
               )}
-              {!currentUser && (
-                <div className="hidden md:block text-sm text-slate-600 font-medium">
-                  שלום, אורח
-                </div>
-              )}
+
 
               {/* כפתור תפריט מובייל */}
               <Button 
