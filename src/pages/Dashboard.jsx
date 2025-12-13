@@ -50,7 +50,7 @@ function DashboardContent() {
   });
 
   const settings = settingsList[0] || { highDebtThreshold: 1000, monthsBeforeLawsuit: 3 };
-  const isAdmin = currentUser && (currentUser.role === 'admin' || currentUser.isBase44Admin === true);
+  const isAdmin = isManagerRole(currentUser);
 
 
 

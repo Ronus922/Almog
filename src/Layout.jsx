@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { isManagerRole } from '@/utils/roles';
 import { AuthProvider, useAuth } from '@/components/auth/AuthContext';
 import { Button } from "@/components/ui/button";
 import {
@@ -21,7 +22,7 @@ function LayoutContent({ children, currentPageName }) {
   const { currentUser, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const isAdmin = currentUser && (currentUser.role === 'admin' || currentUser.isBase44Admin === true);
+  const isAdmin = isManagerRole(currentUser);
 
   console.log('[Layout] User check:', { 
     user: currentUser?.username || currentUser?.email, 

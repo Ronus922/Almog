@@ -48,6 +48,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from "@/components/ui/switch";
 import { Plus, Edit, Trash2, Shield, Loader2, Save, X, ArrowRight, SlidersHorizontal, Wrench } from "lucide-react";
 import { toast } from "sonner";
+import { isManagerRole, getUserRoleDisplay } from '@/utils/roles';
 
 const COLOR_OPTIONS = [
   { value: 'bg-green-100 text-green-700', label: 'ירוק', preview: 'bg-green-100' },
@@ -382,13 +383,14 @@ export default function StatusManagement() {
     );
   }
 
-  const isAdmin = user && (user.role === 'admin' || user.isBase44Admin === true);
+  const isAdmin = isManagerRole(user);
 
-  console.log('[StatusManagement] User check:', { 
+  console.log('[StatusManagement] Access check:', { 
     user: user?.username || user?.email, 
     role: user?.role, 
     isBase44Admin: user?.isBase44Admin,
-    isAdmin 
+    isAdmin,
+    displayRole: getUserRoleDisplay(user)
   });
 
   if (!user || !isAdmin) {
@@ -400,7 +402,8 @@ export default function StatusManagement() {
               <Shield className="w-16 h-16 mx-auto text-slate-300 mb-4" />
               <h2 className="text-xl font-bold text-slate-800 mb-2">גישה מוגבלת</h2>
               <p className="text-slate-600 mb-4">
-                אין לך הרשאה לגשת לדף זה (role: {user?.role || 'לא מזוהה'})
+                אין לך הרשאה לגשת לדף זה<br />
+                תפקיד נוכחי: {getUserRoleDisplay(user)}
               </p>
               <Button onClick={() => window.location.href = '/'}>חזור לדשבורד</Button>
             </div>

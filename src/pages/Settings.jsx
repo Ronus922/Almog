@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
+import { isManagerRole, getUserRoleDisplay } from '@/utils/roles';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { ShieldAlert, ArrowRight, Settings as SettingsIcon } from "lucide-react";
@@ -68,14 +69,15 @@ export default function Settings() {
     );
   }
 
-  // בדיקת הרשאות - רק ADMIN
-  const isAdmin = user && (user.role === 'admin' || user.isBase44Admin === true);
+  // בדיקת הרשאות - רק מנהלים (ADMIN/SUPER_ADMIN)
+  const isAdmin = isManagerRole(user);
   
-  console.log('[Settings] User check:', { 
+  console.log('[Settings] Access check:', { 
     user: user?.username || user?.email, 
     role: user?.role, 
     isBase44Admin: user?.isBase44Admin,
-    isAdmin 
+    isAdmin,
+    displayRole: getUserRoleDisplay(user)
   });
   
   if (!isAdmin) {
@@ -85,7 +87,8 @@ export default function Settings() {
           <ShieldAlert className="w-16 h-16 text-red-400 mx-auto mb-4" />
           <h2 className="text-xl font-bold text-slate-800 mb-2">אין הרשאה</h2>
           <p className="text-slate-600 mb-6">
-            גישה להגדרות מותרת למנהלים בלבד (role: {user?.role || 'לא מזוהה'})
+            גישה להגדרות מותרת למנהלים בלבד<br />
+            תפקיד נוכחי: {getUserRoleDisplay(user)}
           </p>
           <Link to={createPageUrl('Dashboard')}>
             <Button>
