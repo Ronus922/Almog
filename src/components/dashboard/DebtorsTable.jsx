@@ -37,7 +37,8 @@ export default function DebtorsTable({
   hideStatusFilter = false,
   initialFilterKey = null,
   initialStatusFilter = null,
-  initialAutoStatusFilter = null
+  initialAutoStatusFilter = null,
+  onFilteredDataChange = null
 }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -190,6 +191,14 @@ export default function DebtorsTable({
 
     return result;
   }, [records, search, statusFilter, autoStatusFilter, sortField, sortDir, minDebt, maxDebt, ownerNameFilter, phoneFilter, legalStatusFilter, allStatuses]);
+
+  // Notify parent of filtered data changes
+  useEffect(() => {
+    if (onFilteredDataChange) {
+      onFilteredDataChange(filteredRecords);
+      console.log(`[DebtorsTable] Filtered dataset updated: ${filteredRecords.length} records`);
+    }
+  }, [filteredRecords, onFilteredDataChange]);
 
   const totalPages = Math.ceil(filteredRecords.length / pageSize);
   const paginatedRecords = filteredRecords.slice((page - 1) * pageSize, page * pageSize);

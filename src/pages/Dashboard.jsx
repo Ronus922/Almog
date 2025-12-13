@@ -21,6 +21,7 @@ function DashboardContent() {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [statusFilterFromUrl, setStatusFilterFromUrl] = useState(null);
+  const [filteredDataset, setFilteredDataset] = useState([]);
   const queryClient = useQueryClient();
 
   // CRITICAL: Require authentication
@@ -229,8 +230,8 @@ function DashboardContent() {
             </AppButton>
             {isAdmin && (
               <>
-                <ExcelExporter records={records} statuses={allStatuses} />
-                <PDFExporter records={records} statuses={allStatuses} settings={settings} />
+                <ExcelExporter records={filteredDataset.length > 0 ? filteredDataset : records} statuses={allStatuses} />
+                <PDFExporter records={filteredDataset.length > 0 ? filteredDataset : records} statuses={allStatuses} settings={settings} />
               </>
             )}
             </div>
@@ -250,6 +251,7 @@ function DashboardContent() {
             initialStatusFilter={statusFilterFromUrl}
             initialAutoStatusFilter={autoStatusFilter}
             allStatuses={allStatuses}
+            onFilteredDataChange={setFilteredDataset}
           />
         </div>
 
