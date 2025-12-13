@@ -25,7 +25,7 @@ import DebtorCard from './DebtorCard';
 const STATUS_COLORS = {
   'תקין': 'bg-green-100 text-green-700 border-green-200',
   'לגבייה מיידית': 'bg-orange-100 text-orange-700 border-orange-200',
-  'חריגה מופרזת': 'bg-[#c087c9] text-white border-[#c087c9]'
+  'חריגה מופרזת': 'bg-[#ffedd5] text-[#ea580c] border-[#ea580c]'
 };
 
 export default function DebtorsTable({ 
