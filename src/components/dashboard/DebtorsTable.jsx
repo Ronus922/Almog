@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -28,9 +28,19 @@ const STATUS_COLORS = {
   'לטיפול משפטי': 'bg-red-100 text-red-700 border-red-200'
 };
 
-export default function DebtorsTable({ records, onRowClick, isAdmin, settings, allStatuses = [], hideStatusFilter = false }) {
+export default function DebtorsTable({ 
+  records, 
+  onRowClick, 
+  isAdmin, 
+  settings, 
+  allStatuses = [], 
+  hideStatusFilter = false,
+  initialStatusFilter = null,
+  initialAutoStatusFilter = null
+}) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [autoStatusFilter, setAutoStatusFilter] = useState('all');
   const [sortField, setSortField] = useState('totalDebt');
   const [sortDir, setSortDir] = useState('desc');
   const [page, setPage] = useState(1);
@@ -44,6 +54,19 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, a
   const [legalStatusFilter, setLegalStatusFilter] = useState('all');
   
   const pageSize = 50;
+
+  // Apply URL filters
+  useEffect(() => {
+    if (initialStatusFilter) {
+      const matchingStatus = allStatuses.find(s => s.name === initialStatusFilter);
+      if (matchingStatus) {
+        setLegalStatusFilter(matchingStatus.id);
+      }
+    }
+    if (initialAutoStatusFilter) {
+      setAutoStatusFilter(initialAutoStatusFilter);
+    }
+  }, [initialStatusFilter, initialAutoStatusFilter, allStatuses]);
 
   const legalStatuses = allStatuses.filter(s => s.type === 'LEGAL');
   const activeLegalStatuses = legalStatuses.filter(s => s.is_active);
@@ -84,6 +107,10 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, a
 
     if (statusFilter !== 'all') {
       result = result.filter(r => r.debt_status_auto === statusFilter);
+    }
+
+    if (autoStatusFilter !== 'all') {
+      result = result.filter(r => r.debt_status_auto === autoStatusFilter);
     }
 
     if (minDebt !== '') {
@@ -134,7 +161,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, a
     });
 
     return result;
-  }, [records, search, statusFilter, sortField, sortDir, minDebt, maxDebt, ownerNameFilter, phoneFilter, legalStatusFilter, allStatuses]);
+  }, [records, search, statusFilter, autoStatusFilter, sortField, sortDir, minDebt, maxDebt, ownerNameFilter, phoneFilter, legalStatusFilter, allStatuses]);
 
   const totalPages = Math.ceil(filteredRecords.length / pageSize);
   const paginatedRecords = filteredRecords.slice((page - 1) * pageSize, page * pageSize);
@@ -150,6 +177,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, a
 
   const clearFilters = () => {
     setStatusFilter('all');
+    setAutoStatusFilter('all');
     setSearch('');
     setMinDebt('');
     setMaxDebt('');
@@ -157,6 +185,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, a
     setPhoneFilter('');
     setLegalStatusFilter('all');
     setPage(1);
+    window.history.pushState({}, '', window.location.pathname);
   };
 
   const clearAdvancedFilters = () => {
@@ -168,7 +197,7 @@ export default function DebtorsTable({ records, onRowClick, isAdmin, settings, a
     setPage(1);
   };
 
-  const hasActiveFilters = statusFilter !== 'all' || search !== '';
+  const hasActiveFilters = statusFilter !== 'all' || autoStatusFilter !== 'all' || search !== '';
   const hasAdvancedFilters = minDebt !== '' || maxDebt !== '' || ownerNameFilter !== '' || phoneFilter !== '' || legalStatusFilter !== 'all';
 
   return (
