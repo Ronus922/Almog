@@ -5,6 +5,7 @@ import { Navigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { useAuth } from '@/components/auth/AuthContext';
 import { Button } from "@/components/ui/button";
+import AppButton from "@/components/ui/app-button";
 import { Loader2, Building2, RefreshCw, X } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { isManagerRole } from '@/components/utils/roles';
@@ -223,11 +224,9 @@ function DashboardContent() {
                 צפייה בלבד
               </div>
             )}
-            <Button variant="outline" size="sm" className="rounded-lg md:rounded-xl h-9 md:h-10 px-3 md:px-4 font-semibold text-xs md:text-sm" onClick={() => refetchRecords()}>
-              <RefreshCw className="w-3.5 h-3.5 md:w-4 md:h-4 ml-1 md:ml-2" />
-              <span className="hidden sm:inline">רענן נתונים</span>
-              <span className="sm:hidden">רענן</span>
-            </Button>
+            <AppButton variant="outline" size="md" icon={RefreshCw} onClick={() => refetchRecords()}>
+              רענן נתונים
+            </AppButton>
             {isAdmin && (
               <>
                 <ExcelExporter records={records} legalStatuses={legalStatuses} />

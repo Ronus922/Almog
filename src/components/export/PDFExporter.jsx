@@ -1,8 +1,9 @@
-import React from 'react';
-import { Button } from "@/components/ui/button";
+import React, { useState } from 'react';
+import AppButton from "@/components/ui/app-button";
 import { FileText } from "lucide-react";
 import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
+import { toast } from 'sonner';
 
 export default function PDFExporter({ records, legalStatuses, settings }) {
   const handleExport = async () => {

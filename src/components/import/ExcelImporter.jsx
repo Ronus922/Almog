@@ -1,6 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import AppButton from "@/components/ui/app-button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
@@ -759,39 +760,25 @@ export default function ExcelImporter({ onImportComplete }) {
       <CardFooter className="border-t bg-slate-50 flex justify-between">
         {step === 2 && (
           <>
-            <Button variant="outline" onClick={() => setStep(1)}>
-              <ArrowLeft className="w-4 h-4 ml-2" />
+            <AppButton variant="outline" icon={ArrowLeft} onClick={() => setStep(1)}>
               חזור
-            </Button>
-            <Button 
+            </AppButton>
+            <AppButton 
+              variant={importMode === 'reset' ? 'danger' : 'primary'}
+              icon={importMode === 'reset' ? AlertTriangle : Database}
               onClick={handleImport} 
-              disabled={isImporting || !mappings.apartmentNumber || (importMode === 'reset' && resetConfirmation !== 'מחק הכל')}
+              loading={isImporting}
+              disabled={!mappings.apartmentNumber || (importMode === 'reset' && resetConfirmation !== 'מחק הכל')}
             >
-              {isImporting ? (
-                <>
-                  <Loader2 className="w-4 h-4 ml-2 animate-spin" />
-                  מייבא...
-                </>
-              ) : importMode === 'reset' ? (
-                <>
-                  <AlertTriangle className="w-4 h-4 ml-2" />
-                  בצע איפוס מלא
-                </>
-              ) : (
-                <>
-                  <Database className="w-4 h-4 ml-2" />
-                  התחל ייבוא
-                </>
-              )}
-            </Button>
+              {importMode === 'reset' ? 'בצע איפוס מלא' : 'התחל ייבוא'}
+            </AppButton>
           </>
         )}
 
         {step === 3 && (
-          <Button onClick={onImportComplete} className="w-full">
-            <RefreshCw className="w-4 h-4 ml-2" />
+          <AppButton variant="primary" icon={RefreshCw} onClick={onImportComplete} fullWidth>
             סיום ומעבר לדשבורד
-          </Button>
+          </AppButton>
         )}
       </CardFooter>
     </Card>
