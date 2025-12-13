@@ -46,6 +46,7 @@ export default function PDFExporter({ records, statuses, settings }) {
     
     try {
       const year = new Date().getFullYear();
+      const totalRecords = records.length;
       const exportDate = new Date().toLocaleDateString('he-IL', { 
         year: 'numeric', 
         month: 'long', 
@@ -53,6 +54,8 @@ export default function PDFExporter({ records, statuses, settings }) {
         hour: '2-digit',
         minute: '2-digit'
       });
+
+      console.log(`[PDF Export] Preparing to export ${totalRecords} records`);
       
       // Build table data with ALL records
       const { headers, data, totalRows } = buildDebtorsPdfDoc({
@@ -87,8 +90,9 @@ export default function PDFExporter({ records, statuses, settings }) {
       doc.text(`תאריך הפקה: ${exportDate}`, doc.internal.pageSize.width / 2, yPos, { align: 'center' });
       
       yPos += 5;
-      doc.setFontSize(9);
-      doc.text(`סה״כ רשומות: ${totalRows}`, doc.internal.pageSize.width / 2, yPos, { align: 'center' });
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.text(`סה״כ רשומות שיוצאו: ${totalRows}`, doc.internal.pageSize.width / 2, yPos, { align: 'center' });
       
       // Generate table with autotable
       doc.autoTable({

@@ -13,10 +13,11 @@ export default function ExcelExporter({ records, statuses }) {
       return;
     }
     
+    console.log(`[Excel Export] Starting export of ${records.length} records`);
     setIsExporting(true);
     
     try {
-    // Prepare data for export
+    // Prepare data for export - ALL records
     const exportData = records.map(record => {
       // Find legal status name from Status entity (type=LEGAL)
       const legalStatus = statuses?.find(s => s.id === record.legal_status_id && s.type === 'LEGAL');
@@ -55,7 +56,8 @@ export default function ExcelExporter({ records, statuses }) {
 
     // Export file
     XLSX.writeFile(wb, `חייבים_${new Date().toISOString().split('T')[0]}.xlsx`);
-    toast.success('הקובץ יוצא בהצלחה');
+    console.log(`[Excel Export] Successfully exported ${exportData.length} records`);
+    toast.success(`הקובץ יוצא בהצלחה (${exportData.length} רשומות)`);
   } catch (error) {
     console.error('Error exporting Excel:', error);
     toast.error('שגיאה בייצוא לאקסל');
