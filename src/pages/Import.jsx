@@ -3,6 +3,7 @@ import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { isManagerRole, getUserRoleDisplay } from '@/components/utils/roles';
 import { useAuth } from '@/components/auth/AuthContext';
+import { useNavigationBlock } from '@/components/import/ImportGuard';
 import { Button } from "@/components/ui/button";
 import { ShieldAlert, ArrowRight, Loader2 } from "lucide-react";
 
@@ -12,9 +13,12 @@ import AuthDebugPanel from '../components/debug/AuthDebugPanel';
 export default function Import() {
   const { currentUser, loading } = useAuth();
   const navigate = useNavigate();
+  const { attemptNavigation } = useNavigationBlock();
 
   const handleImportComplete = () => {
-    navigate(createPageUrl('Dashboard'));
+    attemptNavigation(() => {
+      navigate(createPageUrl('Dashboard'));
+    });
   };
 
   if (loading) {
