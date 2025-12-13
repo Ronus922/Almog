@@ -27,6 +27,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { AlertCircle } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
@@ -45,7 +46,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Edit, Trash2, Shield, Loader2, Save, X, ArrowRight, SlidersHorizontal, Wrench } from "lucide-react";
+import { Plus, Edit, Trash2, Shield, Loader2, Save, X, ArrowRight, SlidersHorizontal, Wrench, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 
 const COLOR_OPTIONS = [
@@ -92,12 +93,16 @@ export default function StatusManagement() {
           setError('הטעינה לוקחת יותר מדי זמן - אנא רענן את הדף');
         }, 10000);
 
-        const currentUser = await base44.auth.me();
+        const currentUser = await base44.auth.me().catch((e) => {
+          console.error('[StatusManagement] Auth error:', e);
+          return null;
+        });
+
         clearTimeout(timeoutId);
         setUser(currentUser);
       } catch (err) {
         console.error('[StatusManagement] Load user error:', err);
-        setError(err.message || 'שגיאה בטעינת נתוני משתמש');
+        setError('שגיאה בטעינת נתוני משתמש - נסה להתחבר מחדש');
       }
     };
     loadUser();

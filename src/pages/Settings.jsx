@@ -20,13 +20,17 @@ export default function Settings() {
           setIsLoading(false);
         }, 10000);
 
-        const currentUser = await base44.auth.me();
+        const currentUser = await base44.auth.me().catch((e) => {
+          console.error('[Settings] Auth error:', e);
+          return null;
+        });
+        
         clearTimeout(timeoutId);
         setUser(currentUser);
         setIsLoading(false);
       } catch (err) {
         console.error('[Settings] Load user error:', err);
-        setError(err.message || 'שגיאה בטעינת נתוני משתמש');
+        setError('שגיאה בטעינת נתוני משתמש - נסה להתחבר מחדש');
         setIsLoading(false);
       }
     };
