@@ -97,10 +97,24 @@ export default function StatusManagement() {
 
         const currentUser = await base44.auth.me().catch((e) => {
           console.error('[StatusManagement] Auth error:', e);
+          clearTimeout(timeoutId);
+          
+          // 401 = לא מחובר - הפנה ללוגין
+          if (e.message?.includes('Authentication required') || e.status === 401) {
+            window.location.href = '/app-login?next=' + encodeURIComponent(window.location.pathname);
+            return null;
+          }
+          
           return null;
         });
 
         clearTimeout(timeoutId);
+        
+        if (!currentUser) {
+          setError('לא ניתן לטעון נתוני משתמש - נסה להתחבר מחדש');
+          return;
+        }
+        
         setUser(currentUser);
       } catch (err) {
         console.error('[StatusManagement] Load user error:', err);

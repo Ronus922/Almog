@@ -24,10 +24,25 @@ export default function Settings() {
 
         const currentUser = await base44.auth.me().catch((e) => {
           console.error('[Settings] Auth error:', e);
+          clearTimeout(timeoutId);
+          
+          // 401 = לא מחובר - הפנה ללוגין
+          if (e.message?.includes('Authentication required') || e.status === 401) {
+            window.location.href = createPageUrl('AppLogin') + '?next=' + encodeURIComponent(window.location.pathname);
+            return null;
+          }
+          
           return null;
         });
         
         clearTimeout(timeoutId);
+        
+        if (!currentUser) {
+          setError('לא ניתן לטעון נתוני משתמש - נסה להתחבר מחדש');
+          setIsLoading(false);
+          return;
+        }
+        
         setUser(currentUser);
         setIsLoading(false);
       } catch (err) {
@@ -55,9 +70,11 @@ export default function Settings() {
           <h2 className="text-xl font-bold text-slate-800 mb-2">שגיאה בטעינה</h2>
           <p className="text-slate-600 mb-6">{error}</p>
           <div className="flex gap-3 justify-center">
-            <Button onClick={() => window.location.reload()}>
-              נסה שוב
-            </Button>
+            <Link to={createPageUrl('AppLogin')}>
+              <Button>
+                התחבר מחדש
+              </Button>
+            </Link>
             <Link to={createPageUrl('Dashboard')}>
               <Button variant="outline">
                 <ArrowRight className="w-4 h-4 ml-2" />
