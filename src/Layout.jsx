@@ -19,8 +19,16 @@ import {
 import { Toaster } from 'sonner';
 
 function LayoutContent({ children, currentPageName }) {
-  const { currentUser, logout } = useAuth();
+  const { currentUser, logout, loading, authChecked } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  // CRITICAL: If not authenticated, redirect to login
+  React.useEffect(() => {
+    if (authChecked && !currentUser && currentPageName !== 'AppLogin') {
+      console.log('[Layout] Not authenticated - redirecting to login');
+      window.location.href = createPageUrl('AppLogin');
+    }
+  }, [authChecked, currentUser, currentPageName]);
 
   const isAdmin = isManagerRole(currentUser);
 
@@ -28,7 +36,8 @@ function LayoutContent({ children, currentPageName }) {
     user: currentUser?.username || currentUser?.email, 
     role: currentUser?.role, 
     isBase44Admin: currentUser?.isBase44Admin,
-    isAdmin 
+    isAdmin,
+    authChecked
   });
 
   const navItems = [
@@ -168,7 +177,11 @@ function LayoutContent({ children, currentPageName }) {
                     <p className="text-xs text-slate-500 font-medium">משתמש מחובר</p>
                     <p className="text-sm font-semibold text-slate-800 mt-1">{currentUser.username}</p>
                     <p className="text-xs text-slate-500 mt-1">
-                      {currentUser.role === 'admin' ? 'מנהל מערכת' : 'צופה'}
+                      {currentUser.isBase44Admin 
+                        ? 'Base44 Super Admin'
+                        : currentUser.role === 'SUPER_ADMIN' ? 'Super Admin'
+                        : currentUser.role === 'ADMIN' ? 'Admin'
+                        : 'Viewer'}
                     </p>
                   </div>
                   <button
@@ -182,14 +195,6 @@ function LayoutContent({ children, currentPageName }) {
                     <LogOut className="w-4 h-4 flex-shrink-0" />
                     <span className="flex-1 text-right">התנתק</span>
                   </button>
-                </div>
-              )}
-              {!currentUser && (
-                <div className="pt-2 mt-2 border-t border-slate-200">
-                  <div className="px-4 py-2 text-right">
-                    <p className="text-sm font-semibold text-slate-800">שלום, אורח</p>
-                    <p className="text-xs text-slate-500 mt-1">מצב צפייה ציבורי</p>
-                  </div>
                 </div>
               )}
             </nav>

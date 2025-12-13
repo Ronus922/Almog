@@ -6,6 +6,7 @@ const AuthContext = createContext(null);
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [authChecked, setAuthChecked] = useState(false);
 
   useEffect(() => {
     checkAuth();
@@ -13,6 +14,8 @@ export function AuthProvider({ children }) {
 
   const checkAuth = async () => {
     console.log('[Auth] Starting authentication check...');
+    setLoading(true);
+    setAuthChecked(false);
     
     try {
       // Check Base44 admin first
@@ -29,6 +32,7 @@ export function AuthProvider({ children }) {
         console.log('[Auth] ✓ Base44 SUPER_ADMIN authenticated:', userData);
         setCurrentUser(userData);
         setLoading(false);
+        setAuthChecked(true);
         return;
       }
     } catch (err) {
@@ -39,9 +43,10 @@ export function AuthProvider({ children }) {
     const sessionData = localStorage.getItem('app_session');
     
     if (!sessionData) {
-      console.log('[Auth] No session found - user is not logged in');
+      console.log('[Auth] ✗ No session - UNAUTHENTICATED');
       setCurrentUser(null);
       setLoading(false);
+      setAuthChecked(true);
       return;
     }
 
@@ -60,6 +65,7 @@ export function AuthProvider({ children }) {
         localStorage.removeItem('app_session');
         setCurrentUser(null);
         setLoading(false);
+        setAuthChecked(true);
         return;
       }
 
@@ -72,6 +78,7 @@ export function AuthProvider({ children }) {
         localStorage.removeItem('app_session');
         setCurrentUser(null);
         setLoading(false);
+        setAuthChecked(true);
         return;
       }
 
@@ -87,11 +94,13 @@ export function AuthProvider({ children }) {
       console.log('[Auth] ✓ App user authenticated:', userData);
       setCurrentUser(userData);
       setLoading(false);
+      setAuthChecked(true);
     } catch (err) {
       console.error('[Auth] ✗ Session validation failed:', err);
       localStorage.removeItem('app_session');
       setCurrentUser(null);
       setLoading(false);
+      setAuthChecked(true);
     }
   };
 
@@ -158,7 +167,8 @@ export function AuthProvider({ children }) {
   return (
     <AuthContext.Provider value={{ 
       currentUser, 
-      loading, 
+      loading,
+      authChecked,
       login, 
       logout,
       checkAuth 

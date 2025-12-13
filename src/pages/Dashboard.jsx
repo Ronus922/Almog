@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
+import { Navigate } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { useAuth } from '@/components/auth/AuthContext';
 import { Button } from "@/components/ui/button";
 import { Loader2, Building2, RefreshCw, X } from "lucide-react";
@@ -14,11 +16,16 @@ import ExcelExporter from '../components/export/ExcelExporter';
 import PDFExporter from '../components/export/PDFExporter';
 
 function DashboardContent() {
-  const { currentUser } = useAuth();
+  const { currentUser, loading, authChecked } = useAuth();
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [statusFilterFromUrl, setStatusFilterFromUrl] = useState(null);
   const queryClient = useQueryClient();
+
+  // CRITICAL: Require authentication
+  if (authChecked && !currentUser) {
+    return <Navigate to={createPageUrl('AppLogin')} replace />;
+  }
 
   // Check URL for status filter
   useEffect(() => {
@@ -52,6 +59,13 @@ function DashboardContent() {
   const settings = settingsList[0] || { highDebtThreshold: 1000, monthsBeforeLawsuit: 3 };
   const isAdmin = isManagerRole(currentUser);
 
+  console.log('[Dashboard] Auth state:', { 
+    user: currentUser?.username,
+    role: currentUser?.role,
+    isAdmin,
+    authChecked 
+  });
+
 
 
   const updateMutation = useMutation({
@@ -71,7 +85,7 @@ function DashboardContent() {
     await updateMutation.mutateAsync({ id: editedRecord.id, data: editedRecord });
   };
 
-  if (recordsLoading || settingsLoading) {
+  if (loading || recordsLoading || settingsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="text-center">
@@ -118,11 +132,11 @@ function DashboardContent() {
             <div>
               <div className="flex items-center gap-2">
                 <h1 className="text-xl md:text-3xl font-extrabold bg-gradient-to-l from-slate-800 to-slate-600 bg-clip-text text-transparent">
-                  {currentUser ? `שלום, ${currentUser.firstName || currentUser.username}` : 'שלום, אורח'}
+                  שלום, {currentUser.firstName || currentUser.username}
                 </h1>
                 {currentUser?.isBase44Admin && (
                   <span className="text-xs bg-gradient-to-l from-purple-600 to-purple-700 text-white px-2 py-1 rounded-lg font-bold">
-                    Base44 Admin
+                    Base44 Super Admin
                   </span>
                 )}
               </div>
@@ -132,14 +146,9 @@ function DashboardContent() {
             </div>
           </div>
           <div className="flex flex-wrap items-center gap-2 md:gap-3">
-            {currentUser && !isAdmin && (
+            {!isAdmin && (
               <div className="text-xs md:text-sm bg-gradient-to-l from-blue-50 to-blue-100 text-blue-700 px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl border border-blue-200 font-semibold shadow-sm">
                 צפייה בלבד
-              </div>
-            )}
-            {!currentUser && (
-              <div className="text-xs md:text-sm bg-gradient-to-l from-slate-50 to-slate-100 text-slate-700 px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl border border-slate-200 font-semibold shadow-sm">
-                מצב ציבורי
               </div>
             )}
             <Button variant="outline" size="sm" className="rounded-lg md:rounded-xl h-9 md:h-10 px-3 md:px-4 font-semibold text-xs md:text-sm" onClick={() => refetchRecords()}>
