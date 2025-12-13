@@ -22,15 +22,27 @@ function LayoutContent({ children, currentPageName }) {
   const { currentUser, logout, loading, authChecked } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // CRITICAL: If not authenticated, redirect to login
-  React.useEffect(() => {
-    if (authChecked && !currentUser && currentPageName !== 'AppLogin') {
-      console.log('[Layout] Not authenticated - redirecting to login');
-      window.location.href = createPageUrl('AppLogin');
-    }
-  }, [authChecked, currentUser, currentPageName]);
-
   const isAdmin = isManagerRole(currentUser);
+
+  // Show loading state while checking auth
+  if (loading || !authChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-blue-200 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <Building2 className="w-8 h-8 text-blue-600" />
+          </div>
+          <p className="text-lg font-semibold text-slate-700">טוען...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // CRITICAL: If not authenticated and not on login page, redirect
+  if (!currentUser && currentPageName !== 'AppLogin') {
+    window.location.href = createPageUrl('AppLogin');
+    return null;
+  }
 
   console.log('[Layout] User check:', { 
     user: currentUser?.username || currentUser?.email, 

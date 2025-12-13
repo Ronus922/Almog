@@ -18,8 +18,8 @@ export function AuthProvider({ children }) {
     setAuthChecked(false);
     
     try {
-      // Check Base44 admin first
-      const base44User = await base44.auth.me();
+      // Check Base44 admin first - silently fail if 401
+      const base44User = await base44.auth.me().catch(() => null);
       
       if (base44User && base44User.role === 'admin') {
         const userData = {
@@ -36,7 +36,8 @@ export function AuthProvider({ children }) {
         return;
       }
     } catch (err) {
-      console.log('[Auth] Base44 auth failed (checking app session):', err.message);
+      // Silent fail - 401 is expected when not logged in as Base44 admin
+      console.log('[Auth] Base44 auth check complete, checking app session...');
     }
 
     // Check internal app session
