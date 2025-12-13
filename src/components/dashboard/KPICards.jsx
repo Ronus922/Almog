@@ -8,7 +8,7 @@ import {
   AlertTriangle, 
   Home, 
   Clock,
-  AlertOctagon,
+  ShieldAlert,
   Gavel,
   Mail
 } from "lucide-react";
@@ -107,7 +107,7 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
     { 
       title: "חריגה מופרזת", 
       value: statusCounts['חריגה מופרזת'], 
-      icon: AlertOctagon, 
+      icon: ShieldAlert, 
       color: "text-[#ff8080]",
       isClickable: true,
       onClick: () => handleCardClick('REQUIRES_LEGAL_ACTION')
