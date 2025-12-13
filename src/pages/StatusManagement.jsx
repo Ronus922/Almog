@@ -377,7 +377,9 @@ export default function StatusManagement() {
     );
   }
 
-  if (!user || user.role !== 'admin') {
+  const isAdmin = user?.role === 'admin' || user?.isBase44Admin;
+
+  if (!user || !isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100" dir="rtl">
         <Card className="max-w-md">

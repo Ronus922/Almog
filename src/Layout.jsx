@@ -31,7 +31,11 @@ function LayoutContent({ children, currentPageName }) {
     { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true },
   ];
 
-  const filteredNavItems = navItems.filter(item => !item.adminOnly || isAdmin);
+  // הצגת פריטים רק למי שיש לו הרשאה
+  const filteredNavItems = navItems.filter(item => {
+    if (!item.adminOnly) return true; // פריטים כלליים תמיד מוצגים
+    return isAdmin; // פריטים של admin רק למנהלים
+  });
 
   const handleLogout = () => {
     logout();

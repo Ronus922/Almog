@@ -69,8 +69,10 @@ export default function Import() {
     );
   }
 
-  // בדיקת הרשאות - רק מנהל
-  if (user?.role !== 'admin') {
+  // בדיקת הרשאות - רק מנהל (גם base44 admin וגם app admin)
+  const isAdmin = user?.role === 'admin' || user?.isBase44Admin;
+  
+  if (!isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6" dir="rtl">
         <div className="max-w-md text-center">
