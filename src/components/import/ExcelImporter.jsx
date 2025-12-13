@@ -10,6 +10,7 @@ import {
   Upload, FileSpreadsheet, CheckCircle2, AlertTriangle, 
   ArrowLeft, Loader2, RefreshCw, Database
 } from "lucide-react";
+import { Input } from "@/components/ui/input";
 import { base44 } from '@/api/base44Client';
 import * as XLSX from 'xlsx';
 
@@ -34,7 +35,8 @@ export default function ExcelImporter({ onImportComplete }) {
   const [excelData, setExcelData] = useState(null);
   const [headers, setHeaders] = useState([]);
   const [mappings, setMappings] = useState({});
-  const [importMode, setImportMode] = useState('fill_missing'); // Changed default
+  const [importMode, setImportMode] = useState('fill_missing');
+  const [resetConfirmation, setResetConfirmation] = useState('');
   const [isUploading, setIsUploading] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -483,35 +485,19 @@ export default function ExcelImporter({ onImportComplete }) {
               return str === '' || str === 'אין מספר' || str === '-' || str === 'לא ידוע' || /^0+$/.test(str);
             };
 
-            if (importMode === 'fill_missing') {
-              // Fill missing only - keep existing values if not empty
-              if (!isEmpty(existing.phoneOwner)) updateData.phoneOwner = existing.phoneOwner;
-              if (!isEmpty(existing.phoneTenant)) updateData.phoneTenant = existing.phoneTenant;
-              if (!isEmpty(existing.phonePrimary)) updateData.phonePrimary = existing.phonePrimary;
-              if (existing.monthsInArrears !== null && existing.monthsInArrears !== undefined && existing.monthsInArrears !== 0) {
-                updateData.monthsInArrears = existing.monthsInArrears;
-              }
-            } else if (importMode === 'skip_phones') {
-              // Skip phone/months fields entirely
-              updateData.phoneOwner = existing.phoneOwner;
-              updateData.phoneTenant = existing.phoneTenant;
-              updateData.phonePrimary = existing.phonePrimary;
+            // Fill missing only - keep existing values if not empty
+            if (!isEmpty(existing.phoneOwner)) updateData.phoneOwner = existing.phoneOwner;
+            if (!isEmpty(existing.phoneTenant)) updateData.phoneTenant = existing.phoneTenant;
+            if (!isEmpty(existing.phonePrimary)) updateData.phonePrimary = existing.phonePrimary;
+            if (existing.monthsInArrears !== null && existing.monthsInArrears !== undefined && existing.monthsInArrears !== 0) {
               updateData.monthsInArrears = existing.monthsInArrears;
             }
-            // else: overwrite mode - use all new values
 
             // CRITICAL: Always preserve manually edited fields (NEVER overwrite from import)
             updateData.notes = existing.notes;
             updateData.lastContactDate = existing.lastContactDate;
             updateData.nextActionDate = existing.nextActionDate;
             updateData.legal_status_manual = existing.legal_status_manual;
-            
-            // Preserve phones in all modes except overwrite
-            if (importMode !== 'overwrite') {
-              if (existing.phoneOwner) updateData.phoneOwner = existing.phoneOwner;
-              if (existing.phoneTenant) updateData.phoneTenant = existing.phoneTenant;
-              if (existing.phonePrimary) updateData.phonePrimary = existing.phonePrimary;
-            }
             
             // CRITICAL: Protect existing valid legal status - never overwrite from import
             const existingHasValidStatus = existing.legal_status_id && 
@@ -669,52 +655,53 @@ export default function ExcelImporter({ onImportComplete }) {
 
             <div>
               <h4 className="font-medium text-slate-700 mb-3">מצב ייבוא</h4>
-              <RadioGroup value={importMode} onValueChange={setImportMode} className="space-y-3">
-                <div className="flex items-start gap-3 p-3 rounded-lg border-2 border-blue-200 bg-blue-50">
+              <RadioGroup value={importMode} onValueChange={(v) => { setImportMode(v); setResetConfirmation(''); }} className="space-y-3">
+                <div className="flex items-start gap-3 p-4 rounded-lg border-2 border-blue-200 bg-blue-50">
                   <RadioGroupItem value="fill_missing" id="fill_missing" className="mt-0.5" />
                   <div className="flex-1">
                     <Label htmlFor="fill_missing" className="cursor-pointer font-semibold text-blue-900">
-                      השלמה בלבד – עדכן רק שדות חסרים (מומלץ)
+                      השלמה בלבד (מומלץ)
                     </Label>
                     <p className="text-xs text-blue-700 mt-1">
-                      טלפונים וחודשי פיגור יתעדכנו רק אם ריקים. ערכים קיימים יישמרו.
+                      • טלפונים וחודשי פיגור יתעדכנו רק אם ריקים<br />
+                      • סכומים (חוב כולל, חודשי, מיוחד) יתעדכנו תמיד<br />
+                      • סטטוס יחושב מחדש אוטומטית לפי הסכומים<br />
+                      • הערות ותאריכים יישמרו
                     </p>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg border border-slate-200">
-                  <RadioGroupItem value="overwrite" id="overwrite" className="mt-0.5" />
-                  <div className="flex-1">
-                    <Label htmlFor="overwrite" className="cursor-pointer font-semibold">
-                      דרוס תמיד לפי הייבוא
-                    </Label>
-                    <p className="text-xs text-slate-500 mt-1">
-                      כל הנתונים מהאקסל ידרסו את הקיים במערכת.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg border border-slate-200">
-                  <RadioGroupItem value="skip_phones" id="skip_phones" className="mt-0.5" />
-                  <div className="flex-1">
-                    <Label htmlFor="skip_phones" className="cursor-pointer font-semibold">
-                      אל תיגע בשדות טלפון/חודשי פיגור בכלל
-                    </Label>
-                    <p className="text-xs text-slate-500 mt-1">
-                      רק חובות ופרטים כלליים יתעדכנו, ללא שינוי בטלפונים או חודשי פיגור.
-                    </p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-3 p-3 rounded-lg border border-red-200">
+                <div className="flex items-start gap-3 p-4 rounded-lg border-2 border-red-200 bg-red-50">
                   <RadioGroupItem value="reset" id="reset" className="mt-0.5" />
                   <div className="flex-1">
-                    <Label htmlFor="reset" className="cursor-pointer font-semibold text-red-600">
-                      איפוס מלא - מחק הכל וטען מחדש
+                    <Label htmlFor="reset" className="cursor-pointer font-bold text-red-700">
+                      איפוס מלא – מחק הכל וטען מחדש
                     </Label>
-                    <p className="text-xs text-red-600 mt-1">
-                      ⚠️ פעולה בלתי הפיכה! כל הנתונים הקיימים יימחקו.
+                    <p className="text-xs text-red-700 mt-1 font-semibold">
+                      ⚠️ פעולה בלתי הפיכה! כל הנתונים הקיימים יימחקו לחלוטין והמערכת תטען מחדש מהקובץ.
                     </p>
                   </div>
                 </div>
               </RadioGroup>
+
+              {importMode === 'reset' && (
+                <Alert variant="destructive" className="mt-4">
+                  <AlertTriangle className="w-4 h-4" />
+                  <AlertDescription>
+                    <div className="space-y-2">
+                      <p className="font-bold">אישור נדרש למחיקה מלאה</p>
+                      <p className="text-sm">הקלד "מחק הכל" בשדה למטה כדי לאשר:</p>
+                      <input
+                        type="text"
+                        value={resetConfirmation}
+                        onChange={(e) => setResetConfirmation(e.target.value)}
+                        placeholder="הקלד: מחק הכל"
+                        className="w-full px-3 py-2 border border-red-300 rounded-lg text-right bg-white"
+                        dir="rtl"
+                      />
+                    </div>
+                  </AlertDescription>
+                </Alert>
+              )}
             </div>
 
             {error && (
@@ -776,11 +763,19 @@ export default function ExcelImporter({ onImportComplete }) {
               <ArrowLeft className="w-4 h-4 ml-2" />
               חזור
             </Button>
-            <Button onClick={handleImport} disabled={isImporting || !mappings.apartmentNumber}>
+            <Button 
+              onClick={handleImport} 
+              disabled={isImporting || !mappings.apartmentNumber || (importMode === 'reset' && resetConfirmation !== 'מחק הכל')}
+            >
               {isImporting ? (
                 <>
                   <Loader2 className="w-4 h-4 ml-2 animate-spin" />
                   מייבא...
+                </>
+              ) : importMode === 'reset' ? (
+                <>
+                  <AlertTriangle className="w-4 h-4 ml-2" />
+                  בצע איפוס מלא
                 </>
               ) : (
                 <>
