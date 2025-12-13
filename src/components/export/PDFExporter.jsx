@@ -2,34 +2,12 @@ import React, { useState } from 'react';
 import AppButton from "@/components/ui/app-button";
 import { FileText } from "lucide-react";
 import { toast } from 'sonner';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfFonts from 'pdfmake/build/vfs_fonts';
 
-// Pure function to build PDF document definition
-export function buildDebtorsPdfDoc({ year, rows, statuses }) {
-  // Build table data with ALL rows
-  const tableData = rows.map(record => {
-    const legalStatus = statuses?.find(s => s.id === record.legal_status_id && s.type === 'LEGAL');
-    const legalStatusName = legalStatus?.name || 'לא הוגדר';
-    
-    return [
-      record.apartmentNumber || '',
-      record.ownerName || '',
-      record.phonePrimary || '',
-      new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.totalDebt || 0),
-      new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.monthlyDebt || 0),
-      new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.specialDebt || 0),
-      record.debt_status_auto || 'תקין',
-      legalStatusName
-    ];
-  });
+pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
-  return {
-    headers: ['מספר דירה', 'שם בעל הדירה', 'טלפון', 'סה״כ חוב', 'חוב חודשי', 'חוב מיוחד', 'סטטוס', 'מצב משפטי'],
-    data: tableData,
-    totalRows: rows.length
-  };
-}
+
 
 export default function PDFExporter({ records, statuses, settings }) {
   const [isExporting, setIsExporting] = useState(false);
