@@ -7,9 +7,10 @@ import {
   Calendar, 
   AlertTriangle, 
   Home, 
-  Scale, 
+  Clock,
+  AlertOctagon,
   Gavel,
-  FileWarning
+  Mail
 } from "lucide-react";
 
 const KPICard = ({ title, value, icon: Icon, color, subtext, onClick, isClickable }) => (
@@ -98,7 +99,7 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
     { 
       title: "לגבייה מיידית", 
       value: statusCounts['לגבייה מיידית'], 
-      icon: Scale, 
+      icon: Clock, 
       color: "text-orange-600",
       isClickable: true,
       onClick: () => handleCardClick('IMMEDIATE_COLLECTION')
@@ -106,7 +107,7 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
     { 
       title: "חריגה מופרזת", 
       value: statusCounts['חריגה מופרזת'], 
-      icon: Gavel, 
+      icon: AlertOctagon, 
       color: "text-[#ff8080]",
       isClickable: true,
       onClick: () => handleCardClick('REQUIRES_LEGAL_ACTION')
@@ -114,7 +115,7 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
     ...(legalLawsuitStatus ? [{
       title: "בהליך משפטי",
       value: inLegalProcessCount,
-      icon: FileWarning,
+      icon: Gavel,
       color: "text-red-600",
       isClickable: true,
       onClick: () => handleCardClick('LEGAL_PROCESS')
@@ -122,7 +123,7 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
     ...(legalWarningStatus ? [{
       title: "מכתבי התראה",
       value: warningLettersSentCount,
-      icon: AlertTriangle,
+      icon: Mail,
       color: "text-yellow-600",
       isClickable: true,
       onClick: () => handleCardClick('WARNING_LETTER')
