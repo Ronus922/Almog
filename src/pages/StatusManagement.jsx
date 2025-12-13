@@ -83,17 +83,31 @@ export default function StatusManagement() {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
+  const [error, setError] = React.useState(null);
+
   React.useEffect(() => {
     const loadUser = async () => {
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
+      try {
+        const timeoutId = setTimeout(() => {
+          setError('הטעינה לוקחת יותר מדי זמן - אנא רענן את הדף');
+        }, 10000);
+
+        const currentUser = await base44.auth.me();
+        clearTimeout(timeoutId);
+        setUser(currentUser);
+      } catch (err) {
+        console.error('[StatusManagement] Load user error:', err);
+        setError(err.message || 'שגיאה בטעינת נתוני משתמש');
+      }
     };
     loadUser();
   }, []);
 
-  const { data: allStatuses = [], isLoading } = useQuery({
+  const { data: allStatuses = [], isLoading, error: statusError } = useQuery({
     queryKey: ['statuses'],
     queryFn: () => base44.entities.Status.list('order'),
+    retry: 2,
+    retryDelay: 1000,
   });
 
   const statuses = allStatuses
@@ -336,6 +350,32 @@ export default function StatusManagement() {
       createMutation.mutate(formData);
     }
   };
+
+  if (error || statusError) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-6" dir="rtl">
+        <Card className="max-w-md">
+          <CardContent className="pt-6">
+            <div className="text-center">
+              <AlertCircle className="w-16 h-16 mx-auto text-orange-400 mb-4" />
+              <h2 className="text-xl font-bold text-slate-800 mb-2">שגיאה בטעינה</h2>
+              <p className="text-slate-600 mb-4">
+                {error || statusError?.message || 'לא ניתן לטעון את הנתונים'}
+              </p>
+              <div className="flex gap-3 justify-center">
+                <Button onClick={() => window.location.reload()}>
+                  נסה שוב
+                </Button>
+                <Button variant="outline" onClick={() => window.location.href = '/'}>
+                  חזור לדשבורד
+                </Button>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   if (!user || user.role !== 'admin') {
     return (

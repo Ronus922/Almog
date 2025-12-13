@@ -11,12 +11,25 @@ import ExcelImporter from '../components/import/ExcelImporter';
 export default function Import() {
   const [user, setUser] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const loadUser = async () => {
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
-      setIsLoading(false);
+      try {
+        const timeoutId = setTimeout(() => {
+          setError('הטעינה לוקחת יותר מדי זמן - אנא רענן את הדף');
+          setIsLoading(false);
+        }, 10000);
+
+        const currentUser = await base44.auth.me();
+        clearTimeout(timeoutId);
+        setUser(currentUser);
+        setIsLoading(false);
+      } catch (err) {
+        console.error('[Import] Load user error:', err);
+        setError(err.message || 'שגיאה בטעינת נתוני משתמש');
+        setIsLoading(false);
+      }
     };
     loadUser();
   }, []);
@@ -29,6 +42,29 @@ export default function Import() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
         <div className="animate-pulse">טוען...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6" dir="rtl">
+        <div className="max-w-md text-center">
+          <ShieldAlert className="w-16 h-16 text-orange-400 mx-auto mb-4" />
+          <h2 className="text-xl font-bold text-slate-800 mb-2">שגיאה בטעינה</h2>
+          <p className="text-slate-600 mb-6">{error}</p>
+          <div className="flex gap-3 justify-center">
+            <Button onClick={() => window.location.reload()}>
+              נסה שוב
+            </Button>
+            <Link to={createPageUrl('Dashboard')}>
+              <Button variant="outline">
+                <ArrowRight className="w-4 h-4 ml-2" />
+                חזרה לדשבורד
+              </Button>
+            </Link>
+          </div>
+        </div>
       </div>
     );
   }
