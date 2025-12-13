@@ -68,8 +68,15 @@ export default function Settings() {
     );
   }
 
-  // בדיקת הרשאות - רק מנהל (גם base44 admin וגם app admin)
-  const isAdmin = user?.role === 'admin' || user?.isBase44Admin;
+  // בדיקת הרשאות - רק ADMIN
+  const isAdmin = user && (user.role === 'admin' || user.isBase44Admin === true);
+  
+  console.log('[Settings] User check:', { 
+    user: user?.username || user?.email, 
+    role: user?.role, 
+    isBase44Admin: user?.isBase44Admin,
+    isAdmin 
+  });
   
   if (!isAdmin) {
     return (
@@ -78,7 +85,7 @@ export default function Settings() {
           <ShieldAlert className="w-16 h-16 text-red-400 mx-auto mb-4" />
           <h2 className="text-xl font-bold text-slate-800 mb-2">אין הרשאה</h2>
           <p className="text-slate-600 mb-6">
-            גישה להגדרות מותרת למנהלים בלבד
+            גישה להגדרות מותרת למנהלים בלבד (role: {user?.role || 'לא מזוהה'})
           </p>
           <Link to={createPageUrl('Dashboard')}>
             <Button>

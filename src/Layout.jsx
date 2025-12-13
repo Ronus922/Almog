@@ -21,7 +21,14 @@ function LayoutContent({ children, currentPageName }) {
   const { currentUser, logout } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const isAdmin = currentUser?.role === 'admin';
+  const isAdmin = currentUser && (currentUser.role === 'admin' || currentUser.isBase44Admin === true);
+
+  console.log('[Layout] User check:', { 
+    user: currentUser?.username || currentUser?.email, 
+    role: currentUser?.role, 
+    isBase44Admin: currentUser?.isBase44Admin,
+    isAdmin 
+  });
 
   const navItems = [
     { name: 'Dashboard', label: 'דשבורד', icon: LayoutDashboard, adminOnly: false },

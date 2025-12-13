@@ -382,7 +382,14 @@ export default function StatusManagement() {
     );
   }
 
-  const isAdmin = user?.role === 'admin' || user?.isBase44Admin;
+  const isAdmin = user && (user.role === 'admin' || user.isBase44Admin === true);
+
+  console.log('[StatusManagement] User check:', { 
+    user: user?.username || user?.email, 
+    role: user?.role, 
+    isBase44Admin: user?.isBase44Admin,
+    isAdmin 
+  });
 
   if (!user || !isAdmin) {
     return (
@@ -392,7 +399,9 @@ export default function StatusManagement() {
             <div className="text-center">
               <Shield className="w-16 h-16 mx-auto text-slate-300 mb-4" />
               <h2 className="text-xl font-bold text-slate-800 mb-2">גישה מוגבלת</h2>
-              <p className="text-slate-600 mb-4">אין לך הרשאה לגשת לדף זה</p>
+              <p className="text-slate-600 mb-4">
+                אין לך הרשאה לגשת לדף זה (role: {user?.role || 'לא מזוהה'})
+              </p>
               <Button onClick={() => window.location.href = '/'}>חזור לדשבורד</Button>
             </div>
           </CardContent>
