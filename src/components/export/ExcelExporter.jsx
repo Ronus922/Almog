@@ -4,7 +4,7 @@ import { FileSpreadsheet } from "lucide-react";
 import * as XLSX from 'xlsx';
 import { toast } from 'sonner';
 
-export default function ExcelExporter({ records, legalStatuses }) {
+export default function ExcelExporter({ records, statuses }) {
   const [isExporting, setIsExporting] = useState(false);
   
   const handleExport = async () => {
@@ -18,8 +18,8 @@ export default function ExcelExporter({ records, legalStatuses }) {
     try {
     // Prepare data for export
     const exportData = records.map(record => {
-      // Find legal status name
-      const legalStatus = legalStatuses?.find(s => s.id === record.legal_status_id);
+      // Find legal status name from Status entity (type=LEGAL)
+      const legalStatus = statuses?.find(s => s.id === record.legal_status_id && s.type === 'LEGAL');
       const legalStatusName = legalStatus?.name || 'לא הוגדר';
       
       return {

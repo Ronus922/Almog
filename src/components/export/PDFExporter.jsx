@@ -10,7 +10,7 @@ const loadHebrewFont = (pdf) => {
   pdf.setFont('helvetica');
 };
 
-export default function PDFExporter({ records, legalStatuses, settings }) {
+export default function PDFExporter({ records, statuses, settings }) {
   const [isExporting, setIsExporting] = useState(false);
   
   const handleExport = async () => {
@@ -141,7 +141,7 @@ export default function PDFExporter({ records, legalStatuses, settings }) {
         pdf.setFontSize(8);
         pdf.setFont('helvetica', 'normal');
         
-        const legalStatus = legalStatuses?.find(s => s.id === record.legal_status_id);
+        const legalStatus = statuses?.find(s => s.id === record.legal_status_id && s.type === 'LEGAL');
         const legalStatusName = legalStatus?.name || 'לא הוגדר';
         
         let x = margin + usableWidth;

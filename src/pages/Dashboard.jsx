@@ -229,8 +229,8 @@ function DashboardContent() {
             </AppButton>
             {isAdmin && (
               <>
-                <ExcelExporter records={records} legalStatuses={legalStatuses} />
-                <PDFExporter records={records} legalStatuses={legalStatuses} settings={settings} />
+                <ExcelExporter records={records} statuses={allStatuses} />
+                <PDFExporter records={records} statuses={allStatuses} settings={settings} />
               </>
             )}
             </div>
