@@ -2,8 +2,7 @@ import React, { useState } from 'react';
 import AppButton from "@/components/ui/app-button";
 import { FileText } from "lucide-react";
 import { toast } from 'sonner';
-import jsPDF from 'jspdf';
-import 'jspdf-autotable';
+import html2pdf from 'html2pdf.js';
 
 
 
@@ -17,11 +16,9 @@ export default function PDFExporter({ records, statuses, settings }) {
     }
     
     console.log(`[PDF Export] Starting export of ${records.length} records`);
-    console.log(`[PDF Export] fetchedRows=${records.length}`);
     setIsExporting(true);
     
     try {
-      const year = new Date().getFullYear();
       const totalRecords = records.length;
       const exportDate = new Date().toLocaleDateString('he-IL', { 
         year: 'numeric', 
@@ -31,118 +28,143 @@ export default function PDFExporter({ records, statuses, settings }) {
         minute: '2-digit'
       });
 
-      console.log(`[PDF Export] Preparing to export ${totalRecords} records`);
+      console.log(`[PDF Export] Exporting ${totalRecords} records`);
       
-      // Build table body - RTL order
-      const tableBody = records.map(record => {
-        const legalStatus = statuses?.find(s => s.id === record.legal_status_id && s.type === 'LEGAL');
-        const legalStatusName = legalStatus?.name || 'לא הוגדר';
-        
-        return [
-          record.apartmentNumber || '',
-          record.ownerName || '',
-          record.phonePrimary || '',
-          new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.totalDebt || 0),
-          new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.monthlyDebt || 0),
-          new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.specialDebt || 0),
-          record.debt_status_auto || 'תקין',
-          legalStatusName
-        ];
-      });
-      
-      const tableHeaders = [
-        'מס\' דירה',
-        'שם בעל הדירה', 
-        'טלפון',
-        'סה״כ חוב',
-        'חוב חודשי',
-        'חוב מיוחד',
-        'סטטוס',
-        'מצב משפטי'
-      ];
-      
-      console.log(`[PDF Export] Generated ${tableBody.length} rows`);
-      
-      // Create PDF with jsPDF
-      const doc = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-        format: 'a4'
-      });
-      
-      // Set RTL support
-      doc.setR2L(true);
-      doc.setLanguage('he');
-      
-      // Title and metadata
-      let yPos = 15;
-      doc.setFontSize(18);
-      doc.setFont('helvetica', 'bold');
-      doc.text('דו״ח חייבים', doc.internal.pageSize.width / 2, yPos, { align: 'center' });
-      
-      yPos += 8;
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'normal');
-      doc.text(`תאריך הפקה: ${exportDate}`, doc.internal.pageSize.width / 2, yPos, { align: 'center' });
-      
-      yPos += 5;
-      doc.setFontSize(10);
-      doc.setFont('helvetica', 'bold');
-      doc.text(`סה״כ רשומות שיוצאו: ${totalRecords}`, doc.internal.pageSize.width / 2, yPos, { align: 'center' });
-      
-      // Generate table with autoTable
-      doc.autoTable({
-        startY: yPos + 5,
-        head: [tableHeaders],
-        body: tableBody,
-        styles: {
-          font: 'helvetica',
-          fontSize: 8,
-          cellPadding: 2,
-          halign: 'right',
-          valign: 'middle',
-          lineColor: [226, 232, 240],
-          lineWidth: 0.1
-        },
-        headStyles: {
-          fillColor: [51, 65, 85],
-          textColor: 255,
-          fontStyle: 'bold',
-          halign: 'right',
-          fontSize: 9
-        },
-        alternateRowStyles: {
-          fillColor: [248, 250, 252]
-        },
-        columnStyles: {
-          0: { cellWidth: 20, halign: 'right' },
-          1: { cellWidth: 'auto', halign: 'right' },
-          2: { cellWidth: 28, halign: 'right' },
-          3: { cellWidth: 26, fontStyle: 'bold', halign: 'right' },
-          4: { cellWidth: 26, fontStyle: 'bold', halign: 'right' },
-          5: { cellWidth: 26, fontStyle: 'bold', halign: 'right' },
-          6: { cellWidth: 30, halign: 'right' },
-          7: { cellWidth: 40, fontStyle: 'bold', halign: 'right' }
-        },
-        margin: { right: 10, left: 10 },
-        didDrawPage: (data) => {
-          // Footer on each page
-          const pageCount = doc.internal.getNumberOfPages();
-          const currentPage = doc.internal.getCurrentPageInfo().pageNumber;
+      // Create HTML content for PDF
+      const htmlContent = `
+        <div id="pdf-root" dir="rtl" lang="he" style="direction: rtl; text-align: right; unicode-bidi: bidi-override; font-family: Arial, sans-serif;">
+          <style>
+            #pdf-root,
+            #pdf-root * {
+              direction: rtl !important;
+              text-align: right !important;
+              unicode-bidi: bidi-override !important;
+            }
+            
+            #pdf-root table {
+              direction: rtl !important;
+              border-collapse: collapse;
+              width: 100%;
+              font-size: 9px;
+            }
+            
+            #pdf-root th,
+            #pdf-root td {
+              text-align: right !important;
+              padding: 6px 8px;
+              border: 1px solid #e2e8f0;
+              white-space: nowrap;
+            }
+            
+            #pdf-root th {
+              background-color: #334155;
+              color: white;
+              font-weight: bold;
+              font-size: 10px;
+            }
+            
+            #pdf-root tr:nth-child(even) {
+              background-color: #f8fafc;
+            }
+            
+            #pdf-root .num {
+              direction: ltr !important;
+              unicode-bidi: isolate !important;
+              text-align: left !important;
+              font-weight: bold;
+            }
+            
+            .header {
+              text-align: center;
+              margin-bottom: 20px;
+            }
+            
+            .header h1 {
+              font-size: 24px;
+              font-weight: bold;
+              margin: 0 0 10px 0;
+            }
+            
+            .header p {
+              font-size: 12px;
+              margin: 5px 0;
+            }
+          </style>
           
-          doc.setFontSize(8);
-          doc.setFont('helvetica', 'normal');
-          doc.text(
-            `עמוד ${currentPage} מתוך ${pageCount}`,
-            doc.internal.pageSize.width / 2,
-            doc.internal.pageSize.height - 10,
-            { align: 'center' }
-          );
-        }
-      });
+          <div class="header">
+            <h1>דו״ח חייבים</h1>
+            <p>תאריך הפקה: ${exportDate}</p>
+            <p style="font-weight: bold;">סה״כ רשומות שיוצאו: ${totalRecords}</p>
+          </div>
+          
+          <table>
+            <thead>
+              <tr>
+                <th>מס׳ דירה</th>
+                <th>שם בעל הדירה</th>
+                <th>טלפון</th>
+                <th>סה״כ חוב</th>
+                <th>חוב חודשי</th>
+                <th>חוב מיוחד</th>
+                <th>סטטוס</th>
+                <th>מצב משפטי</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${records.map(record => {
+                const legalStatus = statuses?.find(s => s.id === record.legal_status_id && s.type === 'LEGAL');
+                const legalStatusName = legalStatus?.name || 'לא הוגדר';
+                
+                return `
+                  <tr>
+                    <td>${record.apartmentNumber || ''}</td>
+                    <td>${record.ownerName || ''}</td>
+                    <td>${record.phonePrimary || ''}</td>
+                    <td class="num">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.totalDebt || 0)}</td>
+                    <td class="num">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.monthlyDebt || 0)}</td>
+                    <td class="num">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.specialDebt || 0)}</td>
+                    <td>${record.debt_status_auto || 'תקין'}</td>
+                    <td>${legalStatusName}</td>
+                  </tr>
+                `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
       
-      const filename = `חייבים_${new Date().toISOString().split('T')[0]}.pdf`;
-      doc.save(filename);
+      // Create temporary element
+      const tempDiv = document.createElement('div');
+      tempDiv.innerHTML = htmlContent;
+      tempDiv.style.position = 'absolute';
+      tempDiv.style.left = '-9999px';
+      document.body.appendChild(tempDiv);
+      
+      // Wait for fonts
+      await document.fonts.ready;
+      
+      // Generate PDF
+      await html2pdf()
+        .set({
+          margin: 10,
+          filename: `חייבים_${new Date().toISOString().split('T')[0]}.pdf`,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: {
+            scale: 1,
+            useCORS: true,
+            backgroundColor: '#ffffff'
+          },
+          jsPDF: {
+            unit: 'mm',
+            format: 'a4',
+            orientation: 'portrait'
+          }
+        })
+        .from(tempDiv.querySelector('#pdf-root'))
+        .save();
+      
+      // Cleanup
+      document.body.removeChild(tempDiv);
       
       console.log(`[PDF Export] Successfully exported ${totalRecords} records`);
       toast.success(`הקובץ יוצא בהצלחה (${totalRecords} רשומות)`);
