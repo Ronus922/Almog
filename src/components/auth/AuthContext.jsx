@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
+import { normalizeRole } from '@/components/utils/roles';
 
 const AuthContext = createContext(null);
 
@@ -71,11 +72,11 @@ export function AuthProvider({ children }) {
       }
 
       const user = users[0];
-      const role = (user.role || '').toUpperCase().trim();
-      
-      // Validate role
-      if (!['SUPER_ADMIN', 'ADMIN', 'VIEWER'].includes(role)) {
-        console.error('[Auth] ✗ INVALID ROLE:', role, '- Must be SUPER_ADMIN, ADMIN, or VIEWER');
+      const role = normalizeRole(user.role);
+
+      // Validate normalized role
+      if (!['ADMIN', 'VIEWER'].includes(role)) {
+        console.error('[Auth] ✗ INVALID ROLE after normalization:', user.role, '→', role);
         localStorage.removeItem('app_session');
         setCurrentUser(null);
         setLoading(false);
@@ -121,11 +122,11 @@ export function AuthProvider({ children }) {
     }
 
     const user = users[0];
-    const role = (user.role || '').toUpperCase().trim();
-    
-    // Validate role
-    if (!['SUPER_ADMIN', 'ADMIN', 'VIEWER'].includes(role)) {
-      console.error('[Auth] ✗ INVALID ROLE:', role);
+    const role = normalizeRole(user.role);
+
+    // Validate normalized role
+    if (!['ADMIN', 'VIEWER'].includes(role)) {
+      console.error('[Auth] ✗ INVALID ROLE after normalization:', user.role, '→', role);
       throw new Error('תפקיד משתמש לא חוקי');
     }
 
@@ -136,7 +137,7 @@ export function AuthProvider({ children }) {
     };
 
     localStorage.setItem('app_session', JSON.stringify(session));
-    
+
     const userData = {
       email: user.username,
       username: user.username,

@@ -146,9 +146,8 @@ function LayoutContent({ children, currentPageName }) {
                         <p className="text-xs text-slate-500 mt-0.5">
                           {currentUser.isBase44Admin 
                             ? 'Base44 Super Admin' 
-                            : currentUser.role === 'SUPER_ADMIN' ? 'Super Admin'
-                            : currentUser.role === 'ADMIN' ? 'Admin'
-                            : 'Viewer'}
+                            : currentUser.role === 'ADMIN' ? 'מנהל'
+                            : 'צופה'}
                         </p>
                       </div>
                       <DropdownMenuSeparator />
@@ -206,9 +205,8 @@ function LayoutContent({ children, currentPageName }) {
                     <p className="text-xs text-slate-500 mt-1">
                       {currentUser.isBase44Admin 
                         ? 'Base44 Super Admin'
-                        : currentUser.role === 'SUPER_ADMIN' ? 'Super Admin'
-                        : currentUser.role === 'ADMIN' ? 'Admin'
-                        : 'Viewer'}
+                        : currentUser.role === 'ADMIN' ? 'מנהל'
+                        : 'צופה'}
                     </p>
                   </div>
                   <button
