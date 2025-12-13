@@ -16,7 +16,6 @@ export default function PDFExporter({ records, legalStatuses, settings }) {
     
     setIsExporting(true);
     
-    try {
     // Create a temporary container for the table
     const container = document.createElement('div');
     container.style.position = 'absolute';
@@ -93,7 +92,6 @@ export default function PDFExporter({ records, legalStatuses, settings }) {
       
       pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
       pdf.save(`חייבים_${new Date().toISOString().split('T')[0]}.pdf`);
-      
       toast.success('הקובץ יוצא בהצלחה');
     } catch (error) {
       console.error('Error exporting PDF:', error);
