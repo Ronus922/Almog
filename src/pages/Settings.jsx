@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ShieldAlert, ArrowRight, Settings as SettingsIcon } from "lucide-react";
 
 import SettingsPanel from '../components/settings/SettingsPanel';
+import AuthDebugPanel from '../components/debug/AuthDebugPanel';
 
 export default function Settings() {
   const [user, setUser] = useState(null);
@@ -116,6 +117,9 @@ export default function Settings() {
 
         <SettingsPanel />
       </div>
+
+      {/* Debug Panel */}
+      <AuthDebugPanel currentUser={user} />
     </div>
   );
 }

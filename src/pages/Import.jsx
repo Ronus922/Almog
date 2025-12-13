@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { ShieldAlert, ArrowRight } from "lucide-react";
 
 import ExcelImporter from '../components/import/ExcelImporter';
+import AuthDebugPanel from '../components/debug/AuthDebugPanel';
 
 export default function Import() {
   const [user, setUser] = useState(null);
@@ -109,6 +110,9 @@ export default function Import() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-10 px-6" dir="rtl">
       <ExcelImporter onImportComplete={handleImportComplete} />
+      
+      {/* Debug Panel */}
+      <AuthDebugPanel currentUser={user} />
     </div>
   );
 }

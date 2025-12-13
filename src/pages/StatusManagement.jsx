@@ -12,6 +12,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import StatusWorkflowWizard from '../components/workflow/StatusWorkflowWizard';
 import ApartmentDetailModal from '../components/dashboard/ApartmentDetailModal';
+import AuthDebugPanel from '../components/debug/AuthDebugPanel';
 import {
   Dialog,
   DialogContent,
@@ -751,8 +752,11 @@ export default function StatusManagement() {
           onClose={() => setIsDetailModalOpen(false)}
           onSave={handleSaveDetail}
           isAdmin={user?.role === 'admin'}
-        />
-        )}
-        </div>
-        );
-        }
+          />
+          )}
+
+          {/* Debug Panel */}
+          <AuthDebugPanel currentUser={user} />
+          </div>
+          );
+          }
