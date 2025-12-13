@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
-import { normalizeRole } from '@/components/utils/roles.js';
+import { normalizeRole } from '../utils/roles';
 
 const AuthContext = createContext(null);
 
