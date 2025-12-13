@@ -1,107 +1,35 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react';
+import { Link, Navigate, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { isManagerRole, getUserRoleDisplay } from '@/components/utils/roles';
-import { base44 } from '@/api/base44Client';
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useAuth } from '@/components/auth/AuthContext';
 import { Button } from "@/components/ui/button";
-import { ShieldAlert, ArrowRight } from "lucide-react";
+import { ShieldAlert, ArrowRight, Loader2 } from "lucide-react";
 
 import ExcelImporter from '../components/import/ExcelImporter';
 import AuthDebugPanel from '../components/debug/AuthDebugPanel';
 
 export default function Import() {
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    const loadUser = async () => {
-      try {
-        const timeoutId = setTimeout(() => {
-          setError('הטעינה לוקחת יותר מדי זמן - אנא רענן את הדף');
-          setIsLoading(false);
-        }, 10000);
-
-        const currentUser = await base44.auth.me().catch((e) => {
-          console.error('[Import] Auth error:', e);
-          clearTimeout(timeoutId);
-          
-          // 401 = לא מחובר - הפנה ללוגין
-          if (e.message?.includes('Authentication required') || e.status === 401) {
-            window.location.href = createPageUrl('AppLogin') + '?next=' + encodeURIComponent(window.location.pathname);
-            return null;
-          }
-          
-          return null;
-        });
-        
-        clearTimeout(timeoutId);
-        
-        if (!currentUser) {
-          setError('לא ניתן לטעון נתוני משתמש - נסה להתחבר מחדש');
-          setIsLoading(false);
-          return;
-        }
-        
-        setUser(currentUser);
-        setIsLoading(false);
-      } catch (err) {
-        console.error('[Import] Load user error:', err);
-        setError('שגיאה בטעינת נתוני משתמש - נסה להתחבר מחדש');
-        setIsLoading(false);
-      }
-    };
-    loadUser();
-  }, []);
+  const { currentUser, loading } = useAuth();
+  const navigate = useNavigate();
 
   const handleImportComplete = () => {
-    window.location.href = createPageUrl('Dashboard');
+    navigate(createPageUrl('Dashboard'));
   };
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-slate-50">
-        <div className="animate-pulse">טוען...</div>
+        <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
       </div>
     );
   }
 
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 p-6" dir="rtl">
-        <div className="max-w-md text-center">
-          <ShieldAlert className="w-16 h-16 text-orange-400 mx-auto mb-4" />
-          <h2 className="text-xl font-bold text-slate-800 mb-2">שגיאה בטעינה</h2>
-          <p className="text-slate-600 mb-6">{error}</p>
-          <div className="flex gap-3 justify-center">
-            <Link to={createPageUrl('AppLogin')}>
-              <Button>
-                התחבר מחדש
-              </Button>
-            </Link>
-            <Link to={createPageUrl('Dashboard')}>
-              <Button variant="outline">
-                <ArrowRight className="w-4 h-4 ml-2" />
-                חזרה לדשבורד
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </div>
-    );
+  if (!currentUser) {
+    return <Navigate to={createPageUrl('AppLogin')} replace />;
   }
 
-  // בדיקת הרשאות - רק מנהלים (ADMIN/SUPER_ADMIN)
-  const isAdmin = isManagerRole(user);
-  
-  console.log('[Import] Access check:', { 
-    user: user?.username || user?.email, 
-    role: user?.role, 
-    isBase44Admin: user?.isBase44Admin,
-    isAdmin,
-    displayRole: getUserRoleDisplay(user)
-  });
+  const isAdmin = isManagerRole(currentUser);
   
   if (!isAdmin) {
     return (
@@ -111,7 +39,7 @@ export default function Import() {
           <h2 className="text-xl font-bold text-slate-800 mb-2">אין הרשאה</h2>
           <p className="text-slate-600 mb-6">
             ייבוא קבצים מותר למנהלים בלבד<br />
-            תפקיד נוכחי: {getUserRoleDisplay(user)}
+            תפקיד נוכחי: {getUserRoleDisplay(currentUser)}
           </p>
           <Link to={createPageUrl('Dashboard')}>
             <Button>
@@ -129,7 +57,7 @@ export default function Import() {
       <ExcelImporter onImportComplete={handleImportComplete} />
       
       {/* Debug Panel */}
-      <AuthDebugPanel currentUser={user} />
+      <AuthDebugPanel currentUser={currentUser} />
     </div>
   );
 }

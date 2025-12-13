@@ -12,147 +12,147 @@ export function AuthProvider({ children }) {
   }, []);
 
   const checkAuth = async () => {
-    console.log('[AuthContext] Starting checkAuth...');
+    console.log('[Auth] Starting authentication check...');
     
-    // First check if user is Base44 admin
     try {
+      // Check Base44 admin first
       const base44User = await base44.auth.me();
-      console.log('[AuthContext] Base44 user check:', { 
-        email: base44User?.email, 
-        role: base44User?.role,
-        full_name: base44User?.full_name 
-      });
       
       if (base44User && base44User.role === 'admin') {
         const userData = {
-          username: base44User.email || base44User.full_name || 'Admin',
+          email: base44User.email,
+          username: base44User.email || base44User.full_name,
           firstName: base44User.full_name || 'Admin',
-          role: 'ADMIN',
+          role: 'SUPER_ADMIN',
           isBase44Admin: true
         };
-        console.log('[AuthContext] Setting Base44 Admin user:', userData);
+        console.log('[Auth] ✓ Base44 SUPER_ADMIN authenticated:', userData);
         setCurrentUser(userData);
         setLoading(false);
         return;
       }
     } catch (err) {
-      console.log('[AuthContext] Base44 auth check failed (expected if not Base44 admin):', err.message);
-      // Not logged in to Base44 or not admin, continue to check app session
+      console.log('[Auth] Base44 auth failed (checking app session):', err.message);
     }
 
     // Check internal app session
     const sessionData = localStorage.getItem('app_session');
-    console.log('[AuthContext] Checking localStorage session:', sessionData ? 'exists' : 'not found');
     
-    if (sessionData) {
-      try {
-        const session = JSON.parse(sessionData);
-        console.log('[AuthContext] Session parsed:', { username: session.username, role: session.role });
-        
-        // Verify session is still valid
-        const users = await base44.entities.AppUser.filter({ username: session.username });
-        console.log('[AuthContext] Found users for session:', users.length);
-        
-        if (users.length > 0 && users[0].is_active) {
-          const normalizedRole = (users[0].role || '').toUpperCase().trim();
-          const userData = {
-            username: session.username,
-            firstName: users[0].first_name,
-            lastName: users[0].last_name,
-            role: normalizedRole,
-            isBase44Admin: false
-          };
-          console.log('[AuthContext] Setting internal app user:', userData);
-          setCurrentUser(userData);
-        } else {
-          console.log('[AuthContext] User not found or inactive, clearing session');
-          localStorage.removeItem('app_session');
-          setCurrentUser(null);
-        }
-      } catch (err) {
-        console.error('[AuthContext] Error validating session:', err);
+    if (!sessionData) {
+      console.log('[Auth] No session found - user is not logged in');
+      setCurrentUser(null);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const session = JSON.parse(sessionData);
+      console.log('[Auth] Found session:', { username: session.username, role: session.role });
+      
+      // Validate session
+      const users = await base44.entities.AppUser.filter({ 
+        username: session.username,
+        is_active: true 
+      });
+      
+      if (users.length === 0) {
+        console.log('[Auth] ✗ Session invalid - user not found or inactive');
         localStorage.removeItem('app_session');
         setCurrentUser(null);
+        setLoading(false);
+        return;
       }
-    } else {
-      console.log('[AuthContext] No session found, user is guest');
+
+      const user = users[0];
+      const role = (user.role || '').toUpperCase().trim();
+      
+      // Validate role
+      if (!['SUPER_ADMIN', 'ADMIN', 'VIEWER'].includes(role)) {
+        console.error('[Auth] ✗ INVALID ROLE:', role, '- Must be SUPER_ADMIN, ADMIN, or VIEWER');
+        localStorage.removeItem('app_session');
+        setCurrentUser(null);
+        setLoading(false);
+        return;
+      }
+
+      const userData = {
+        email: user.username,
+        username: user.username,
+        firstName: user.first_name,
+        lastName: user.last_name,
+        role: role,
+        isBase44Admin: false
+      };
+      
+      console.log('[Auth] ✓ App user authenticated:', userData);
+      setCurrentUser(userData);
+      setLoading(false);
+    } catch (err) {
+      console.error('[Auth] ✗ Session validation failed:', err);
+      localStorage.removeItem('app_session');
       setCurrentUser(null);
+      setLoading(false);
     }
-    
-    setLoading(false);
-    console.log('[AuthContext] checkAuth completed');
   };
 
   const login = async (username, password) => {
-    console.log('[AuthContext] Login attempt for:', username);
+    console.log('[Auth] Login attempt:', username);
     
-    // Hash password (simple for demo - in production use proper hashing)
     const passwordHash = btoa(password);
-    
     const users = await base44.entities.AppUser.filter({ 
       username: username,
       password_hash: passwordHash,
       is_active: true
     });
 
-    console.log('[AuthContext] Login query result:', users.length, 'users found');
-
     if (users.length === 0) {
+      console.log('[Auth] ✗ Login failed - invalid credentials');
       throw new Error('שם משתמש או סיסמה שגויים');
     }
 
     const user = users[0];
-    const normalizedRole = (user.role || 'VIEWER').toUpperCase().trim();
+    const role = (user.role || '').toUpperCase().trim();
     
-    console.log('[AuthContext] User found:', { 
-      username: user.username, 
-      rawRole: user.role,
-      normalizedRole,
-      firstName: user.first_name 
-    });
-    
+    // Validate role
+    if (!['SUPER_ADMIN', 'ADMIN', 'VIEWER'].includes(role)) {
+      console.error('[Auth] ✗ INVALID ROLE:', role);
+      throw new Error('תפקיד משתמש לא חוקי');
+    }
+
     const session = {
       username: user.username,
-      role: normalizedRole,
+      role: role,
       loginTime: new Date().toISOString()
     };
 
     localStorage.setItem('app_session', JSON.stringify(session));
-    console.log('[AuthContext] Session saved to localStorage');
     
     const userData = {
+      email: user.username,
       username: user.username,
       firstName: user.first_name,
       lastName: user.last_name,
-      role: normalizedRole,
+      role: role,
       isBase44Admin: false
     };
     
-    console.log('[AuthContext] Setting currentUser:', userData);
+    console.log('[Auth] ✓ Login successful:', userData);
     setCurrentUser(userData);
 
     return user;
   };
 
   const logout = () => {
-    // If Base44 admin, logout from Base44
+    console.log('[Auth] Logging out...');
+    
     if (currentUser?.isBase44Admin) {
       base44.auth.logout();
       return;
     }
     
-    // Otherwise logout from internal system
     localStorage.removeItem('app_session');
     setCurrentUser(null);
     window.location.href = '/';
-  };
-
-  const isPublicAccessEnabled = async () => {
-    const settings = await base44.entities.AppSettings.list();
-    if (settings.length > 0) {
-      return settings[0].dashboard_public_enabled || false;
-    }
-    return false;
   };
 
   return (
@@ -160,8 +160,7 @@ export function AuthProvider({ children }) {
       currentUser, 
       loading, 
       login, 
-      logout, 
-      isPublicAccessEnabled,
+      logout,
       checkAuth 
     }}>
       {children}

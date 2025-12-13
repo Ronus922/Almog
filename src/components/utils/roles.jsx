@@ -1,56 +1,50 @@
 /**
- * Role utilities for permission checks
+ * Role utilities - SINGLE SOURCE OF TRUTH
+ * Only 3 valid roles: SUPER_ADMIN, ADMIN, VIEWER
  */
 
 /**
- * Check if user has manager/admin role (full access)
- * @param {Object} user - User object with role property
- * @returns {boolean}
+ * Check if user is manager (SUPER_ADMIN or ADMIN) - FULL ACCESS
  */
 export function isManagerRole(user) {
-  if (!user) {
-    console.log('[isManagerRole] No user provided');
+  if (!user || !user.role) {
+    console.log('[Roles] No user or role');
     return false;
   }
   
-  const role = (user.role || '').toUpperCase().trim();
-  const isBase44Admin = user.isBase44Admin === true;
+  const role = user.role.toUpperCase().trim();
+  const isManager = role === 'SUPER_ADMIN' || role === 'ADMIN';
   
-  const result = role === 'ADMIN' || role === 'SUPER_ADMIN' || isBase44Admin;
-  
-  console.log('[isManagerRole] Check:', { 
+  console.log('[Roles] Manager check:', { 
     username: user.username || user.email,
-    rawRole: user.role,
-    normalizedRole: role,
-    isBase44Admin,
-    result
+    role: user.role,
+    isBase44Admin: user.isBase44Admin,
+    result: isManager
   });
   
-  // Both ADMIN and SUPER_ADMIN get full access
-  return result;
+  return isManager;
 }
 
 /**
- * Check if user has viewer role (read-only access)
- * @param {Object} user - User object with role property
- * @returns {boolean}
+ * Check if user is viewer - READ-ONLY Dashboard
  */
 export function isViewerRole(user) {
-  if (!user) return false;
-  
-  const role = (user.role || '').toUpperCase().trim();
-  return role === 'VIEWER' || role === 'VIEWER_PASSWORD';
+  if (!user || !user.role) return false;
+  return user.role.toUpperCase().trim() === 'VIEWER';
 }
 
 /**
- * Get user display role name
- * @param {Object} user - User object
- * @returns {string}
+ * Get display name for role
  */
 export function getUserRoleDisplay(user) {
   if (!user) return 'אורח';
-  if (user.isBase44Admin) return 'Base44 Admin';
-  if (isManagerRole(user)) return 'מנהל';
-  if (isViewerRole(user)) return 'צופה';
-  return user.role || 'לא מזוהה';
+  
+  const role = (user.role || '').toUpperCase().trim();
+  
+  if (user.isBase44Admin) return 'Base44 Super Admin';
+  if (role === 'SUPER_ADMIN') return 'Super Admin';
+  if (role === 'ADMIN') return 'Admin';
+  if (role === 'VIEWER') return 'Viewer';
+  
+  return 'תפקיד לא מזוהה';
 }
