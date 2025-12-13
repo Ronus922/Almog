@@ -44,6 +44,12 @@ function LayoutContent({ children, currentPageName }) {
     return null;
   }
 
+  // Redirect to Dashboard if authenticated and on login page
+  if (currentUser && currentPageName === 'AppLogin') {
+    window.location.href = createPageUrl('Dashboard');
+    return null;
+  }
+
   console.log('[Layout] User check:', { 
     user: currentUser?.username || currentUser?.email, 
     role: currentUser?.role, 
