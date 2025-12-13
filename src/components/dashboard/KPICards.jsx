@@ -41,7 +41,7 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
   const statusCounts = {
     'תקין': records.filter(r => r.debt_status_auto === 'תקין').length,
     'לגבייה מיידית': records.filter(r => r.debt_status_auto === 'לגבייה מיידית').length,
-    'חריגה מופרזה': records.filter(r => r.debt_status_auto === 'חריגה מופרזה').length,
+    'חריגה מופרזת': records.filter(r => r.debt_status_auto === 'חריגה מופרזת').length,
   };
 
   // Status-based filters
@@ -111,8 +111,8 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
       onClick: () => handleCardClick('IMMEDIATE_COLLECTION')
     },
     { 
-      title: "חריגה מופרזה", 
-      value: statusCounts['חריגה מופרזה'], 
+      title: "חריגה מופרזת", 
+      value: statusCounts['חריגה מופרזת'], 
       icon: Gavel, 
       color: "text-red-700",
       isClickable: true,
