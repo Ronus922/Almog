@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { isManagerRole } from '@/components/utils/roles';
 import { AuthProvider, useAuth } from '@/components/auth/AuthContext';
+import { ImportProvider } from '@/components/import/ImportContext';
+import ImportGuard, { useNavigationBlock } from '@/components/import/ImportGuard';
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -19,10 +21,20 @@ import {
 import { Toaster } from 'sonner';
 
 function LayoutContent({ children, currentPageName }) {
+  const navigate = useNavigate();
   const { currentUser, logout, loading, authChecked } = useAuth();
+  const { attemptNavigation, importInProgress, ConfirmDialog } = useNavigationBlock();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const isAdmin = isManagerRole(currentUser);
+
+  // Safe navigation with import guard
+  const handleNavigation = (pageName) => {
+    attemptNavigation(() => {
+      navigate(createPageUrl(pageName));
+      setIsMobileMenuOpen(false);
+    });
+  };
 
   // Show loading state while checking auth
   if (loading || !authChecked) {
@@ -97,9 +109,9 @@ function LayoutContent({ children, currentPageName }) {
               {filteredNavItems.map((item) => {
                 const isActive = currentPageName === item.name;
                 return (
-                  <Link
+                  <button
                     key={item.name}
-                    to={createPageUrl(item.name)}
+                    onClick={() => handleNavigation(item.name)}
                     className={`
                       flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
                       ${isActive 
@@ -109,7 +121,7 @@ function LayoutContent({ children, currentPageName }) {
                   >
                     <item.icon className="w-4 h-4" />
                     {item.label}
-                  </Link>
+                  </button>
                 );
               })}
             </nav>
@@ -170,12 +182,11 @@ function LayoutContent({ children, currentPageName }) {
               {filteredNavItems.map((item) => {
                 const isActive = currentPageName === item.name;
                 return (
-                  <Link
+                  <button
                     key={item.name}
-                    to={createPageUrl(item.name)}
-                    onClick={() => setIsMobileMenuOpen(false)}
+                    onClick={() => handleNavigation(item.name)}
                     className={`
-                      flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-right
+                      w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-colors text-right
                       ${isActive 
                         ? 'bg-blue-50 text-blue-700 font-semibold' 
                         : 'text-slate-700 hover:bg-slate-50'}
@@ -184,7 +195,7 @@ function LayoutContent({ children, currentPageName }) {
                   >
                     <item.icon className="w-5 h-5 flex-shrink-0" />
                     <span className="flex-1 text-right">{item.label}</span>
-                  </Link>
+                  </button>
                 );
               })}
               {currentUser && (
@@ -220,18 +231,22 @@ function LayoutContent({ children, currentPageName }) {
 
       {/* תוכן */}
       <main>
-        {children}
+        <ImportGuard>
+          {children}
+        </ImportGuard>
       </main>
 
+      <ConfirmDialog />
       <Toaster position="top-center" dir="rtl" richColors />
-    </div>
-  );
-}
+      </div>
+      );
+      }
 
-export default function Layout({ children, currentPageName }) {
-  return (
-    <AuthProvider>
-      <style>{`
+      export default function Layout({ children, currentPageName }) {
+      return (
+      <AuthProvider>
+      <ImportProvider>
+        <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap');
 
         * {
@@ -255,7 +270,8 @@ export default function Layout({ children, currentPageName }) {
           font-weight: 700;
         }
       `}</style>
-      <LayoutContent children={children} currentPageName={currentPageName} />
-    </AuthProvider>
-  );
-}
+        <LayoutContent children={children} currentPageName={currentPageName} />
+      </ImportProvider>
+      </AuthProvider>
+      );
+      }

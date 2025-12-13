@@ -14,6 +14,8 @@ import {
 import { Input } from "@/components/ui/input";
 import { base44 } from '@/api/base44Client';
 import * as XLSX from 'xlsx';
+import { useImport } from './ImportContext';
+import { toast } from 'sonner';
 
 const FIELD_MAPPINGS = {
   apartmentNumber: { label: 'מספר דירה', patterns: ['דירה', 'apartment', 'מס דירה'], required: true },
@@ -30,6 +32,7 @@ const FIELD_MAPPINGS = {
 const ALLOWED_FILE_EXTENSIONS = ['.xlsx', '.xls'];
 
 export default function ExcelImporter({ onImportComplete }) {
+  const { startImport, finishImport, importInProgress } = useImport();
   const [step, setStep] = useState(1);
   const [file, setFile] = useState(null);
   const [fileUrl, setFileUrl] = useState(null);
@@ -379,6 +382,7 @@ export default function ExcelImporter({ onImportComplete }) {
     }
 
     setIsImporting(true);
+    startImport(); // Mark import as in progress
     setProgress(0);
     setError(null);
 
@@ -554,11 +558,14 @@ export default function ExcelImporter({ onImportComplete }) {
 
       setImportResult({ created, updated, errors, total: totalRows });
       setStep(3);
+      toast.success('הייבוא הושלם בהצלחה');
     } catch (err) {
       console.error('[Excel Import] Fatal error during import:', err);
       setError('אירעה שגיאה בעת ייבוא הנתונים. אנא נסה שוב או פנה לתמיכה טכנית.');
+      toast.error('שגיאה בייבוא הנתונים');
     } finally {
       setIsImporting(false);
+      finishImport(); // Mark import as complete
     }
   };
 
