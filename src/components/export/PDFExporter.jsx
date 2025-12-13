@@ -33,15 +33,35 @@ export default function PDFExporter({ records, statuses, settings }) {
 
       console.log(`[PDF Export] Preparing to export ${totalRecords} records`);
       
-      // Build table data with ALL records
-      const { headers, data, totalRows } = buildDebtorsPdfDoc({
-        year,
-        rows: records,
-        statuses
+      // Build table body - RTL order
+      const tableBody = records.map(record => {
+        const legalStatus = statuses?.find(s => s.id === record.legal_status_id && s.type === 'LEGAL');
+        const legalStatusName = legalStatus?.name || 'לא הוגדר';
+        
+        return [
+          record.apartmentNumber || '',
+          record.ownerName || '',
+          record.phonePrimary || '',
+          new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.totalDebt || 0),
+          new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.monthlyDebt || 0),
+          new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.specialDebt || 0),
+          record.debt_status_auto || 'תקין',
+          legalStatusName
+        ];
       });
       
-      console.log(`[PDF Export] renderedRows=${totalRows}`);
-      console.log(`[PDF Export] totalCount=${totalRows}`);
+      const tableHeaders = [
+        'מס\' דירה',
+        'שם בעל הדירה', 
+        'טלפון',
+        'סה״כ חוב',
+        'חוב חודשי',
+        'חוב מיוחד',
+        'סטטוס',
+        'מצב משפטי'
+      ];
+      
+      console.log(`[PDF Export] Generated ${tableBody.length} rows`);
       
       // Create PDF with jsPDF
       const doc = new jsPDF({
@@ -68,13 +88,13 @@ export default function PDFExporter({ records, statuses, settings }) {
       yPos += 5;
       doc.setFontSize(10);
       doc.setFont('helvetica', 'bold');
-      doc.text(`סה״כ רשומות שיוצאו: ${totalRows}`, doc.internal.pageSize.width / 2, yPos, { align: 'center' });
+      doc.text(`סה״כ רשומות שיוצאו: ${totalRecords}`, doc.internal.pageSize.width / 2, yPos, { align: 'center' });
       
-      // Generate table with autotable
+      // Generate table with autoTable
       doc.autoTable({
         startY: yPos + 5,
-        head: [headers],
-        body: data,
+        head: [tableHeaders],
+        body: tableBody,
         styles: {
           font: 'helvetica',
           fontSize: 8,
@@ -95,14 +115,14 @@ export default function PDFExporter({ records, statuses, settings }) {
           fillColor: [248, 250, 252]
         },
         columnStyles: {
-          0: { cellWidth: 25 },  // מספר דירה
-          1: { cellWidth: 'auto' },  // שם בעל הדירה
-          2: { cellWidth: 30 },  // טלפון
-          3: { cellWidth: 28, fontStyle: 'bold' },  // סה״כ חוב
-          4: { cellWidth: 28, fontStyle: 'bold' },  // חוב חודשי
-          5: { cellWidth: 28, fontStyle: 'bold' },  // חוב מיוחד
-          6: { cellWidth: 30 },  // סטטוס
-          7: { cellWidth: 35, fontStyle: 'bold' }   // מצב משפטי
+          0: { cellWidth: 20, halign: 'right' },
+          1: { cellWidth: 'auto', halign: 'right' },
+          2: { cellWidth: 28, halign: 'right' },
+          3: { cellWidth: 26, fontStyle: 'bold', halign: 'right' },
+          4: { cellWidth: 26, fontStyle: 'bold', halign: 'right' },
+          5: { cellWidth: 26, fontStyle: 'bold', halign: 'right' },
+          6: { cellWidth: 30, halign: 'right' },
+          7: { cellWidth: 40, fontStyle: 'bold', halign: 'right' }
         },
         margin: { right: 10, left: 10 },
         didDrawPage: (data) => {
@@ -124,8 +144,8 @@ export default function PDFExporter({ records, statuses, settings }) {
       const filename = `חייבים_${new Date().toISOString().split('T')[0]}.pdf`;
       doc.save(filename);
       
-      console.log(`[PDF Export] Successfully exported ${totalRows} records`);
-      toast.success(`הקובץ יוצא בהצלחה (${totalRows} רשומות)`);
+      console.log(`[PDF Export] Successfully exported ${totalRecords} records`);
+      toast.success(`הקובץ יוצא בהצלחה (${totalRecords} רשומות)`);
     } catch (error) {
       console.error('[PDF Export] Error:', error);
       toast.error('שגיאה בייצוא ל-PDF');
