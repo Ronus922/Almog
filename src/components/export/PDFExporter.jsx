@@ -6,7 +6,17 @@ import jsPDF from 'jspdf';
 import { toast } from 'sonner';
 
 export default function PDFExporter({ records, legalStatuses, settings }) {
+  const [isExporting, setIsExporting] = useState(false);
+  
   const handleExport = async () => {
+    if (!records || records.length === 0) {
+      toast.error('אין נתונים לייצוא');
+      return;
+    }
+    
+    setIsExporting(true);
+    
+    try {
     // Create a temporary container for the table
     const container = document.createElement('div');
     container.style.position = 'absolute';
@@ -83,15 +93,27 @@ export default function PDFExporter({ records, legalStatuses, settings }) {
       
       pdf.addImage(imgData, 'PNG', 10, 10, imgWidth, imgHeight);
       pdf.save(`חייבים_${new Date().toISOString().split('T')[0]}.pdf`);
+      
+      toast.success('הקובץ יוצא בהצלחה');
+    } catch (error) {
+      console.error('Error exporting PDF:', error);
+      toast.error('שגיאה בייצוא ל-PDF');
     } finally {
       document.body.removeChild(container);
+      setIsExporting(false);
     }
   };
 
   return (
-    <Button onClick={handleExport} variant="outline" size="sm" className="h-11 rounded-xl">
-      <FileText className="w-4 h-4 ml-2" />
+    <AppButton 
+      variant="secondary" 
+      size="md"
+      icon={FileText}
+      onClick={handleExport}
+      loading={isExporting}
+      disabled={!records || records.length === 0}
+    >
       ייצוא ל-PDF
-    </Button>
+    </AppButton>
   );
 }

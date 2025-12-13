@@ -1,10 +1,21 @@
-import React from 'react';
-import { Button } from "@/components/ui/button";
+import React, { useState } from 'react';
+import AppButton from "@/components/ui/app-button";
 import { FileSpreadsheet } from "lucide-react";
 import * as XLSX from 'xlsx';
+import { toast } from 'sonner';
 
 export default function ExcelExporter({ records, legalStatuses }) {
-  const handleExport = () => {
+  const [isExporting, setIsExporting] = useState(false);
+  
+  const handleExport = async () => {
+    if (!records || records.length === 0) {
+      toast.error('אין נתונים לייצוא');
+      return;
+    }
+    
+    setIsExporting(true);
+    
+    try {
     // Prepare data for export
     const exportData = records.map(record => {
       return {
@@ -38,12 +49,25 @@ export default function ExcelExporter({ records, legalStatuses }) {
 
     // Export file
     XLSX.writeFile(wb, `חייבים_${new Date().toISOString().split('T')[0]}.xlsx`);
-  };
+    toast.success('הקובץ יוצא בהצלחה');
+  } catch (error) {
+    console.error('Error exporting Excel:', error);
+    toast.error('שגיאה בייצוא לאקסל');
+  } finally {
+    setIsExporting(false);
+  }
+};
 
   return (
-    <Button onClick={handleExport} variant="outline" size="sm" className="h-11 rounded-xl">
-      <FileSpreadsheet className="w-4 h-4 ml-2" />
+    <AppButton 
+      variant="secondary" 
+      size="md"
+      icon={FileSpreadsheet}
+      onClick={handleExport}
+      loading={isExporting}
+      disabled={!records || records.length === 0}
+    >
       ייצוא לאקסל
-    </Button>
+    </AppButton>
   );
 }
