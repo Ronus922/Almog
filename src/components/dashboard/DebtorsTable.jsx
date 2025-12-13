@@ -25,7 +25,7 @@ import DebtorCard from './DebtorCard';
 const STATUS_COLORS = {
   'תקין': 'bg-green-100 text-green-700 border-green-200',
   'לגבייה מיידית': 'bg-orange-100 text-orange-700 border-orange-200',
-  'לטיפול משפטי': 'bg-red-100 text-red-700 border-red-200'
+  'חריגה מופרזה': 'bg-red-100 text-red-700 border-red-200'
 };
 
 export default function DebtorsTable({ 
@@ -65,7 +65,7 @@ export default function DebtorsTable({
           setAutoStatusFilter('לגבייה מיידית');
           break;
         case 'REQUIRES_LEGAL_ACTION':
-          setAutoStatusFilter('לטיפול משפטי');
+          setAutoStatusFilter('חריגה מופרזה');
           break;
         case 'LEGAL_PROCESS': {
           const lawsuitStatus = allStatuses.find(s => s.type === 'LEGAL' && s.name === 'תביעה משפטית');
@@ -315,7 +315,7 @@ export default function DebtorsTable({
                           <SelectItem value="all">כל הסטטוסים</SelectItem>
                           <SelectItem value="תקין">תקין</SelectItem>
                           <SelectItem value="לגבייה מיידית">לגבייה מיידית</SelectItem>
-                          <SelectItem value="לטיפול משפטי">לטיפול משפטי</SelectItem>
+                          <SelectItem value="חריגה מופרזה">חריגה מופרזה</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -381,7 +381,7 @@ export default function DebtorsTable({
                   <SelectItem value="all">כל הסטטוסים</SelectItem>
                   <SelectItem value="תקין">תקין</SelectItem>
                   <SelectItem value="לגבייה מיידית">לגבייה מיידית</SelectItem>
-                  <SelectItem value="לטיפול משפטי">לטיפול משפטי</SelectItem>
+                  <SelectItem value="חריגה מופרזה">חריגה מופרזה</SelectItem>
                 </SelectContent>
               </Select>
 
@@ -531,7 +531,7 @@ export default function DebtorsTable({
                         <SelectItem value="all">הכל</SelectItem>
                         <SelectItem value="תקין">תקין</SelectItem>
                         <SelectItem value="לגבייה מיידית">לגבייה מיידית</SelectItem>
-                        <SelectItem value="לטיפול משפטי">לטיפול משפטי</SelectItem>
+                        <SelectItem value="חריגה מופרזה">חריגה מופרזה</SelectItem>
                       </SelectContent>
                     </Select>
                   </TableHead>
