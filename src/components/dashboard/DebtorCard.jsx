@@ -6,13 +6,13 @@ import { Phone, Home, Wallet } from "lucide-react";
 const STATUS_COLORS = {
   'תקין': 'bg-green-100 text-green-700 border-green-200',
   'לגבייה מיידית': 'bg-orange-100 text-orange-700 border-orange-200',
-  'חריגה מופרזת': 'bg-[#ffedd5] text-[#ea580c] border-[#ea580c]'
+  'חריגה מופרזת': 'bg-[#ff8080] text-white border-[#ff8080]'
 };
 
 const BORDER_COLORS = {
   'תקין': 'border-r-green-500',
   'לגבייה מיידית': 'border-r-orange-500',
-  'חריגה מופרזת': 'border-r-[#ea580c]'
+  'חריגה מופרזת': 'border-r-[#ff8080]'
 };
 
 export default function DebtorCard({ record, onClick, settings }) {
