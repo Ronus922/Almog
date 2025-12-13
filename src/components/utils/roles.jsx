@@ -8,13 +8,26 @@
  * @returns {boolean}
  */
 export function isManagerRole(user) {
-  if (!user) return false;
+  if (!user) {
+    console.log('[isManagerRole] No user provided');
+    return false;
+  }
   
   const role = (user.role || '').toUpperCase().trim();
   const isBase44Admin = user.isBase44Admin === true;
   
+  const result = role === 'ADMIN' || role === 'SUPER_ADMIN' || isBase44Admin;
+  
+  console.log('[isManagerRole] Check:', { 
+    username: user.username || user.email,
+    rawRole: user.role,
+    normalizedRole: role,
+    isBase44Admin,
+    result
+  });
+  
   // Both ADMIN and SUPER_ADMIN get full access
-  return role === 'ADMIN' || role === 'SUPER_ADMIN' || isBase44Admin;
+  return result;
 }
 
 /**
