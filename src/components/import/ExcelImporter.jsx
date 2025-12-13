@@ -395,7 +395,7 @@ export default function ExcelImporter({ onImportComplete }) {
       const calculateDebtStatus = (totalDebt) => {
         if (!totalDebt || totalDebt <= settings.threshold_ok_max) return 'תקין';
         if (totalDebt > settings.threshold_ok_max && totalDebt < settings.threshold_legal_from) return 'לגבייה מיידית';
-        return 'לטיפול משפטי';
+        return 'חריגה מופרזת';
       };
 
       // אם נבחר איפוס מלא - מחיקת כל הרשומות
