@@ -341,37 +341,48 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       newStatusId,
       statusIdType: typeof newStatusId
     });
-    
+
     // עדכון מיידי של ה-UI (State מקומי)
     setSelectedLegalStatusId(String(newStatusId));
-    
+
     const oldStatusId = editedRecord.legal_status_id;
     const newStatus = legalStatuses.find(s => s.id === newStatusId);
     const oldStatus = legalStatuses.find(s => s.id === oldStatusId);
-    
+
     setSavingStatus(true);
-    
+
     try {
       const currentUser = await base44.auth.me();
       const now = new Date().toISOString();
-      
+
       const updatePayload = {
         legal_status_id: newStatusId,
         legal_status_source: 'MANUAL',
+        legal_status_lock: true,
         legal_status_updated_at: now,
         legal_status_updated_by: currentUser.email || currentUser.username
       };
 
       console.log('[MANUAL CHANGE] Payload:', updatePayload);
-      
+
       // עדכון הרשומה
       const updatedRecord = await base44.entities.DebtorRecord.update(record.id, updatePayload);
-      
+
       console.log('[MANUAL CHANGE] Server response:', {
         requestedId: newStatusId,
         receivedId: updatedRecord?.legal_status_id,
+        receivedLock: updatedRecord?.legal_status_lock,
         match: updatedRecord?.legal_status_id === newStatusId
       });
+
+      // בדיקת הצלחה
+      if (updatedRecord?.legal_status_id !== newStatusId) {
+        console.error('[ERROR] Status mismatch after save!');
+        setSelectedLegalStatusId(String(oldStatusId || ''));
+        toast.error('הסטטוס לא נשמר כראוי - נסה שוב');
+        setSavingStatus(false);
+        return;
+      }
 
       // רישום היסטוריה
       await base44.entities.LegalStatusHistory.create({
@@ -391,6 +402,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         ...prev,
         legal_status_id: updatedRecord.legal_status_id,
         legal_status_source: 'MANUAL',
+        legal_status_lock: true,
         legal_status_updated_at: updatedRecord.legal_status_updated_at || now,
         legal_status_updated_by: updatedRecord.legal_status_updated_by || (currentUser.email || currentUser.username)
       }));
@@ -400,14 +412,15 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         if (!old) return old;
         return old.map(r => r.id === record.id ? { ...r, ...updatedRecord } : r);
       });
-      
-      console.log('[SUCCESS] Manual status change completed');
+
+      toast.success('הסטטוס עודכן בהצלחה');
+      console.log('[SUCCESS] Manual status change completed, lock=true');
     } catch (err) {
       console.error('[ERROR] Failed to save:', err);
-      
+
       // החזרה לערך הקודם
       setSelectedLegalStatusId(String(oldStatusId || ''));
-      
+
       toast.error('שמירה נכשלה – נסה שוב');
     } finally {
       setSavingStatus(false);

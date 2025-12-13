@@ -152,17 +152,29 @@ export default function StatusManagement() {
       const result = {
         totalScanned: debtorRecords.length,
         fixed: 0,
-        alreadyValid: 0
+        alreadyValid: 0,
+        locked: 0
       };
 
       const validLegalStatusIds = statuses
         .filter(s => s.type === 'LEGAL' && s.is_active)
         .map(s => s.id);
 
+      console.log('[SCAN] Starting scan, valid status IDs:', validLegalStatusIds);
+
       for (const record of debtorRecords) {
         const hasValidStatus = record.legal_status_id && validLegalStatusIds.includes(record.legal_status_id);
+        const isLocked = record.legal_status_lock === true;
 
-        if (hasValidStatus) {
+        console.log(`[SCAN] Record ${record.apartmentNumber}:`, {
+          statusId: record.legal_status_id,
+          hasValid: hasValidStatus,
+          locked: isLocked
+        });
+
+        if (isLocked) {
+          result.locked++;
+        } else if (hasValidStatus) {
           result.alreadyValid++;
         } else {
           result.fixed++;
@@ -170,7 +182,7 @@ export default function StatusManagement() {
       }
 
       setFixResult(result);
-      toast.success(`סריקה הושלמה: ${result.alreadyValid} תקינות, ${result.fixed} ללא סטטוס`);
+      toast.success(`סריקה הושלמה: ${result.alreadyValid} תקינות, ${result.fixed} ללא סטטוס, ${result.locked} נעולות (ידני)`);
     } catch (error) {
       console.error('Error scanning statuses:', error);
       toast.error('שגיאה בסריקה');
