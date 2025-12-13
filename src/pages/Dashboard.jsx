@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Loader2, Building2, RefreshCw, X } from "lucide-react";
 import ProtectedRoute from '@/components/auth/ProtectedRoute';
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { isManagerRole } from '@/components/utils/roles';
 
 import KPICards from '../components/dashboard/KPICards';
 import DebtorsTable from '../components/dashboard/DebtorsTable';
