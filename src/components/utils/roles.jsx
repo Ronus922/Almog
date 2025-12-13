@@ -1,50 +1,90 @@
 /**
- * Role utilities - SINGLE SOURCE OF TRUTH
- * Only 3 valid roles: SUPER_ADMIN, ADMIN, VIEWER
+ * Roles utility module
+ * 
+ * Single source of truth for role validation and display
+ * Valid roles: ADMIN, VIEWER
+ * Note: SUPER_ADMIN is treated as ADMIN
  */
 
 /**
- * Check if user is manager (SUPER_ADMIN or ADMIN) - FULL ACCESS
+ * Normalize role to standard format
+ * @param {string} role - Raw role value
+ * @returns {string} Normalized role (ADMIN or VIEWER)
+ */
+export function normalizeRole(role) {
+  if (!role) return 'VIEWER';
+  
+  const normalized = role.toUpperCase().trim();
+  
+  // Map legacy/variant roles
+  if (normalized === 'SUPER_ADMIN') return 'ADMIN';
+  if (normalized === 'ADMIN') return 'ADMIN';
+  if (normalized === 'VIEWER') return 'VIEWER';
+  if (normalized === 'VIEWER_PASSWORD') return 'VIEWER';
+  
+  console.warn('[Roles] Unknown role, defaulting to VIEWER:', role);
+  return 'VIEWER';
+}
+
+/**
+ * Check if user is a manager (full access)
+ * @param {Object} user - User object with role property
+ * @returns {boolean} True if user is ADMIN or SUPER_ADMIN
  */
 export function isManagerRole(user) {
   if (!user || !user.role) {
-    console.log('[Roles] No user or role');
+    console.warn('[Roles] isManagerRole called with invalid user:', user);
     return false;
   }
   
-  const role = user.role.toUpperCase().trim();
-  const isManager = role === 'SUPER_ADMIN' || role === 'ADMIN';
+  const normalizedRole = normalizeRole(user.role);
+  const isManager = normalizedRole === 'ADMIN';
   
-  console.log('[Roles] Manager check:', { 
-    username: user.username || user.email,
-    role: user.role,
-    isBase44Admin: user.isBase44Admin,
-    result: isManager
+  console.log('[Roles] isManagerRole check:', { 
+    userRole: user.role, 
+    normalized: normalizedRole, 
+    isManager 
   });
   
   return isManager;
 }
 
 /**
- * Check if user is viewer - READ-ONLY Dashboard
+ * Check if user is viewer (read-only dashboard access)
+ * @param {Object} user - User object with role property
+ * @returns {boolean} True if user is VIEWER
  */
 export function isViewerRole(user) {
   if (!user || !user.role) return false;
-  return user.role.toUpperCase().trim() === 'VIEWER';
+  const normalizedRole = normalizeRole(user.role);
+  return normalizedRole === 'VIEWER';
 }
 
 /**
- * Get display name for role
+ * Get display name for user role
+ * @param {Object} user - User object with role property
+ * @returns {string} Localized role display name
+ */
+export function getUserRoleDisplayName(user) {
+  if (!user) return '';
+  
+  // Handle Base44 super admin
+  if (user.isBase44Admin) {
+    return 'Base44 Super Admin';
+  }
+  
+  const normalizedRole = normalizeRole(user.role);
+  
+  switch (normalizedRole) {
+    case 'ADMIN': return 'מנהל';
+    case 'VIEWER': return 'צופה';
+    default: return user.role || '';
+  }
+}
+
+/**
+ * Legacy function for backward compatibility
  */
 export function getUserRoleDisplay(user) {
-  if (!user) return 'אורח';
-  
-  const role = (user.role || '').toUpperCase().trim();
-  
-  if (user.isBase44Admin) return 'Base44 Super Admin';
-  if (role === 'SUPER_ADMIN') return 'Super Admin';
-  if (role === 'ADMIN') return 'Admin';
-  if (role === 'VIEWER') return 'Viewer';
-  
-  return 'תפקיד לא מזוהה';
+  return getUserRoleDisplayName(user);
 }
