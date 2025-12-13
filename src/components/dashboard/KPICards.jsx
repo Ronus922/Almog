@@ -22,8 +22,8 @@ const KPICard = ({ title, value, icon: Icon, color, subtext, onClick, isClickabl
         <Icon className={`w-7 h-7 md:w-10 md:h-10 ${color}`} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-xs md:text-sm text-slate-600 font-bold uppercase tracking-wide line-clamp-2 mb-2">{title}</p>
-        <p className={`text-2xl md:text-4xl font-black ${color} leading-tight mb-1`} title={value}>{value}</p>
+        <p className="text-base md:text-lg text-slate-800 font-extrabold tracking-tight line-clamp-2 mb-2">{title}</p>
+        <p className={`text-xl md:text-2xl font-black ${color} leading-tight mb-1`} title={value}>{value}</p>
         {subtext && <p className="text-xs md:text-sm text-slate-500 mt-2 line-clamp-1 font-semibold">{subtext}</p>}
       </div>
     </div>
@@ -116,7 +116,7 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
       onClick: () => handleCardClick('legal')
     },
     ...(legalLawsuitStatus ? [{
-      title: "נמצא בטיפול משפטי",
+      title: "בהליך משפטי",
       value: inLegalProcessCount,
       icon: FileWarning,
       color: "text-red-600",
@@ -124,7 +124,7 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
       onClick: () => handleCardClick(null, 'תביעה משפטית')
     }] : []),
     ...(legalWarningStatus ? [{
-      title: "מכתבי התראה שנשלחו",
+      title: "מכתבי התראה",
       value: warningLettersSentCount,
       icon: AlertTriangle,
       color: "text-yellow-600",
