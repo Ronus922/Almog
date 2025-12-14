@@ -262,6 +262,7 @@ function DashboardContent() {
           onClose={() => setIsModalOpen(false)}
           onSave={handleSaveRecord}
           isAdmin={isAdmin}
+          currentUser={currentUser}
         />
       </div>
     </div>

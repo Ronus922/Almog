@@ -21,7 +21,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 
-export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin }) {
+export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin, currentUser }) {
   const { data: allStatuses = [] } = useQuery({
     queryKey: ['statuses'],
     queryFn: () => base44.entities.Status.list('order'),
@@ -341,12 +341,21 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       return;
     }
 
+    // ולידציה: בדיקה שיש משתמש מחובר
+    if (!currentUser) {
+      console.error('[STATUS CHANGE] No authenticated user');
+      toast.error('לא מחובר - נא להתחבר מחדש');
+      return;
+    }
+
     console.log('[STATUS CHANGE] Starting update:', {
       recordId: record.id,
       apartmentNumber: record.apartmentNumber,
       oldStatusId: selectedLegalStatusId,
       newStatusId,
-      statusIdType: typeof newStatusId
+      statusIdType: typeof newStatusId,
+      user: currentUser.username,
+      userRole: currentUser.role
     });
 
     // שמירת ערך ישן לצורך החזרה במקרה של כשל
@@ -359,12 +368,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     setSavingStatus(true);
 
     try {
-      // קבלת משתמש נוכחי
-      const currentUser = await base44.auth.me().catch(err => {
-        console.error('[STATUS CHANGE] Auth check failed:', err);
-        throw new Error('לא ניתן לאמת משתמש - התחבר מחדש');
-      });
-
       const now = new Date().toISOString();
 
       // הכנת payload מינימלי - רק שדות הנדרשים
