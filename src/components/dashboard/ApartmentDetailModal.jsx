@@ -334,7 +334,14 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   };
 
   const handleLegalStatusChange = async (newStatusId) => {
-    console.log('[MANUAL CHANGE] Legal status:', {
+    // ולידציה: בדיקה שנבחר ערך תקין
+    if (!newStatusId || newStatusId === '') {
+      console.error('[STATUS CHANGE] Invalid status ID:', newStatusId);
+      toast.error('חובה לבחור סטטוס');
+      return;
+    }
+
+    console.log('[STATUS CHANGE] Starting update:', {
       recordId: record.id,
       apartmentNumber: record.apartmentNumber,
       oldStatusId: selectedLegalStatusId,
@@ -342,19 +349,25 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       statusIdType: typeof newStatusId
     });
 
-    // עדכון מיידי של ה-UI (State מקומי)
-    setSelectedLegalStatusId(String(newStatusId));
-
+    // שמירת ערך ישן לצורך החזרה במקרה של כשל
     const oldStatusId = editedRecord.legal_status_id;
     const newStatus = legalStatuses.find(s => s.id === newStatusId);
     const oldStatus = legalStatuses.find(s => s.id === oldStatusId);
 
+    // עדכון מיידי של ה-UI (אופטימיסטי)
+    setSelectedLegalStatusId(String(newStatusId));
     setSavingStatus(true);
 
     try {
-      const currentUser = await base44.auth.me();
+      // קבלת משתמש נוכחי
+      const currentUser = await base44.auth.me().catch(err => {
+        console.error('[STATUS CHANGE] Auth check failed:', err);
+        throw new Error('לא ניתן לאמת משתמש - התחבר מחדש');
+      });
+
       const now = new Date().toISOString();
 
+      // הכנת payload מינימלי - רק שדות הנדרשים
       const updatePayload = {
         legal_status_id: newStatusId,
         legal_status_source: 'MANUAL',
@@ -363,41 +376,53 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         legal_status_updated_by: currentUser.email || currentUser.username
       };
 
-      console.log('[MANUAL CHANGE] Payload:', updatePayload);
+      console.log('[STATUS CHANGE] Sending update:', {
+        recordId: record.id,
+        payload: updatePayload
+      });
 
-      // עדכון הרשומה
+      // שליחת בקשת עדכון
       const updatedRecord = await base44.entities.DebtorRecord.update(record.id, updatePayload);
 
-      console.log('[MANUAL CHANGE] Server response:', {
+      console.log('[STATUS CHANGE] Server response:', {
+        success: true,
         requestedId: newStatusId,
         receivedId: updatedRecord?.legal_status_id,
         receivedLock: updatedRecord?.legal_status_lock,
         match: updatedRecord?.legal_status_id === newStatusId
       });
 
-      // בדיקת הצלחה
+      // אימות שהשרת שמר את הערך הנכון
       if (updatedRecord?.legal_status_id !== newStatusId) {
-        console.error('[ERROR] Status mismatch after save!');
+        console.error('[STATUS CHANGE] MISMATCH after save!', {
+          expected: newStatusId,
+          received: updatedRecord?.legal_status_id
+        });
         setSelectedLegalStatusId(String(oldStatusId || ''));
-        toast.error('הסטטוס לא נשמר כראוי - נסה שוב');
+        toast.error('הסטטוס לא נשמר כראוי - פנה למנהל המערכת');
         setSavingStatus(false);
         return;
       }
 
       // רישום היסטוריה
-      await base44.entities.LegalStatusHistory.create({
-        debtor_record_id: record.id,
-        apartment_number: record.apartmentNumber,
-        old_status_id: oldStatusId || null,
-        old_status_name: oldStatus?.name || 'לא הוגדר',
-        new_status_id: newStatusId,
-        new_status_name: newStatus?.name || '',
-        changed_at: now,
-        changed_by: currentUser.email || currentUser.username,
-        source: 'MANUAL'
-      });
+      try {
+        await base44.entities.LegalStatusHistory.create({
+          debtor_record_id: record.id,
+          apartment_number: record.apartmentNumber,
+          old_status_id: oldStatusId || null,
+          old_status_name: oldStatus?.name || 'לא הוגדר',
+          new_status_id: newStatusId,
+          new_status_name: newStatus?.name || '',
+          changed_at: now,
+          changed_by: currentUser.email || currentUser.username,
+          source: 'MANUAL'
+        });
+        console.log('[STATUS CHANGE] History record created');
+      } catch (histErr) {
+        console.warn('[STATUS CHANGE] History creation failed (non-critical):', histErr);
+      }
 
-      // עדכון state עם תשובת השרת
+      // עדכון state מקומי עם תשובת השרת
       setEditedRecord(prev => ({
         ...prev,
         legal_status_id: updatedRecord.legal_status_id,
@@ -407,21 +432,50 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         legal_status_updated_by: updatedRecord.legal_status_updated_by || (currentUser.email || currentUser.username)
       }));
 
-      // רענון cache
+      // עדכון cache של react-query
       queryClient.setQueryData(['debtorRecords'], (old) => {
         if (!old) return old;
         return old.map(r => r.id === record.id ? { ...r, ...updatedRecord } : r);
       });
 
+      // הודעת הצלחה
       toast.success('הסטטוס עודכן בהצלחה');
-      console.log('[SUCCESS] Manual status change completed, lock=true');
+      console.log('[STATUS CHANGE] ✓ Success - update completed');
+      
     } catch (err) {
-      console.error('[ERROR] Failed to save:', err);
+      // טיפול מפורט בשגיאות
+      console.error('[STATUS CHANGE] ✗ FAILED:', {
+        recordId: record.id,
+        apartmentNumber: record.apartmentNumber,
+        fieldName: 'legal_status_id',
+        newValue: newStatusId,
+        errorType: err?.constructor?.name,
+        errorMessage: err?.message,
+        httpStatus: err?.response?.status,
+        responseBody: err?.response?.data,
+        fullError: err
+      });
 
-      // החזרה לערך הקודם
+      // החזרה לערך הקודם ב-UI
       setSelectedLegalStatusId(String(oldStatusId || ''));
 
-      toast.error('שמירה נכשלה – נסה שוב');
+      // הודעת שגיאה מפורטת למשתמש
+      let errorMessage = 'שמירה נכשלה';
+      
+      if (err?.response?.status === 401) {
+        errorMessage = 'לא מורשה - התחבר מחדש';
+      } else if (err?.response?.status === 403) {
+        errorMessage = 'אין הרשאה לעדכן - צור קשר עם מנהל';
+      } else if (err?.response?.status === 422) {
+        errorMessage = 'נתונים לא תקינים - נסה ערך אחר';
+      } else if (err?.response?.status === 500) {
+        errorMessage = 'שגיאת שרת - נסה שוב או פנה למנהל';
+      } else if (err?.message) {
+        errorMessage = `שגיאה: ${err.message}`;
+      }
+
+      toast.error(errorMessage);
+      
     } finally {
       setSavingStatus(false);
     }
