@@ -20,8 +20,10 @@ import {
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
+import { useAuth } from '@/components/auth/AuthContext';
 
-export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin, currentUser }) {
+export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin }) {
+  const { currentUser } = useAuth();
   const { data: allStatuses = [] } = useQuery({
     queryKey: ['statuses'],
     queryFn: () => base44.entities.Status.list('order'),
@@ -341,10 +343,10 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       return;
     }
 
-    // ולידציה: בדיקה שיש משתמש מחובר
+    // אימות משתמש נוכחי
     if (!currentUser) {
       console.error('[STATUS CHANGE] No authenticated user');
-      toast.error('לא מחובר - נא להתחבר מחדש');
+      toast.error('משתמש לא מחובר - אנא התחבר מחדש');
       return;
     }
 
@@ -381,11 +383,27 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
       console.log('[STATUS CHANGE] Sending update:', {
         recordId: record.id,
-        payload: updatePayload
+        payload: updatePayload,
+        endpoint: `DebtorRecord.update(${record.id})`,
+        method: 'PATCH/PUT'
       });
 
       // שליחת בקשת עדכון
-      const updatedRecord = await base44.entities.DebtorRecord.update(record.id, updatePayload);
+      let updatedRecord;
+      try {
+        updatedRecord = await base44.entities.DebtorRecord.update(record.id, updatePayload);
+      } catch (apiErr) {
+        console.error('[STATUS CHANGE] API Error:', {
+          endpoint: `entities/DebtorRecord/${record.id}`,
+          method: 'UPDATE',
+          statusCode: apiErr?.response?.status || apiErr?.status,
+          statusText: apiErr?.response?.statusText,
+          errorBody: apiErr?.response?.data || apiErr?.message,
+          headers: apiErr?.response?.headers,
+          fullError: apiErr
+        });
+        throw apiErr;
+      }
 
       console.log('[STATUS CHANGE] Server response:', {
         success: true,
@@ -463,18 +481,20 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       setSelectedLegalStatusId(String(oldStatusId || ''));
 
       // הודעת שגיאה מפורטת למשתמש
-      let errorMessage = 'שמירה נכשלה';
+      let errorMessage = 'שמירה נכשלה - נסה שוב';
       
-      if (err?.response?.status === 401) {
-        errorMessage = 'לא מורשה - התחבר מחדש';
-      } else if (err?.response?.status === 403) {
-        errorMessage = 'אין הרשאה לעדכן - צור קשר עם מנהל';
-      } else if (err?.response?.status === 422) {
-        errorMessage = 'נתונים לא תקינים - נסה ערך אחר';
-      } else if (err?.response?.status === 500) {
-        errorMessage = 'שגיאת שרת - נסה שוב או פנה למנהל';
-      } else if (err?.message) {
-        errorMessage = `שגיאה: ${err.message}`;
+      const statusCode = err?.response?.status || err?.status;
+      
+      if (statusCode === 401) {
+        errorMessage = 'לא מורשה - אנא התחבר מחדש';
+      } else if (statusCode === 403) {
+        errorMessage = 'אין הרשאה - צור קשר עם מנהל המערכת';
+      } else if (statusCode === 422) {
+        errorMessage = 'ערך לא תקין - בחר סטטוס אחר';
+      } else if (statusCode === 500) {
+        errorMessage = 'שגיאת שרת - פנה למנהל המערכת';
+      } else if (err?.message && !err?.message.includes('fetch')) {
+        errorMessage = err.message;
       }
 
       toast.error(errorMessage);
