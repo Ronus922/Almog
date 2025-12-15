@@ -61,6 +61,8 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   const [savingPayment, setSavingPayment] = useState(false);
 
   const [savingStatus, setSavingStatus] = useState(false);
+  const [statusSaveError, setStatusSaveError] = useState('');
+  const statusRequestIdRef = React.useRef(0);
 
   const queryClient = useQueryClient();
 
@@ -331,98 +333,65 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   };
 
   const handleLegalStatusChange = async (newStatusId) => {
-    // ולידציה: בדיקה שנבחר ערך תקין
+    // ולידציה בסיסית
     if (!newStatusId || newStatusId === '') {
-      console.error('[STATUS CHANGE] Invalid status ID:', newStatusId);
-      toast.error('חובה לבחור סטטוס');
+      setStatusSaveError('חובה לבחור סטטוס');
       return;
     }
 
-    // אימות משתמש נוכחי
     if (!currentUser) {
-      console.error('[STATUS CHANGE] No authenticated user');
-      toast.error('משתמש לא מחובר - אנא התחבר מחדש');
+      setStatusSaveError('משתמש לא מחובר');
       return;
     }
 
-    console.log('[STATUS CHANGE] Starting update:', {
-      recordId: record.id,
-      apartmentNumber: record.apartmentNumber,
-      oldStatusId: selectedLegalStatusId,
-      newStatusId,
-      statusIdType: typeof newStatusId,
-      user: currentUser.username,
-      userRole: currentUser.role
-    });
+    // Last-write-wins: increment request ID
+    const currentRequestId = ++statusRequestIdRef.current;
 
-    // שמירת ערך ישן לצורך החזרה במקרה של כשל
+    // שמירת ערך ישן לצורך rollback
     const oldStatusId = editedRecord.legal_status_id;
     const newStatus = legalStatuses.find(s => s.id === newStatusId);
     const oldStatus = legalStatuses.find(s => s.id === oldStatusId);
 
-    // עדכון מיידי של ה-UI (אופטימיסטי)
+    // 1) OPTIMISTIC UPDATE - מיידי לפני השרת
     setSelectedLegalStatusId(String(newStatusId));
+    setStatusSaveError('');
     setSavingStatus(true);
 
-    try {
-      const now = new Date().toISOString();
+    // עדכון מיידי בטבלת הדשבורד (cache)
+    queryClient.setQueryData(['debtorRecords'], (old) => {
+      if (!old) return old;
+      return old.map(r => r.id === record.id ? { ...r, legal_status_id: newStatusId } : r);
+    });
 
-      // הכנת payload מינימלי - רק שדות הנדרשים
-      const updatePayload = {
-        legal_status_id: newStatusId,
-        legal_status_source: 'MANUAL',
-        legal_status_lock: true,
-        legal_status_updated_at: now,
-        legal_status_updated_by: currentUser.email || currentUser.username
-      };
+    // עדכון מיידי ב-state המקומי
+    setEditedRecord(prev => ({
+      ...prev,
+      legal_status_id: newStatusId
+    }));
 
-      console.log('[STATUS CHANGE] Sending update:', {
-        recordId: record.id,
-        payload: updatePayload,
-        endpoint: `DebtorRecord.update(${record.id})`,
-        method: 'PATCH/PUT'
-      });
+    // 2) שליחה לשרת (ברקע, לא blocking)
+    const now = new Date().toISOString();
+    const updatePayload = {
+      legal_status_id: newStatusId,
+      legal_status_source: 'MANUAL',
+      legal_status_lock: true,
+      legal_status_updated_at: now,
+      legal_status_updated_by: currentUser.email || currentUser.username
+    };
 
-      // שליחת בקשת עדכון
-      let updatedRecord;
+    // Promise שלא מבוטל על unmount
+    (async () => {
       try {
-        updatedRecord = await base44.entities.DebtorRecord.update(record.id, updatePayload);
-      } catch (apiErr) {
-        console.error('[STATUS CHANGE] API Error:', {
-          endpoint: `entities/DebtorRecord/${record.id}`,
-          method: 'UPDATE',
-          statusCode: apiErr?.response?.status || apiErr?.status,
-          statusText: apiErr?.response?.statusText,
-          errorBody: apiErr?.response?.data || apiErr?.message,
-          headers: apiErr?.response?.headers,
-          fullError: apiErr
-        });
-        throw apiErr;
-      }
+        const updatedRecord = await base44.entities.DebtorRecord.update(record.id, updatePayload);
 
-      console.log('[STATUS CHANGE] Server response:', {
-        success: true,
-        requestedId: newStatusId,
-        receivedId: updatedRecord?.legal_status_id,
-        receivedLock: updatedRecord?.legal_status_lock,
-        match: updatedRecord?.legal_status_id === newStatusId
-      });
+        // Last-write-wins: ignore stale responses
+        if (currentRequestId !== statusRequestIdRef.current) {
+          console.log('[STATUS CHANGE] Ignoring stale response', { currentRequestId, latest: statusRequestIdRef.current });
+          return;
+        }
 
-      // אימות שהשרת שמר את הערך הנכון
-      if (updatedRecord?.legal_status_id !== newStatusId) {
-        console.error('[STATUS CHANGE] MISMATCH after save!', {
-          expected: newStatusId,
-          received: updatedRecord?.legal_status_id
-        });
-        setSelectedLegalStatusId(String(oldStatusId || ''));
-        toast.error('הסטטוס לא נשמר כראוי - פנה למנהל המערכת');
-        setSavingStatus(false);
-        return;
-      }
-
-      // רישום היסטוריה
-      try {
-        await base44.entities.LegalStatusHistory.create({
+        // רישום היסטוריה (non-blocking)
+        base44.entities.LegalStatusHistory.create({
           debtor_record_id: record.id,
           apartment_number: record.apartmentNumber,
           old_status_id: oldStatusId || null,
@@ -432,71 +401,48 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           changed_at: now,
           changed_by: currentUser.email || currentUser.username,
           source: 'MANUAL'
+        }).catch(() => {});
+
+        // עדכון נקודתי של cache (ללא refetch כבד)
+        queryClient.setQueryData(['debtorRecords'], (old) => {
+          if (!old) return old;
+          return old.map(r => r.id === record.id ? { ...r, ...updatedRecord } : r);
         });
-        console.log('[STATUS CHANGE] History record created');
-      } catch (histErr) {
-        console.warn('[STATUS CHANGE] History creation failed (non-critical):', histErr);
+
+        setEditedRecord(prev => ({
+          ...prev,
+          legal_status_id: updatedRecord.legal_status_id,
+          legal_status_source: 'MANUAL',
+          legal_status_lock: true,
+          legal_status_updated_at: updatedRecord.legal_status_updated_at || now,
+          legal_status_updated_by: updatedRecord.legal_status_updated_by || (currentUser.email || currentUser.username)
+        }));
+
+        setSavingStatus(false);
+        
+      } catch (err) {
+        // Last-write-wins: ignore stale errors
+        if (currentRequestId !== statusRequestIdRef.current) {
+          return;
+        }
+
+        // ROLLBACK מיידי
+        setSelectedLegalStatusId(String(oldStatusId || ''));
+        
+        queryClient.setQueryData(['debtorRecords'], (old) => {
+          if (!old) return old;
+          return old.map(r => r.id === record.id ? { ...r, legal_status_id: oldStatusId } : r);
+        });
+
+        setEditedRecord(prev => ({
+          ...prev,
+          legal_status_id: oldStatusId
+        }));
+
+        setStatusSaveError('שמירה נכשלה');
+        setSavingStatus(false);
       }
-
-      // עדכון state מקומי עם תשובת השרת
-      setEditedRecord(prev => ({
-        ...prev,
-        legal_status_id: updatedRecord.legal_status_id,
-        legal_status_source: 'MANUAL',
-        legal_status_lock: true,
-        legal_status_updated_at: updatedRecord.legal_status_updated_at || now,
-        legal_status_updated_by: updatedRecord.legal_status_updated_by || (currentUser.email || currentUser.username)
-      }));
-
-      // עדכון cache של react-query
-      queryClient.setQueryData(['debtorRecords'], (old) => {
-        if (!old) return old;
-        return old.map(r => r.id === record.id ? { ...r, ...updatedRecord } : r);
-      });
-
-      // הודעת הצלחה
-      toast.success('הסטטוס עודכן בהצלחה');
-      console.log('[STATUS CHANGE] ✓ Success - update completed');
-      
-    } catch (err) {
-      // טיפול מפורט בשגיאות
-      console.error('[STATUS CHANGE] ✗ FAILED:', {
-        recordId: record.id,
-        apartmentNumber: record.apartmentNumber,
-        fieldName: 'legal_status_id',
-        newValue: newStatusId,
-        errorType: err?.constructor?.name,
-        errorMessage: err?.message,
-        httpStatus: err?.response?.status,
-        responseBody: err?.response?.data,
-        fullError: err
-      });
-
-      // החזרה לערך הקודם ב-UI
-      setSelectedLegalStatusId(String(oldStatusId || ''));
-
-      // הודעת שגיאה מפורטת למשתמש
-      let errorMessage = 'שמירה נכשלה - נסה שוב';
-      
-      const statusCode = err?.response?.status || err?.status;
-      
-      if (statusCode === 401) {
-        errorMessage = 'לא מורשה - אנא התחבר מחדש';
-      } else if (statusCode === 403) {
-        errorMessage = 'אין הרשאה - צור קשר עם מנהל המערכת';
-      } else if (statusCode === 422) {
-        errorMessage = 'ערך לא תקין - בחר סטטוס אחר';
-      } else if (statusCode === 500) {
-        errorMessage = 'שגיאת שרת - פנה למנהל המערכת';
-      } else if (err?.message && !err?.message.includes('fetch')) {
-        errorMessage = err.message;
-      }
-
-      toast.error(errorMessage);
-      
-    } finally {
-      setSavingStatus(false);
-    }
+    })();
   };
 
   const InfoRow = ({ icon: Icon, label, value }) => (
@@ -771,7 +717,10 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                           {currentStatus.name}
                         </Badge>
                         {savingStatus && (
-                          <span className="text-xs text-blue-600 font-semibold animate-pulse">שומר...</span>
+                          <span className="text-xs text-blue-600 font-semibold">שומר...</span>
+                        )}
+                        {statusSaveError && (
+                          <span className="text-xs text-red-600 font-semibold">{statusSaveError}</span>
                         )}
                       </div>
                     );
