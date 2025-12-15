@@ -15,6 +15,7 @@ import DebtorsTable from '../components/dashboard/DebtorsTable';
 import ApartmentDetailModal from '../components/dashboard/ApartmentDetailModal';
 import ExcelExporter from '../components/export/ExcelExporter';
 import PDFExporter from '../components/export/PDFExporter';
+import LastImportIndicator from '../components/dashboard/LastImportIndicator';
 
 function DashboardContent() {
   const { currentUser, loading, authChecked } = useAuth();
@@ -237,6 +238,9 @@ function DashboardContent() {
             </div>
             </div>
 
+        {/* אינדיקציית ייבוא אחרון */}
+        <LastImportIndicator lastImportAt={settings?.last_import_at} />
+
         {/* כרטיסי KPI */}
         <KPICards records={records} settings={settings} allStatuses={allStatuses} />
 
@@ -262,7 +266,6 @@ function DashboardContent() {
           onClose={() => setIsModalOpen(false)}
           onSave={handleSaveRecord}
           isAdmin={isAdmin}
-          currentUser={currentUser}
         />
       </div>
     </div>
