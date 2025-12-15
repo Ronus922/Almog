@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Clock, AlertTriangle, Upload } from "lucide-react";
+import { AlertTriangle, Upload } from "lucide-react";
 
 export default function LastImportIndicator({ lastImportAt, isAdmin = false }) {
   const navigate = useNavigate();
@@ -12,71 +12,14 @@ export default function LastImportIndicator({ lastImportAt, isAdmin = false }) {
     navigate(createPageUrl('Import'));
   };
 
-  // VIEWER/GUEST - תצוגה ניטרלית בלבד
-  if (!isAdmin) {
-    if (!lastImportAt) {
-      return (
-        <Alert className="bg-gradient-to-l from-slate-50 to-slate-100 border-slate-200 rounded-xl mb-6" dir="rtl">
-          <div className="flex items-center gap-3">
-            <Clock className="w-5 h-5 text-slate-500 flex-shrink-0" />
-            <AlertDescription className="text-slate-700 font-medium text-sm">
-              אין מידע עדכני על תאריך הייבוא
-            </AlertDescription>
-          </div>
-        </Alert>
-      );
-    }
+  // חישוב זמן מאז העדכון האחרון
+  const nowMs = Date.now();
+  const lastMs = lastImportAt ? new Date(lastImportAt).getTime() : null;
+  const noDate = !lastImportAt || isNaN(lastMs);
+  const hoursSince = noDate ? null : (nowMs - lastMs) / (1000 * 60 * 60);
+  const showWarning48 = !noDate && hoursSince > 48;
 
-    const lastImportDate = new Date(lastImportAt);
-    const formattedDate = lastImportDate.toLocaleString('he-IL', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-
-    return (
-      <Alert className="bg-gradient-to-l from-blue-50 to-blue-100 border-blue-200 rounded-xl mb-6" dir="rtl">
-        <div className="flex items-center gap-3">
-          <Clock className="w-5 h-5 text-blue-600 flex-shrink-0" />
-          <AlertDescription className="text-blue-800 font-medium text-sm">
-            הנתונים מעודכנים נכון לתאריך: {formattedDate}
-          </AlertDescription>
-        </div>
-      </Alert>
-    );
-  }
-
-  // ADMIN - לוגיקה מלאה עם אזהרות וכפתורים
-  if (!lastImportAt) {
-    return (
-      <Alert className="bg-gradient-to-l from-red-50 to-red-100 border-red-300 rounded-xl mb-6" dir="rtl">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0" />
-            <AlertDescription className="text-red-800 font-bold text-sm">
-              ⚠️ נדרש לייבא נתונים מעדכניים
-            </AlertDescription>
-          </div>
-          <Button 
-            onClick={handleNavigateToImport}
-            className="bg-red-600 hover:bg-red-700 text-white h-9 px-4 rounded-lg font-bold text-sm flex-shrink-0"
-          >
-            <Upload className="w-4 h-4 ml-2" />
-            ייבוא נתונים
-          </Button>
-        </div>
-      </Alert>
-    );
-  }
-
-  const lastImportDate = new Date(lastImportAt);
-  const now = new Date();
-  const hoursSince = (now - lastImportDate) / (1000 * 60 * 60);
-  const isStale = hoursSince > 48;
-
-  const formattedDate = lastImportDate.toLocaleString('he-IL', {
+  const formattedDate = noDate ? '—' : new Date(lastImportAt).toLocaleString('he-IL', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric',
@@ -84,41 +27,73 @@ export default function LastImportIndicator({ lastImportAt, isAdmin = false }) {
     minute: '2-digit'
   });
 
-  if (isStale) {
+  // מצב A: בתוך 48 שעות - תצוגה ניטרלית ללא רקע
+  if (!showWarning48 && !noDate) {
     return (
-      <Alert className="bg-gradient-to-l from-red-50 to-red-100 border-red-400 rounded-xl mb-6" dir="rtl">
+      <div className="mb-6 p-3 rounded-lg bg-slate-50 border border-slate-200" dir="rtl">
+        <div className="text-sm text-slate-700">
+          <span className="font-semibold">העדכון האחרון בוצע:</span>
+          <div className="mt-1 text-slate-600">{formattedDate}</div>
+        </div>
+      </div>
+    );
+  }
+
+  // מצב B: עברו יותר מ-48 שעות - אזהרה עדינה
+  if (showWarning48) {
+    return (
+      <Alert className="bg-gradient-to-l from-amber-50 to-orange-50 border-amber-300 rounded-xl mb-6" dir="rtl">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
-            <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0" />
+          <div className="flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <AlertDescription className="text-red-800 font-bold text-sm">
-                ⚠️ הנתונים לא עודכנו ב־48 השעות האחרונות – מומלץ לבצע ייבוא
+              <AlertDescription className="text-amber-900 font-semibold text-sm">
+                העדכון האחרון בוצע:
               </AlertDescription>
-              <AlertDescription className="text-red-700 text-xs mt-1">
-                עודכן לאחרונה: {formattedDate}
+              <AlertDescription className="text-amber-800 text-sm mt-1">
+                {formattedDate}
+              </AlertDescription>
+              <AlertDescription className="text-amber-700 text-xs mt-2 font-medium">
+                הנתונים לא עודכנו ב־48 השעות האחרונות – מומלץ לבצע ייבוא
               </AlertDescription>
             </div>
           </div>
-          <Button 
-            onClick={handleNavigateToImport}
-            className="bg-red-600 hover:bg-red-700 text-white h-9 px-4 rounded-lg font-bold text-sm flex-shrink-0"
-          >
-            <Upload className="w-4 h-4 ml-2" />
-            ייבוא נתונים
-          </Button>
+          {isAdmin && (
+            <Button 
+              onClick={handleNavigateToImport}
+              className="bg-amber-600 hover:bg-amber-700 text-white h-9 px-4 rounded-lg font-bold text-sm flex-shrink-0"
+            >
+              <Upload className="w-4 h-4 ml-2" />
+              ייבוא נתונים
+            </Button>
+          )}
         </div>
       </Alert>
     );
   }
 
+  // מצב C: אין תאריך
   return (
-    <Alert className="bg-gradient-to-l from-blue-50 to-blue-100 border-blue-200 rounded-xl mb-6" dir="rtl">
-      <div className="flex items-center gap-3">
-        <Clock className="w-5 h-5 text-blue-600 flex-shrink-0" />
-        <AlertDescription className="text-blue-800 font-bold text-sm">
-          ⟳ תאריך ייבוא: {formattedDate}
-        </AlertDescription>
+    <div className="mb-6 p-3 rounded-lg bg-slate-50 border border-slate-200" dir="rtl">
+      <div className="text-sm text-slate-700">
+        <span className="font-semibold">העדכון האחרון בוצע:</span>
+        <div className="mt-1 text-slate-600">{formattedDate}</div>
+        {isAdmin && (
+          <div className="mt-2 text-xs text-amber-700 font-medium">
+            נדרש לייבא נתונים מעדכניים
+          </div>
+        )}
       </div>
-    </Alert>
+      {isAdmin && (
+        <Button 
+          onClick={handleNavigateToImport}
+          size="sm"
+          className="mt-3 bg-blue-600 hover:bg-blue-700 text-white h-8 px-3 rounded-lg font-bold text-xs"
+        >
+          <Upload className="w-3 h-3 ml-2" />
+          ייבוא נתונים
+        </Button>
+      )}
+    </div>
   );
 }
