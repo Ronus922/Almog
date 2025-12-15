@@ -53,13 +53,18 @@ import { toast } from "sonner";
 import { isManagerRole, getUserRoleDisplay } from '@/components/utils/roles';
 
 const COLOR_OPTIONS = [
-  { value: 'bg-green-100 text-green-700', label: 'ירוק', preview: 'bg-green-100' },
-  { value: 'bg-yellow-100 text-yellow-700', label: 'צהוב', preview: 'bg-yellow-100' },
-  { value: 'bg-orange-100 text-orange-700', label: 'כתום', preview: 'bg-orange-100' },
-  { value: 'bg-red-100 text-red-700', label: 'אדום', preview: 'bg-red-100' },
-  { value: 'bg-blue-100 text-blue-700', label: 'כחול', preview: 'bg-blue-100' },
-  { value: 'bg-purple-100 text-purple-700', label: 'סגול', preview: 'bg-purple-100' },
-  { value: 'bg-slate-100 text-slate-700', label: 'אפור', preview: 'bg-slate-100' },
+  { value: 'bg-green-100 text-green-700 border-green-200', label: 'ירוק', preview: 'bg-green-100 border-green-200' },
+  { value: 'bg-yellow-100 text-yellow-700 border-yellow-200', label: 'צהוב', preview: 'bg-yellow-100 border-yellow-200' },
+  { value: 'bg-orange-100 text-orange-700 border-orange-200', label: 'כתום', preview: 'bg-orange-100 border-orange-200' },
+  { value: 'bg-red-100 text-red-700 border-red-200', label: 'אדום', preview: 'bg-red-100 border-red-200' },
+  { value: 'bg-blue-100 text-blue-700 border-blue-200', label: 'כחול', preview: 'bg-blue-100 border-blue-200' },
+  { value: 'bg-purple-100 text-purple-700 border-purple-200', label: 'סגול', preview: 'bg-purple-100 border-purple-200' },
+  { value: 'bg-pink-100 text-pink-700 border-pink-200', label: 'ורוד', preview: 'bg-pink-100 border-pink-200' },
+  { value: 'bg-indigo-100 text-indigo-700 border-indigo-200', label: 'אינדיגו', preview: 'bg-indigo-100 border-indigo-200' },
+  { value: 'bg-teal-100 text-teal-700 border-teal-200', label: 'טורקיז', preview: 'bg-teal-100 border-teal-200' },
+  { value: 'bg-slate-100 text-slate-700 border-slate-200', label: 'אפור', preview: 'bg-slate-100 border-slate-200' },
+  { value: 'bg-emerald-100 text-emerald-700 border-emerald-200', label: 'ירוק כהה', preview: 'bg-emerald-100 border-emerald-200' },
+  { value: 'bg-cyan-100 text-cyan-700 border-cyan-200', label: 'תכלת', preview: 'bg-cyan-100 border-cyan-200' },
 ];
 
 export default function StatusManagement() {
@@ -475,7 +480,7 @@ export default function StatusManagement() {
                       <TableCell className="font-semibold">{status.name}</TableCell>
                       <TableCell className="text-slate-600">{status.description || '-'}</TableCell>
                       <TableCell>
-                        <Badge className={`${status.color} transition-all duration-200 hover:opacity-80`}>{status.name}</Badge>
+                        <Badge className={`${status.color} border transition-all duration-200 hover:opacity-80`}>{status.name}</Badge>
                       </TableCell>
                       <TableCell className="text-center">
                         <TooltipProvider>
@@ -587,7 +592,7 @@ export default function StatusManagement() {
                   {COLOR_OPTIONS.map(opt => (
                     <SelectItem key={opt.value} value={opt.value}>
                       <div className="flex items-center gap-2">
-                        <div className={`w-4 h-4 rounded ${opt.preview}`} />
+                        <div className={`w-5 h-5 rounded border ${opt.preview}`} />
                         {opt.label}
                       </div>
                     </SelectItem>
@@ -663,7 +668,7 @@ export default function StatusManagement() {
                           .map((status) => (
                             <SelectItem key={status.id} value={status.id}>
                               <div className="flex items-center gap-2">
-                                <Badge className={`${status.color} text-xs transition-all duration-200 hover:opacity-80`}>
+                                <Badge className={`${status.color} border text-xs transition-all duration-200 hover:opacity-80`}>
                                   {status.name}
                                 </Badge>
                               </div>
