@@ -15,18 +15,18 @@ import {
 
 const KPICard = ({ title, value, icon: Icon, color, subtext, onClick, isClickable, bgColor }) => (
   <Card 
-    className={`p-4 md:p-5 bg-white/80 backdrop-blur border-0 shadow-lg hover:shadow-2xl transition-all duration-300 rounded-2xl group ${isClickable ? 'cursor-pointer hover:scale-105 hover:-translate-y-1' : 'hover:scale-102'}`}
-    style={{ height: '130px' }}
+    className={`p-3 md:p-4 bg-white/80 backdrop-blur border-0 shadow-lg hover:shadow-2xl transition-all duration-300 rounded-2xl group ${isClickable ? 'cursor-pointer hover:scale-105 hover:-translate-y-1' : 'hover:scale-102'}`}
+    style={{ height: '100px' }}
     onClick={onClick}
   >
-    <div className="flex items-center gap-3 md:gap-4 h-full">
-      <div className={`flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-md`} style={bgColor ? { backgroundColor: bgColor } : {}} className={bgColor ? 'flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-md' : `flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-2xl flex items-center justify-center ${color.replace('text-', 'bg-').replace('-600', '-100').replace('-700', '-100')} group-hover:scale-110 transition-transform shadow-md`}>
-        <Icon className={`w-6 h-6 md:w-7 md:h-7 ${color}`} />
+    <div className="flex items-center gap-2 md:gap-3 h-full">
+      <div className={`flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-md`} style={bgColor ? { backgroundColor: bgColor } : {}} className={bgColor ? 'flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-md' : `flex-shrink-0 w-10 h-10 md:w-12 md:h-12 rounded-xl flex items-center justify-center ${color.replace('text-', 'bg-').replace('-600', '-100').replace('-700', '-100')} group-hover:scale-110 transition-transform shadow-md`}>
+        <Icon className={`w-5 h-5 md:w-6 md:h-6 ${color}`} />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="text-sm md:text-base text-slate-800 font-extrabold tracking-tight line-clamp-2 mb-1">{title}</p>
-        <p className={`text-xl md:text-2xl font-black ${bgColor ? 'text-[#ff8080]' : color} leading-tight`} title={value}>{value}</p>
-        {subtext && <p className="text-xs text-slate-500 mt-1 line-clamp-1 font-semibold">{subtext}</p>}
+        <p className="text-xs md:text-sm text-slate-800 font-extrabold tracking-tight line-clamp-2 mb-0.5">{title}</p>
+        <p className={`text-lg md:text-xl font-black ${bgColor ? 'text-[#ff8080]' : color} leading-tight`} title={value}>{value}</p>
+        {subtext && <p className="text-[10px] md:text-xs text-slate-500 mt-0.5 line-clamp-1 font-semibold">{subtext}</p>}
       </div>
     </div>
   </Card>
@@ -94,7 +94,7 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
       value: debtorCount, 
       icon: Home, 
       color: "text-blue-600",
-      subtext: `מתוך ${records.length} דירות`,
+      subtext: "מתוך 298 דירות",
       isClickable: false
     },
     { 

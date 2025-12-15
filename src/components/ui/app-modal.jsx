@@ -22,7 +22,7 @@ export default function AppModal({
         <DialogOverlay className="bg-black/60 backdrop-blur-sm" />
         <DialogContent
           className="p-0 gap-0 overflow-hidden max-h-[90vh] border-0 rounded-lg shadow-2xl"
-          style={{ width: `min(630px, calc(100vw - 24px))` }}
+          style={{ width: 'min(620px, calc(100vw - 24px))', maxWidth: '620px' }}
           onPointerDownOutside={(e) => {
             if (dangerous) {
               e.preventDefault();
@@ -32,8 +32,8 @@ export default function AppModal({
         >
           <div className="flex flex-col h-full max-h-[90vh] bg-white rounded-lg overflow-hidden">
             {/* Header - Sticky */}
-            <div className="sticky top-0 z-30 flex items-center justify-between px-5 py-4 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white border-b border-white/10">
-              <div className="flex-1 flex flex-col items-end gap-1">
+            <div className="sticky top-0 z-30 flex items-center justify-between gap-4 px-5 py-4 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white border-b border-white/10">
+              <div className="flex-1 flex flex-col items-end gap-1 mr-4">
                 <div className="flex items-center gap-3">
                   <h2 className="text-lg font-bold leading-tight text-white">{title}</h2>
                   {dangerous && (
@@ -57,7 +57,7 @@ export default function AppModal({
 
               <button
                 onClick={onClose}
-                className="w-10 h-10 rounded-lg border border-white/20 bg-white/12 hover:bg-white/16 text-white flex items-center justify-center transition-opacity duration-150 mr-4"
+                className="w-10 h-10 rounded-lg border border-white/20 bg-white/12 hover:bg-white/16 text-white flex items-center justify-center transition-opacity duration-150 flex-shrink-0"
                 aria-label="סגור"
               >
                 <X className="w-[18px] h-[18px]" />
