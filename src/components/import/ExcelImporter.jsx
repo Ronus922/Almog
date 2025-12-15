@@ -556,6 +556,24 @@ export default function ExcelImporter({ onImportComplete }) {
         console.warn(`[Excel Import] Error details:`, errorDetails);
       }
 
+      // עדכון תאריך ייבוא אחרון ב-Settings
+      try {
+        const settingsList = await base44.entities.Settings.list();
+        if (settingsList.length > 0) {
+          await base44.entities.Settings.update(settingsList[0].id, {
+            last_import_at: new Date().toISOString()
+          });
+          console.log('[Excel Import] Updated last_import_at in Settings');
+        } else {
+          await base44.entities.Settings.create({
+            last_import_at: new Date().toISOString()
+          });
+          console.log('[Excel Import] Created Settings with last_import_at');
+        }
+      } catch (settingsErr) {
+        console.warn('[Excel Import] Failed to update last_import_at (non-critical):', settingsErr);
+      }
+
       setImportResult({ created, updated, errors, total: totalRows });
       setStep(3);
       toast.success('הייבוא הושלם בהצלחה');
