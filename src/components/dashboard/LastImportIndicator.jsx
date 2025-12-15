@@ -1,16 +1,34 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
+import { createPageUrl } from '@/utils';
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Clock, AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Clock, AlertTriangle, Upload } from "lucide-react";
 
 export default function LastImportIndicator({ lastImportAt }) {
+  const navigate = useNavigate();
+
+  const handleNavigateToImport = () => {
+    navigate(createPageUrl('Import'));
+  };
+
   if (!lastImportAt) {
     return (
       <Alert className="bg-gradient-to-l from-red-50 to-red-100 border-red-300 rounded-xl mb-6" dir="rtl">
-        <div className="flex items-center gap-3">
-          <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0" />
-          <AlertDescription className="text-red-800 font-bold text-sm">
-            ⚠️ טרם בוצע ייבוא נתונים
-          </AlertDescription>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0" />
+            <AlertDescription className="text-red-800 font-bold text-sm">
+              ⚠️ נדרש לייבא נתונים מעדכניים
+            </AlertDescription>
+          </div>
+          <Button 
+            onClick={handleNavigateToImport}
+            className="bg-red-600 hover:bg-red-700 text-white h-9 px-4 rounded-lg font-bold text-sm flex-shrink-0"
+          >
+            <Upload className="w-4 h-4 ml-2" />
+            ייבוא נתונים
+          </Button>
         </div>
       </Alert>
     );
@@ -32,16 +50,25 @@ export default function LastImportIndicator({ lastImportAt }) {
   if (isStale) {
     return (
       <Alert className="bg-gradient-to-l from-red-50 to-red-100 border-red-400 rounded-xl mb-6" dir="rtl">
-        <div className="flex items-center gap-3">
-          <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0" />
-          <div className="flex-1">
-            <AlertDescription className="text-red-800 font-bold text-sm">
-              ⚠️ לא בוצע ייבוא כבר יותר מיומיים
-            </AlertDescription>
-            <AlertDescription className="text-red-700 text-xs mt-1">
-              עודכן לאחרונה: {formattedDate}
-            </AlertDescription>
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-red-600 flex-shrink-0" />
+            <div className="flex-1">
+              <AlertDescription className="text-red-800 font-bold text-sm">
+                ⚠️ הנתונים לא עודכנו ב־48 השעות האחרונות – מומלץ לבצע ייבוא
+              </AlertDescription>
+              <AlertDescription className="text-red-700 text-xs mt-1">
+                עודכן לאחרונה: {formattedDate}
+              </AlertDescription>
+            </div>
           </div>
+          <Button 
+            onClick={handleNavigateToImport}
+            className="bg-red-600 hover:bg-red-700 text-white h-9 px-4 rounded-lg font-bold text-sm flex-shrink-0"
+          >
+            <Upload className="w-4 h-4 ml-2" />
+            ייבוא נתונים
+          </Button>
         </div>
       </Alert>
     );
