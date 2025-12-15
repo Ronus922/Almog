@@ -32,22 +32,22 @@ export default function PDFExporter({ records, statuses, settings }) {
       
       // Create HTML content for PDF
       const htmlContent = `
-        <div id="pdf-root" dir="rtl" lang="he" style="direction: rtl; text-align: right; unicode-bidi: bidi-override; font-family: Arial, sans-serif;">
+        <div id="pdf-root" dir="rtl" lang="he" style="direction: rtl; text-align: right; unicode-bidi: plaintext; font-family: Arial, sans-serif;">
           <style>
             #pdf-root,
             #pdf-root * {
               direction: rtl !important;
               text-align: right !important;
-              unicode-bidi: bidi-override !important;
+              unicode-bidi: plaintext !important;
             }
-            
+
             #pdf-root table {
               direction: rtl !important;
               border-collapse: collapse;
               width: 100%;
               font-size: 9px;
             }
-            
+
             #pdf-root th,
             #pdf-root td {
               text-align: right !important;
@@ -55,22 +55,22 @@ export default function PDFExporter({ records, statuses, settings }) {
               border: 1px solid #e2e8f0;
               white-space: nowrap;
             }
-            
+
             #pdf-root th {
               background-color: #334155;
               color: white;
               font-weight: bold;
               font-size: 10px;
             }
-            
+
             #pdf-root tr:nth-child(even) {
               background-color: #f8fafc;
             }
-            
+
             #pdf-root .num {
               direction: ltr !important;
               unicode-bidi: isolate !important;
-              text-align: left !important;
+              display: inline-block;
               font-weight: bold;
             }
             
@@ -114,15 +114,15 @@ export default function PDFExporter({ records, statuses, settings }) {
               ${records.map(record => {
                 const legalStatus = statuses?.find(s => s.id === record.legal_status_id && s.type === 'LEGAL');
                 const legalStatusName = legalStatus?.name || 'לא הוגדר';
-                
+
                 return `
                   <tr>
-                    <td>${record.apartmentNumber || ''}</td>
+                    <td><span class="num">${record.apartmentNumber || ''}</span></td>
                     <td>${record.ownerName || ''}</td>
-                    <td>${record.phonePrimary || ''}</td>
-                    <td class="num">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.totalDebt || 0)}</td>
-                    <td class="num">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.monthlyDebt || 0)}</td>
-                    <td class="num">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.specialDebt || 0)}</td>
+                    <td><span class="num">${record.phonePrimary || ''}</span></td>
+                    <td><span class="num">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.totalDebt || 0)}</span></td>
+                    <td><span class="num">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.monthlyDebt || 0)}</span></td>
+                    <td><span class="num">${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.specialDebt || 0)}</span></td>
                     <td>${record.debt_status_auto || 'תקין'}</td>
                     <td>${legalStatusName}</td>
                   </tr>
