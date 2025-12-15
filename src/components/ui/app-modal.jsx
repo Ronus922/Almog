@@ -12,7 +12,7 @@ export default function AppModal({
   children,
   footer,
   dangerous = false,
-  maxWidth = "1100px",
+  maxWidth = "630px",
   className,
 }) {
   return (
@@ -20,20 +20,20 @@ export default function AppModal({
       <DialogPortal>
         <DialogOverlay className="bg-black/60 backdrop-blur-sm" />
         <DialogContent
-          className="p-0 gap-0 overflow-hidden max-h-[90vh] border-0"
-          style={{ width: `min(${maxWidth}, calc(100vw - 32px))` }}
+          className="p-0 gap-0 overflow-hidden max-h-[90vh] border-0 rounded-lg shadow-2xl"
+          style={{ width: `min(${maxWidth}, calc(100vw - 24px))` }}
           onPointerDownOutside={(e) => {
             if (dangerous) {
               e.preventDefault();
             }
           }}
         >
-          <div className="flex flex-col h-full max-h-[90vh]">
+          <div className="flex flex-col h-full max-h-[90vh] bg-white rounded-lg overflow-hidden">
             {/* Header - Sticky */}
-            <div className="sticky top-0 z-30 flex items-center justify-between px-5 py-4 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white border-b border-white/10 backdrop-blur-md">
+            <div className="sticky top-0 z-30 flex items-center justify-between px-5 py-4 bg-gradient-to-b from-slate-700/95 to-slate-800/92 text-white border-b border-white/10">
               <div className="flex-1 text-right">
                 <div className="flex items-center gap-3 justify-end">
-                  <h2 className="text-lg font-bold leading-tight">{title}</h2>
+                  <h2 className="text-lg font-bold leading-tight text-white">{title}</h2>
                   {dangerous && (
                     <span className="px-2 py-0.5 text-xs font-semibold bg-red-500/20 text-red-200 border border-red-400/30 rounded-md">
                       פעולה בלתי הפיכה
@@ -41,7 +41,7 @@ export default function AppModal({
                   )}
                 </div>
                 {subtitle && (
-                  <p className="text-sm text-slate-300 mt-1 opacity-90">{subtitle}</p>
+                  <p className="text-sm mt-1" style={{ color: 'rgba(255, 255, 255, 0.85)' }}>{subtitle}</p>
                 )}
               </div>
 
@@ -56,10 +56,10 @@ export default function AppModal({
                 )}
                 <button
                   onClick={onClose}
-                  className="h-10 min-w-[92px] px-3 rounded-xl border border-white/20 bg-white/10 hover:bg-white/15 text-white flex items-center justify-center gap-2 transition-all duration-150 hover:opacity-90 hover:-translate-y-0.5 active:translate-y-0 active:opacity-85"
+                  className="w-10 h-10 rounded-lg border border-white/20 bg-white/12 hover:bg-white/18 text-white flex items-center justify-center transition-all duration-120 hover:opacity-95 hover:-translate-y-px active:translate-y-0 active:opacity-85"
+                  aria-label="סגור"
                 >
-                  <span className="font-semibold text-sm">סגור</span>
-                  <X className="w-4 h-4" />
+                  <X className="w-[18px] h-[18px]" />
                 </button>
               </div>
             </div>
