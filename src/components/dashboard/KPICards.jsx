@@ -15,17 +15,20 @@ import {
 
 const KPICard = ({ title, value, icon: Icon, color, subtext, onClick, isClickable, bgColor }) => (
   <Card 
-    className={`p-5 md:p-7 bg-white/80 backdrop-blur border-0 shadow-lg hover:shadow-2xl transition-all duration-300 h-full rounded-2xl group ${isClickable ? 'cursor-pointer hover:scale-105 hover:-translate-y-1' : 'hover:scale-102'}`}
+    className={`p-5 md:p-7 bg-white/80 backdrop-blur border-0 shadow-lg hover:shadow-2xl transition-all duration-300 rounded-2xl group ${isClickable ? 'cursor-pointer hover:scale-105 hover:-translate-y-1' : 'hover:scale-102'}`}
+    style={{ height: '280px' }}
     onClick={onClick}
   >
-    <div className="flex items-center gap-4 md:gap-6">
-      <div className={`flex-shrink-0 w-14 h-14 md:w-20 md:h-20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-md`} style={bgColor ? { backgroundColor: bgColor } : {}} className={bgColor ? 'flex-shrink-0 w-14 h-14 md:w-20 md:h-20 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-md' : `flex-shrink-0 w-14 h-14 md:w-20 md:h-20 rounded-2xl flex items-center justify-center ${color.replace('text-', 'bg-').replace('-600', '-100').replace('-700', '-100')} group-hover:scale-110 transition-transform shadow-md`}>
-        <Icon className={`w-7 h-7 md:w-10 md:h-10 ${color}`} />
+    <div className="flex flex-col justify-center h-full gap-4 md:gap-6">
+      <div className="flex items-center justify-between">
+        <p className="text-base md:text-lg text-slate-800 font-extrabold tracking-tight">{title}</p>
+        <div className={`flex-shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-md`} style={bgColor ? { backgroundColor: bgColor } : {}} className={bgColor ? 'flex-shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-md' : `flex-shrink-0 w-14 h-14 md:w-16 md:h-16 rounded-2xl flex items-center justify-center ${color.replace('text-', 'bg-').replace('-600', '-100').replace('-700', '-100')} group-hover:scale-110 transition-transform shadow-md`}>
+          <Icon className={`w-7 h-7 md:w-8 md:h-8 ${color}`} />
+        </div>
       </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-base md:text-lg text-slate-800 font-extrabold tracking-tight line-clamp-2 mb-2">{title}</p>
-        <p className={`text-xl md:text-2xl font-black ${bgColor ? 'text-[#ff8080]' : color} leading-tight mb-1`} title={value}>{value}</p>
-        {subtext && <p className="text-xs md:text-sm text-slate-500 mt-2 line-clamp-1 font-semibold">{subtext}</p>}
+      <div>
+        <p className={`text-2xl md:text-3xl font-black ${bgColor ? 'text-[#ff8080]' : color} leading-tight mb-1`} title={value}>{value}</p>
+        {subtext && <p className="text-xs md:text-sm text-slate-500 mt-2 font-semibold">{subtext}</p>}
       </div>
     </div>
   </Card>
