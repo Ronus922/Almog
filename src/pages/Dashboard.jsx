@@ -238,11 +238,11 @@ function DashboardContent() {
             </div>
             </div>
 
-        {/* אינדיקציית ייבוא אחרון */}
-        <LastImportIndicator lastImportAt={settings?.last_import_at} />
-
         {/* כרטיסי KPI */}
         <KPICards records={records} settings={settings} allStatuses={allStatuses} />
+
+        {/* אינדיקציית ייבוא אחרון - בין KPI לטבלה */}
+        <LastImportIndicator lastImportAt={settings?.last_import_at} isAdmin={isAdmin} />
 
         {/* טבלת חייבים */}
         <div data-debtors-table>

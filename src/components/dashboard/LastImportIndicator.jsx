@@ -5,13 +5,50 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Clock, AlertTriangle, Upload } from "lucide-react";
 
-export default function LastImportIndicator({ lastImportAt }) {
+export default function LastImportIndicator({ lastImportAt, isAdmin = false }) {
   const navigate = useNavigate();
 
   const handleNavigateToImport = () => {
     navigate(createPageUrl('Import'));
   };
 
+  // VIEWER/GUEST - תצוגה ניטרלית בלבד
+  if (!isAdmin) {
+    if (!lastImportAt) {
+      return (
+        <Alert className="bg-gradient-to-l from-slate-50 to-slate-100 border-slate-200 rounded-xl mb-6" dir="rtl">
+          <div className="flex items-center gap-3">
+            <Clock className="w-5 h-5 text-slate-500 flex-shrink-0" />
+            <AlertDescription className="text-slate-700 font-medium text-sm">
+              אין מידע עדכני על תאריך הייבוא
+            </AlertDescription>
+          </div>
+        </Alert>
+      );
+    }
+
+    const lastImportDate = new Date(lastImportAt);
+    const formattedDate = lastImportDate.toLocaleString('he-IL', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+
+    return (
+      <Alert className="bg-gradient-to-l from-blue-50 to-blue-100 border-blue-200 rounded-xl mb-6" dir="rtl">
+        <div className="flex items-center gap-3">
+          <Clock className="w-5 h-5 text-blue-600 flex-shrink-0" />
+          <AlertDescription className="text-blue-800 font-medium text-sm">
+            הנתונים מעודכנים נכון לתאריך: {formattedDate}
+          </AlertDescription>
+        </div>
+      </Alert>
+    );
+  }
+
+  // ADMIN - לוגיקה מלאה עם אזהרות וכפתורים
   if (!lastImportAt) {
     return (
       <Alert className="bg-gradient-to-l from-red-50 to-red-100 border-red-300 rounded-xl mb-6" dir="rtl">
@@ -79,7 +116,7 @@ export default function LastImportIndicator({ lastImportAt }) {
       <div className="flex items-center gap-3">
         <Clock className="w-5 h-5 text-blue-600 flex-shrink-0" />
         <AlertDescription className="text-blue-800 font-bold text-sm">
-          ⟳ עודכן לאחרונה: {formattedDate}
+          ⟳ תאריך ייבוא: {formattedDate}
         </AlertDescription>
       </div>
     </Alert>
