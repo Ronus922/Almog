@@ -262,8 +262,21 @@ export default function DebtorsTable({
               </div>
               <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
                 <SheetTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-10 px-3 rounded-xl">
-                    <SlidersHorizontal className="w-4 h-4 ml-1" />
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="h-10 px-3 rounded-xl"
+                    style={{ 
+                      fontSize: '15px', 
+                      fontWeight: 800, 
+                      letterSpacing: 0,
+                      minHeight: '40px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: '8px'
+                    }}
+                  >
+                    <SlidersHorizontal className="w-4 h-4" />
                     חיפוש מורחב
                     {(hasActiveFilters || hasAdvancedFilters) && (
                       <span className="mr-1 w-2 h-2 bg-blue-600 rounded-full"></span>
@@ -403,9 +416,18 @@ export default function DebtorsTable({
                 variant={showAdvancedFilters ? "default" : "outline"}
                 size="sm" 
                 onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                className="h-11 rounded-xl"
+                className="h-11 rounded-xl px-4"
+                style={{ 
+                  fontSize: '15px', 
+                  fontWeight: 800, 
+                  letterSpacing: 0,
+                  minHeight: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px'
+                }}
               >
-                <SlidersHorizontal className="w-4 h-4 ml-1" />
+                <SlidersHorizontal className="w-4 h-4" />
                 חיפוש מורחב
                 {hasAdvancedFilters && (
                   <span className="mr-2 w-2 h-2 bg-white rounded-full"></span>

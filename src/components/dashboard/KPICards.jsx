@@ -25,8 +25,10 @@ const KPICard = ({ title, value, icon: Icon, color, subtext, onClick, isClickabl
       </div>
       <div className="flex-1 min-w-0">
         <p className="text-xs md:text-sm text-slate-800 font-extrabold tracking-tight line-clamp-2 mb-0.5">{title}</p>
-        <p className={`text-lg md:text-xl font-black ${bgColor ? 'text-[#ff8080]' : color} leading-tight`} title={value}>{value}</p>
-        {subtext && <p className="text-[10px] md:text-xs text-slate-500 mt-0.5 line-clamp-1 font-semibold">{subtext}</p>}
+        <div className="flex items-baseline gap-2">
+          <p className={`text-lg md:text-xl font-black ${bgColor ? 'text-[#ff8080]' : color} leading-tight`} title={value}>{value}</p>
+          {subtext && <p className="text-[10px] md:text-xs text-slate-500 font-semibold whitespace-nowrap">{subtext}</p>}
+        </div>
       </div>
     </div>
   </Card>
