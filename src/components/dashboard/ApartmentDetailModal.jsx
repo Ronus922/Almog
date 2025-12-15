@@ -585,25 +585,36 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     </div>
   );
 
+  const currentStatusLabel = legalStatuses.find(s => s.id === selectedLegalStatusId)?.name || 'לא הוגדר';
+  const currentStatusColor = legalStatuses.find(s => s.id === selectedLegalStatusId)?.color || 'bg-slate-100 text-slate-700';
+
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto rounded-3xl sm:rounded-3xl w-[95vw] sm:w-full" dir="rtl">
-        <DialogHeader className="text-right">
-          <DialogTitle className="text-2xl font-bold flex items-center justify-between">
-            <span className="bg-gradient-to-l from-slate-800 to-slate-600 bg-clip-text text-transparent">
-              פרטי דירה {editedRecord?.apartmentNumber}
-            </span>
-            {!isAdmin && (
-              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-200 mr-2">
-                <Lock className="w-4 h-4 ml-2" />
-                מצב צפייה
-              </Badge>
-            )}
-          </DialogTitle>
-        </DialogHeader>
-        
+    <AppModal
+      open={isOpen}
+      onClose={onClose}
+      title={`פרטי דירה ${record.apartmentNumber}`}
+      subtitle={`${record.ownerName || 'ללא שם בעלים'} • ${record.phonePrimary ? `טלפון: ${formatPhone(record.phonePrimary)}` : 'ללא טלפון'}`}
+      statusPill={{
+        text: currentStatusLabel,
+        color: `${currentStatusColor} border`
+      }}
+      footer={
+        <>
+          <Button variant="outline" onClick={onClose} className="rounded-xl h-11 px-6 font-semibold">
+            <X className="w-5 h-5 ml-2" />
+            סגור
+          </Button>
+          {isAdmin && (
+            <Button onClick={handleSave} disabled={isSaving} className="rounded-xl h-11 px-6 font-semibold bg-gradient-to-l from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
+              <Save className="w-5 h-5 ml-2" />
+              {isSaving ? 'שומר...' : 'שמור שינויים'}
+            </Button>
+          )}
+        </>
+      }
+    >
         {!isAdmin && (
-          <Alert className="bg-gradient-to-l from-blue-50 to-blue-100 border-blue-300 rounded-xl" dir="rtl">
+          <Alert className="bg-gradient-to-l from-blue-50 to-blue-100 border-blue-300 rounded-xl mb-6" dir="rtl">
             <div className="flex items-center gap-3">
               <Lock className="w-5 h-5 text-blue-600" />
               <AlertDescription className="text-blue-800 font-semibold">
@@ -845,19 +856,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 />
               </div>
             </div>
-          )}
-        </div>
-
-        <div className="flex flex-col sm:flex-row justify-end gap-3 md:gap-4 pt-4 md:pt-6 border-t-2" dir="rtl">
-          <Button variant="outline" onClick={onClose} className="rounded-xl h-11 md:h-12 px-4 md:px-6 font-semibold w-full sm:w-auto">
-            <X className="w-4 h-4 md:w-5 md:h-5 ml-2" />
-            סגור
-          </Button>
-          {isAdmin && (
-            <Button onClick={handleSave} disabled={isSaving} className="rounded-xl h-11 md:h-12 px-4 md:px-6 font-semibold bg-gradient-to-l from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 w-full sm:w-auto">
-              <Save className="w-4 h-4 md:w-5 md:h-5 ml-2" />
-              {isSaving ? 'שומר...' : 'שמור שינויים'}
-            </Button>
           )}
         </div>
     </AppModal>
