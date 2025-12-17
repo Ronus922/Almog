@@ -17,17 +17,17 @@ import * as XLSX from 'xlsx';
 import { useImport } from './ImportContext';
 import { toast } from 'sonner';
 
-const FIELD_MAPPINGS = {
-  apartmentNumber: { label: 'מספר דירה', patterns: ['דירה', 'apartment', 'מס דירה'], required: true },
-  ownerName: { label: 'שם', patterns: ['שם', 'דייר', 'tenant', 'שוכר', 'בעלים', 'בעל דירה'], required: false },
-  phonePrimary: { label: 'טלפון', patterns: ['טלפון', 'phone', 'נייד'], required: false },
-  totalDebt: { label: 'סה״כ חוב', patterns: ['סה"כ חוב', 'סה״כ חוב', 'total debt', 'חוב כולל'], required: true },
-  monthlyDebt: { label: 'דמי ניהול', patterns: ['דמי ניהול', 'חוב חודשי', 'חוב לתשלום חודשי', 'סה״כ חוב לתשלום חודשי', 'monthly'], required: false },
-  specialDebt: { label: 'מים חמים', patterns: ['מים חמים', 'חוב מיוחד', 'special'], required: false },
-  detailsMonthly: { label: 'פרטים חודשיים', patterns: ['פרטים'], required: false },
-  detailsSpecial: { label: 'פרטים מיוחדים', patterns: ['פרטים.1'], required: false },
-  monthlyPayment: { label: 'תשלום חודשי', patterns: ['תשלום חודשי', 'payment'], required: false }
+// מיפוי קבוע לעמודות Excel - אינדקסים מתחילים מ-0
+const FIXED_COLUMN_MAPPING = {
+  apartmentNumber: 0,  // Column A
+  ownerName: 1,         // Column B
+  phoneOwner: 2,        // Column C
+  specialDebt: 6,       // Column G
+  detailsMonthly: 7,    // Column H
+  monthlyDebt: 8        // Column I
 };
+
+const REQUIRED_COLUMNS = [0, 1, 2, 6, 7, 8]; // A, B, C, G, H, I
 
 const ALLOWED_FILE_EXTENSIONS = ['.xlsx', '.xls'];
 
@@ -63,19 +63,28 @@ export default function ExcelImporter({ onImportComplete }) {
     return { valid: true };
   };
 
-  const validateRequiredColumns = (headers, mappings) => {
+  const validateRequiredColumns = (firstRow) => {
+    // בדיקת מספר עמודות - חייב להיות לפחות 9 עמודות (עד I)
+    if (!firstRow || firstRow.length < 9) {
+      return {
+        valid: false,
+        error: `מבנה הקובץ אינו תואם. הקובץ חייב להכיל לפחות 9 עמודות (A-I)`
+      };
+    }
+
+    // בדיקה שכל העמודות הנדרשות אינן ריקות בשורה הראשונה
     const missingColumns = [];
-    
-    Object.entries(FIELD_MAPPINGS).forEach(([field, config]) => {
-      if (config.required && !mappings[field]) {
-        missingColumns.push(config.label);
+    REQUIRED_COLUMNS.forEach(colIndex => {
+      const colLetter = String.fromCharCode(65 + colIndex); // A=65, B=66, etc.
+      if (!firstRow[colIndex] || String(firstRow[colIndex]).trim() === '') {
+        missingColumns.push(`עמודה ${colLetter}`);
       }
     });
 
     if (missingColumns.length > 0) {
       return {
         valid: false,
-        error: `מבנה הקובץ אינו תואם למערכת. חסרות עמודות חובה: ${missingColumns.join(', ')}`
+        error: `עמודות חובה ריקות: ${missingColumns.join(', ')}`
       };
     }
 
@@ -208,27 +217,15 @@ export default function ExcelImporter({ onImportComplete }) {
       setHeaders(extractedHeaders);
       setExcelData(extractedRows);
 
-      // מיפוי אוטומטי
-      console.log(`[Excel Import] Stage: Auto-mapping columns`);
-      const autoMappings = {};
-      Object.entries(FIELD_MAPPINGS).forEach(([field, config]) => {
-        const matchedHeader = extractedHeaders.find(h => 
-          config.patterns.some(p => h.toLowerCase().includes(p.toLowerCase()))
-        );
-        if (matchedHeader) {
-          autoMappings[field] = matchedHeader;
-          console.log(`[Excel Import - mapColumns] Mapped "${field}" → "${matchedHeader}"`);
-        }
-      });
-      setMappings(autoMappings);
-
-      // בדיקת עמודות חובה
-      console.log(`[Excel Import] Stage: Validating required columns`);
-      const validation = validateRequiredColumns(extractedHeaders, autoMappings);
+      // בדיקת מבנה קבוע - עמודות A,B,C,G,H,I
+      console.log(`[Excel Import] Stage: Validating fixed column structure`);
+      const validation = validateRequiredColumns(extractedHeaders);
       if (!validation.valid) {
         console.error(`[Excel Import - validation] ${validation.error}`);
         throw new Error(validation.error);
       }
+
+      console.log(`[Excel Import] Fixed column mapping: A→דירה, B→שם, C→טלפון, G→מים חמים, H→פרטים, I→דמי ניהול`);
 
       console.log(`[Excel Import] ========== Success: Proceeding to step 2 ==========`);
       setStep(2);
@@ -374,19 +371,12 @@ export default function ExcelImporter({ onImportComplete }) {
   };
 
   const handleImport = async () => {
-    // בדיקה אחרונה של עמודות חובה לפני הייבוא
-    const validation = validateRequiredColumns(headers, mappings);
-    if (!validation.valid) {
-      setError(validation.error);
-      return;
-    }
-
     setIsImporting(true);
     startImport(); // Mark import as in progress
     setProgress(0);
     setError(null);
 
-    console.log(`[Excel Import] Starting import of ${excelData.length} rows in mode: ${importMode}`);
+    console.log(`[Excel Import] Starting import of ${excelData.length} rows with fixed column mapping`);
 
     try {
 
@@ -431,8 +421,10 @@ export default function ExcelImporter({ onImportComplete }) {
         const row = excelData[i];
         
         try {
-          // המרת שורה לרשומה (עם trim לכל הערכים)
-          const apartmentNumber = (getColumnValue(row, mappings.apartmentNumber) || '').toString().trim();
+          // קריאת ערכים לפי אינדקס קבוע
+          const rowArray = Object.values(row);
+          
+          const apartmentNumber = (rowArray[FIXED_COLUMN_MAPPING.apartmentNumber] || '').toString().trim();
           
           // דילוג על שורות ריקות
           if (!apartmentNumber) {
@@ -441,27 +433,37 @@ export default function ExcelImporter({ onImportComplete }) {
             continue;
           }
 
-          const ownerNameRaw = (getColumnValue(row, mappings.ownerName) || '').toString().trim();
-          const phoneRaw = (getColumnValue(row, mappings.phonePrimary) || '').toString().trim();
+          const ownerNameRaw = (rowArray[FIXED_COLUMN_MAPPING.ownerName] || '').toString().trim();
+          const phoneRaw = (rowArray[FIXED_COLUMN_MAPPING.phoneOwner] || '').toString().trim();
+          const specialDebtRaw = rowArray[FIXED_COLUMN_MAPPING.specialDebt];
+          const detailsMonthlyRaw = (rowArray[FIXED_COLUMN_MAPPING.detailsMonthly] || '').toString().trim();
+          const monthlyDebtRaw = rowArray[FIXED_COLUMN_MAPPING.monthlyDebt];
 
           const { phoneOwner, phoneTenant, phonePrimary } = extractPhoneNumbers(phoneRaw);
 
+          // ניקוי מספרים
+          const monthlyDebt = parseNumber(monthlyDebtRaw);
+          const specialDebt = parseNumber(specialDebtRaw);
+          
+          // חישוב totalDebt = monthlyDebt + specialDebt
+          const totalDebt = Math.round((monthlyDebt + specialDebt) * 100) / 100;
+
           const record = {
             apartmentNumber,
-            ownerName: ownerNameRaw.split(/[\/,]/)[0]?.trim() || '', // רק בעל הדירה, ללא שוכר
+            ownerName: ownerNameRaw.split(/[\/,]/)[0]?.trim() || '',
             phoneOwner,
             phoneTenant,
             phonePrimary,
             phonesRaw: phoneRaw,
-            totalDebt: parseNumber(getColumnValue(row, mappings.totalDebt)),
-            monthlyDebt: parseNumber(getColumnValue(row, mappings.monthlyDebt)),
-            specialDebt: parseNumber(getColumnValue(row, mappings.specialDebt)),
-            detailsMonthly: (getColumnValue(row, mappings.detailsMonthly) || '').toString().trim(),
-            detailsSpecial: (getColumnValue(row, mappings.detailsSpecial) || '').toString().trim(),
-            monthlyPayment: parseNumber(getColumnValue(row, mappings.monthlyPayment))
+            totalDebt,
+            monthlyDebt,
+            specialDebt,
+            detailsMonthly: detailsMonthlyRaw,
+            detailsSpecial: '',
+            monthlyPayment: 0
           };
 
-          // חישוב חודשי פיגור - רק מהעמודה "פרטים" (חוב חודשי)
+          // חישוב חודשי פיגור
           record.monthsInArrears = calculateMonthsInArrears(record.detailsMonthly);
 
           if (record.monthsInArrears === 0 && record.detailsMonthly) {
@@ -586,6 +588,26 @@ export default function ExcelImporter({ onImportComplete }) {
         console.warn(`[Excel Import] Error details:`, errorDetails);
       }
 
+      // QA Validation - בדיקת עקביות
+      console.log('[Excel Import] Running QA validation...');
+      const allRecords = await base44.entities.DebtorRecord.list();
+      const sumMonthly = allRecords.reduce((sum, r) => sum + (r.monthlyDebt || 0), 0);
+      const sumSpecial = allRecords.reduce((sum, r) => sum + (r.specialDebt || 0), 0);
+      const sumTotal = allRecords.reduce((sum, r) => sum + (r.totalDebt || 0), 0);
+      const delta = Math.abs(sumTotal - (sumMonthly + sumSpecial));
+      
+      console.log(`[Excel Import - QA] Σ(monthlyDebt) = ${sumMonthly}`);
+      console.log(`[Excel Import - QA] Σ(specialDebt) = ${sumSpecial}`);
+      console.log(`[Excel Import - QA] Σ(totalDebt) = ${sumTotal}`);
+      console.log(`[Excel Import - QA] Delta = ${delta}`);
+      
+      if (delta > 0.01) {
+        console.error('[Excel Import - QA] ❌ VALIDATION FAILED: Sum inconsistency detected!');
+        toast.error(`אזהרה: נמצאו פערים בסכומים (${delta.toFixed(2)})`);
+      } else {
+        console.log('[Excel Import - QA] ✅ Validation passed');
+      }
+
       // עדכון תאריך ייבוא אחרון ב-Settings
       try {
         const settingsList = await base44.entities.Settings.list();
@@ -604,7 +626,7 @@ export default function ExcelImporter({ onImportComplete }) {
         console.warn('[Excel Import] Failed to update last_import_at (non-critical):', settingsErr);
       }
 
-      setImportResult({ created, updated, errors, total: totalRows });
+      setImportResult({ created, updated, errors, total: totalRows, qaValidation: delta <= 0.01 });
       setStep(3);
       toast.success('הייבוא הושלם בהצלחה');
     } catch (err) {
@@ -684,30 +706,19 @@ export default function ExcelImporter({ onImportComplete }) {
               </AlertDescription>
             </Alert>
 
-            <div>
-              <h4 className="font-medium text-slate-700 mb-3">מיפוי עמודות</h4>
-              <div className="grid grid-cols-2 gap-4">
-                {Object.entries(FIELD_MAPPINGS).map(([field, config]) => (
-                  <div key={field}>
-                    <Label className="text-sm">{config.label}</Label>
-                    <Select
-                      value={mappings[field] || ''}
-                      onValueChange={(v) => setMappings({...mappings, [field]: v})}
-                    >
-                      <SelectTrigger className="mt-1">
-                        <SelectValue placeholder="בחר עמודה" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value={null}>לא למפות</SelectItem>
-                        {headers.map(h => (
-                          <SelectItem key={h} value={h}>{h}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <Alert className="bg-blue-50 border-blue-300">
+              <AlertDescription className="text-blue-800 font-semibold">
+                מיפוי קבוע של עמודות:
+                <div className="mt-2 text-sm grid grid-cols-2 gap-2">
+                  <div>A → מספר דירה</div>
+                  <div>B → שם בעלים</div>
+                  <div>C → טלפון</div>
+                  <div>G → מים חמים</div>
+                  <div>H → פרטים</div>
+                  <div>I → דמי ניהול</div>
+                </div>
+              </AlertDescription>
+            </Alert>
 
             <div>
               <h4 className="font-medium text-slate-700 mb-3">מצב ייבוא</h4>
@@ -792,6 +803,15 @@ export default function ExcelImporter({ onImportComplete }) {
               )}
             </div>
             
+            {importResult.qaValidation === false && (
+              <Alert variant="destructive" className="mt-6">
+                <AlertTriangle className="w-4 h-4" />
+                <AlertDescription>
+                  נמצאו פערים בסכומים. בדוק את הקונסול לפרטים.
+                </AlertDescription>
+              </Alert>
+            )}
+            
             {importResult.errors > 0 && (
               <p className="text-xs text-slate-500 mt-4">
                 חלק מהשורות דולגו (שורות ריקות או עם שגיאות). בדוק את הקונסול לפרטים.
@@ -823,7 +843,7 @@ export default function ExcelImporter({ onImportComplete }) {
               icon={importMode === 'reset' ? AlertTriangle : Database}
               onClick={handleImport} 
               loading={isImporting}
-              disabled={!mappings.apartmentNumber || (importMode === 'reset' && resetConfirmation !== 'מחק הכל')}
+              disabled={importMode === 'reset' && resetConfirmation !== 'מחק הכל'}
             >
               {importMode === 'reset' ? 'בצע איפוס מלא' : 'התחל ייבוא'}
             </AppButton>
