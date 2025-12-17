@@ -11,6 +11,7 @@ import LegalStatusMigration from './pages/LegalStatusMigration';
 import LinkedRecords from './pages/LinkedRecords';
 import StatusWorkflow from './pages/StatusWorkflow';
 import DebtorReport from './pages/DebtorReport';
+import DataAudit from './pages/DataAudit';
 import __Layout from './Layout.jsx';
 
 
@@ -28,6 +29,7 @@ export const PAGES = {
     "LinkedRecords": LinkedRecords,
     "StatusWorkflow": StatusWorkflow,
     "DebtorReport": DebtorReport,
+    "DataAudit": DataAudit,
 }
 
 export const pagesConfig = {

@@ -292,7 +292,7 @@ function DashboardContent() {
               className={`rounded-lg text-base font-bold flex items-center justify-center gap-2 transition-all ${
                 activeTab === 'archived' 
                   ? 'bg-white shadow-sm' 
-                  : 'hover:bg-slate-200/50'
+                  : 'bg-indigo-50 border border-indigo-200 hover:bg-indigo-100'
               }`}
             >
               <Archive className="w-4 h-4" />
