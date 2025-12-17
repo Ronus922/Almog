@@ -890,7 +890,20 @@ export default function ExcelImporter({ onImportComplete }) {
 
             <Alert className="bg-blue-50 border-blue-300" dir="rtl">
               <AlertDescription className="text-blue-800 font-semibold text-right">
-                מיפוי קבוע: A→דירה, B→שם, C→טלפון, G→מים חמים, H→פרטים, I→דמי ניהול
+                <div className="font-bold mb-2" style={{ fontSize: '13px' }}>מיפוי קבוע:</div>
+                <div className="grid gap-1.5" style={{ 
+                  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', 
+                  gap: '6px 16px',
+                  fontSize: '12px',
+                  lineHeight: '1.4'
+                }}>
+                  <div style={{ whiteSpace: 'nowrap' }}>A → דירה</div>
+                  <div style={{ whiteSpace: 'nowrap' }}>G → מים חמים</div>
+                  <div style={{ whiteSpace: 'nowrap' }}>B → שם</div>
+                  <div style={{ whiteSpace: 'nowrap' }}>H → פרטים</div>
+                  <div style={{ whiteSpace: 'nowrap' }}>C → טלפון</div>
+                  <div style={{ whiteSpace: 'nowrap' }}>I → דמי ניהול</div>
+                </div>
               </AlertDescription>
             </Alert>
 
@@ -900,10 +913,14 @@ export default function ExcelImporter({ onImportComplete }) {
                 <div className="flex flex-row-reverse items-start gap-3 p-3 md:p-4 rounded-lg border-2 border-blue-200 bg-blue-50">
                   <RadioGroupItem value="fill_missing" id="fill_missing" className="flex-shrink-0 mt-1" />
                   <div className="flex-1">
-                    <Label htmlFor="fill_missing" className="cursor-pointer font-semibold text-blue-900 block text-base">
+                    <Label htmlFor="fill_missing" className="cursor-pointer font-bold text-blue-900 block" style={{ fontSize: '14px', lineHeight: '1.3' }}>
                       השלמה בלבד (מומלץ)
                     </Label>
-                    <ul className="text-xs text-blue-700 mt-2 space-y-1 list-disc pr-5">
+                    <ul className="text-blue-700 mt-2 space-y-1 list-disc pr-5" style={{ 
+                      fontSize: '12px', 
+                      lineHeight: '1.45',
+                      color: '#1f2937'
+                    }}>
                       <li>טלפונים: עדכון רק אם ריקים</li>
                       <li>סכומים: עדכון תמיד</li>
                       <li>סה״כ חוב מחושב: דמי ניהול + מים חמים</li>
@@ -914,11 +931,18 @@ export default function ExcelImporter({ onImportComplete }) {
                 <div className="flex flex-row-reverse items-start gap-3 p-3 md:p-4 rounded-lg border-2 border-red-200 bg-red-50">
                   <RadioGroupItem value="reset" id="reset" className="flex-shrink-0 mt-1" />
                   <div className="flex-1">
-                    <Label htmlFor="reset" className="cursor-pointer font-bold text-red-700 block text-base">
+                    <Label htmlFor="reset" className="cursor-pointer font-bold text-red-700 block" style={{ fontSize: '14px', lineHeight: '1.3' }}>
                       איפוס מלא
                     </Label>
-                    <p className="text-xs text-red-700 mt-2 font-semibold">
-                      ⚠️ מחיקה מלאה של כל הנתונים
+                    <p className="text-red-700 mt-2 font-semibold inline-flex items-center gap-2" style={{ fontSize: '12px' }}>
+                      <span style={{ 
+                        display: 'inline-block',
+                        fontSize: '32px',
+                        lineHeight: '1',
+                        color: '#dc2626',
+                        marginLeft: '8px'
+                      }}>⚠️</span>
+                      <span>מחיקה מלאה של כל הנתונים</span>
                     </p>
                   </div>
                 </div>
@@ -974,8 +998,8 @@ export default function ExcelImporter({ onImportComplete }) {
                   }
                 `}</style>
                 <div className="flex items-center justify-between mb-1" style={{ direction: 'rtl', textAlign: 'right' }}>
-                  <span className="text-xs font-semibold text-slate-700">מעבד נתונים...</span>
-                  <span className="text-xs font-bold text-blue-600">{progress}%</span>
+                  <span className="font-semibold text-slate-700" style={{ fontSize: '14px', lineHeight: '1.2' }}>מעבד נתונים...</span>
+                  <span className="font-bold text-blue-600" style={{ fontSize: '14px', lineHeight: '1.2' }}>{progress}%</span>
                 </div>
                 <div className="import-progress-bar-container">
                   <div className="w-full rounded-full overflow-hidden" style={{ 
