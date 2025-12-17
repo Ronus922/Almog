@@ -19,11 +19,11 @@ import { toast } from 'sonner';
 
 const FIELD_MAPPINGS = {
   apartmentNumber: { label: 'מספר דירה', patterns: ['דירה', 'apartment', 'מס דירה'], required: true },
-  ownerName: { label: 'בעל דירה', patterns: ['דייר', 'tenant', 'שוכר', 'בעלים'], required: false },
+  ownerName: { label: 'שם', patterns: ['שם', 'דייר', 'tenant', 'שוכר', 'בעלים', 'בעל דירה'], required: false },
   phonePrimary: { label: 'טלפון', patterns: ['טלפון', 'phone', 'נייד'], required: false },
   totalDebt: { label: 'סה״כ חוב', patterns: ['סה"כ חוב', 'סה״כ חוב', 'total debt', 'חוב כולל'], required: true },
-  monthlyDebt: { label: 'חוב חודשי', patterns: ['חוב לתשלום חודשי', 'סה״כ חוב לתשלום חודשי', 'monthly'], required: false },
-  specialDebt: { label: 'חוב מיוחד', patterns: ['חוב מיוחד', 'special'], required: false },
+  monthlyDebt: { label: 'דמי ניהול', patterns: ['דמי ניהול', 'חוב חודשי', 'חוב לתשלום חודשי', 'סה״כ חוב לתשלום חודשי', 'monthly'], required: false },
+  specialDebt: { label: 'מים חמים', patterns: ['מים חמים', 'חוב מיוחד', 'special'], required: false },
   detailsMonthly: { label: 'פרטים חודשיים', patterns: ['פרטים'], required: false },
   detailsSpecial: { label: 'פרטים מיוחדים', patterns: ['פרטים.1'], required: false },
   monthlyPayment: { label: 'תשלום חודשי', patterns: ['תשלום חודשי', 'payment'], required: false }
@@ -468,8 +468,16 @@ export default function ExcelImporter({ onImportComplete }) {
             console.warn(`[Excel Import - dbInsert] Row ${i + 1}: Could not calculate months in arrears from: "${record.detailsMonthly}"`);
           }
 
-          // Calculate automatic debt status
-          record.debt_status_auto = calculateDebtStatus(record.totalDebt);
+          // Calculate automatic debt status - לפי דמי ניהול בלבד (לא מים חמים)
+          let debt_status_auto = 'תקין';
+          if (record.monthlyDebt === 0 || record.monthlyDebt === null) {
+            debt_status_auto = 'תקין';
+          } else if (record.monthlyDebt > settings.threshold_legal_from) {
+            debt_status_auto = 'חריגה מופרזת';
+          } else if (record.monthlyDebt > settings.threshold_collect_from) {
+            debt_status_auto = 'לגבייה מיידית';
+          }
+          record.debt_status_auto = debt_status_auto;
 
           // בדיקה אם דירה קיימת
           const existing = existingRecords.find(r => r.apartmentNumber === record.apartmentNumber);
@@ -480,22 +488,40 @@ export default function ExcelImporter({ onImportComplete }) {
           const defaultLegalStatus = allStatuses.find(s => s.type === 'LEGAL' && s.is_default === true);
 
           if (existing) {
-            // Apply import mode logic
-            const updateData = { ...record };
+            // Apply update rules
+            const updateData = {
+              // עדכן תמיד - סכומים
+              totalDebt: record.totalDebt,
+              monthlyDebt: record.monthlyDebt,
+              specialDebt: record.specialDebt,
+              monthlyPayment: record.monthlyPayment,
+              monthsInArrears: record.monthsInArrears,
+              debt_status_auto: record.debt_status_auto,
+              detailsMonthly: record.detailsMonthly,
+              detailsSpecial: record.detailsSpecial,
+              phonesRaw: record.phonesRaw
+            };
             
-            // Helper: check if value is empty
+            // owner_name: עדכן תמיד אם לא ריק
+            if (record.ownerName && record.ownerName.trim() !== '') {
+              updateData.ownerName = record.ownerName;
+            }
+            
+            // טלפונים: עדכן רק אם השדה במערכת ריק
             const isEmpty = (val) => {
               if (val === null || val === undefined || val === '') return true;
               const str = String(val).trim();
               return str === '' || str === 'אין מספר' || str === '-' || str === 'לא ידוע' || /^0+$/.test(str);
             };
-
-            // Fill missing only - keep existing values if not empty
-            if (!isEmpty(existing.phoneOwner)) updateData.phoneOwner = existing.phoneOwner;
-            if (!isEmpty(existing.phoneTenant)) updateData.phoneTenant = existing.phoneTenant;
-            if (!isEmpty(existing.phonePrimary)) updateData.phonePrimary = existing.phonePrimary;
-            if (existing.monthsInArrears !== null && existing.monthsInArrears !== undefined && existing.monthsInArrears !== 0) {
-              updateData.monthsInArrears = existing.monthsInArrears;
+            
+            if (isEmpty(existing.phoneOwner) && !isEmpty(record.phoneOwner)) {
+              updateData.phoneOwner = record.phoneOwner;
+            }
+            if (isEmpty(existing.phoneTenant) && !isEmpty(record.phoneTenant)) {
+              updateData.phoneTenant = record.phoneTenant;
+            }
+            if (isEmpty(existing.phonePrimary) && !isEmpty(record.phonePrimary)) {
+              updateData.phonePrimary = record.phonePrimary;
             }
 
             // CRITICAL: Always preserve manually edited fields (NEVER overwrite from import)
@@ -512,6 +538,10 @@ export default function ExcelImporter({ onImportComplete }) {
               // Existing record has valid legal status - preserve it
               updateData.legal_status_id = existing.legal_status_id;
               updateData.legal_status_overridden = existing.legal_status_overridden;
+              updateData.legal_status_lock = existing.legal_status_lock;
+              updateData.legal_status_updated_at = existing.legal_status_updated_at;
+              updateData.legal_status_updated_by = existing.legal_status_updated_by;
+              updateData.legal_status_source = existing.legal_status_source;
               console.log(`[Excel Import - dbInsert] Protected existing status for apartment ${record.apartmentNumber}`);
             } else {
               // Invalid or missing status - fix it with default
