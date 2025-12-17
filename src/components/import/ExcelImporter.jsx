@@ -1,3 +1,4 @@
+
 import React, { useState, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -105,43 +106,31 @@ export default function ExcelImporter({ onImportComplete }) {
       
       reader.onload = (e) => {
         try {
-          console.log(`[Excel Import - readWorkbook] Reading file: ${file.name}`);
-          console.log(`[Excel Import - readWorkbook] File size: ${file.size} bytes, Type: ${file.type || 'unknown'}`);
-          
           const data = new Uint8Array(e.target.result);
-          console.log(`[Excel Import - readWorkbook] Read ${data.length} bytes from file`);
           
           // קריאת הקובץ
           const workbook = XLSX.read(data, { type: 'array' });
-          console.log(`[Excel Import - readWorkbook] Workbook loaded successfully`);
-          console.log(`[Excel Import - readWorkbook] Available sheets: ${workbook.SheetNames.join(', ')}`);
           
           if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
-            console.error(`[Excel Import - readWorkbook] No sheets found in workbook`);
             throw new Error('no_sheets');
           }
           
           // קריאת הגיליון הראשון
           const firstSheetName = workbook.SheetNames[0];
-          console.log(`[Excel Import - readSheet] Reading first sheet: "${firstSheetName}"`);
           const worksheet = workbook.Sheets[firstSheetName];
           
           // המרה ל-JSON עם כותרות
           const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, defval: '' });
-          console.log(`[Excel Import - parseRows] Parsed ${jsonData.length} rows (including header)`);
           
           if (jsonData.length === 0) {
-            console.error(`[Excel Import - parseRows] Sheet is empty`);
             throw new Error('empty_sheet');
           }
           
           // השורה הראשונה היא כותרות
           const rawHeaders = jsonData[0];
-          console.log(`[Excel Import - mapColumns] Raw headers:`, rawHeaders);
           
           // ניקוי כותרות
           const headers = normalizeHeaders(rawHeaders);
-          console.log(`[Excel Import - mapColumns] Normalized headers:`, headers);
           
           // המרת שורות לאובייקטים
           const rows = [];
@@ -154,27 +143,13 @@ export default function ExcelImporter({ onImportComplete }) {
             rows.push(rowObj);
           }
           
-          console.log(`[Excel Import - parseRows] Created ${rows.length} data objects`);
-          console.log(`[Excel Import - parseRows] Sample row:`, rows[0]);
-          
           resolve({ headers, rows });
         } catch (err) {
-          console.error(`[Excel Import - ERROR] Exception during Excel parsing:`, {
-            stage: 'readWorkbook/parseRows',
-            error: err.message,
-            stack: err.stack,
-            fileName: file.name
-          });
           reject(err);
         }
       };
       
       reader.onerror = (err) => {
-        console.error(`[Excel Import - ERROR] FileReader error:`, {
-          stage: 'readFile',
-          error: err,
-          fileName: file.name
-        });
         reject(new Error('file_read_error'));
       };
       
@@ -198,19 +173,11 @@ export default function ExcelImporter({ onImportComplete }) {
     setIsUploading(true);
     setError(null);
 
-    console.log(`[Excel Import] ========== Starting Excel Import ==========`);
-    console.log(`[Excel Import] File: ${selectedFile.name}`);
-    console.log(`[Excel Import] Extension: ${selectedFile.name.substring(selectedFile.name.lastIndexOf('.'))}`);
-    console.log(`[Excel Import] MIME: ${selectedFile.type || 'unknown'}`);
-    console.log(`[Excel Import] Size: ${selectedFile.size} bytes`);
-
     try {
       // קריאת הקובץ בצד הקליינט
-      console.log(`[Excel Import] Stage: Reading Excel file in client`);
       const { headers: extractedHeaders, rows: extractedRows } = await readExcelFile(selectedFile);
       
       if (extractedRows.length === 0) {
-        console.error(`[Excel Import] No data rows found`);
         throw new Error('empty_file');
       }
       
@@ -218,28 +185,13 @@ export default function ExcelImporter({ onImportComplete }) {
       setExcelData(extractedRows);
 
       // בדיקת מבנה קבוע - עמודות A,B,C,G,H,I
-      console.log(`[Excel Import] Stage: Validating fixed column structure`);
       const validation = validateRequiredColumns(extractedHeaders);
       if (!validation.valid) {
-        console.error(`[Excel Import - validation] ${validation.error}`);
         throw new Error(validation.error);
       }
 
-      console.log(`[Excel Import] Fixed column mapping: A→דירה, B→שם, C→טלפון, G→מים חמים, H→פרטים, I→דמי ניהול`);
-
-      console.log(`[Excel Import] ========== Success: Proceeding to step 2 ==========`);
       setStep(2);
     } catch (err) {
-      console.error('[Excel Import - ERROR] ========== Import Failed ==========');
-      console.error('[Excel Import - ERROR] Details:', {
-        message: err.message,
-        stack: err.stack,
-        fileName: selectedFile.name,
-        fileSize: selectedFile.size,
-        fileType: selectedFile.type
-      });
-      
-      // הודעות שגיאה ברורות למשתמש לפי סוג השגיאה
       if (err.message === 'no_sheets') {
         setError('הקובץ אינו מכיל גיליון נתונים.');
       } else if (err.message === 'empty_sheet' || err.message === 'empty_file') {
@@ -266,8 +218,6 @@ export default function ExcelImporter({ onImportComplete }) {
   const calculateMonthsInArrears = (detailsText) => {
     if (!detailsText || typeof detailsText !== 'string') return 0;
 
-    console.log(`[Excel Import - calculateMonthsInArrears] Processing: "${detailsText}"`);
-
     // חיפוש טווח תאריכים בפורמט MM/YY - MM/YY
     const rangeMatch = detailsText.match(/(\d{1,2})\/(\d{2})\s*-\s*(\d{1,2})\/(\d{2})/);
     if (rangeMatch) {
@@ -280,18 +230,15 @@ export default function ExcelImporter({ onImportComplete }) {
       const end = fullEndYear * 12 + parseInt(endMonth);
       const months = Math.abs(end - start) + 1;
 
-      console.log(`[Excel Import - calculateMonthsInArrears] Range found: ${startMonth}/${startYear} - ${endMonth}/${endYear} = ${months} months`);
       return months;
     }
 
     // חיפוש חודש בודד בפורמט MM/YY
     const singleMatch = detailsText.match(/(\d{1,2})\/(\d{2})/);
     if (singleMatch) {
-      console.log(`[Excel Import - calculateMonthsInArrears] Single month found: ${singleMatch[1]}/${singleMatch[2]} = 1 month`);
       return 1;
     }
 
-    console.log(`[Excel Import - calculateMonthsInArrears] No valid date pattern found`);
     return 0;
   };
 
@@ -353,8 +300,6 @@ export default function ExcelImporter({ onImportComplete }) {
       }
     }
 
-    console.log(`[Excel Import - extractPhones] Raw: "${raw}" → Valid: ${validNumbers.join(', ')}`);
-
     const phoneOwner = validNumbers[0] || '';
     const phoneTenant = validNumbers[1] || '';
     const phonePrimary = phoneOwner || phoneTenant || '';
@@ -389,6 +334,8 @@ export default function ExcelImporter({ onImportComplete }) {
       };
 
       // Helper function to calculate debt status
+      // (This specific calculateDebtStatus is not used in the main import logic, 
+      // but rather the threshold logic is directly embedded for debt_status_auto)
       const calculateDebtStatus = (totalDebt) => {
         if (!totalDebt || totalDebt <= settings.threshold_ok_max) return 'תקין';
         if (totalDebt > settings.threshold_ok_max && totalDebt < settings.threshold_legal_from) return 'לגבייה מיידית';
@@ -410,6 +357,12 @@ export default function ExcelImporter({ onImportComplete }) {
         existingRecords = await base44.entities.DebtorRecord.list();
         console.log(`[Excel Import] Mode ${importMode}: found ${existingRecords.length} existing records`);
       }
+
+      // Fetch all legal statuses once
+      const allStatuses = await base44.entities.Status.list();
+      const legalStatuses = allStatuses.filter(s => s.type === 'LEGAL' && s.is_active);
+      const defaultLegalStatus = allStatuses.find(s => s.type === 'LEGAL' && s.is_default === true);
+
 
       const totalRows = excelData.length;
       let created = 0;
@@ -482,11 +435,6 @@ export default function ExcelImporter({ onImportComplete }) {
 
           // בדיקה אם דירה קיימת
           const existing = existingRecords.find(r => r.apartmentNumber === record.apartmentNumber);
-
-          // Fetch all legal statuses once
-          const allStatuses = await base44.entities.Status.list();
-          const legalStatuses = allStatuses.filter(s => s.type === 'LEGAL' && s.is_active);
-          const defaultLegalStatus = allStatuses.find(s => s.type === 'LEGAL' && s.is_default === true);
 
           if (existing) {
             // Apply update rules
@@ -644,57 +592,59 @@ export default function ExcelImporter({ onImportComplete }) {
   };
 
   return (
-    <Card className="border-0 shadow-lg max-w-3xl mx-auto">
+    <Card className="border-0 shadow-lg max-w-3xl mx-auto overflow-hidden rounded-2xl">
       <CardHeader className="border-b bg-slate-50">
-        <CardTitle className="flex items-center gap-2 text-lg">
+        <CardTitle className="flex items-center gap-2 text-lg" dir="rtl" style={{ direction: 'rtl', textAlign: 'right' }}>
           <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
           ייבוא דוח חייבים מאקסל
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="p-6">
+      <CardContent className="p-6" dir="rtl" style={{ textAlign: 'right', unicodeBidi: 'plaintext' }}>
         {/* שלב 1: העלאת קובץ */}
         {step === 1 && (
-          <div className="text-center py-10">
-            <div className="mb-6">
+          <div className="py-10" style={{ direction: 'rtl', textAlign: 'right' }}>
+            <div className="mb-6 text-center">
               <Upload className="w-16 h-16 text-slate-300 mx-auto" />
             </div>
-            <h3 className="text-lg font-medium text-slate-700 mb-2">העלאת קובץ אקסל</h3>
-            <p className="text-sm text-slate-500 mb-6">
+            <h3 className="text-lg font-medium text-slate-700 mb-2 text-center" style={{ direction: 'rtl' }}>העלאת קובץ אקסל</h3>
+            <p className="text-sm text-slate-500 mb-6 text-center" style={{ direction: 'rtl' }}>
               בחר קובץ XLS או XLSX עם דוח החייבים
             </p>
             
-            <label className="cursor-pointer">
-              <input
-                type="file"
-                accept=".xlsx,.xls"
-                onChange={handleFileSelect}
-                className="hidden"
-              />
-              <Button disabled={isUploading} asChild>
-                <span>
-                  {isUploading ? (
-                    <>
-                      <Loader2 className="w-4 h-4 ml-2 animate-spin" />
-                      מעלה קובץ...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-4 h-4 ml-2" />
-                      בחר קובץ Excel
-                    </>
-                  )}
-                </span>
-              </Button>
-            </label>
-            <p className="text-xs text-slate-400 mt-2">
-              קבצים נתמכים: .xlsx, .xls
-            </p>
+            <div className="text-center">
+              <label className="cursor-pointer">
+                <input
+                  type="file"
+                  accept=".xlsx,.xls"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                />
+                <Button disabled={isUploading} asChild>
+                  <span>
+                    {isUploading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+                        מעלה קובץ...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-4 h-4 ml-2" />
+                        בחר קובץ Excel
+                      </>
+                    )}
+                  </span>
+                </Button>
+              </label>
+              <p className="text-xs text-slate-400 mt-2">
+                קבצים נתמכים: .xlsx, .xls
+              </p>
+            </div>
 
             {error && (
-              <Alert variant="destructive" className="mt-4">
+              <Alert variant="destructive" className="mt-4" dir="rtl">
                 <AlertTriangle className="w-4 h-4" />
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription className="text-right" style={{ direction: 'rtl' }}>{error}</AlertDescription>
               </Alert>
             )}
           </div>
@@ -703,51 +653,51 @@ export default function ExcelImporter({ onImportComplete }) {
         {/* שלב 2: מיפוי עמודות */}
         {step === 2 && (
           <div className="space-y-6">
-            <Alert className="bg-green-50 border-green-200">
+            <Alert className="bg-green-50 border-green-200" dir="rtl">
               <CheckCircle2 className="w-4 h-4 text-green-600" />
-              <AlertDescription className="text-green-700">
+              <AlertDescription className="text-green-700 text-right" style={{ direction: 'rtl' }}>
                 קובץ האקסל נטען בהצלחה. נמצאו {excelData.length} שורות לייבוא.
               </AlertDescription>
             </Alert>
 
-            <Alert className="bg-blue-50 border-blue-300">
-              <AlertDescription className="text-blue-800 font-semibold">
+            <Alert className="bg-blue-50 border-blue-300" dir="rtl">
+              <AlertDescription className="text-blue-800 font-semibold text-right" style={{ direction: 'rtl' }}>
                 מיפוי קבוע של עמודות:
-                <div className="mt-2 text-sm grid grid-cols-2 gap-2">
-                  <div>A → מספר דירה</div>
-                  <div>B → שם בעלים</div>
-                  <div>C → טלפון</div>
-                  <div>G → מים חמים</div>
-                  <div>H → פרטים</div>
-                  <div>I → דמי ניהול</div>
+                <div className="mt-2 text-sm grid grid-cols-2 gap-2 text-right" style={{ direction: 'rtl' }}>
+                  <div style={{ direction: 'rtl', textAlign: 'right' }}>A → מספר דירה</div>
+                  <div style={{ direction: 'rtl', textAlign: 'right' }}>B → שם בעלים</div>
+                  <div style={{ direction: 'rtl', textAlign: 'right' }}>C → טלפון</div>
+                  <div style={{ direction: 'rtl', textAlign: 'right' }}>G → מים חמים</div>
+                  <div style={{ direction: 'rtl', textAlign: 'right' }}>H → פרטים</div>
+                  <div style={{ direction: 'rtl', textAlign: 'right' }}>I → דמי ניהול</div>
                 </div>
               </AlertDescription>
             </Alert>
 
             <div>
-              <h4 className="font-medium text-slate-700 mb-3">מצב ייבוא</h4>
-              <RadioGroup value={importMode} onValueChange={(v) => { setImportMode(v); setResetConfirmation(''); }} className="space-y-3">
-                <div className="flex items-start gap-3 p-4 rounded-lg border-2 border-blue-200 bg-blue-50">
-                  <RadioGroupItem value="fill_missing" id="fill_missing" className="mt-0.5" />
-                  <div className="flex-1">
-                    <Label htmlFor="fill_missing" className="cursor-pointer font-semibold text-blue-900">
+              <h4 className="font-medium text-slate-700 mb-3 text-right" style={{ direction: 'rtl', textAlign: 'right' }}>מצב ייבוא</h4>
+              <RadioGroup value={importMode} onValueChange={(v) => { setImportMode(v); setResetConfirmation(''); }} className="space-y-3" dir="rtl">
+                <div className="flex flex-row-reverse items-start gap-3 p-3 md:p-4 rounded-lg border-2 border-blue-200 bg-blue-50" style={{ direction: 'rtl', textAlign: 'right', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+                  <RadioGroupItem value="fill_missing" id="fill_missing" className="flex-shrink-0 mt-0.5" style={{ flex: '0 0 auto', marginTop: '4px' }} />
+                  <div className="flex-1" style={{ flex: '1 1 auto', minWidth: '0' }}>
+                    <Label htmlFor="fill_missing" className="cursor-pointer font-semibold text-blue-900 block text-base md:text-lg" style={{ direction: 'rtl', textAlign: 'right', lineHeight: '1.35' }}>
                       השלמה בלבד (מומלץ)
                     </Label>
-                    <p className="text-xs text-blue-700 mt-1">
-                      • טלפונים וחודשי פיגור יתעדכנו רק אם ריקים<br />
-                      • סכומים (חוב כולל, חודשי, מיוחד) יתעדכנו תמיד<br />
-                      • סטטוס יחושב מחדש אוטומטית לפי הסכומים<br />
-                      • הערות ותאריכים יישמרו
-                    </p>
+                    <ul className="text-xs md:text-sm text-blue-700 mt-2 space-y-1" style={{ direction: 'rtl', textAlign: 'right', listStylePosition: 'inside', paddingRight: '14px', paddingLeft: '0', margin: '8px 0 0 0' }}>
+                      <li style={{ display: 'block', textAlign: 'right', lineHeight: '1.35' }}>טלפונים וחודשי פיגור יתעדכנו רק אם ריקים</li>
+                      <li style={{ display: 'block', textAlign: 'right', lineHeight: '1.35' }}>סכומים (דמי ניהול, מים חמים, סה״כ חוב) יתעדכנו תמיד</li>
+                      <li style={{ display: 'block', textAlign: 'right', lineHeight: '1.35' }}>סה״כ חוב יחושב אוטומטית: דמי ניהול + מים חמים</li>
+                      <li style={{ display: 'block', textAlign: 'right', lineHeight: '1.35' }}>הערות ותאריכים יישמרו ללא שינוי</li>
+                    </ul>
                   </div>
                 </div>
-                <div className="flex items-start gap-3 p-4 rounded-lg border-2 border-red-200 bg-red-50">
-                  <RadioGroupItem value="reset" id="reset" className="mt-0.5" />
-                  <div className="flex-1">
-                    <Label htmlFor="reset" className="cursor-pointer font-bold text-red-700">
+                <div className="flex flex-row-reverse items-start gap-3 p-3 md:p-4 rounded-lg border-2 border-red-200 bg-red-50" style={{ direction: 'rtl', textAlign: 'right', wordBreak: 'break-word', overflowWrap: 'anywhere' }}>
+                  <RadioGroupItem value="reset" id="reset" className="flex-shrink-0 mt-0.5" style={{ flex: '0 0 auto', marginTop: '4px' }} />
+                  <div className="flex-1" style={{ flex: '1 1 auto', minWidth: '0' }}>
+                    <Label htmlFor="reset" className="cursor-pointer font-bold text-red-700 block text-base md:text-lg" style={{ direction: 'rtl', textAlign: 'right', lineHeight: '1.35' }}>
                       איפוס מלא – מחק הכל וטען מחדש
                     </Label>
-                    <p className="text-xs text-red-700 mt-1 font-semibold">
+                    <p className="text-xs md:text-sm text-red-700 mt-2 font-semibold" style={{ direction: 'rtl', textAlign: 'right', lineHeight: '1.4' }}>
                       ⚠️ פעולה בלתי הפיכה! כל הנתונים הקיימים יימחקו לחלוטין והמערכת תטען מחדש מהקובץ.
                     </p>
                   </div>
@@ -755,12 +705,12 @@ export default function ExcelImporter({ onImportComplete }) {
               </RadioGroup>
 
               {importMode === 'reset' && (
-                <Alert variant="destructive" className="mt-4">
+                <Alert variant="destructive" className="mt-4" dir="rtl">
                   <AlertTriangle className="w-4 h-4" />
-                  <AlertDescription>
+                  <AlertDescription className="text-right" style={{ direction: 'rtl' }}>
                     <div className="space-y-2">
-                      <p className="font-bold">אישור נדרש למחיקה מלאה</p>
-                      <p className="text-sm">הקלד "מחק הכל" בשדה למטה כדי לאשר:</p>
+                      <p className="font-bold" style={{ direction: 'rtl', textAlign: 'right' }}>אישור נדרש למחיקה מלאה</p>
+                      <p className="text-sm" style={{ direction: 'rtl', textAlign: 'right' }}>הקלד "מחק הכל" בשדה למטה כדי לאשר:</p>
                       <input
                         type="text"
                         value={resetConfirmation}
@@ -775,10 +725,26 @@ export default function ExcelImporter({ onImportComplete }) {
               )}
             </div>
 
+            {/* Progress Bar - מוצג רק בזמן ייבוא */}
+            {isImporting && (
+              <div className="mt-6 p-4 bg-blue-50 rounded-xl" dir="rtl">
+                <div className="flex items-center justify-between text-sm text-slate-700 mb-3 font-semibold" style={{ direction: 'rtl' }}>
+                  <span style={{ direction: 'rtl', textAlign: 'right' }}>טוען...</span>
+                  <span className="text-blue-600 font-bold">{progress}%</span>
+                </div>
+                <div className="w-full h-[5px] bg-slate-200 rounded-full overflow-hidden">
+                  <div 
+                    className="h-full bg-blue-600 transition-all duration-300 rounded-full"
+                    style={{ width: `${progress}%` }}
+                  />
+                </div>
+              </div>
+            )}
+
             {error && (
-              <Alert variant="destructive">
+              <Alert variant="destructive" dir="rtl">
                 <AlertTriangle className="w-4 h-4" />
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription className="text-right" style={{ direction: 'rtl' }}>{error}</AlertDescription>
               </Alert>
             )}
           </div>
@@ -786,21 +752,23 @@ export default function ExcelImporter({ onImportComplete }) {
 
         {/* שלב 3: סיום */}
         {step === 3 && importResult && (
-          <div className="text-center py-10">
-            <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-slate-700 mb-2">קובץ האקסל נטען בהצלחה. הנתונים עודכנו במערכת.</h3>
+          <div className="py-10" dir="rtl" style={{ textAlign: 'right', unicodeBidi: 'plaintext' }}>
+            <div className="text-center">
+              <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-slate-700 mb-2" style={{ direction: 'rtl', textAlign: 'center' }}>קובץ האקסל נטען בהצלחה. הנתונים עודכנו במערכת.</h3>
+            </div>
             
-            <div className="flex justify-center gap-8 mt-6 text-sm">
-              <div>
+            <div className="flex justify-center gap-8 mt-6 text-sm" style={{ direction: 'rtl' }}>
+              <div style={{ direction: 'rtl', textAlign: 'center' }}>
                 <p className="text-2xl font-bold text-green-600">{importResult.created}</p>
                 <p className="text-slate-500">נוצרו</p>
               </div>
-              <div>
+              <div style={{ direction: 'rtl', textAlign: 'center' }}>
                 <p className="text-2xl font-bold text-blue-600">{importResult.updated}</p>
                 <p className="text-slate-500">עודכנו</p>
               </div>
               {importResult.errors > 0 && (
-                <div>
+                <div style={{ direction: 'rtl', textAlign: 'center' }}>
                   <p className="text-2xl font-bold text-amber-600">{importResult.errors}</p>
                   <p className="text-slate-500">דילגו (שורות ריקות)</p>
                 </div>
@@ -808,56 +776,48 @@ export default function ExcelImporter({ onImportComplete }) {
             </div>
             
             {importResult.qaValidation === false && (
-              <Alert variant="destructive" className="mt-6">
+              <Alert variant="destructive" className="mt-6" dir="rtl">
                 <AlertTriangle className="w-4 h-4" />
-                <AlertDescription>
+                <AlertDescription className="text-right" style={{ direction: 'rtl' }}>
                   נמצאו פערים בסכומים. בדוק את הקונסול לפרטים.
                 </AlertDescription>
               </Alert>
             )}
             
             {importResult.errors > 0 && (
-              <p className="text-xs text-slate-500 mt-4">
+              <p className="text-xs text-slate-500 mt-4 text-center" style={{ direction: 'rtl' }}>
                 חלק מהשורות דולגו (שורות ריקות או עם שגיאות). בדוק את הקונסול לפרטים.
               </p>
             )}
           </div>
         )}
-
-        {/* פס התקדמות */}
-        {isImporting && (
-          <div className="mt-6">
-            <div className="flex items-center justify-between text-sm text-slate-600 mb-2">
-              <span>מייבא נתונים...</span>
-              <span>{progress}%</span>
-            </div>
-            <Progress value={progress} />
-          </div>
-        )}
       </CardContent>
 
-      <CardFooter className="border-t bg-slate-50 flex justify-between">
+      <CardFooter className="border-t bg-slate-50 p-0 sticky bottom-0" style={{ width: '100%', boxSizing: 'border-box' }}>
         {step === 2 && (
-          <>
-            <AppButton variant="outline" icon={ArrowLeft} onClick={() => setStep(1)}>
-              חזור
-            </AppButton>
+          <div className="flex flex-row-reverse items-center justify-between gap-3 p-4 w-full flex-wrap" dir="rtl" style={{ direction: 'rtl' }}>
             <AppButton 
               variant={importMode === 'reset' ? 'danger' : 'primary'}
               icon={importMode === 'reset' ? AlertTriangle : Database}
               onClick={handleImport} 
               loading={isImporting}
               disabled={importMode === 'reset' && resetConfirmation !== 'מחק הכל'}
+              className="min-w-[140px] flex-1"
             >
               {importMode === 'reset' ? 'בצע איפוס מלא' : 'התחל ייבוא'}
             </AppButton>
-          </>
+            <AppButton variant="outline" icon={ArrowLeft} onClick={() => setStep(1)} className="min-w-[140px] flex-1">
+              חזור
+            </AppButton>
+          </div>
         )}
 
         {step === 3 && (
-          <AppButton variant="primary" icon={RefreshCw} onClick={onImportComplete} fullWidth>
-            סיום ומעבר לדשבורד
-          </AppButton>
+          <div className="p-4 w-full" dir="rtl">
+            <AppButton variant="primary" icon={RefreshCw} onClick={onImportComplete} fullWidth>
+              סיום ומעבר לדשבורד
+            </AppButton>
+          </div>
         )}
       </CardFooter>
     </Card>
