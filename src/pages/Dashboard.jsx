@@ -155,6 +155,16 @@ function DashboardContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100" dir="rtl">
+      <style>{`
+        /* כשארכיון פעיל - להכהות את טאב חייבים */
+        .tabs-container.mode-archive .tab-debtors:not(.active) {
+          background: #e5e7eb;
+          border: 1px solid #cbd5e1;
+        }
+        .tabs-container.mode-archive .tab-debtors:not(.active):hover {
+          background: #d1d5db;
+        }
+      `}</style>
       <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8">
         {/* Filter indicators */}
         {filterKeyFromUrl && (
@@ -264,20 +274,20 @@ function DashboardContent() {
             </div>
             </div>
 
-        {/* כרטיסי KPI - מבוסס על כל הרשומות הפעילות */}
-        <KPICards records={debtorRecords} settings={settings} allStatuses={allStatuses} />
+        {/* כרטיסי KPI - מבוסס על כל הרשומות כולל ארכיון */}
+        <KPICards records={allRecords} settings={settings} allStatuses={allStatuses} />
 
         {/* אינדיקציית ייבוא אחרון - בין KPI לטבלה */}
         <LastImportIndicator lastImportAt={settings?.last_import_at} isAdmin={isAdmin} />
 
         {/* טאבים - חייבים / ארכיון */}
         <div className="w-full">
-          <div className="grid w-full max-w-md grid-cols-2 h-12 rounded-xl bg-slate-100 p-1 mb-6" dir="rtl">
+          <div className={`grid w-full max-w-md grid-cols-2 h-12 rounded-xl bg-slate-100 p-1 mb-6 tabs-container ${activeTab === 'archived' ? 'mode-archive' : ''}`} dir="rtl">
             <button
               onClick={() => setActiveTab('debtors')}
-              className={`rounded-lg text-base font-bold flex items-center justify-center gap-2 transition-all ${
+              className={`tab-debtors rounded-lg text-base font-bold flex items-center justify-center gap-2 transition-all ${
                 activeTab === 'debtors' 
-                  ? 'bg-white shadow-sm' 
+                  ? 'bg-white shadow-sm active' 
                   : 'hover:bg-slate-200/50'
               }`}
             >
@@ -289,9 +299,9 @@ function DashboardContent() {
             </button>
             <button
               onClick={() => setActiveTab('archived')}
-              className={`rounded-lg text-base font-bold flex items-center justify-center gap-2 transition-all ${
+              className={`tab-archive rounded-lg text-base font-bold flex items-center justify-center gap-2 transition-all ${
                 activeTab === 'archived' 
-                  ? 'bg-white shadow-sm' 
+                  ? 'bg-white shadow-sm active' 
                   : 'bg-indigo-50 border border-indigo-200 hover:bg-indigo-100'
               }`}
             >
