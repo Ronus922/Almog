@@ -24,18 +24,13 @@ const FIXED_COLUMN_MAPPING = {
 };
 
 const ALLOWED_FILE_EXTENSIONS = ['.xlsx', '.xls'];
-const BATCH_SIZE = 50;
-const DELAY_BETWEEN_BATCHES = 800; // ms
-const DELAY_EVERY_5_BATCHES = 3000; // ms
-const MAX_RETRIES = 6;
+const BATCH_SIZE = 10;
+const DELAY_BETWEEN_BATCHES = 6000; // 6 seconds
+const DELAY_BETWEEN_WRITES = 300; // ms between individual writes in batch
+const MAX_429_PAUSES = 5;
+const PAUSE_ON_429 = 60000; // 60 seconds
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-const getRetryDelay = (attempt) => {
-  const baseDelay = Math.min(1000 * Math.pow(2, attempt - 1), 30000);
-  const jitter = Math.random() * 400;
-  return baseDelay + jitter;
-};
 
 const isRateLimitError = (error) => {
   const message = error?.message || '';
@@ -254,15 +249,6 @@ export default function ExcelImporter({ onImportComplete }) {
     for (let i = startIdx; i < endIdx && i < rows.length; i++) {
       const row = rows[i];
       
-      // Update ImportRun with current progress
-      try {
-        await base44.entities.ImportRun.update(context.importRunId, {
-          lastProcessedRowIndex: i
-        });
-      } catch (err) {
-        // Non-critical, continue
-      }
-      
       try {
         const apartmentNumber = (row[FIXED_COLUMN_MAPPING.apartmentNumber] || '').toString().trim();
         
@@ -313,112 +299,94 @@ export default function ExcelImporter({ onImportComplete }) {
           debt_status_auto = 'לגבייה מיידית';
         }
 
-        const existingRecords = await base44.entities.DebtorRecord.list();
-        const existing = existingRecords.find(r => r.apartmentNumber === apartmentNumber);
+        // Use existingMap instead of DB lookup
+        const existing = context.existingMap[apartmentNumber];
 
-        // Retry logic for Rate Limit
-        let success = false;
-        let lastError = null;
+        const isEmpty = (val) => {
+          if (val === null || val === undefined || val === '') return true;
+          const str = String(val).trim();
+          return str === '' || str === 'אין מספר' || str === '-' || str === 'לא ידוע' || /^0+$/.test(str);
+        };
 
-        for (let attempt = 1; attempt <= MAX_RETRIES && !success; attempt++) {
-          try {
-            if (existing) {
-              const updateData = {
-                monthlyDebt,
-                specialDebt,
-                totalDebt,
-                debt_status_auto,
-                detailsMonthly: detailsMonthlyRaw,
-                phonesRaw: phoneRaw,
-                importedThisRun: true,
-                lastImportRunId: context.importRunId,
-                lastImportAt: context.timestamp,
-                flaggedAsCleared: false,
-                clearedAt: null
-              };
-              
-              if (ownerNameRaw && ownerNameRaw.trim() !== '') {
-                updateData.ownerName = ownerNameRaw.split(/[\/,]/)[0]?.trim() || '';
-              }
-              
-              const isEmpty = (val) => {
-                if (val === null || val === undefined || val === '') return true;
-                const str = String(val).trim();
-                return str === '' || str === 'אין מספר' || str === '-' || str === 'לא ידוע' || /^0+$/.test(str);
-              };
-              
-              if (isEmpty(existing.phoneOwner) && !isEmpty(phoneOwner)) {
-                updateData.phoneOwner = phoneOwner;
-              }
-              if (isEmpty(existing.phoneTenant) && !isEmpty(phoneTenant)) {
-                updateData.phoneTenant = phoneTenant;
-              }
-              if (isEmpty(existing.phonePrimary) && !isEmpty(phonePrimary)) {
-                updateData.phonePrimary = phonePrimary;
-              }
-
-              updateData.notes = existing.notes;
-              updateData.lastContactDate = existing.lastContactDate;
-              updateData.nextActionDate = existing.nextActionDate;
-              updateData.legal_status_id = existing.legal_status_id;
-              updateData.legal_status_overridden = existing.legal_status_overridden;
-              updateData.legal_status_lock = existing.legal_status_lock;
-              updateData.legal_status_updated_at = existing.legal_status_updated_at;
-              updateData.legal_status_updated_by = existing.legal_status_updated_by;
-              updateData.legal_status_source = existing.legal_status_source;
-              updateData.legal_status_manual = existing.legal_status_manual;
-              
-              await base44.entities.DebtorRecord.update(existing.id, updateData);
-              batchResults.updated++;
-            } else {
-              const newRecord = {
-                apartmentNumber,
-                ownerName: ownerNameRaw.split(/[\/,]/)[0]?.trim() || '',
-                phoneOwner,
-                phoneTenant,
-                phonePrimary,
-                phonesRaw: phoneRaw,
-                monthlyDebt,
-                specialDebt,
-                totalDebt,
-                debt_status_auto,
-                detailsMonthly: detailsMonthlyRaw,
-                detailsSpecial: '',
-                monthlyPayment: 0,
-                monthsInArrears: 0,
-                importedThisRun: true,
-                lastImportRunId: context.importRunId,
-                lastImportAt: context.timestamp,
-                flaggedAsCleared: false
-              };
-
-              if (context.defaultLegalStatus) {
-                newRecord.legal_status_id = context.defaultLegalStatus.id;
-                newRecord.legal_status_overridden = false;
-              }
-              
-              await base44.entities.DebtorRecord.create(newRecord);
-              batchResults.created++;
-            }
-            
-            success = true;
-          } catch (dbError) {
-            lastError = dbError;
-            
-            if (isRateLimitError(dbError) && attempt < MAX_RETRIES) {
-              const retryDelay = getRetryDelay(attempt);
-              console.warn(`[Excel Import] Rate limit hit on row ${i + 2}, attempt ${attempt}/${MAX_RETRIES}, waiting ${retryDelay}ms`);
-              await sleep(retryDelay);
-            } else if (!isRateLimitError(dbError)) {
-              // Not a rate limit error, don't retry
-              throw dbError;
-            }
+        if (existing) {
+          const updateData = {
+            monthlyDebt,
+            specialDebt,
+            totalDebt,
+            debt_status_auto,
+            detailsMonthly: detailsMonthlyRaw,
+            phonesRaw: phoneRaw,
+            importedThisRun: true,
+            lastImportRunId: context.importRunId,
+            lastImportAt: context.timestamp,
+            flaggedAsCleared: false,
+            clearedAt: null
+          };
+          
+          if (ownerNameRaw && ownerNameRaw.trim() !== '') {
+            updateData.ownerName = ownerNameRaw.split(/[\/,]/)[0]?.trim() || '';
           }
-        }
+          
+          if (isEmpty(existing.phoneOwner) && !isEmpty(phoneOwner)) {
+            updateData.phoneOwner = phoneOwner;
+          }
+          if (isEmpty(existing.phoneTenant) && !isEmpty(phoneTenant)) {
+            updateData.phoneTenant = phoneTenant;
+          }
+          if (isEmpty(existing.phonePrimary) && !isEmpty(phonePrimary)) {
+            updateData.phonePrimary = phonePrimary;
+          }
+          
+          if (isEmpty(existing.monthsInArrears) && detailsMonthlyRaw) {
+            // Calculate from details if needed
+          }
 
-        if (!success) {
-          throw lastError;
+          updateData.notes = existing.notes;
+          updateData.lastContactDate = existing.lastContactDate;
+          updateData.nextActionDate = existing.nextActionDate;
+          updateData.legal_status_id = existing.legal_status_id;
+          updateData.legal_status_overridden = existing.legal_status_overridden;
+          updateData.legal_status_lock = existing.legal_status_lock;
+          updateData.legal_status_updated_at = existing.legal_status_updated_at;
+          updateData.legal_status_updated_by = existing.legal_status_updated_by;
+          updateData.legal_status_source = existing.legal_status_source;
+          updateData.legal_status_manual = existing.legal_status_manual;
+          
+          await base44.entities.DebtorRecord.update(existing.id, updateData);
+          batchResults.updated++;
+        } else {
+          const newRecord = {
+            apartmentNumber,
+            ownerName: ownerNameRaw.split(/[\/,]/)[0]?.trim() || '',
+            phoneOwner,
+            phoneTenant,
+            phonePrimary,
+            phonesRaw: phoneRaw,
+            monthlyDebt,
+            specialDebt,
+            totalDebt,
+            debt_status_auto,
+            detailsMonthly: detailsMonthlyRaw,
+            detailsSpecial: '',
+            monthlyPayment: 0,
+            monthsInArrears: 0,
+            importedThisRun: true,
+            lastImportRunId: context.importRunId,
+            lastImportAt: context.timestamp,
+            flaggedAsCleared: false
+          };
+
+          if (context.defaultLegalStatus) {
+            newRecord.legal_status_id = context.defaultLegalStatus.id;
+            newRecord.legal_status_overridden = false;
+          }
+          
+          await base44.entities.DebtorRecord.create(newRecord);
+          batchResults.created++;
         }
+        
+        // Delay between writes
+        await sleep(DELAY_BETWEEN_WRITES);
       } catch (rowError) {
         batchResults.failed++;
         const apartmentNumber = (row[FIXED_COLUMN_MAPPING.apartmentNumber] || '').toString().trim();
@@ -498,19 +466,51 @@ export default function ExcelImporter({ onImportComplete }) {
         }
       }
 
-      // איפוס דגלים
-      await base44.entities.ImportRun.update(importRun.id, { stage: 'RESET_FLAGS' });
+      // שלב 1: קריאה אחת של כל הרשומות הקיימות
+      await base44.entities.ImportRun.update(importRun.id, { stage: 'BUILD_EXISTING_MAP' });
+      console.log(`[Excel Import] Loading all existing records...`);
       const allExistingRecords = await base44.entities.DebtorRecord.list();
-      console.log(`[Excel Import] Resetting flags for ${allExistingRecords.length} records`);
       
+      // בניית Map בזיכרון
+      const existingMap = {};
       for (const record of allExistingRecords) {
-        await base44.entities.DebtorRecord.update(record.id, {
+        existingMap[record.apartmentNumber] = {
+          id: record.id,
+          phoneOwner: record.phoneOwner,
+          phoneTenant: record.phoneTenant,
+          phonePrimary: record.phonePrimary,
+          monthsInArrears: record.monthsInArrears,
+          notes: record.notes,
+          lastContactDate: record.lastContactDate,
+          nextActionDate: record.nextActionDate,
+          legal_status_id: record.legal_status_id,
+          legal_status_overridden: record.legal_status_overridden,
+          legal_status_lock: record.legal_status_lock,
+          legal_status_updated_at: record.legal_status_updated_at,
+          legal_status_updated_by: record.legal_status_updated_by,
+          legal_status_source: record.legal_status_source,
+          legal_status_manual: record.legal_status_manual
+        };
+      }
+      
+      console.log(`[Excel Import] Existing map built with ${Object.keys(existingMap).length} apartments`);
+
+      // איפוס דגלים בבאצ'ים
+      await base44.entities.ImportRun.update(importRun.id, { stage: 'RESET_FLAGS' });
+      console.log(`[Excel Import] Resetting importedThisRun flags...`);
+      
+      for (let i = 0; i < allExistingRecords.length; i++) {
+        await base44.entities.DebtorRecord.update(allExistingRecords[i].id, {
           importedThisRun: false
         });
+        
+        if (i % 50 === 0) {
+          await sleep(500); // Slow down flag updates
+        }
       }
 
       // UPSERT בבאצ'ים עם delays
-      await base44.entities.ImportRun.update(importRun.id, { stage: 'UPSERT_BATCH' });
+      await base44.entities.ImportRun.update(importRun.id, { stage: 'WRITE_BATCHES' });
       
       const { rows } = excelData;
       const allStatuses = await base44.entities.Status.list();
@@ -520,7 +520,8 @@ export default function ExcelImporter({ onImportComplete }) {
         importRunId: importRun.id,
         timestamp: importTimestamp,
         settings,
-        defaultLegalStatus
+        defaultLegalStatus,
+        existingMap
       };
 
       let totalCreated = 0;
@@ -532,6 +533,7 @@ export default function ExcelImporter({ onImportComplete }) {
       const allErrors = [];
 
       const totalBatches = Math.ceil(rows.length / BATCH_SIZE);
+      let pauseCount = 0;
 
       for (let batchIdx = 0; batchIdx < totalBatches; batchIdx++) {
         const startIdx = batchIdx * BATCH_SIZE;
@@ -539,37 +541,63 @@ export default function ExcelImporter({ onImportComplete }) {
 
         console.log(`[Excel Import] Processing batch ${batchIdx + 1}/${totalBatches} (rows ${startIdx + 1}-${endIdx})`);
 
-        const batchResults = await processBatch(rows, startIdx, endIdx, context);
+        let batchSuccess = false;
+        let batchRetries = 0;
 
-        totalCreated += batchResults.created;
-        totalUpdated += batchResults.updated;
-        totalSkipped += batchResults.skipped;
-        totalFailed += batchResults.failed;
-        totalInvalidMonthly += batchResults.invalidMonthly;
-        totalInvalidSpecial += batchResults.invalidSpecial;
-        allErrors.push(...batchResults.errors);
+        while (!batchSuccess && batchRetries < 3) {
+          try {
+            const batchResults = await processBatch(rows, startIdx, endIdx, context);
+
+            totalCreated += batchResults.created;
+            totalUpdated += batchResults.updated;
+            totalSkipped += batchResults.skipped;
+            totalFailed += batchResults.failed;
+            totalInvalidMonthly += batchResults.invalidMonthly;
+            totalInvalidSpecial += batchResults.invalidSpecial;
+            allErrors.push(...batchResults.errors);
+
+            batchSuccess = true;
+          } catch (batchError) {
+            if (isRateLimitError(batchError) && pauseCount < MAX_429_PAUSES) {
+              pauseCount++;
+              console.warn(`[Excel Import] Rate limit on batch ${batchIdx + 1}, pausing for ${PAUSE_ON_429 / 1000}s (pause ${pauseCount}/${MAX_429_PAUSES})`);
+              toast.warning(`המערכת מאטה את קצב הייבוא... ממשיכים אוטומטית`);
+              await sleep(PAUSE_ON_429);
+              batchRetries++;
+            } else {
+              throw batchError;
+            }
+          }
+        }
+
+        if (!batchSuccess) {
+          throw new Error(`Failed to process batch ${batchIdx + 1} after ${MAX_429_PAUSES} pauses`);
+        }
 
         // Update progress
         const currentProgress = Math.round(((endIdx) / rows.length) * 100);
         setProgress(currentProgress);
 
-        // Update ImportRun with current counts
-        await base44.entities.ImportRun.update(importRun.id, {
-          createdCount: totalCreated,
-          updatedCount: totalUpdated,
-          failedRowsCount: totalFailed,
-          skippedRowsCount: totalSkipped,
-          successRowsCount: totalCreated + totalUpdated
-        });
-
-        // Delays to avoid rate limit
-        if (batchIdx < totalBatches - 1) {
-          if ((batchIdx + 1) % 5 === 0) {
-            console.log(`[Excel Import] 5 batches completed, waiting ${DELAY_EVERY_5_BATCHES}ms`);
-            await sleep(DELAY_EVERY_5_BATCHES);
-          } else {
-            await sleep(DELAY_BETWEEN_BATCHES);
+        // Update ImportRun with current counts (less frequently)
+        if (batchIdx % 5 === 0 || batchIdx === totalBatches - 1) {
+          try {
+            await base44.entities.ImportRun.update(importRun.id, {
+              createdCount: totalCreated,
+              updatedCount: totalUpdated,
+              failedRowsCount: totalFailed,
+              skippedRowsCount: totalSkipped,
+              successRowsCount: totalCreated + totalUpdated,
+              lastProcessedRowIndex: endIdx
+            });
+          } catch (err) {
+            console.warn('[Excel Import] Failed to update ImportRun progress');
           }
+        }
+
+        // Fixed delay between batches
+        if (batchIdx < totalBatches - 1) {
+          console.log(`[Excel Import] Waiting ${DELAY_BETWEEN_BATCHES / 1000}s before next batch`);
+          await sleep(DELAY_BETWEEN_BATCHES);
         }
       }
 
@@ -911,18 +939,30 @@ export default function ExcelImporter({ onImportComplete }) {
 
             {isImporting && (
               <div className="mt-6 p-4 bg-blue-50 rounded-xl" dir="rtl">
-                <div className="flex items-center justify-between text-sm text-slate-700 mb-2 font-semibold">
-                  <span>מעבד נתונים...</span>
-                  <span className="text-blue-600 font-bold">{progress}%</span>
+                <div className="flex items-center justify-between mb-1" style={{ direction: 'rtl', textAlign: 'right' }}>
+                  <span className="text-xs font-semibold text-slate-700">מעבד נתונים...</span>
+                  <span className="text-xs font-bold text-blue-600">{progress}%</span>
                 </div>
-                <div className="w-full bg-slate-200 rounded-full overflow-hidden" style={{ height: '5px', minHeight: '5px', maxHeight: '5px' }}>
+                <div className="w-full rounded-full overflow-hidden" style={{ 
+                  height: '5px', 
+                  minHeight: '5px', 
+                  maxHeight: '5px',
+                  backgroundColor: '#e5e7eb',
+                  direction: 'rtl'
+                }}>
                   <div 
-                    className="bg-blue-600 transition-all duration-300 rounded-full"
-                    style={{ width: `${progress}%`, height: '5px', minHeight: '5px', maxHeight: '5px' }}
+                    className="rounded-full transition-all duration-300"
+                    style={{ 
+                      width: `${progress}%`, 
+                      height: '5px', 
+                      minHeight: '5px', 
+                      maxHeight: '5px',
+                      backgroundColor: '#2563eb'
+                    }}
                   />
                 </div>
                 <p className="text-xs text-slate-500 mt-2 text-center">
-                  המערכת מאטה את קצב הייבוא למניעת עומס
+                  קצב מבוקר למניעת עומס (10 רשומות כל 6 שניות)
                 </p>
               </div>
             )}
