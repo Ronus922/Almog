@@ -257,8 +257,9 @@ export default function DebtorsTable({
       
       toast.success(showArchived ? 'הוחזר לחייבים' : 'הועבר לארכיון');
       
+      // Call onRecordUpdate to refresh data immediately
       if (onRecordUpdate) {
-        onRecordUpdate();
+        onRecordUpdate(record.id);
       }
     } catch (error) {
       console.error('Archive toggle error:', error);
