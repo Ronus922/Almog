@@ -772,7 +772,7 @@ export default function DebtorsTable({
           </div>
         )}
       </CardContent>
-    </TooltipProvider>
     </Card>
+    </TooltipProvider>
   );
 }
