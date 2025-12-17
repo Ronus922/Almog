@@ -111,6 +111,8 @@ function DashboardContent() {
     mutationFn: ({ id, data }) => base44.entities.DebtorRecord.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+      queryClient.invalidateQueries({ queryKey: ['archivedRecords'] });
+      queryClient.invalidateQueries({ queryKey: ['allDebtorRecords'] });
       setIsModalOpen(false);
     },
   });
