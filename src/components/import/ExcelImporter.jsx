@@ -445,9 +445,6 @@ export default function ExcelImporter({ onImportComplete }) {
           const monthlyDebt = parseNumber(monthlyDebtRaw);
           const specialDebt = parseNumber(specialDebtRaw);
           
-          // חישוב totalDebt = monthlyDebt + specialDebt
-          const totalDebt = Math.round((monthlyDebt + specialDebt) * 100) / 100;
-
           const record = {
             apartmentNumber,
             ownerName: ownerNameRaw.split(/[\/,]/)[0]?.trim() || '',
@@ -455,13 +452,15 @@ export default function ExcelImporter({ onImportComplete }) {
             phoneTenant,
             phonePrimary,
             phonesRaw: phoneRaw,
-            totalDebt,
             monthlyDebt,
             specialDebt,
             detailsMonthly: detailsMonthlyRaw,
             detailsSpecial: '',
             monthlyPayment: 0
           };
+
+          // חישוב totalDebt = monthlyDebt + specialDebt (חובה!)
+          record.totalDebt = Math.round(((record.monthlyDebt || 0) + (record.specialDebt || 0)) * 100) / 100;
 
           // חישוב חודשי פיגור
           record.monthsInArrears = calculateMonthsInArrears(record.detailsMonthly);
