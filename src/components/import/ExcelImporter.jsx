@@ -76,9 +76,13 @@ const progressPercentStyle = {
 };
 
 const mappingTitleStyle = {
-  fontSize: 13,
+  fontSize: 20,
   fontWeight: 700,
   marginBottom: 6,
+  lineHeight: 1.3,
+  direction: "rtl",
+  textAlign: "right",
+  unicodeBidi: "plaintext",
 };
 
 const mappingGridStyle = {
@@ -90,15 +94,21 @@ const mappingGridStyle = {
 };
 
 const mappingItemStyle = {
-  fontSize: 12,
-  lineHeight: 1.4,
+  fontSize: 15,
+  lineHeight: 1.45,
   whiteSpace: "nowrap",
+  direction: "rtl",
+  textAlign: "right",
+  unicodeBidi: "plaintext",
 };
 
 const importModeTitleStyle = {
-  fontSize: 14,
+  fontSize: 20,
   fontWeight: 700,
   lineHeight: 1.3,
+  direction: "rtl",
+  textAlign: "right",
+  unicodeBidi: "plaintext",
 };
 
 const dangerIconStyle = {
@@ -107,6 +117,14 @@ const dangerIconStyle = {
   marginLeft: 8,
   display: "inline-flex",
   alignItems: "center",
+};
+
+const importRulesTextStyle = {
+  fontSize: 15,
+  lineHeight: 1.45,
+  direction: "rtl",
+  textAlign: "right",
+  unicodeBidi: "plaintext",
 };
 
 export default function ExcelImporter({ onImportComplete }) {
@@ -988,11 +1006,7 @@ export default function ExcelImporter({ onImportComplete }) {
                     <Label htmlFor="fill_missing" className="cursor-pointer text-blue-900 block" style={importModeTitleStyle}>
                       השלמה בלבד (מומלץ)
                     </Label>
-                    <ul className="text-blue-700 mt-2 space-y-1 list-disc pr-5" style={{ 
-                      fontSize: '12px', 
-                      lineHeight: '1.45',
-                      color: '#1f2937'
-                    }}>
+                    <ul className="text-blue-700 mt-2 space-y-1 list-disc pr-5" style={importRulesTextStyle}>
                       <li>טלפונים: עדכון רק אם ריקים</li>
                       <li>סכומים: עדכון תמיד</li>
                       <li>סה״כ חוב מחושב: דמי ניהול + מים חמים</li>
@@ -1006,7 +1020,7 @@ export default function ExcelImporter({ onImportComplete }) {
                     <Label htmlFor="reset" className="cursor-pointer text-red-700 block" style={importModeTitleStyle}>
                       איפוס מלא
                     </Label>
-                    <p className="text-red-700 mt-2 font-semibold" style={{ ...rtlWrapStyle, margin: "8px 0 0 0", fontSize: 12 }}>
+                    <p className="text-red-700 mt-2 font-semibold" style={{ ...rtlWrapStyle, ...importRulesTextStyle, margin: "8px 0 0 0" }}>
                       <span style={dangerIconStyle}>⚠️</span>
                       מחיקה מלאה של כל הנתונים
                     </p>
