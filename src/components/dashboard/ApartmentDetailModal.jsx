@@ -662,11 +662,11 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 <p className="text-xl md:text-2xl font-extrabold text-rose-600">{formatCurrency(record.totalDebt)}</p>
               </div>
               <div className="text-right p-4 md:p-5 bg-white rounded-xl md:rounded-2xl shadow-sm border-r-4 border-amber-500">
-                <p className="text-xs text-slate-500 font-bold mb-1 md:mb-2">חוב חודשי</p>
+                <p className="text-xs text-slate-500 font-bold mb-1 md:mb-2">דמי ניהול</p>
                 <p className="text-xl md:text-2xl font-extrabold text-amber-600">{formatCurrency(record.monthlyDebt)}</p>
               </div>
               <div className="text-right p-4 md:p-5 bg-white rounded-xl md:rounded-2xl shadow-sm border-r-4 border-purple-500">
-                <p className="text-xs text-slate-500 font-bold mb-1 md:mb-2">חוב מיוחד</p>
+                <p className="text-xs text-slate-500 font-bold mb-1 md:mb-2">מים חמים</p>
                 <p className="text-xl md:text-2xl font-extrabold text-purple-600">{formatCurrency(record.specialDebt)}</p>
               </div>
             </div>

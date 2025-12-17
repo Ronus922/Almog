@@ -78,14 +78,14 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
       isClickable: false
     },
     { 
-      title: "חוב דמי ניהול", 
+      title: "דמי ניהול", 
       value: formatCurrency(totalMonthlyDebt), 
       icon: Calendar, 
       color: "text-amber-600",
       isClickable: false
     },
     { 
-      title: "חוב מים חמים", 
+      title: "מים חמים", 
       value: formatCurrency(totalSpecialDebt), 
       icon: AlertTriangle, 
       color: "text-purple-600",
