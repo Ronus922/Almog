@@ -40,6 +40,16 @@ const isRateLimitError = (error) => {
          message.includes('Rate limit exceeded');
 };
 
+// Normalize apartment number to prevent duplicates
+const normalizeApartmentKey = (apartmentNumber) => {
+  if (!apartmentNumber) return '';
+  return String(apartmentNumber)
+    .replace(/\u00A0/g, ' ')  // Remove NBSP
+    .trim()
+    .replace(/\s+/g, '')      // Remove all whitespace
+    .replace(/^0+(?=\d)/, ''); // Remove leading zeros (keep single 0)
+};
+
 const rtlWrapStyle = {
   direction: "rtl",
   textAlign: "right",
@@ -64,15 +74,21 @@ const uploadBtnStyle = {
 };
 
 const progressTextStyle = {
-  fontSize: 14,
-  fontWeight: 600,
+  fontSize: 16,
+  fontWeight: 700,
   lineHeight: 1.2,
+  direction: "rtl",
+  textAlign: "right",
+  unicodeBidi: "plaintext",
 };
 
 const progressPercentStyle = {
-  fontSize: 14,
+  fontSize: 16,
   fontWeight: 700,
   lineHeight: 1.2,
+  direction: "rtl",
+  textAlign: "right",
+  unicodeBidi: "plaintext",
 };
 
 const mappingTitleStyle = {
@@ -270,24 +286,31 @@ export default function ExcelImporter({ onImportComplete }) {
         throw new Error('empty_file');
       }
       
-      // PRE-FLIGHT: בדיקת כפילויות
-      const apartmentNumbers = [];
+      // PRE-FLIGHT: בדיקת כפילויות עם נרמול
+      const apartmentKeys = new Set();
       const duplicates = [];
       let missingApartmentCount = 0;
 
       for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
-        const apartmentNumber = (row[FIXED_COLUMN_MAPPING.apartmentNumber] || '').toString().trim();
-        
-        if (!apartmentNumber) {
+        const apartmentRaw = (row[FIXED_COLUMN_MAPPING.apartmentNumber] || '').toString().trim();
+
+        if (!apartmentRaw) {
           missingApartmentCount++;
           continue;
         }
 
-        if (apartmentNumbers.includes(apartmentNumber)) {
-          duplicates.push(apartmentNumber);
+        const apartmentKey = normalizeApartmentKey(apartmentRaw);
+
+        if (!apartmentKey) {
+          missingApartmentCount++;
+          continue;
+        }
+
+        if (apartmentKeys.has(apartmentKey)) {
+          duplicates.push(apartmentKey);
         } else {
-          apartmentNumbers.push(apartmentNumber);
+          apartmentKeys.add(apartmentKey);
         }
       }
 
@@ -296,9 +319,16 @@ export default function ExcelImporter({ onImportComplete }) {
         throw new Error(`DUPLICATE_APARTMENTS: ${uniqueDuplicates.join(', ')}`);
       }
 
-      console.log(`[Excel Import - PRE-FLIGHT] Total: ${totalRowsParsed}, Unique: ${apartmentNumbers.length}, Missing: ${missingApartmentCount}`);
+      console.log(`[Excel Import - PRE-FLIGHT] Total: ${totalRowsParsed}, Unique: ${apartmentKeys.size}, Missing: ${missingApartmentCount}`);
 
-      setExcelData({ rows, totalRowsParsed, uniqueApartments: apartmentNumbers.length, fileName: selectedFile.name });
+      setExcelData({ 
+        rows, 
+        totalRowsParsed, 
+        uniqueApartments: apartmentKeys.size,
+        expectedRows: totalRowsParsed - missingApartmentCount,
+        uniqueInFile: apartmentKeys.size,
+        fileName: selectedFile.name 
+      });
       setStep(2);
     } catch (err) {
       if (err.message === 'no_sheets') {
@@ -335,11 +365,12 @@ export default function ExcelImporter({ onImportComplete }) {
 
     for (let i = startIdx; i < endIdx && i < rows.length; i++) {
       const row = rows[i];
-      
+
       try {
-        const apartmentNumber = (row[FIXED_COLUMN_MAPPING.apartmentNumber] || '').toString().trim();
-        
-        if (!apartmentNumber) {
+        const apartmentRaw = (row[FIXED_COLUMN_MAPPING.apartmentNumber] || '').toString().trim();
+        const apartmentKey = normalizeApartmentKey(apartmentRaw);
+
+        if (!apartmentKey) {
           batchResults.skipped++;
           continue;
         }
@@ -386,8 +417,8 @@ export default function ExcelImporter({ onImportComplete }) {
           debt_status_auto = 'לגבייה מיידית';
         }
 
-        // Use existingMap instead of DB lookup
-        const existing = context.existingMap[apartmentNumber];
+        // Use existingMap with normalized key
+        const existing = context.existingMap[apartmentKey];
 
         const isEmpty = (val) => {
           if (val === null || val === undefined || val === '') return true;
@@ -397,6 +428,7 @@ export default function ExcelImporter({ onImportComplete }) {
 
         if (existing) {
           const updateData = {
+            apartmentNumber: apartmentKey,
             monthlyDebt,
             specialDebt,
             totalDebt,
@@ -443,7 +475,7 @@ export default function ExcelImporter({ onImportComplete }) {
           batchResults.updated++;
         } else {
           const newRecord = {
-            apartmentNumber,
+            apartmentNumber: apartmentKey,
             ownerName: ownerNameRaw.split(/[\/,]/)[0]?.trim() || '',
             phoneOwner,
             phoneTenant,
@@ -476,7 +508,8 @@ export default function ExcelImporter({ onImportComplete }) {
         await sleep(DELAY_BETWEEN_WRITES);
       } catch (rowError) {
         batchResults.failed++;
-        const apartmentNumber = (row[FIXED_COLUMN_MAPPING.apartmentNumber] || '').toString().trim();
+        const apartmentRaw = (row[FIXED_COLUMN_MAPPING.apartmentNumber] || '').toString().trim();
+        const apartmentKey = normalizeApartmentKey(apartmentRaw);
         
         let errorType = 'UNKNOWN_ERROR';
         let errorMessage = rowError.message || 'שגיאה לא ידועה';
@@ -494,13 +527,13 @@ export default function ExcelImporter({ onImportComplete }) {
 
         batchResults.errors.push({
           rowIndex: i + 2,
-          apartmentNumber: apartmentNumber || 'לא ידוע',
+          apartmentNumber: apartmentKey || 'לא ידוע',
           errorType,
           errorMessage
         });
 
         console.error(`[Excel Import] Row ${i + 2} failed:`, {
-          apartmentNumber,
+          apartmentNumber: apartmentKey,
           errorType,
           error: rowError
         });
@@ -558,10 +591,11 @@ export default function ExcelImporter({ onImportComplete }) {
       console.log(`[Excel Import] Loading all existing records...`);
       const allExistingRecords = await base44.entities.DebtorRecord.list();
       
-      // בניית Map בזיכרון
+      // בניית Map בזיכרון עם מפתח מנורמל
       const existingMap = {};
       for (const record of allExistingRecords) {
-        existingMap[record.apartmentNumber] = {
+        const normalizedKey = normalizeApartmentKey(record.apartmentNumber);
+        existingMap[normalizedKey] = {
           id: record.id,
           phoneOwner: record.phoneOwner,
           phoneTenant: record.phoneTenant,
@@ -736,11 +770,13 @@ export default function ExcelImporter({ onImportComplete }) {
         console.log(`[Excel Import] Skipping POST_CLEAR_MISSING due to high failure rate`);
       }
 
-      // QA
+      // QA - ספירה מדויקת לפי runId
       await base44.entities.ImportRun.update(importRun.id, { stage: 'QA_VALIDATION' });
       console.log(`[Excel Import] ========== QA VALIDATION ==========`);
       const allRecords = await base44.entities.DebtorRecord.list();
-      const importedCount = allRecords.filter(r => r.importedThisRun).length;
+      const importedCount = allRecords.filter(r => 
+        r.lastImportRunId === importRun.id && r.importedThisRun === true
+      ).length;
 
       const sumMonthly = allRecords.reduce((sum, r) => sum + (r.monthlyDebt || 0), 0);
       const sumSpecial = allRecords.reduce((sum, r) => sum + (r.specialDebt || 0), 0);
@@ -748,9 +784,10 @@ export default function ExcelImporter({ onImportComplete }) {
       const delta = Math.abs(sumTotal - (sumMonthly + sumSpecial));
       
       const qaValidation = delta <= 0.01;
-      const countValidation = importedCount === excelData.uniqueApartments;
+      const countValidation = importedCount === excelData.uniqueInFile;
 
-      console.log(`[Excel Import - QA] Expected: ${excelData.uniqueApartments}, Imported: ${importedCount}`);
+      console.log(`[Excel Import - QA] Expected: ${excelData.uniqueInFile}, Imported: ${importedCount}`);
+      console.log(`[Excel Import - QA] Created: ${totalCreated}, Updated: ${totalUpdated}`);
       console.log(`[Excel Import - QA] Delta: ${delta.toFixed(2)}`);
 
       let finalStatus = 'SUCCESS';
@@ -766,7 +803,12 @@ export default function ExcelImporter({ onImportComplete }) {
       }
 
       if (!countValidation) {
-        errorSummary += (errorSummary ? ', ' : '') + `חסרות ${excelData.uniqueApartments - importedCount} דירות`;
+        const diff = importedCount - excelData.uniqueInFile;
+        if (diff > 0) {
+          errorSummary += (errorSummary ? ', ' : '') + `יובאו ${diff} דירות יותר מהצפוי (כפילויות?)`;
+        } else {
+          errorSummary += (errorSummary ? ', ' : '') + `חסרות ${-diff} דירות`;
+        }
       }
 
       // עדכון ImportRun סופי
@@ -813,8 +855,9 @@ export default function ExcelImporter({ onImportComplete }) {
         invalidMonthly: totalInvalidMonthly,
         invalidSpecial: totalInvalidSpecial,
         total: rows.length,
-        uniqueApartments: excelData.uniqueApartments,
-        importedCount,
+        expectedRows: excelData.expectedRows,
+        uniqueInFile: excelData.uniqueInFile,
+        importedCountDB: importedCount,
         qaValidation,
         countValidation,
         delta: delta.toFixed(2),
@@ -910,6 +953,32 @@ export default function ExcelImporter({ onImportComplete }) {
         @media (max-width: 480px) {
           .import-mapping-grid { grid-template-columns: 1fr !important; }
         }
+        
+        .import-mapping-row {
+          display: grid;
+          grid-template-columns: 22px 14px 1fr;
+          align-items: center;
+          column-gap: 6px;
+          font-size: 15px;
+          line-height: 1.4;
+        }
+        
+        .import-mapping-letter {
+          width: 22px;
+          text-align: left;
+          font-weight: 700;
+        }
+        
+        .import-mapping-arrow {
+          width: 14px;
+          text-align: center;
+          opacity: 0.9;
+        }
+        
+        .import-mapping-label {
+          text-align: right;
+          white-space: nowrap;
+        }
       `}</style>
       
       <CardHeader className="border-b bg-slate-50">
@@ -987,12 +1056,36 @@ export default function ExcelImporter({ onImportComplete }) {
               <AlertDescription className="text-blue-800 font-semibold text-right">
                 <div style={mappingTitleStyle}>מיפוי קבוע:</div>
                 <div className="import-mapping-grid" style={mappingGridStyle}>
-                  <div style={mappingItemStyle}>A → דירה</div>
-                  <div style={mappingItemStyle}>G → מים חמים</div>
-                  <div style={mappingItemStyle}>B → שם</div>
-                  <div style={mappingItemStyle}>H → פרטים</div>
-                  <div style={mappingItemStyle}>C → טלפון</div>
-                  <div style={mappingItemStyle}>I → דמי ניהול</div>
+                  <div className="import-mapping-row">
+                    <span className="import-mapping-letter">A</span>
+                    <span className="import-mapping-arrow">→</span>
+                    <span className="import-mapping-label">דירה</span>
+                  </div>
+                  <div className="import-mapping-row">
+                    <span className="import-mapping-letter">G</span>
+                    <span className="import-mapping-arrow">→</span>
+                    <span className="import-mapping-label">מים חמים</span>
+                  </div>
+                  <div className="import-mapping-row">
+                    <span className="import-mapping-letter">B</span>
+                    <span className="import-mapping-arrow">→</span>
+                    <span className="import-mapping-label">שם</span>
+                  </div>
+                  <div className="import-mapping-row">
+                    <span className="import-mapping-letter">H</span>
+                    <span className="import-mapping-arrow">→</span>
+                    <span className="import-mapping-label">פרטים</span>
+                  </div>
+                  <div className="import-mapping-row">
+                    <span className="import-mapping-letter">C</span>
+                    <span className="import-mapping-arrow">→</span>
+                    <span className="import-mapping-label">טלפון</span>
+                  </div>
+                  <div className="import-mapping-row">
+                    <span className="import-mapping-letter">I</span>
+                    <span className="import-mapping-arrow">→</span>
+                    <span className="import-mapping-label">דמי ניהול</span>
+                  </div>
                 </div>
               </AlertDescription>
             </Alert>
@@ -1057,18 +1150,18 @@ export default function ExcelImporter({ onImportComplete }) {
 
                 <div className="import-progress-bar-container" style={{
                   width: "100%",
-                  height: 5,
-                  minHeight: 5,
-                  maxHeight: 5,
+                  height: 15,
+                  minHeight: 15,
+                  maxHeight: 15,
                   backgroundColor: "#e5e7eb",
                   borderRadius: 999,
                   overflow: "hidden",
                 }}>
                   <div style={{
                     width: `${progress}%`,
-                    height: 5,
-                    minHeight: 5,
-                    maxHeight: 5,
+                    height: 15,
+                    minHeight: 15,
+                    maxHeight: 15,
                     backgroundColor: "#2563eb",
                     borderRadius: 999,
                     transition: "width 180ms linear",
@@ -1104,6 +1197,28 @@ export default function ExcelImporter({ onImportComplete }) {
               <p className="text-sm text-slate-500">RunId: {importResult.importRunId}</p>
             </div>
             
+            <div className="mb-6 p-4 bg-slate-50 rounded-lg border border-slate-200">
+              <h4 className="font-bold text-sm text-slate-700 mb-2">ספירת QA:</h4>
+              <div className="grid grid-cols-3 gap-2 text-xs">
+                <div>
+                  <span className="text-slate-500">צפוי:</span>
+                  <span className="font-bold text-slate-800 mr-1">{importResult.uniqueInFile}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500">יובא:</span>
+                  <span className={`font-bold mr-1 ${importResult.countValidation ? 'text-green-600' : 'text-red-600'}`}>
+                    {importResult.importedCountDB}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-500">פער:</span>
+                  <span className={`font-bold mr-1 ${importResult.delta <= 0.01 ? 'text-green-600' : 'text-orange-600'}`}>
+                    {importResult.delta}₪
+                  </span>
+                </div>
+              </div>
+            </div>
+
             <div className="grid grid-cols-2 gap-3 mb-6">
               <div className="text-center p-3 bg-green-50 rounded-lg">
                 <p className="text-xl font-bold text-green-600">{importResult.created}</p>
@@ -1163,11 +1278,14 @@ export default function ExcelImporter({ onImportComplete }) {
                 <AlertDescription className="text-right">
                   <p className="font-bold mb-2">אזהרות QA:</p>
                   {!importResult.countValidation && (
-                    <p className="text-sm">• חוסר התאמה בכמות: צפוי {importResult.uniqueApartments}, יובא {importResult.importedCount}</p>
+                    <p className="text-sm">• חוסר התאמה בכמות: צפוי {importResult.uniqueInFile}, יובא בפועל {importResult.importedCountDB}</p>
                   )}
                   {!importResult.qaValidation && (
-                    <p className="text-sm">• פער בסכומים: {importResult.delta}</p>
+                    <p className="text-sm">• פער בסכומים: {importResult.delta}₪</p>
                   )}
+                  <p className="text-xs mt-2 text-slate-600">
+                    ייתכן שיש כפילויות במסד הנתונים. מומלץ לבדוק ידנית.
+                  </p>
                 </AlertDescription>
               </Alert>
             )}
