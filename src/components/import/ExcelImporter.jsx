@@ -491,8 +491,7 @@ export default function ExcelImporter({ onImportComplete }) {
           if (existing) {
             // Apply update rules
             const updateData = {
-              // עדכן תמיד - סכומים
-              totalDebt: record.totalDebt,
+              // עדכן תמיד - סכומים (חישוב totalDebt חובה לאחר ניקוי!)
               monthlyDebt: record.monthlyDebt,
               specialDebt: record.specialDebt,
               monthlyPayment: record.monthlyPayment,
@@ -502,6 +501,9 @@ export default function ExcelImporter({ onImportComplete }) {
               detailsSpecial: record.detailsSpecial,
               phonesRaw: record.phonesRaw
             };
+            
+            // חישוב totalDebt מחייב לאחר עדכון (לפני שמירה!)
+            updateData.totalDebt = Math.round(((updateData.monthlyDebt || 0) + (updateData.specialDebt || 0)) * 100) / 100;
             
             // owner_name: עדכן תמיד אם לא ריק
             if (record.ownerName && record.ownerName.trim() !== '') {
@@ -555,7 +557,7 @@ export default function ExcelImporter({ onImportComplete }) {
             
             await base44.entities.DebtorRecord.update(existing.id, updateData);
             updated++;
-            console.log(`[Excel Import - dbInsert] Updated apartment ${record.apartmentNumber} (mode: ${importMode})`);
+            console.log(`[Excel Import - dbInsert] Updated apartment ${record.apartmentNumber} - totalDebt=${updateData.totalDebt} (monthlyDebt=${updateData.monthlyDebt} + specialDebt=${updateData.specialDebt})`);
           } else {
             // New record - debt_status_auto already calculated above
             // Assign default legal status
@@ -564,9 +566,12 @@ export default function ExcelImporter({ onImportComplete }) {
               record.legal_status_overridden = false;
             }
             
+            // חישוב totalDebt סופי לפני יצירה (double check)
+            record.totalDebt = Math.round(((record.monthlyDebt || 0) + (record.specialDebt || 0)) * 100) / 100;
+            
             await base44.entities.DebtorRecord.create(record);
             created++;
-            console.log(`[Excel Import - dbInsert] Created apartment ${record.apartmentNumber} with default status`);
+            console.log(`[Excel Import - dbInsert] Created apartment ${record.apartmentNumber} - totalDebt=${record.totalDebt} (monthlyDebt=${record.monthlyDebt} + specialDebt=${record.specialDebt})`);
           }
         } catch (rowError) {
           console.error(`[Excel Import - dbInsert] Error importing row ${i + 1}:`, {
