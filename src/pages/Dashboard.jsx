@@ -282,40 +282,42 @@ function DashboardContent() {
         {/* אינדיקציית ייבוא אחרון - בין KPI לטבלה */}
         <LastImportIndicator lastImportAt={settings?.last_import_at} isAdmin={isAdmin} />
 
-        {/* טאבים - חייבים / ארכיון */}
+        {/* טאבים - חייבים / ארכיון (רק למנהלים) */}
         <div className="w-full">
-          <div className={`grid w-full max-w-md grid-cols-2 h-12 rounded-xl bg-slate-100 p-1 mb-6 tabs-container ${activeTab === 'archived' ? 'mode-archive' : ''}`} dir="rtl">
-            <button
-              onClick={() => setActiveTab('debtors')}
-              className={`tab-debtors rounded-lg text-base font-bold flex items-center justify-center gap-2 transition-all ${
-                activeTab === 'debtors' 
-                  ? 'bg-white shadow-sm active' 
-                  : 'hover:bg-slate-200/50'
-              }`}
-            >
-              <Users className="w-4 h-4" />
-              חייבים
-              <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold">
-                {debtorRecords.length}
-              </span>
-            </button>
-            <button
-              onClick={() => setActiveTab('archived')}
-              className={`tab-archive rounded-lg text-base font-bold flex items-center justify-center gap-2 transition-all ${
-                activeTab === 'archived' 
-                  ? 'bg-white shadow-sm active' 
-                  : 'bg-indigo-50 border border-indigo-200 hover:bg-indigo-100'
-              }`}
-            >
-              <Archive className="w-4 h-4" />
-              ארכיון
-              <span className="text-xs bg-slate-600 text-white px-2 py-0.5 rounded-full font-bold">
-                {archivedRecords.length}
-              </span>
-            </button>
-          </div>
+          {isAdmin && (
+            <div className={`grid w-full max-w-md grid-cols-2 h-12 rounded-xl bg-slate-100 p-1 mb-6 tabs-container ${activeTab === 'archived' ? 'mode-archive' : ''}`} dir="rtl">
+              <button
+                onClick={() => setActiveTab('debtors')}
+                className={`tab-debtors rounded-lg text-base font-bold flex items-center justify-center gap-2 transition-all ${
+                  activeTab === 'debtors' 
+                    ? 'bg-white shadow-sm active' 
+                    : 'hover:bg-slate-200/50'
+                }`}
+              >
+                <Users className="w-4 h-4" />
+                חייבים
+                <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold">
+                  {debtorRecords.length}
+                </span>
+              </button>
+              <button
+                onClick={() => setActiveTab('archived')}
+                className={`tab-archive rounded-lg text-base font-bold flex items-center justify-center gap-2 transition-all ${
+                  activeTab === 'archived' 
+                    ? 'bg-white shadow-sm active' 
+                    : 'bg-indigo-50 border border-indigo-200 hover:bg-indigo-100'
+                }`}
+              >
+                <Archive className="w-4 h-4" />
+                ארכיון
+                <span className="text-xs bg-slate-600 text-white px-2 py-0.5 rounded-full font-bold">
+                  {archivedRecords.length}
+                </span>
+              </button>
+            </div>
+          )}
 
-          {activeTab === 'debtors' && (
+          {(activeTab === 'debtors' || !isAdmin) && (
             <DebtorsTable 
               records={debtorRecords} 
               onRowClick={handleRowClick}
@@ -331,7 +333,7 @@ function DashboardContent() {
             />
           )}
 
-          {activeTab === 'archived' && (
+          {isAdmin && activeTab === 'archived' && (
             <DebtorsTable 
               records={archivedRecords} 
               onRowClick={handleRowClick}

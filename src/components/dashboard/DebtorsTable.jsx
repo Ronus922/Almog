@@ -540,7 +540,7 @@ export default function DebtorsTable({
                   </div>
                 </TableHead>
                 <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">מצב משפטי</TableHead>
-                <TableHead className="text-center font-bold text-slate-700 text-base py-4 px-6" style={{ width: '72px' }}>פעולות</TableHead>
+                {isAdmin && <TableHead className="text-center font-bold text-slate-700 text-base py-4 px-6" style={{ width: '72px' }}>פעולות</TableHead>}
               </TableRow>
               
               {/* Advanced Filter Row */}
@@ -627,14 +627,14 @@ export default function DebtorsTable({
                       </Select>
                     )}
                     </TableHead>
-                    <TableHead className="py-3 px-4"></TableHead>
+                    {isAdmin && <TableHead className="py-3 px-4"></TableHead>}
                     </TableRow>
                     )}
               
               {/* Filter Actions Row */}
               {showAdvancedFilters && (
                 <TableRow className="bg-blue-50/30 border-b border-blue-200">
-                  <TableHead colSpan={9} className="py-3 px-6">
+                  <TableHead colSpan={isAdmin ? 9 : 8} className="py-3 px-6">
                     <div className="flex items-center justify-end" dir="rtl">
                       <Button 
                         variant="outline" 
@@ -653,7 +653,7 @@ export default function DebtorsTable({
             <TableBody>
               {paginatedRecords.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={9} className="text-center py-12">
+                  <TableCell colSpan={isAdmin ? 9 : 8} className="text-center py-12">
                     <div className="flex flex-col items-center gap-3">
                       <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center">
                         <Filter className="w-8 h-8 text-slate-400" />
@@ -713,26 +713,28 @@ export default function DebtorsTable({
                         );
                       })()}
                     </TableCell>
-                    <TableCell className="py-6 px-6 align-middle text-center" onClick={(e) => e.stopPropagation()}>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <button
-                            onClick={(e) => handleArchiveToggle(record, e)}
-                            disabled={archivingRecords.has(record.id)}
-                            className="inline-flex items-center justify-center text-slate-600 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-                          >
-                            {showArchived ? (
-                              <Undo2 className="w-4 h-4" strokeWidth={2} />
-                            ) : (
-                              <Archive className="w-4 h-4" strokeWidth={2} />
-                            )}
-                          </button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>{showArchived ? 'החזר לחייבים' : 'העבר לארכיון'}</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TableCell>
+                    {isAdmin && (
+                      <TableCell className="py-6 px-6 align-middle text-center" onClick={(e) => e.stopPropagation()}>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <button
+                              onClick={(e) => handleArchiveToggle(record, e)}
+                              disabled={archivingRecords.has(record.id)}
+                              className="inline-flex items-center justify-center text-slate-600 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                            >
+                              {showArchived ? (
+                                <Undo2 className="w-4 h-4" strokeWidth={2} />
+                              ) : (
+                                <Archive className="w-4 h-4" strokeWidth={2} />
+                              )}
+                            </button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{showArchived ? 'החזר לחייבים' : 'העבר לארכיון'}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TableCell>
+                    )}
                     </TableRow>
                     ))
                     )}
