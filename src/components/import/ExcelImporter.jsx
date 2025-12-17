@@ -40,6 +40,75 @@ const isRateLimitError = (error) => {
          message.includes('Rate limit exceeded');
 };
 
+const rtlWrapStyle = {
+  direction: "rtl",
+  textAlign: "right",
+  unicodeBidi: "plaintext",
+};
+
+const uploadBtnClass = "import-upload-btn";
+const uploadBtnStyle = {
+  height: 44,
+  padding: "0 16px",
+  fontSize: 16,
+  fontWeight: 700,
+  backgroundColor: "#2563eb",
+  color: "#ffffff",
+  borderRadius: 12,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  cursor: "pointer",
+  userSelect: "none",
+  lineHeight: "44px",
+};
+
+const progressTextStyle = {
+  fontSize: 14,
+  fontWeight: 600,
+  lineHeight: 1.2,
+};
+
+const progressPercentStyle = {
+  fontSize: 14,
+  fontWeight: 700,
+  lineHeight: 1.2,
+};
+
+const mappingTitleStyle = {
+  fontSize: 13,
+  fontWeight: 700,
+  marginBottom: 6,
+};
+
+const mappingGridStyle = {
+  display: "grid",
+  gridTemplateColumns: "repeat(2, minmax(0, 1fr))",
+  gap: "6px 16px",
+  direction: "rtl",
+  textAlign: "right",
+};
+
+const mappingItemStyle = {
+  fontSize: 12,
+  lineHeight: 1.4,
+  whiteSpace: "nowrap",
+};
+
+const importModeTitleStyle = {
+  fontSize: 14,
+  fontWeight: 700,
+  lineHeight: 1.3,
+};
+
+const dangerIconStyle = {
+  fontSize: 32,
+  color: "#dc2626",
+  marginLeft: 8,
+  display: "inline-flex",
+  alignItems: "center",
+};
+
 export default function ExcelImporter({ onImportComplete }) {
   const { startImport, finishImport } = useImport();
   const [step, setStep] = useState(1);
@@ -816,6 +885,15 @@ export default function ExcelImporter({ onImportComplete }) {
 
   return (
     <Card className="border-0 shadow-lg max-w-3xl mx-auto overflow-hidden rounded-2xl">
+      <style>{`
+        @media (max-width: 480px) {
+          .${uploadBtnClass} { width: 100%; }
+        }
+        @media (max-width: 480px) {
+          .import-mapping-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
+      
       <CardHeader className="border-b bg-slate-50">
         <CardTitle className="flex items-center gap-2 text-lg" dir="rtl">
           <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
@@ -835,31 +913,30 @@ export default function ExcelImporter({ onImportComplete }) {
             </p>
             
             <div className="text-center">
-              <label className="cursor-pointer block">
+              <label style={{ display: "block", width: "fit-content", margin: "0 auto" }}>
                 <input
                   type="file"
                   accept=".xlsx,.xls"
                   onChange={handleFileSelect}
-                  className="hidden"
+                  style={{ display: "none" }}
                 />
-                <div 
-                  className={`inline-flex items-center justify-center gap-2 px-6 rounded-xl font-bold text-white transition-all ${
-                    isUploading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
-                  }`}
-                  style={{ 
-                    height: '44px', 
-                    fontSize: '16px',
-                    minWidth: '200px'
+                <div
+                  className={uploadBtnClass}
+                  style={{
+                    ...uploadBtnStyle,
+                    ...(isUploading && { backgroundColor: "#93c5fd", cursor: "not-allowed" }),
                   }}
+                  onMouseEnter={(e) => !isUploading && (e.currentTarget.style.backgroundColor = "#1d4ed8")}
+                  onMouseLeave={(e) => !isUploading && (e.currentTarget.style.backgroundColor = "#2563eb")}
                 >
                   {isUploading ? (
                     <>
-                      <Loader2 className="w-5 h-5 animate-spin" />
+                      <Loader2 className="w-5 h-5 animate-spin" style={{ marginLeft: 8 }} />
                       מעלה קובץ...
                     </>
                   ) : (
                     <>
-                      <Upload className="w-5 h-5" />
+                      <Upload className="w-5 h-5" style={{ marginLeft: 8 }} />
                       בחר קובץ Excel
                     </>
                   )}
@@ -890,19 +967,14 @@ export default function ExcelImporter({ onImportComplete }) {
 
             <Alert className="bg-blue-50 border-blue-300" dir="rtl">
               <AlertDescription className="text-blue-800 font-semibold text-right">
-                <div className="font-bold mb-2" style={{ fontSize: '13px' }}>מיפוי קבוע:</div>
-                <div className="grid gap-1.5" style={{ 
-                  gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', 
-                  gap: '6px 16px',
-                  fontSize: '12px',
-                  lineHeight: '1.4'
-                }}>
-                  <div style={{ whiteSpace: 'nowrap' }}>A → דירה</div>
-                  <div style={{ whiteSpace: 'nowrap' }}>G → מים חמים</div>
-                  <div style={{ whiteSpace: 'nowrap' }}>B → שם</div>
-                  <div style={{ whiteSpace: 'nowrap' }}>H → פרטים</div>
-                  <div style={{ whiteSpace: 'nowrap' }}>C → טלפון</div>
-                  <div style={{ whiteSpace: 'nowrap' }}>I → דמי ניהול</div>
+                <div style={mappingTitleStyle}>מיפוי קבוע:</div>
+                <div className="import-mapping-grid" style={mappingGridStyle}>
+                  <div style={mappingItemStyle}>A → דירה</div>
+                  <div style={mappingItemStyle}>G → מים חמים</div>
+                  <div style={mappingItemStyle}>B → שם</div>
+                  <div style={mappingItemStyle}>H → פרטים</div>
+                  <div style={mappingItemStyle}>C → טלפון</div>
+                  <div style={mappingItemStyle}>I → דמי ניהול</div>
                 </div>
               </AlertDescription>
             </Alert>
@@ -913,7 +985,7 @@ export default function ExcelImporter({ onImportComplete }) {
                 <div className="flex flex-row-reverse items-start gap-3 p-3 md:p-4 rounded-lg border-2 border-blue-200 bg-blue-50">
                   <RadioGroupItem value="fill_missing" id="fill_missing" className="flex-shrink-0 mt-1" />
                   <div className="flex-1">
-                    <Label htmlFor="fill_missing" className="cursor-pointer font-bold text-blue-900 block" style={{ fontSize: '14px', lineHeight: '1.3' }}>
+                    <Label htmlFor="fill_missing" className="cursor-pointer text-blue-900 block" style={importModeTitleStyle}>
                       השלמה בלבד (מומלץ)
                     </Label>
                     <ul className="text-blue-700 mt-2 space-y-1 list-disc pr-5" style={{ 
@@ -931,18 +1003,12 @@ export default function ExcelImporter({ onImportComplete }) {
                 <div className="flex flex-row-reverse items-start gap-3 p-3 md:p-4 rounded-lg border-2 border-red-200 bg-red-50">
                   <RadioGroupItem value="reset" id="reset" className="flex-shrink-0 mt-1" />
                   <div className="flex-1">
-                    <Label htmlFor="reset" className="cursor-pointer font-bold text-red-700 block" style={{ fontSize: '14px', lineHeight: '1.3' }}>
+                    <Label htmlFor="reset" className="cursor-pointer text-red-700 block" style={importModeTitleStyle}>
                       איפוס מלא
                     </Label>
-                    <p className="text-red-700 mt-2 font-semibold inline-flex items-center gap-2" style={{ fontSize: '12px' }}>
-                      <span style={{ 
-                        display: 'inline-block',
-                        fontSize: '32px',
-                        lineHeight: '1',
-                        color: '#dc2626',
-                        marginLeft: '8px'
-                      }}>⚠️</span>
-                      <span>מחיקה מלאה של כל הנתונים</span>
+                    <p className="text-red-700 mt-2 font-semibold" style={{ ...rtlWrapStyle, margin: "8px 0 0 0", fontSize: 12 }}>
+                      <span style={dangerIconStyle}>⚠️</span>
+                      מחיקה מלאה של כל הנתונים
                     </p>
                   </div>
                 </div>
@@ -969,58 +1035,32 @@ export default function ExcelImporter({ onImportComplete }) {
             </div>
 
             {isImporting && (
-              <div className="mt-6 p-4 bg-blue-50 rounded-xl import-progress-wrapper" dir="rtl">
-                <style>{`
-                  .import-progress-wrapper progress,
-                  .import-progress-wrapper [role="progressbar"],
-                  .import-progress-wrapper .base44-progress,
-                  .import-progress-wrapper .base44-progress-track {
-                    height: 5px !important;
-                    min-height: 5px !important;
-                    max-height: 5px !important;
-                  }
-                  .import-progress-wrapper progress::-webkit-progress-bar {
-                    height: 5px;
-                    background-color: #e5e7eb;
-                  }
-                  .import-progress-wrapper progress::-webkit-progress-value {
-                    height: 5px;
-                    background-color: #2563eb;
-                  }
-                  .import-progress-wrapper progress::-moz-progress-bar {
-                    height: 5px;
-                    background-color: #2563eb;
-                  }
-                  .import-progress-bar-container {
-                    padding: 0;
-                    margin: 0;
-                    line-height: 0;
-                  }
-                `}</style>
-                <div className="flex items-center justify-between mb-1" style={{ direction: 'rtl', textAlign: 'right' }}>
-                  <span className="font-semibold text-slate-700" style={{ fontSize: '14px', lineHeight: '1.2' }}>מעבד נתונים...</span>
-                  <span className="font-bold text-blue-600" style={{ fontSize: '14px', lineHeight: '1.2' }}>{progress}%</span>
+              <div className="mt-6 p-4 bg-blue-50 rounded-xl import-progress-wrapper" style={rtlWrapStyle}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
+                  <span style={progressPercentStyle}>{progress}%</span>
+                  <span style={progressTextStyle}>מעבד נתונים…</span>
                 </div>
-                <div className="import-progress-bar-container">
-                  <div className="w-full rounded-full overflow-hidden" style={{ 
-                    height: '5px', 
-                    minHeight: '5px', 
-                    maxHeight: '5px',
-                    backgroundColor: '#e5e7eb',
-                    direction: 'rtl'
-                  }}>
-                    <div 
-                      className="rounded-full transition-all duration-300"
-                      style={{ 
-                        width: `${progress}%`, 
-                        height: '5px', 
-                        minHeight: '5px', 
-                        maxHeight: '5px',
-                        backgroundColor: '#2563eb'
-                      }}
-                    />
-                  </div>
+
+                <div className="import-progress-bar-container" style={{
+                  width: "100%",
+                  height: 5,
+                  minHeight: 5,
+                  maxHeight: 5,
+                  backgroundColor: "#e5e7eb",
+                  borderRadius: 999,
+                  overflow: "hidden",
+                }}>
+                  <div style={{
+                    width: `${progress}%`,
+                    height: 5,
+                    minHeight: 5,
+                    maxHeight: 5,
+                    backgroundColor: "#2563eb",
+                    borderRadius: 999,
+                    transition: "width 180ms linear",
+                  }} />
                 </div>
+                
                 <p className="text-xs text-slate-500 mt-2 text-center">
                   עיבוד מהיר עם סנכרון מרוכז
                 </p>
