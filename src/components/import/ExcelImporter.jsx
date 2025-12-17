@@ -835,30 +835,37 @@ export default function ExcelImporter({ onImportComplete }) {
             </p>
             
             <div className="text-center">
-              <label className="cursor-pointer">
+              <label className="cursor-pointer block">
                 <input
                   type="file"
                   accept=".xlsx,.xls"
                   onChange={handleFileSelect}
                   className="hidden"
                 />
-                <Button disabled={isUploading} asChild>
-                  <span>
-                    {isUploading ? (
-                      <>
-                        <Loader2 className="w-4 h-4 ml-2 animate-spin" />
-                        מעלה קובץ...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="w-4 h-4 ml-2" />
-                        בחר קובץ Excel
-                      </>
-                    )}
-                  </span>
-                </Button>
+                <div 
+                  className={`inline-flex items-center justify-center gap-2 px-6 rounded-xl font-bold text-white transition-all ${
+                    isUploading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 cursor-pointer'
+                  }`}
+                  style={{ 
+                    height: '44px', 
+                    fontSize: '16px',
+                    minWidth: '200px'
+                  }}
+                >
+                  {isUploading ? (
+                    <>
+                      <Loader2 className="w-5 h-5 animate-spin" />
+                      מעלה קובץ...
+                    </>
+                  ) : (
+                    <>
+                      <Upload className="w-5 h-5" />
+                      בחר קובץ Excel
+                    </>
+                  )}
+                </div>
               </label>
-              <p className="text-xs text-slate-400 mt-2">
+              <p className="text-xs text-slate-400 mt-3">
                 קבצים נתמכים: .xlsx, .xls
               </p>
             </div>
@@ -938,31 +945,60 @@ export default function ExcelImporter({ onImportComplete }) {
             </div>
 
             {isImporting && (
-              <div className="mt-6 p-4 bg-blue-50 rounded-xl" dir="rtl">
+              <div className="mt-6 p-4 bg-blue-50 rounded-xl import-progress-wrapper" dir="rtl">
+                <style>{`
+                  .import-progress-wrapper progress,
+                  .import-progress-wrapper [role="progressbar"],
+                  .import-progress-wrapper .base44-progress,
+                  .import-progress-wrapper .base44-progress-track {
+                    height: 5px !important;
+                    min-height: 5px !important;
+                    max-height: 5px !important;
+                  }
+                  .import-progress-wrapper progress::-webkit-progress-bar {
+                    height: 5px;
+                    background-color: #e5e7eb;
+                  }
+                  .import-progress-wrapper progress::-webkit-progress-value {
+                    height: 5px;
+                    background-color: #2563eb;
+                  }
+                  .import-progress-wrapper progress::-moz-progress-bar {
+                    height: 5px;
+                    background-color: #2563eb;
+                  }
+                  .import-progress-bar-container {
+                    padding: 0;
+                    margin: 0;
+                    line-height: 0;
+                  }
+                `}</style>
                 <div className="flex items-center justify-between mb-1" style={{ direction: 'rtl', textAlign: 'right' }}>
                   <span className="text-xs font-semibold text-slate-700">מעבד נתונים...</span>
                   <span className="text-xs font-bold text-blue-600">{progress}%</span>
                 </div>
-                <div className="w-full rounded-full overflow-hidden" style={{ 
-                  height: '5px', 
-                  minHeight: '5px', 
-                  maxHeight: '5px',
-                  backgroundColor: '#e5e7eb',
-                  direction: 'rtl'
-                }}>
-                  <div 
-                    className="rounded-full transition-all duration-300"
-                    style={{ 
-                      width: `${progress}%`, 
-                      height: '5px', 
-                      minHeight: '5px', 
-                      maxHeight: '5px',
-                      backgroundColor: '#2563eb'
-                    }}
-                  />
+                <div className="import-progress-bar-container">
+                  <div className="w-full rounded-full overflow-hidden" style={{ 
+                    height: '5px', 
+                    minHeight: '5px', 
+                    maxHeight: '5px',
+                    backgroundColor: '#e5e7eb',
+                    direction: 'rtl'
+                  }}>
+                    <div 
+                      className="rounded-full transition-all duration-300"
+                      style={{ 
+                        width: `${progress}%`, 
+                        height: '5px', 
+                        minHeight: '5px', 
+                        maxHeight: '5px',
+                        backgroundColor: '#2563eb'
+                      }}
+                    />
+                  </div>
                 </div>
                 <p className="text-xs text-slate-500 mt-2 text-center">
-                  קצב מבוקר למניעת עומס (10 רשומות כל 6 שניות)
+                  עיבוד מהיר עם סנכרון מרוכז
                 </p>
               </div>
             )}
