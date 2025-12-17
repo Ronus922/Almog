@@ -6,7 +6,8 @@ import { createPageUrl } from '@/utils';
 import { useAuth } from '@/components/auth/AuthContext';
 import { Button } from "@/components/ui/button";
 import AppButton from "@/components/ui/app-button";
-import { Loader2, Building2, RefreshCw, X } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { Loader2, Building2, RefreshCw, X, Users, Archive } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { isManagerRole } from '@/components/utils/roles';
 
@@ -23,6 +24,7 @@ function DashboardContent() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [statusFilterFromUrl, setStatusFilterFromUrl] = useState(null);
   const [filteredDataset, setFilteredDataset] = useState([]);
+  const [activeTab, setActiveTab] = useState('debtors');
   const queryClient = useQueryClient();
 
   // CRITICAL: Require authentication
@@ -54,9 +56,19 @@ function DashboardContent() {
     }
   }, []);
 
-  const { data: records = [], isLoading: recordsLoading, refetch: refetchRecords } = useQuery({
-    queryKey: ['debtorRecords'],
+  const { data: allRecords = [], isLoading: allRecordsLoading } = useQuery({
+    queryKey: ['allDebtorRecords'],
     queryFn: () => base44.entities.DebtorRecord.list('-totalDebt'),
+  });
+
+  const { data: debtorRecords = [], isLoading: debtorRecordsLoading, refetch: refetchDebtors } = useQuery({
+    queryKey: ['debtorRecords', { isArchived: false }],
+    queryFn: () => base44.entities.DebtorRecord.filter({ isArchived: false }, '-totalDebt'),
+  });
+
+  const { data: archivedRecords = [], isLoading: archivedRecordsLoading, refetch: refetchArchived } = useQuery({
+    queryKey: ['archivedRecords', { isArchived: true }],
+    queryFn: () => base44.entities.DebtorRecord.filter({ isArchived: true }, '-totalDebt'),
   });
 
   const { data: settingsList = [], isLoading: settingsLoading } = useQuery({
@@ -113,7 +125,22 @@ function DashboardContent() {
     await updateMutation.mutateAsync({ id: editedRecord.id, data: editedRecord });
   };
 
-  if (loading || recordsLoading || settingsLoading) {
+  const handleRecordUpdate = (recordId) => {
+    // Invalidate both queries to refresh data immediately
+    queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+    queryClient.invalidateQueries({ queryKey: ['archivedRecords'] });
+    queryClient.invalidateQueries({ queryKey: ['allDebtorRecords'] });
+  };
+
+  const refetchRecords = () => {
+    refetchDebtors();
+    refetchArchived();
+  };
+
+  const records = activeTab === 'debtors' ? debtorRecords : archivedRecords;
+  const recordsLoading = activeTab === 'debtors' ? debtorRecordsLoading : archivedRecordsLoading;
+
+  if (loading || allRecordsLoading || settingsLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
         <div className="text-center">
@@ -238,26 +265,69 @@ function DashboardContent() {
             </div>
             </div>
 
-        {/* כרטיסי KPI */}
-        <KPICards records={records} settings={settings} allStatuses={allStatuses} />
+        {/* כרטיסי KPI - מבוסס על כל הרשומות הפעילות */}
+        <KPICards records={debtorRecords} settings={settings} allStatuses={allStatuses} />
 
         {/* אינדיקציית ייבוא אחרון - בין KPI לטבלה */}
         <LastImportIndicator lastImportAt={settings?.last_import_at} isAdmin={isAdmin} />
 
-        {/* טבלת חייבים */}
-        <div data-debtors-table>
-          <DebtorsTable 
-            records={records} 
-            onRowClick={handleRowClick}
-            isAdmin={isAdmin}
-            settings={settings}
-            initialFilterKey={filterKeyFromUrl}
-            initialStatusFilter={statusFilterFromUrl}
-            initialAutoStatusFilter={autoStatusFilter}
-            allStatuses={allStatuses}
-            onFilteredDataChange={setFilteredDataset}
-          />
-        </div>
+        {/* טאבים - חייבים / ארכיון */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <TabsList className="grid w-full max-w-md grid-cols-2 h-12 rounded-xl bg-slate-100 p-1 mb-6" dir="rtl">
+            <TabsTrigger 
+              value="debtors" 
+              className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm text-base font-bold flex items-center gap-2"
+            >
+              <Users className="w-4 h-4" />
+              חייבים
+              <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold">
+                {debtorRecords.length}
+              </span>
+            </TabsTrigger>
+            <TabsTrigger 
+              value="archived" 
+              className="rounded-lg data-[state=active]:bg-white data-[state=active]:shadow-sm text-base font-bold flex items-center gap-2"
+            >
+              <Archive className="w-4 h-4" />
+              ארכיון
+              <span className="text-xs bg-slate-600 text-white px-2 py-0.5 rounded-full font-bold">
+                {archivedRecords.length}
+              </span>
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="debtors" className="mt-0">
+            <DebtorsTable 
+              records={debtorRecords} 
+              onRowClick={handleRowClick}
+              isAdmin={isAdmin}
+              settings={settings}
+              initialFilterKey={filterKeyFromUrl}
+              initialStatusFilter={statusFilterFromUrl}
+              initialAutoStatusFilter={autoStatusFilter}
+              allStatuses={allStatuses}
+              onFilteredDataChange={setFilteredDataset}
+              onRecordUpdate={handleRecordUpdate}
+              showArchived={false}
+            />
+          </TabsContent>
+
+          <TabsContent value="archived" className="mt-0">
+            <DebtorsTable 
+              records={archivedRecords} 
+              onRowClick={handleRowClick}
+              isAdmin={isAdmin}
+              settings={settings}
+              initialFilterKey={null}
+              initialStatusFilter={null}
+              initialAutoStatusFilter={null}
+              allStatuses={allStatuses}
+              onFilteredDataChange={setFilteredDataset}
+              onRecordUpdate={handleRecordUpdate}
+              showArchived={true}
+            />
+          </TabsContent>
+        </Tabs>
 
         {/* מודל פרטי דירה */}
         <ApartmentDetailModal
