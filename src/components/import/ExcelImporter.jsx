@@ -7,24 +7,24 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Upload, FileSpreadsheet, CheckCircle2, AlertTriangle, 
-  ArrowLeft, Loader2, RefreshCw, Database, AlertCircle
+  ArrowLeft, Loader2, RefreshCw, Database, AlertCircle, Download
 } from "lucide-react";
 import { base44 } from '@/api/base44Client';
 import * as XLSX from 'xlsx';
 import { useImport } from './ImportContext';
 import { toast } from 'sonner';
 
-// מיפוי קבוע לעמודות Excel - אינדקסים מתחילים מ-0
 const FIXED_COLUMN_MAPPING = {
   apartmentNumber: 0,  // Column A
   ownerName: 1,         // Column B
   phoneOwner: 2,        // Column C
-  specialDebt: 6,       // Column G - מים חמים
-  detailsMonthly: 7,    // Column H - פרטים
-  monthlyDebt: 8        // Column I - דמי ניהול
+  specialDebt: 6,       // Column G
+  detailsMonthly: 7,    // Column H
+  monthlyDebt: 8        // Column I
 };
 
 const ALLOWED_FILE_EXTENSIONS = ['.xlsx', '.xls'];
+const BATCH_SIZE = 200;
 
 export default function ExcelImporter({ onImportComplete }) {
   const { startImport, finishImport } = useImport();
@@ -38,6 +38,7 @@ export default function ExcelImporter({ onImportComplete }) {
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState(null);
   const [importResult, setImportResult] = useState(null);
+  const [importRunData, setImportRunData] = useState(null);
 
   const validateFileType = (file) => {
     const fileName = file.name.toLowerCase();
@@ -128,10 +129,9 @@ export default function ExcelImporter({ onImportComplete }) {
             throw new Error('empty_sheet');
           }
           
-          // השורה הראשונה = כותרות, יתר השורות = נתונים
           const dataRows = jsonData.slice(1);
           
-          console.log(`[Excel Import] Total rows parsed (excluding header): ${dataRows.length}`);
+          console.log(`[Excel Import] Total rows parsed: ${dataRows.length}`);
           
           resolve({ rows: dataRows, totalRowsParsed: dataRows.length });
         } catch (err) {
@@ -192,24 +192,25 @@ export default function ExcelImporter({ onImportComplete }) {
 
       if (duplicates.length > 0) {
         const uniqueDuplicates = [...new Set(duplicates)];
-        throw new Error(`נמצאו דירות כפולות בקובץ: ${uniqueDuplicates.join(', ')}. תקן את הקובץ והעלה מחדש.`);
+        throw new Error(`DUPLICATE_APARTMENTS: ${uniqueDuplicates.join(', ')}`);
       }
 
-      console.log(`[Excel Import - PRE-FLIGHT] Total rows: ${totalRowsParsed}, Unique apartments: ${apartmentNumbers.length}, Missing apartment number: ${missingApartmentCount}`);
+      console.log(`[Excel Import - PRE-FLIGHT] Total: ${totalRowsParsed}, Unique: ${apartmentNumbers.length}, Missing: ${missingApartmentCount}`);
 
-      setExcelData({ rows, totalRowsParsed, uniqueApartments: apartmentNumbers.length });
+      setExcelData({ rows, totalRowsParsed, uniqueApartments: apartmentNumbers.length, fileName: selectedFile.name });
       setStep(2);
     } catch (err) {
       if (err.message === 'no_sheets') {
-        setError('הקובץ אינו מכיל גיליון נתונים.');
+        setError('שגיאת פורמט: הקובץ אינו מכיל גיליון נתונים תקין.');
       } else if (err.message === 'empty_sheet' || err.message === 'empty_file') {
-        setError('הקובץ ריק או אינו מכיל נתונים. אנא בדוק את תוכן הקובץ.');
+        setError('שגיאת תוכן: הקובץ ריק או אינו מכיל נתונים.');
       } else if (err.message === 'file_read_error') {
-        setError('לא ניתן לקרוא את קובץ האקסל. ייתכן שהוא פגום או מוגן.');
-      } else if (err.message.includes('דירות כפולות')) {
-        setError(err.message);
+        setError('שגיאת קריאה: לא ניתן לקרוא את הקובץ (פגום או מוגן).');
+      } else if (err.message.startsWith('DUPLICATE_APARTMENTS:')) {
+        const duplicateList = err.message.replace('DUPLICATE_APARTMENTS: ', '');
+        setError(`שגיאת כפילויות: נמצאו דירות כפולות בקובץ: ${duplicateList}. תקן את הקובץ והעלה מחדש.`);
       } else {
-        setError('אירעה שגיאה בעיבוד הקובץ. נסה שוב.');
+        setError(`שגיאה לא צפויה: ${err.message}`);
       }
       
       if (e.target) {
@@ -218,6 +219,187 @@ export default function ExcelImporter({ onImportComplete }) {
     } finally {
       setIsUploading(false);
     }
+  };
+
+  const processBatch = async (rows, startIdx, endIdx, context) => {
+    const batchResults = {
+      created: 0,
+      updated: 0,
+      skipped: 0,
+      failed: 0,
+      invalidMonthly: 0,
+      invalidSpecial: 0,
+      errors: []
+    };
+
+    for (let i = startIdx; i < endIdx && i < rows.length; i++) {
+      const row = rows[i];
+      
+      try {
+        const apartmentNumber = (row[FIXED_COLUMN_MAPPING.apartmentNumber] || '').toString().trim();
+        
+        if (!apartmentNumber) {
+          batchResults.skipped++;
+          continue;
+        }
+
+        const ownerNameRaw = (row[FIXED_COLUMN_MAPPING.ownerName] || '').toString().trim();
+        const phoneRaw = (row[FIXED_COLUMN_MAPPING.phoneOwner] || '').toString().trim();
+        const detailsMonthlyRaw = (row[FIXED_COLUMN_MAPPING.detailsMonthly] || '').toString().trim();
+        
+        const monthlyDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.monthlyDebt]);
+        const specialDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.specialDebt]);
+
+        if (!monthlyDebtClean.valid) {
+          batchResults.invalidMonthly++;
+          batchResults.errors.push({
+            rowIndex: i + 2,
+            apartmentNumber,
+            errorType: 'INVALID_MONTHLY_DEBT',
+            errorMessage: `ערך לא תקין בדמי ניהול: "${monthlyDebtClean.original}"`
+          });
+        }
+
+        if (!specialDebtClean.valid) {
+          batchResults.invalidSpecial++;
+          batchResults.errors.push({
+            rowIndex: i + 2,
+            apartmentNumber,
+            errorType: 'INVALID_SPECIAL_DEBT',
+            errorMessage: `ערך לא תקין במים חמים: "${specialDebtClean.original}"`
+          });
+        }
+
+        const { phoneOwner, phoneTenant, phonePrimary } = extractPhoneNumbers(phoneRaw);
+
+        const monthlyDebt = monthlyDebtClean.value;
+        const specialDebt = specialDebtClean.value;
+        const totalDebt = Math.round(((monthlyDebt || 0) + (specialDebt || 0)) * 100) / 100;
+
+        let debt_status_auto = 'תקין';
+        if (totalDebt === 0) {
+          debt_status_auto = 'תקין';
+        } else if (totalDebt > context.settings.threshold_legal_from) {
+          debt_status_auto = 'חריגה מופרזת';
+        } else if (totalDebt > context.settings.threshold_collect_from) {
+          debt_status_auto = 'לגבייה מיידית';
+        }
+
+        const existingRecords = await base44.entities.DebtorRecord.list();
+        const existing = existingRecords.find(r => r.apartmentNumber === apartmentNumber);
+
+        if (existing) {
+          const updateData = {
+            monthlyDebt,
+            specialDebt,
+            totalDebt,
+            debt_status_auto,
+            detailsMonthly: detailsMonthlyRaw,
+            phonesRaw: phoneRaw,
+            importedThisRun: true,
+            lastImportRunId: context.importRunId,
+            lastImportAt: context.timestamp,
+            flaggedAsCleared: false,
+            clearedAt: null
+          };
+          
+          if (ownerNameRaw && ownerNameRaw.trim() !== '') {
+            updateData.ownerName = ownerNameRaw.split(/[\/,]/)[0]?.trim() || '';
+          }
+          
+          const isEmpty = (val) => {
+            if (val === null || val === undefined || val === '') return true;
+            const str = String(val).trim();
+            return str === '' || str === 'אין מספר' || str === '-' || str === 'לא ידוע' || /^0+$/.test(str);
+          };
+          
+          if (isEmpty(existing.phoneOwner) && !isEmpty(phoneOwner)) {
+            updateData.phoneOwner = phoneOwner;
+          }
+          if (isEmpty(existing.phoneTenant) && !isEmpty(phoneTenant)) {
+            updateData.phoneTenant = phoneTenant;
+          }
+          if (isEmpty(existing.phonePrimary) && !isEmpty(phonePrimary)) {
+            updateData.phonePrimary = phonePrimary;
+          }
+
+          updateData.notes = existing.notes;
+          updateData.lastContactDate = existing.lastContactDate;
+          updateData.nextActionDate = existing.nextActionDate;
+          updateData.legal_status_id = existing.legal_status_id;
+          updateData.legal_status_overridden = existing.legal_status_overridden;
+          updateData.legal_status_lock = existing.legal_status_lock;
+          updateData.legal_status_updated_at = existing.legal_status_updated_at;
+          updateData.legal_status_updated_by = existing.legal_status_updated_by;
+          updateData.legal_status_source = existing.legal_status_source;
+          updateData.legal_status_manual = existing.legal_status_manual;
+          
+          await base44.entities.DebtorRecord.update(existing.id, updateData);
+          batchResults.updated++;
+        } else {
+          const newRecord = {
+            apartmentNumber,
+            ownerName: ownerNameRaw.split(/[\/,]/)[0]?.trim() || '',
+            phoneOwner,
+            phoneTenant,
+            phonePrimary,
+            phonesRaw: phoneRaw,
+            monthlyDebt,
+            specialDebt,
+            totalDebt,
+            debt_status_auto,
+            detailsMonthly: detailsMonthlyRaw,
+            detailsSpecial: '',
+            monthlyPayment: 0,
+            monthsInArrears: 0,
+            importedThisRun: true,
+            lastImportRunId: context.importRunId,
+            lastImportAt: context.timestamp,
+            flaggedAsCleared: false
+          };
+
+          if (context.defaultLegalStatus) {
+            newRecord.legal_status_id = context.defaultLegalStatus.id;
+            newRecord.legal_status_overridden = false;
+          }
+          
+          await base44.entities.DebtorRecord.create(newRecord);
+          batchResults.created++;
+        }
+      } catch (rowError) {
+        batchResults.failed++;
+        const apartmentNumber = (row[FIXED_COLUMN_MAPPING.apartmentNumber] || '').toString().trim();
+        
+        let errorType = 'UNKNOWN_ERROR';
+        let errorMessage = rowError.message || 'שגיאה לא ידועה';
+
+        if (errorMessage.includes('Permission denied') || errorMessage.includes('Unauthorized')) {
+          errorType = 'PERMISSION_DENIED';
+          errorMessage = 'אין הרשאה לעדכן רשומה';
+        } else if (errorMessage.includes('Duplicate') || errorMessage.includes('unique')) {
+          errorType = 'DUPLICATE_KEY';
+          errorMessage = 'מספר דירה כבר קיים במערכת';
+        } else if (errorMessage.includes('Network') || errorMessage.includes('timeout')) {
+          errorType = 'NETWORK_ERROR';
+          errorMessage = 'שגיאת רשת או timeout';
+        }
+
+        batchResults.errors.push({
+          rowIndex: i + 2,
+          apartmentNumber: apartmentNumber || 'לא ידוע',
+          errorType,
+          errorMessage
+        });
+
+        console.error(`[Excel Import] Row ${i + 2} failed:`, {
+          apartmentNumber,
+          errorType,
+          error: rowError
+        });
+      }
+    }
+
+    return batchResults;
   };
 
   const handleImport = async () => {
@@ -229,9 +411,23 @@ export default function ExcelImporter({ onImportComplete }) {
     const importRunId = `import_${Date.now()}`;
     const importTimestamp = new Date().toISOString();
 
-    console.log(`[Excel Import] ========== START IMPORT RUN ${importRunId} ==========`);
+    let importRun = null;
 
     try {
+      // יצירת ImportRun
+      importRun = await base44.entities.ImportRun.create({
+        importRunId,
+        fileName: excelData.fileName,
+        startedAt: importTimestamp,
+        status: 'RUNNING',
+        stage: 'VALIDATION',
+        totalRowsRead: excelData.totalRowsParsed,
+        uniqueApartments: excelData.uniqueApartments,
+        importMode
+      });
+
+      console.log(`[Excel Import] ========== START IMPORT RUN ${importRunId} ==========`);
+
       const settingsList = await base44.entities.Settings.list();
       const settings = settingsList[0] || { 
         threshold_ok_max: 1000, 
@@ -239,18 +435,20 @@ export default function ExcelImporter({ onImportComplete }) {
         threshold_legal_from: 5000 
       };
 
-      // RESET MODE: מחיקת כל הרשומות
+      // RESET MODE
       if (importMode === 'reset') {
-        console.log(`[Excel Import] RESET MODE: Deleting all existing records`);
+        await base44.entities.ImportRun.update(importRun.id, { stage: 'RESET' });
+        console.log(`[Excel Import] RESET MODE: Deleting all records`);
         const existingRecords = await base44.entities.DebtorRecord.list();
         for (const record of existingRecords) {
           await base44.entities.DebtorRecord.delete(record.id);
         }
       }
 
-      // שלב 2: START IMPORT RUN - איפוס דגלים
+      // איפוס דגלים
+      await base44.entities.ImportRun.update(importRun.id, { stage: 'RESET_FLAGS' });
       const allExistingRecords = await base44.entities.DebtorRecord.list();
-      console.log(`[Excel Import] Resetting importedThisRun flag for ${allExistingRecords.length} existing records`);
+      console.log(`[Excel Import] Resetting flags for ${allExistingRecords.length} records`);
       
       for (const record of allExistingRecords) {
         await base44.entities.DebtorRecord.update(record.id, {
@@ -258,216 +456,130 @@ export default function ExcelImporter({ onImportComplete }) {
         });
       }
 
-      // שלב 3: UPSERT לכל שורה
-      const { rows, uniqueApartments } = excelData;
-      let created = 0;
-      let updated = 0;
-      let skipped = 0;
-      let invalidMonthly = 0;
-      let invalidSpecial = 0;
-      const errorDetails = [];
+      // UPSERT בבאצ'ים
+      await base44.entities.ImportRun.update(importRun.id, { stage: 'UPSERT' });
+      
+      const { rows } = excelData;
+      const allStatuses = await base44.entities.Status.list();
+      const defaultLegalStatus = allStatuses.find(s => s.type === 'LEGAL' && s.is_default === true);
 
-      for (let i = 0; i < rows.length; i++) {
-        const row = rows[i];
-        
-        try {
-          const apartmentNumber = (row[FIXED_COLUMN_MAPPING.apartmentNumber] || '').toString().trim();
-          
-          if (!apartmentNumber) {
-            skipped++;
-            continue;
-          }
+      const context = {
+        importRunId,
+        timestamp: importTimestamp,
+        settings,
+        defaultLegalStatus
+      };
 
-          const ownerNameRaw = (row[FIXED_COLUMN_MAPPING.ownerName] || '').toString().trim();
-          const phoneRaw = (row[FIXED_COLUMN_MAPPING.phoneOwner] || '').toString().trim();
-          const detailsMonthlyRaw = (row[FIXED_COLUMN_MAPPING.detailsMonthly] || '').toString().trim();
-          
-          const monthlyDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.monthlyDebt]);
-          const specialDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.specialDebt]);
+      let totalCreated = 0;
+      let totalUpdated = 0;
+      let totalSkipped = 0;
+      let totalFailed = 0;
+      let totalInvalidMonthly = 0;
+      let totalInvalidSpecial = 0;
+      const allErrors = [];
 
-          if (!monthlyDebtClean.valid) {
-            invalidMonthly++;
-            console.warn(`[Excel Import] Row ${i + 1}: Invalid monthlyDebt: "${monthlyDebtClean.original}"`);
-          }
+      const totalBatches = Math.ceil(rows.length / BATCH_SIZE);
 
-          if (!specialDebtClean.valid) {
-            invalidSpecial++;
-            console.warn(`[Excel Import] Row ${i + 1}: Invalid specialDebt: "${specialDebtClean.original}"`);
-          }
+      for (let batchIdx = 0; batchIdx < totalBatches; batchIdx++) {
+        const startIdx = batchIdx * BATCH_SIZE;
+        const endIdx = Math.min((batchIdx + 1) * BATCH_SIZE, rows.length);
 
-          const { phoneOwner, phoneTenant, phonePrimary } = extractPhoneNumbers(phoneRaw);
+        console.log(`[Excel Import] Processing batch ${batchIdx + 1}/${totalBatches} (rows ${startIdx + 1}-${endIdx})`);
 
-          const monthlyDebt = monthlyDebtClean.value;
-          const specialDebt = specialDebtClean.value;
-          
-          // CALC חובה: totalDebt
-          const totalDebt = Math.round(((monthlyDebt || 0) + (specialDebt || 0)) * 100) / 100;
+        const batchResults = await processBatch(rows, startIdx, endIdx, context);
 
-          // STATUS חובה
-          let debt_status_auto = 'תקין';
-          if (totalDebt === 0) {
-            debt_status_auto = 'תקין';
-          } else if (totalDebt > settings.threshold_legal_from) {
-            debt_status_auto = 'חריגה מופרזת';
-          } else if (totalDebt > settings.threshold_collect_from) {
-            debt_status_auto = 'לגבייה מיידית';
-          }
+        totalCreated += batchResults.created;
+        totalUpdated += batchResults.updated;
+        totalSkipped += batchResults.skipped;
+        totalFailed += batchResults.failed;
+        totalInvalidMonthly += batchResults.invalidMonthly;
+        totalInvalidSpecial += batchResults.invalidSpecial;
+        allErrors.push(...batchResults.errors);
 
-          // FIND existing
-          const existingRecords = await base44.entities.DebtorRecord.list();
-          const existing = existingRecords.find(r => r.apartmentNumber === apartmentNumber);
-
-          const allStatuses = await base44.entities.Status.list();
-          const defaultLegalStatus = allStatuses.find(s => s.type === 'LEGAL' && s.is_default === true);
-
-          if (existing) {
-            // UPDATE
-            const updateData = {
-              monthlyDebt,
-              specialDebt,
-              totalDebt,
-              debt_status_auto,
-              detailsMonthly: detailsMonthlyRaw,
-              phonesRaw: phoneRaw,
-              importedThisRun: true,
-              lastImportRunId: importRunId,
-              lastImportAt: importTimestamp,
-              flaggedAsCleared: false,
-              clearedAt: null
-            };
-            
-            // ownerName: עדכן אם לא ריק
-            if (ownerNameRaw && ownerNameRaw.trim() !== '') {
-              updateData.ownerName = ownerNameRaw.split(/[\/,]/)[0]?.trim() || '';
-            }
-            
-            // טלפונים: עדכן רק אם ריק במערכת
-            const isEmpty = (val) => {
-              if (val === null || val === undefined || val === '') return true;
-              const str = String(val).trim();
-              return str === '' || str === 'אין מספר' || str === '-' || str === 'לא ידוע' || /^0+$/.test(str);
-            };
-            
-            if (isEmpty(existing.phoneOwner) && !isEmpty(phoneOwner)) {
-              updateData.phoneOwner = phoneOwner;
-            }
-            if (isEmpty(existing.phoneTenant) && !isEmpty(phoneTenant)) {
-              updateData.phoneTenant = phoneTenant;
-            }
-            if (isEmpty(existing.phonePrimary) && !isEmpty(phonePrimary)) {
-              updateData.phonePrimary = phonePrimary;
-            }
-
-            // PRESERVE: notes, dates, legal_status
-            updateData.notes = existing.notes;
-            updateData.lastContactDate = existing.lastContactDate;
-            updateData.nextActionDate = existing.nextActionDate;
-            updateData.legal_status_id = existing.legal_status_id;
-            updateData.legal_status_overridden = existing.legal_status_overridden;
-            updateData.legal_status_lock = existing.legal_status_lock;
-            updateData.legal_status_updated_at = existing.legal_status_updated_at;
-            updateData.legal_status_updated_by = existing.legal_status_updated_by;
-            updateData.legal_status_source = existing.legal_status_source;
-            updateData.legal_status_manual = existing.legal_status_manual;
-            
-            await base44.entities.DebtorRecord.update(existing.id, updateData);
-            updated++;
-          } else {
-            // CREATE
-            const newRecord = {
-              apartmentNumber,
-              ownerName: ownerNameRaw.split(/[\/,]/)[0]?.trim() || '',
-              phoneOwner,
-              phoneTenant,
-              phonePrimary,
-              phonesRaw: phoneRaw,
-              monthlyDebt,
-              specialDebt,
-              totalDebt,
-              debt_status_auto,
-              detailsMonthly: detailsMonthlyRaw,
-              detailsSpecial: '',
-              monthlyPayment: 0,
-              monthsInArrears: 0,
-              importedThisRun: true,
-              lastImportRunId: importRunId,
-              lastImportAt: importTimestamp,
-              flaggedAsCleared: false
-            };
-
-            if (defaultLegalStatus) {
-              newRecord.legal_status_id = defaultLegalStatus.id;
-              newRecord.legal_status_overridden = false;
-            }
-            
-            await base44.entities.DebtorRecord.create(newRecord);
-            created++;
-          }
-        } catch (rowError) {
-          console.error(`[Excel Import] Error importing row ${i + 1}:`, rowError);
-          errorDetails.push(`שורה ${i + 1}: ${rowError.message || 'שגיאה לא ידועה'}`);
-        }
-
-        setProgress(Math.round(((i + 1) / rows.length) * 100));
+        setProgress(Math.round(((endIdx) / rows.length) * 100));
       }
 
-      // שלב 4: HANDLE MISSING APARTMENTS
-      console.log(`[Excel Import] Checking for apartments not in current file...`);
+      // POST_PROCESS: דירות שלא בקובץ
+      await base44.entities.ImportRun.update(importRun.id, { stage: 'POST_PROCESS' });
+      console.log(`[Excel Import] Checking for apartments not in file...`);
       const finalRecords = await base44.entities.DebtorRecord.list();
       let clearedCount = 0;
 
       for (const record of finalRecords) {
         if (!record.importedThisRun && record.totalDebt !== 0) {
-          console.log(`[Excel Import] Clearing apartment ${record.apartmentNumber} (not in file)`);
-          await base44.entities.DebtorRecord.update(record.id, {
-            monthlyDebt: 0,
-            specialDebt: 0,
-            totalDebt: 0,
-            debt_status_auto: 'תקין',
-            flaggedAsCleared: true,
-            clearedAt: importTimestamp
-          });
-          clearedCount++;
+          console.log(`[Excel Import] Clearing apartment ${record.apartmentNumber}`);
+          try {
+            await base44.entities.DebtorRecord.update(record.id, {
+              monthlyDebt: 0,
+              specialDebt: 0,
+              totalDebt: 0,
+              debt_status_auto: 'תקין',
+              flaggedAsCleared: true,
+              clearedAt: importTimestamp
+            });
+            clearedCount++;
+          } catch (clearError) {
+            allErrors.push({
+              rowIndex: 0,
+              apartmentNumber: record.apartmentNumber,
+              errorType: 'CLEAR_FAILED',
+              errorMessage: `נכשל איפוס דירה: ${clearError.message}`
+            });
+          }
         }
       }
 
-      console.log(`[Excel Import] Cleared ${clearedCount} apartments not in file`);
-
-      // שלב 5: QA
+      // QA
+      await base44.entities.ImportRun.update(importRun.id, { stage: 'QA' });
       console.log(`[Excel Import] ========== QA VALIDATION ==========`);
       const allRecords = await base44.entities.DebtorRecord.list();
       const importedCount = allRecords.filter(r => r.importedThisRun).length;
-
-      console.log(`[Excel Import - QA] Unique apartments in file: ${uniqueApartments}`);
-      console.log(`[Excel Import - QA] Imported count: ${importedCount}`);
-      console.log(`[Excel Import - QA] Created: ${created}, Updated: ${updated}, Skipped: ${skipped}, Cleared: ${clearedCount}`);
 
       const sumMonthly = allRecords.reduce((sum, r) => sum + (r.monthlyDebt || 0), 0);
       const sumSpecial = allRecords.reduce((sum, r) => sum + (r.specialDebt || 0), 0);
       const sumTotal = allRecords.reduce((sum, r) => sum + (r.totalDebt || 0), 0);
       const delta = Math.abs(sumTotal - (sumMonthly + sumSpecial));
       
-      console.log(`[Excel Import - QA] Σ(monthlyDebt) = ${sumMonthly.toFixed(2)}`);
-      console.log(`[Excel Import - QA] Σ(specialDebt) = ${sumSpecial.toFixed(2)}`);
-      console.log(`[Excel Import - QA] Σ(totalDebt) = ${sumTotal.toFixed(2)}`);
-      console.log(`[Excel Import - QA] Delta = ${delta.toFixed(2)}`);
-      
       const qaValidation = delta <= 0.01;
-      const countValidation = importedCount === uniqueApartments;
+      const countValidation = importedCount === excelData.uniqueApartments;
+
+      console.log(`[Excel Import - QA] Expected: ${excelData.uniqueApartments}, Imported: ${importedCount}`);
+      console.log(`[Excel Import - QA] Delta: ${delta.toFixed(2)}`);
+
+      let finalStatus = 'SUCCESS';
+      let errorSummary = '';
+
+      if (totalFailed > 0) {
+        finalStatus = 'PARTIAL';
+        errorSummary = `${totalFailed} שורות נכשלו`;
+      }
 
       if (!qaValidation) {
-        console.error('[Excel Import - QA] ❌ SUM VALIDATION FAILED');
-        toast.error(`אזהרה: נמצאו פערים בסכומים (${delta.toFixed(2)})`);
-      } else {
-        console.log('[Excel Import - QA] ✅ Sum validation passed');
+        errorSummary += (errorSummary ? ', ' : '') + `פער סכומים: ${delta.toFixed(2)}`;
       }
 
       if (!countValidation) {
-        console.error(`[Excel Import - QA] ❌ COUNT VALIDATION FAILED: Expected ${uniqueApartments}, got ${importedCount}`);
-        toast.error(`אזהרה: לא כל הדירות יובאו. צפוי: ${uniqueApartments}, יובא: ${importedCount}`);
-      } else {
-        console.log('[Excel Import - QA] ✅ Count validation passed');
+        errorSummary += (errorSummary ? ', ' : '') + `חסרות ${excelData.uniqueApartments - importedCount} דירות`;
       }
+
+      // עדכון ImportRun סופי
+      await base44.entities.ImportRun.update(importRun.id, {
+        finishedAt: new Date().toISOString(),
+        status: finalStatus,
+        stage: 'COMPLETE',
+        successRowsCount: totalCreated + totalUpdated,
+        createdCount: totalCreated,
+        updatedCount: totalUpdated,
+        failedRowsCount: totalFailed,
+        skippedRowsCount: totalSkipped,
+        clearedCount,
+        invalidMonthlyCount: totalInvalidMonthly,
+        invalidSpecialCount: totalInvalidSpecial,
+        qaValidation,
+        qaDelta: parseFloat(delta.toFixed(2)),
+        errorSummary: errorSummary || 'אין שגיאות',
+        errorDetails: allErrors
+      });
 
       // עדכון Settings
       try {
@@ -484,47 +596,113 @@ export default function ExcelImporter({ onImportComplete }) {
         console.warn('[Excel Import] Failed to update last_import_at');
       }
 
+      setImportRunData(importRun);
       setImportResult({ 
-        created, 
-        updated, 
-        skipped, 
+        created: totalCreated, 
+        updated: totalUpdated, 
+        skipped: totalSkipped, 
+        failed: totalFailed,
         clearedCount,
-        invalidMonthly,
-        invalidSpecial,
+        invalidMonthly: totalInvalidMonthly,
+        invalidSpecial: totalInvalidSpecial,
         total: rows.length,
-        uniqueApartments,
+        uniqueApartments: excelData.uniqueApartments,
         importedCount,
         qaValidation,
         countValidation,
-        delta: delta.toFixed(2)
+        delta: delta.toFixed(2),
+        errors: allErrors,
+        status: finalStatus,
+        importRunId
       });
       
       setStep(3);
-      toast.success('הייבוא הושלם בהצלחה');
+      
+      if (finalStatus === 'SUCCESS') {
+        toast.success('הייבוא הושלם בהצלחה');
+      } else {
+        toast.warning(`הייבוא הושלם חלקית - ${totalFailed} שורות נכשלו`);
+      }
       
       console.log(`[Excel Import] ========== END IMPORT RUN ${importRunId} ==========`);
     } catch (err) {
-      console.error('[Excel Import] Fatal error during import:', err);
-      setError('אירעה שגיאה בעת ייבוא הנתונים. אנא נסה שוב או פנה לתמיכה טכנית.');
-      toast.error('שגיאה בייבוא הנתונים');
+      console.error('[Excel Import] FATAL ERROR:', err);
+      
+      let errorStage = 'UNKNOWN';
+      let errorMessage = err.message || 'שגיאה לא ידועה';
+
+      if (errorMessage.includes('READ_EXCEL') || errorMessage.includes('sheet')) {
+        errorStage = 'READ_EXCEL';
+        errorMessage = 'שגיאה בקריאת קובץ האקסל';
+      } else if (errorMessage.includes('VALIDATION') || errorMessage.includes('duplicate')) {
+        errorStage = 'VALIDATION';
+      } else if (errorMessage.includes('Permission') || errorMessage.includes('Unauthorized')) {
+        errorStage = 'PERMISSION';
+        errorMessage = 'אין הרשאות מספיקות לביצוע הייבוא';
+      } else if (errorMessage.includes('Network') || errorMessage.includes('timeout')) {
+        errorStage = 'NETWORK';
+        errorMessage = 'שגיאת רשת או timeout';
+      }
+
+      if (importRun) {
+        try {
+          await base44.entities.ImportRun.update(importRun.id, {
+            finishedAt: new Date().toISOString(),
+            status: 'FAILED',
+            stage: errorStage,
+            errorSummary: errorMessage,
+            errorDetails: [{
+              rowIndex: 0,
+              apartmentNumber: 'N/A',
+              errorType: 'FATAL',
+              errorMessage
+            }]
+          });
+        } catch (updateErr) {
+          console.error('[Excel Import] Failed to update ImportRun with error:', updateErr);
+        }
+      }
+
+      setError(`ייבוא נכשל בשלב ${errorStage}: ${errorMessage} (RunId: ${importRunId})`);
+      toast.error('ייבוא נכשל');
     } finally {
       setIsImporting(false);
       finishImport();
     }
   };
 
+  const downloadErrorReport = () => {
+    if (!importResult || !importResult.errors || importResult.errors.length === 0) return;
+
+    const csv = [
+      ['שורה בקובץ', 'מספר דירה', 'סוג שגיאה', 'הודעת שגיאה'],
+      ...importResult.errors.map(e => [
+        e.rowIndex,
+        e.apartmentNumber,
+        e.errorType,
+        e.errorMessage
+      ])
+    ].map(row => row.join(',')).join('\n');
+
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `import_errors_${importResult.importRunId}.csv`;
+    link.click();
+  };
+
   return (
     <Card className="border-0 shadow-lg max-w-3xl mx-auto overflow-hidden rounded-2xl">
       <CardHeader className="border-b bg-slate-50">
-        <CardTitle className="flex items-center gap-2 text-lg" dir="rtl" style={{ direction: 'rtl', textAlign: 'right' }}>
+        <CardTitle className="flex items-center gap-2 text-lg" dir="rtl">
           <FileSpreadsheet className="w-5 h-5 text-emerald-600" />
           ייבוא דוח חייבים מאקסל
         </CardTitle>
       </CardHeader>
 
-      <CardContent className="p-6" dir="rtl" style={{ textAlign: 'right', unicodeBidi: 'plaintext' }}>
+      <CardContent className="p-6" dir="rtl">
         {step === 1 && (
-          <div className="py-10" style={{ direction: 'rtl', textAlign: 'right' }}>
+          <div className="py-10">
             <div className="mb-6 text-center">
               <Upload className="w-16 h-16 text-slate-300 mx-auto" />
             </div>
@@ -589,29 +767,28 @@ export default function ExcelImporter({ onImportComplete }) {
             <div>
               <h4 className="font-medium text-slate-700 mb-3 text-right">מצב ייבוא</h4>
               <RadioGroup value={importMode} onValueChange={(v) => { setImportMode(v); setResetConfirmation(''); }} className="space-y-3" dir="rtl">
-                <div className="flex flex-row-reverse items-start gap-3 p-3 md:p-4 rounded-lg border-2 border-blue-200 bg-blue-50" style={{ wordBreak: 'break-word' }}>
+                <div className="flex flex-row-reverse items-start gap-3 p-3 md:p-4 rounded-lg border-2 border-blue-200 bg-blue-50">
                   <RadioGroupItem value="fill_missing" id="fill_missing" className="flex-shrink-0 mt-1" />
                   <div className="flex-1">
                     <Label htmlFor="fill_missing" className="cursor-pointer font-semibold text-blue-900 block text-base">
                       השלמה בלבד (מומלץ)
                     </Label>
                     <ul className="text-xs text-blue-700 mt-2 space-y-1 list-disc pr-5">
-                      <li>טלפונים וחודשי פיגור: עדכון רק אם ריקים</li>
-                      <li>סכומים (דמי ניהול + מים חמים): עדכון תמיד</li>
-                      <li>סה״כ חוב מחושב אוטומטית: דמי ניהול + מים חמים</li>
-                      <li>הערות, תאריכים וסטטוס משפטי: נשמרים</li>
-                      <li>דירות שלא בקובץ: מתאפסות לחוב 0</li>
+                      <li>טלפונים: עדכון רק אם ריקים</li>
+                      <li>סכומים: עדכון תמיד</li>
+                      <li>סה״כ חוב מחושב: דמי ניהול + מים חמים</li>
+                      <li>דירות שלא בקובץ: מתאפסות</li>
                     </ul>
                   </div>
                 </div>
-                <div className="flex flex-row-reverse items-start gap-3 p-3 md:p-4 rounded-lg border-2 border-red-200 bg-red-50" style={{ wordBreak: 'break-word' }}>
+                <div className="flex flex-row-reverse items-start gap-3 p-3 md:p-4 rounded-lg border-2 border-red-200 bg-red-50">
                   <RadioGroupItem value="reset" id="reset" className="flex-shrink-0 mt-1" />
                   <div className="flex-1">
                     <Label htmlFor="reset" className="cursor-pointer font-bold text-red-700 block text-base">
-                      איפוס מלא – מחק הכל וטען מחדש
+                      איפוס מלא
                     </Label>
                     <p className="text-xs text-red-700 mt-2 font-semibold">
-                      ⚠️ פעולה בלתי הפיכה! כל הנתונים הקיימים יימחקו לחלוטין.
+                      ⚠️ מחיקה מלאה של כל הנתונים
                     </p>
                   </div>
                 </div>
@@ -622,13 +799,12 @@ export default function ExcelImporter({ onImportComplete }) {
                   <AlertTriangle className="w-4 h-4" />
                   <AlertDescription className="text-right">
                     <div className="space-y-2">
-                      <p className="font-bold">אישור נדרש למחיקה מלאה</p>
-                      <p className="text-sm">הקלד "מחק הכל" בשדה למטה כדי לאשר:</p>
+                      <p className="font-bold">הקלד "מחק הכל" לאישור:</p>
                       <input
                         type="text"
                         value={resetConfirmation}
                         onChange={(e) => setResetConfirmation(e.target.value)}
-                        placeholder="הקלד: מחק הכל"
+                        placeholder="מחק הכל"
                         className="w-full px-3 py-2 border border-red-300 rounded-lg text-right bg-white"
                         dir="rtl"
                       />
@@ -641,7 +817,7 @@ export default function ExcelImporter({ onImportComplete }) {
             {isImporting && (
               <div className="mt-6 p-4 bg-blue-50 rounded-xl" dir="rtl">
                 <div className="flex items-center justify-between text-sm text-slate-700 mb-3 font-semibold">
-                  <span>טוען...</span>
+                  <span>מעבד נתונים...</span>
                   <span className="text-blue-600 font-bold">{progress}%</span>
                 </div>
                 <div className="w-full h-[5px] bg-slate-200 rounded-full overflow-hidden">
@@ -663,57 +839,83 @@ export default function ExcelImporter({ onImportComplete }) {
         )}
 
         {step === 3 && importResult && (
-          <div className="py-10" dir="rtl">
-            <div className="text-center">
-              <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-slate-700 mb-2">הייבוא הושלם בהצלחה</h3>
+          <div className="py-6" dir="rtl">
+            <div className="text-center mb-6">
+              {importResult.status === 'SUCCESS' ? (
+                <CheckCircle2 className="w-16 h-16 text-green-500 mx-auto mb-4" />
+              ) : (
+                <AlertCircle className="w-16 h-16 text-orange-500 mx-auto mb-4" />
+              )}
+              <h3 className="text-lg font-medium text-slate-700 mb-2">
+                {importResult.status === 'SUCCESS' ? 'הייבוא הושלם בהצלחה' : `הייבוא הושלם חלקית`}
+              </h3>
+              <p className="text-sm text-slate-500">RunId: {importResult.importRunId}</p>
             </div>
             
-            <div className="grid grid-cols-2 gap-4 mt-6">
-              <div className="text-center p-4 bg-green-50 rounded-lg">
-                <p className="text-2xl font-bold text-green-600">{importResult.created}</p>
-                <p className="text-sm text-slate-600">נוצרו</p>
+            <div className="grid grid-cols-2 gap-3 mb-6">
+              <div className="text-center p-3 bg-green-50 rounded-lg">
+                <p className="text-xl font-bold text-green-600">{importResult.created}</p>
+                <p className="text-xs text-slate-600">נוצרו</p>
               </div>
-              <div className="text-center p-4 bg-blue-50 rounded-lg">
-                <p className="text-2xl font-bold text-blue-600">{importResult.updated}</p>
-                <p className="text-sm text-slate-600">עודכנו</p>
+              <div className="text-center p-3 bg-blue-50 rounded-lg">
+                <p className="text-xl font-bold text-blue-600">{importResult.updated}</p>
+                <p className="text-xs text-slate-600">עודכנו</p>
               </div>
               {importResult.clearedCount > 0 && (
-                <div className="text-center p-4 bg-orange-50 rounded-lg">
-                  <p className="text-2xl font-bold text-orange-600">{importResult.clearedCount}</p>
-                  <p className="text-sm text-slate-600">אופסו (לא בקובץ)</p>
+                <div className="text-center p-3 bg-orange-50 rounded-lg">
+                  <p className="text-xl font-bold text-orange-600">{importResult.clearedCount}</p>
+                  <p className="text-xs text-slate-600">אופסו</p>
                 </div>
               )}
-              {importResult.skipped > 0 && (
-                <div className="text-center p-4 bg-amber-50 rounded-lg">
-                  <p className="text-2xl font-bold text-amber-600">{importResult.skipped}</p>
-                  <p className="text-sm text-slate-600">דולגו (שורות ריקות)</p>
+              {importResult.failed > 0 && (
+                <div className="text-center p-3 bg-red-50 rounded-lg">
+                  <p className="text-xl font-bold text-red-600">{importResult.failed}</p>
+                  <p className="text-xs text-slate-600">נכשלו</p>
                 </div>
               )}
             </div>
-            
-            {(!importResult.qaValidation || !importResult.countValidation) && (
-              <Alert variant="destructive" className="mt-6" dir="rtl">
-                <AlertCircle className="w-4 h-4" />
+
+            {importResult.errors && importResult.errors.length > 0 && (
+              <Alert className="bg-red-50 border-red-200 mb-4" dir="rtl">
+                <AlertTriangle className="w-4 h-4 text-red-600" />
                 <AlertDescription className="text-right">
-                  <p className="font-bold mb-2">אזהרות QA:</p>
-                  {!importResult.countValidation && (
-                    <p className="text-sm">• לא כל הדירות יובאו: צפוי {importResult.uniqueApartments}, יובא {importResult.importedCount}</p>
-                  )}
-                  {!importResult.qaValidation && (
-                    <p className="text-sm">• פער בסכומים: {importResult.delta}</p>
-                  )}
+                  <div className="space-y-2">
+                    <p className="font-bold text-red-800">נמצאו {importResult.errors.length} שגיאות:</p>
+                    <div className="max-h-40 overflow-y-auto text-xs space-y-1">
+                      {importResult.errors.slice(0, 10).map((err, idx) => (
+                        <div key={idx} className="text-red-700">
+                          שורה {err.rowIndex}, דירה {err.apartmentNumber}: {err.errorMessage}
+                        </div>
+                      ))}
+                      {importResult.errors.length > 10 && (
+                        <p className="text-red-600 font-semibold">ועוד {importResult.errors.length - 10} שגיאות...</p>
+                      )}
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={downloadErrorReport}
+                      className="mt-2"
+                    >
+                      <Download className="w-4 h-4 ml-2" />
+                      הורד דוח שגיאות מלא
+                    </Button>
+                  </div>
                 </AlertDescription>
               </Alert>
             )}
 
-            {(importResult.invalidMonthly > 0 || importResult.invalidSpecial > 0) && (
-              <Alert className="mt-4 bg-yellow-50 border-yellow-200" dir="rtl">
-                <AlertTriangle className="w-4 h-4 text-yellow-600" />
-                <AlertDescription className="text-yellow-800 text-right">
-                  <p className="font-semibold mb-1">ערכים לא תקינים שהומרו ל-0:</p>
-                  {importResult.invalidMonthly > 0 && <p className="text-sm">• דמי ניהול: {importResult.invalidMonthly} שורות</p>}
-                  {importResult.invalidSpecial > 0 && <p className="text-sm">• מים חמים: {importResult.invalidSpecial} שורות</p>}
+            {(!importResult.qaValidation || !importResult.countValidation) && (
+              <Alert variant="destructive" className="mb-4" dir="rtl">
+                <AlertCircle className="w-4 h-4" />
+                <AlertDescription className="text-right">
+                  <p className="font-bold mb-2">אזהרות QA:</p>
+                  {!importResult.countValidation && (
+                    <p className="text-sm">• חוסר התאמה בכמות: צפוי {importResult.uniqueApartments}, יובא {importResult.importedCount}</p>
+                  )}
+                  {!importResult.qaValidation && (
+                    <p className="text-sm">• פער בסכומים: {importResult.delta}</p>
+                  )}
                 </AlertDescription>
               </Alert>
             )}
@@ -732,7 +934,7 @@ export default function ExcelImporter({ onImportComplete }) {
               disabled={importMode === 'reset' && resetConfirmation !== 'מחק הכל'}
               className="min-w-[140px] flex-1"
             >
-              {importMode === 'reset' ? 'בצע איפוס מלא' : 'התחל ייבוא'}
+              {importMode === 'reset' ? 'בצע איפוס' : 'התחל ייבוא'}
             </AppButton>
             <AppButton variant="outline" icon={ArrowLeft} onClick={() => setStep(1)} className="min-w-[140px] flex-1">
               חזור
