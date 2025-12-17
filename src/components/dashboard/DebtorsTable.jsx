@@ -502,7 +502,15 @@ export default function DebtorsTable({
             </div>
           ) : (
             paginatedRecords.map((record) => (
-              <DebtorCard key={record.id} record={record} onClick={onRowClick} settings={settings} />
+              <DebtorCard 
+                key={record.id} 
+                record={record} 
+                onClick={onRowClick} 
+                settings={settings}
+                isAdmin={isAdmin}
+                showArchived={showArchived}
+                onArchiveToggle={(rec) => handleArchiveToggle(rec, { stopPropagation: () => {} })}
+              />
             ))
           )}
         </div>

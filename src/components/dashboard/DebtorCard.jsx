@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Phone, Home, Wallet } from "lucide-react";
+import { Phone, Home, Wallet, Archive, Undo2 } from "lucide-react";
 
 const STATUS_COLORS = {
   'תקין': 'bg-green-100 text-green-700 border-green-200',
@@ -15,7 +15,7 @@ const BORDER_COLORS = {
   'חריגה מופרזת': 'border-r-[#ff8080]'
 };
 
-export default function DebtorCard({ record, onClick, settings }) {
+export default function DebtorCard({ record, onClick, settings, isAdmin, showArchived, onArchiveToggle }) {
   const formatCurrency = (num) => 
     new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num || 0);
 
@@ -74,6 +74,31 @@ export default function DebtorCard({ record, onClick, settings }) {
           <div className="pt-2 border-t border-slate-200">
             <p className="text-xs text-slate-500">מצב משפטי:</p>
             <p className="text-sm font-semibold text-slate-700 mt-1">{record.legal_status_manual}</p>
+          </div>
+        )}
+
+        {/* Archive Button - Admin Only */}
+        {isAdmin && onArchiveToggle && (
+          <div className="pt-2 border-t border-slate-200">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                onArchiveToggle(record);
+              }}
+              className="w-full flex items-center justify-center gap-2 py-2 px-3 rounded-lg bg-slate-100 hover:bg-slate-200 transition-colors text-slate-700 text-sm font-semibold"
+            >
+              {showArchived ? (
+                <>
+                  <Undo2 className="w-4 h-4" />
+                  החזר לחייבים
+                </>
+              ) : (
+                <>
+                  <Archive className="w-4 h-4" />
+                  העבר לארכיון
+                </>
+              )}
+            </button>
           </div>
         )}
       </div>
