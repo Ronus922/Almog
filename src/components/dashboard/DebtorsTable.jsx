@@ -19,8 +19,10 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X, SlidersHorizontal } from "lucide-react";
+import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X, SlidersHorizontal, Archive, Undo2 } from "lucide-react";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import DebtorCard from './DebtorCard';
+import { toast } from 'sonner';
 
 const STATUS_COLORS = {
   'תקין': 'bg-green-100 text-green-700 border-green-200',
@@ -38,7 +40,9 @@ export default function DebtorsTable({
   initialFilterKey = null,
   initialStatusFilter = null,
   initialAutoStatusFilter = null,
-  onFilteredDataChange = null
+  onFilteredDataChange = null,
+  onRecordUpdate = null,
+  showArchived = false
 }) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -54,6 +58,7 @@ export default function DebtorsTable({
   const [ownerNameFilter, setOwnerNameFilter] = useState('');
   const [phoneFilter, setPhoneFilter] = useState('');
   const [legalStatusFilter, setLegalStatusFilter] = useState('all');
+  const [archivingRecords, setArchivingRecords] = useState(new Set());
   
   const pageSize = 50;
 
@@ -237,7 +242,38 @@ export default function DebtorsTable({
   const hasActiveFilters = statusFilter !== 'all' || autoStatusFilter !== 'all' || search !== '';
   const hasAdvancedFilters = minDebt !== '' || maxDebt !== '' || ownerNameFilter !== '' || phoneFilter !== '' || legalStatusFilter !== 'all';
 
+  const handleArchiveToggle = async (record, e) => {
+    e.stopPropagation();
+    
+    if (archivingRecords.has(record.id)) return;
+    
+    setArchivingRecords(prev => new Set(prev).add(record.id));
+    
+    try {
+      const { base44 } = await import('@/api/base44Client');
+      await base44.entities.DebtorRecord.update(record.id, {
+        isArchived: !record.isArchived
+      });
+      
+      toast.success(showArchived ? 'הוחזר לחייבים' : 'הועבר לארכיון');
+      
+      if (onRecordUpdate) {
+        onRecordUpdate();
+      }
+    } catch (error) {
+      console.error('Archive toggle error:', error);
+      toast.error('שגיאה בעדכון הרשומה');
+    } finally {
+      setArchivingRecords(prev => {
+        const next = new Set(prev);
+        next.delete(record.id);
+        return next;
+      });
+    }
+  };
+
   return (
+    <TooltipProvider>
     <Card className="border-0 shadow-xl rounded-2xl overflow-hidden">
       <CardHeader className="pb-4 md:pb-6 pt-4 md:pt-6 bg-gradient-to-l from-white to-slate-50 border-b border-slate-200">
         <div className="flex flex-col gap-4">
@@ -503,6 +539,7 @@ export default function DebtorsTable({
                   </div>
                 </TableHead>
                 <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">מצב משפטי</TableHead>
+                <TableHead className="text-center font-bold text-slate-700 text-base py-4 px-6" style={{ width: '72px' }}>פעולות</TableHead>
               </TableRow>
               
               {/* Advanced Filter Row */}
@@ -588,14 +625,15 @@ export default function DebtorsTable({
                         </SelectContent>
                       </Select>
                     )}
-                  </TableHead>
-                </TableRow>
-              )}
+                    </TableHead>
+                    <TableHead className="py-3 px-4"></TableHead>
+                    </TableRow>
+                    )}
               
               {/* Filter Actions Row */}
               {showAdvancedFilters && (
                 <TableRow className="bg-blue-50/30 border-b border-blue-200">
-                  <TableHead colSpan={8} className="py-3 px-6">
+                  <TableHead colSpan={9} className="py-3 px-6">
                     <div className="flex items-center justify-end" dir="rtl">
                       <Button 
                         variant="outline" 
@@ -614,7 +652,7 @@ export default function DebtorsTable({
             <TableBody>
               {paginatedRecords.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-12">
+                  <TableCell colSpan={9} className="text-center py-12">
                     <div className="flex flex-col items-center gap-3">
                       <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center">
                         <Filter className="w-8 h-8 text-slate-400" />
@@ -674,12 +712,32 @@ export default function DebtorsTable({
                         );
                       })()}
                     </TableCell>
-                  </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </div>
+                    <TableCell className="py-6 px-6 align-middle text-center" onClick={(e) => e.stopPropagation()}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={(e) => handleArchiveToggle(record, e)}
+                            disabled={archivingRecords.has(record.id)}
+                            className="inline-flex items-center justify-center text-slate-600 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                          >
+                            {showArchived ? (
+                              <Undo2 className="w-4 h-4" strokeWidth={2} />
+                            ) : (
+                              <Archive className="w-4 h-4" strokeWidth={2} />
+                            )}
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                          <p>{showArchived ? 'החזר לחייבים' : 'העבר לארכיון'}</p>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TableCell>
+                    </TableRow>
+                    ))
+                    )}
+                    </TableBody>
+                    </Table>
+                    </div>
 
         {totalPages > 1 && (
           <div className="flex flex-col md:flex-row items-center justify-between gap-3 px-4 md:px-6 py-4 border-t bg-gradient-to-l from-slate-50 to-white">
@@ -714,6 +772,7 @@ export default function DebtorsTable({
           </div>
         )}
       </CardContent>
+    </TooltipProvider>
     </Card>
   );
 }
