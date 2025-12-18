@@ -16,6 +16,7 @@ import ApartmentDetailModal from '../components/dashboard/ApartmentDetailModal';
 import ExcelExporter from '../components/export/ExcelExporter';
 import PDFExporter from '../components/export/PDFExporter';
 import LastImportIndicator from '../components/dashboard/LastImportIndicator';
+import { getActiveDebtors, getArchivedDebtors } from '@/components/utils/debtorFilters';
 
 function DashboardContent() {
   const { currentUser, loading, authChecked } = useAuth();
@@ -60,15 +61,17 @@ function DashboardContent() {
     queryFn: () => base44.entities.DebtorRecord.list('-totalDebt'),
   });
 
-  const { data: debtorRecords = [], isLoading: debtorRecordsLoading, refetch: refetchDebtors } = useQuery({
-    queryKey: ['debtorRecords', { isArchived: false }],
-    queryFn: () => base44.entities.DebtorRecord.filter({ isArchived: false }, '-totalDebt'),
-  });
-
-  const { data: archivedRecords = [], isLoading: archivedRecordsLoading, refetch: refetchArchived } = useQuery({
-    queryKey: ['archivedRecords', { isArchived: true }],
-    queryFn: () => base44.entities.DebtorRecord.filter({ isArchived: true }, '-totalDebt'),
-  });
+  // Apply unique filtering: one record per apartmentNumber (most recent by updated_date)
+  // Active debtors: isArchived=false AND totalDebt>0
+  const debtorRecords = getActiveDebtors(allRecords);
+  const debtorRecordsLoading = allRecordsLoading;
+  
+  // Archived debtors: isArchived=true (unique per apartmentNumber)
+  const archivedRecords = getArchivedDebtors(allRecords);
+  const archivedRecordsLoading = allRecordsLoading;
+  
+  const refetchDebtors = () => queryClient.invalidateQueries({ queryKey: ['allDebtorRecords'] });
+  const refetchArchived = () => queryClient.invalidateQueries({ queryKey: ['allDebtorRecords'] });
 
   const { data: settingsList = [], isLoading: settingsLoading } = useQuery({
     queryKey: ['settings'],
