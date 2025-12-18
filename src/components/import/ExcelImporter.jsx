@@ -46,8 +46,6 @@ const isRateLimitError = (error) => {
          message.includes('Rate limit exceeded');
 };
 
-import { normalizeApartmentNumber } from '../utils/apartmentNormalizer';
-
 const normalizeApartmentKey = normalizeApartmentNumber;
 
 const cleanNumber = (val) => {
