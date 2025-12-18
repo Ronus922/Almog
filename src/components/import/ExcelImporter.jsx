@@ -271,46 +271,71 @@ export default function ExcelImporter({ onImportComplete }) {
         throw new Error('empty_file');
       }
       
-      // PRE-FLIGHT: בדיקת כפילויות עם נרמול
+      // ═══════════════════════════════════════════════════════════
+      // PRE-IMPORT VALIDATION (חובה לפי הכללים)
+      // ═══════════════════════════════════════════════════════════
+      // 1. בדיקה: עמודת apartmentKey קיימת
+      if (!rows || rows.length === 0) {
+        throw new Error('VALIDATION_FAILED: הקובץ ריק');
+      }
+
+      // בדיקה שיש עמודת A בכלל
+      const firstRow = rows[0];
+      if (!firstRow || firstRow.length <= FIXED_COLUMN_MAPPING.apartmentNumber) {
+        throw new Error('VALIDATION_FAILED: חסרה עמודת מספר דירה (A)');
+      }
+
+      // 2. בדיקה: אין תאים ריקים + אין כפילויות
       const apartmentKeys = new Set();
       const duplicates = [];
-      let missingApartmentCount = 0;
+      const emptyRows = [];
+      let validRowsCount = 0;
 
       for (let i = 0; i < rows.length; i++) {
         const row = rows[i];
         const apartmentRaw = (row[FIXED_COLUMN_MAPPING.apartmentNumber] || '').toString().trim();
 
         if (!apartmentRaw) {
-          missingApartmentCount++;
+          emptyRows.push(i + 2); // +2 for Excel row number (1-indexed + header)
           continue;
         }
 
         const apartmentKey = normalizeApartmentKey(apartmentRaw);
 
         if (!apartmentKey) {
-          missingApartmentCount++;
+          emptyRows.push(i + 2);
           continue;
         }
 
         if (apartmentKeys.has(apartmentKey)) {
-          duplicates.push(apartmentKey);
+          duplicates.push({ key: apartmentKey, row: i + 2 });
         } else {
           apartmentKeys.add(apartmentKey);
+          validRowsCount++;
         }
       }
 
-      if (duplicates.length > 0) {
-        const uniqueDuplicates = [...new Set(duplicates)];
-        throw new Error(`DUPLICATE_APARTMENTS: ${uniqueDuplicates.join(', ')}`);
+      // 3. עצירת ייבוא אם יש בעיות
+      if (emptyRows.length > 0) {
+        throw new Error(`VALIDATION_FAILED: נמצאו ${emptyRows.length} שורות עם מספר דירה ריק (שורות: ${emptyRows.slice(0, 10).join(', ')}${emptyRows.length > 10 ? '...' : ''})`);
       }
 
-      console.log(`[Excel Import - PRE-FLIGHT] Total: ${totalRowsParsed}, Unique: ${apartmentKeys.size}, Missing: ${missingApartmentCount}`);
+      if (duplicates.length > 0) {
+        const uniqueDuplicates = [...new Set(duplicates.map(d => d.key))];
+        throw new Error(`VALIDATION_FAILED: נמצאו דירות כפולות: ${uniqueDuplicates.slice(0, 5).join(', ')}${uniqueDuplicates.length > 5 ? ` ועוד ${uniqueDuplicates.length - 5}` : ''}`);
+      }
+
+      if (validRowsCount === 0) {
+        throw new Error('VALIDATION_FAILED: לא נמצאו שורות תקינות לייבוא');
+      }
+
+      console.log(`[Excel Import - PRE-FLIGHT] ✓ Validation passed: ${validRowsCount} דירות תקינות`);
 
       setExcelData({ 
         rows, 
         totalRowsParsed, 
         uniqueApartments: apartmentKeys.size,
-        expectedRows: totalRowsParsed - missingApartmentCount,
+        expectedRows: validRowsCount,
         uniqueInFile: apartmentKeys.size,
         fileName: selectedFile.name 
       });
@@ -322,9 +347,9 @@ export default function ExcelImporter({ onImportComplete }) {
         setError('שגיאת תוכן: הקובץ ריק או אינו מכיל נתונים.');
       } else if (err.message === 'file_read_error') {
         setError('שגיאת קריאה: לא ניתן לקרוא את הקובץ (פגום או מוגן).');
-      } else if (err.message.startsWith('DUPLICATE_APARTMENTS:')) {
-        const duplicateList = err.message.replace('DUPLICATE_APARTMENTS: ', '');
-        setError(`שגיאת כפילויות: נמצאו דירות כפולות בקובץ: ${duplicateList}. תקן את הקובץ והעלה מחדש.`);
+      } else if (err.message.startsWith('VALIDATION_FAILED:')) {
+        const details = err.message.replace('VALIDATION_FAILED: ', '');
+        setError(`⛔ בדיקת תקינות נכשלה: ${details}\n\nהייבוא לא החל. אנא תקן את הקובץ והעלה מחדש.`);
       } else {
         setError(`שגיאה לא צפויה: ${err.message}`);
       }
@@ -613,6 +638,13 @@ export default function ExcelImporter({ onImportComplete }) {
       }
 
       console.log(`[Excel Import] PARSE: creates=${createsQueue.length}, updates=${updatesQueue.length}, zero=${zeroQueue.length}, warnings=${allWarnings.length}`);
+
+      // ═══════════════════════════════════════════════════════════
+      // SAFETY CHECK: מניעת כפילויות (Upsert לפי apartmentKey)
+      // ═══════════════════════════════════════════════════════════
+      // כל הרשומות מזוהות לפי apartmentKey בלבד
+      // אם קיימת - UPDATE, אם לא - CREATE
+      // שחזור ייבוא שנכשל: בריצה נוספת רשומות קיימות יתעדכנו (לא ישוכפלו)
 
       // ═══════════════════════════════════════════════════════════
       // STEP 3: RUN QUEUES - Throttle עם CONCURRENCY=2
