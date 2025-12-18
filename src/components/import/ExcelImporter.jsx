@@ -17,10 +17,10 @@ import { toast } from 'sonner';
 const FIXED_COLUMN_MAPPING = {
   apartmentNumber: 0,  // Column A
   ownerName: 1,         // Column B
-  phoneOwner: 2,        // Column C
-  specialDebt: 6,       // Column G
-  detailsMonthly: 7,    // Column H
-  monthlyDebt: 8        // Column I
+  phonesRaw: 2,         // Column C
+  totalDebt: 3,         // Column D
+  hotWaterDebt: 6,      // Column G
+  detailsMonthly: 7     // Column H
 };
 
 const ALLOWED_FILE_EXTENSIONS = ['.xlsx', '.xls'];
@@ -159,6 +159,7 @@ export default function ExcelImporter({ onImportComplete }) {
   const [error, setError] = useState(null);
   const [importResult, setImportResult] = useState(null);
   const [importRunData, setImportRunData] = useState(null);
+  const [importWarnings, setImportWarnings] = useState([]);
 
   const validateFileType = (file) => {
     const fileName = file.name.toLowerCase();
@@ -372,7 +373,8 @@ export default function ExcelImporter({ onImportComplete }) {
       failed: 0,
       invalidMonthly: 0,
       invalidSpecial: 0,
-      errors: []
+      errors: [],
+      warnings: []
     };
 
     for (let i = startIdx; i < endIdx && i < rows.length; i++) {
@@ -384,41 +386,76 @@ export default function ExcelImporter({ onImportComplete }) {
 
         if (!apartmentKey) {
           batchResults.skipped++;
+          batchResults.warnings.push({
+            rowIndex: i + 2,
+            apartmentRaw: apartmentRaw,
+            ownerNameRaw: (row[FIXED_COLUMN_MAPPING.ownerName] || '').toString().trim(),
+            reason: 'MISSING_APT',
+            message: 'מספר דירה ריק או לא תקין'
+          });
           continue;
         }
 
         const ownerNameRaw = (row[FIXED_COLUMN_MAPPING.ownerName] || '').toString().trim();
-        const phoneRaw = (row[FIXED_COLUMN_MAPPING.phoneOwner] || '').toString().trim();
+        const phoneRaw = (row[FIXED_COLUMN_MAPPING.phonesRaw] || '').toString().trim();
         const detailsMonthlyRaw = (row[FIXED_COLUMN_MAPPING.detailsMonthly] || '').toString().trim();
         
-        const monthlyDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.monthlyDebt]);
-        const specialDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.specialDebt]);
+        const totalDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.totalDebt]);
+        const hotWaterDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.hotWaterDebt]);
 
-        if (!monthlyDebtClean.valid) {
-          batchResults.invalidMonthly++;
-          batchResults.errors.push({
+        if (!totalDebtClean.valid) {
+          batchResults.warnings.push({
             rowIndex: i + 2,
-            apartmentNumber,
-            errorType: 'INVALID_MONTHLY_DEBT',
-            errorMessage: `ערך לא תקין בדמי ניהול: "${monthlyDebtClean.original}"`
+            apartmentNumber: apartmentKey,
+            ownerNameRaw,
+            reason: 'BAD_NUMBER',
+            field: 'totalDebt',
+            rawValue: totalDebtClean.original,
+            message: `ערך לא תקין בסה"כ חוב`
           });
         }
 
-        if (!specialDebtClean.valid) {
-          batchResults.invalidSpecial++;
-          batchResults.errors.push({
+        if (!hotWaterDebtClean.valid) {
+          batchResults.warnings.push({
             rowIndex: i + 2,
-            apartmentNumber,
-            errorType: 'INVALID_SPECIAL_DEBT',
-            errorMessage: `ערך לא תקין במים חמים: "${specialDebtClean.original}"`
+            apartmentNumber: apartmentKey,
+            ownerNameRaw,
+            reason: 'BAD_NUMBER',
+            field: 'hotWaterDebt',
+            rawValue: hotWaterDebtClean.original,
+            message: 'ערך לא תקין במים חמים'
           });
         }
 
         const { phoneOwner, phoneTenant, phonePrimary, phonesRaw } = extractPhoneNumbers(phoneRaw);
 
-        const monthlyDebt = monthlyDebtClean.value;
-        const specialDebt = specialDebtClean.value;
-        const totalDebt = Math.round(((monthlyDebt || 0) + (specialDebt || 0)) * 100) / 100;
+        if (!phonePrimary && phoneRaw) {
+          batchResults.warnings.push({
+            rowIndex: i + 2,
+            apartmentNumber: apartmentKey,
+            ownerNameRaw,
+            reason: 'PHONE_PARSE_FAILED',
+            field: 'phone',
+            rawValue: phoneRaw,
+            message: 'לא ניתן לחלץ מספר טלפון תקין'
+          });
+        }
+
+        const totalDebt = totalDebtClean.value;
+        const hotWaterDebt = hotWaterDebtClean.value;
+        let managementDebt = Math.round((totalDebt - hotWaterDebt) * 100) / 100;
+
+        if (managementDebt < 0) {
+          batchResults.warnings.push({
+            rowIndex: i + 2,
+            apartmentNumber: apartmentKey,
+            ownerNameRaw,
+            reason: 'NEGATIVE_MANAGEMENT_DEBT',
+            message: `דמי ניהול שליליים (${managementDebt}), מאופס ל-0`,
+            rawValues: { totalDebt, hotWaterDebt }
+          });
+          managementDebt = 0;
+        }
 
         let debt_status_auto = 'תקין';
         if (totalDebt === 0) {
@@ -441,8 +478,8 @@ export default function ExcelImporter({ onImportComplete }) {
         if (existing) {
           const updateData = {
             apartmentNumber: apartmentKey,
-            monthlyDebt,
-            specialDebt,
+            monthlyDebt: managementDebt,
+            specialDebt: hotWaterDebt,
             totalDebt,
             debt_status_auto,
             detailsMonthly: detailsMonthlyRaw,
@@ -493,8 +530,8 @@ export default function ExcelImporter({ onImportComplete }) {
             phoneTenant,
             phonePrimary,
             phonesRaw: phonesRaw,
-            monthlyDebt,
-            specialDebt,
+            monthlyDebt: managementDebt,
+            specialDebt: hotWaterDebt,
             totalDebt,
             debt_status_auto,
             detailsMonthly: detailsMonthlyRaw,
@@ -664,6 +701,7 @@ export default function ExcelImporter({ onImportComplete }) {
       let totalInvalidMonthly = 0;
       let totalInvalidSpecial = 0;
       const allErrors = [];
+      const allWarnings = [];
 
       const totalBatches = Math.ceil(rows.length / BATCH_SIZE);
       let pauseCount = 0;
@@ -688,6 +726,7 @@ export default function ExcelImporter({ onImportComplete }) {
             totalInvalidMonthly += batchResults.invalidMonthly;
             totalInvalidSpecial += batchResults.invalidSpecial;
             allErrors.push(...batchResults.errors);
+            allWarnings.push(...batchResults.warnings);
 
             batchSuccess = true;
           } catch (batchError) {
@@ -858,6 +897,7 @@ export default function ExcelImporter({ onImportComplete }) {
       }
 
       setImportRunData(importRun);
+      setImportWarnings(allWarnings);
       setImportResult({ 
         created: totalCreated, 
         updated: totalUpdated, 
@@ -874,6 +914,7 @@ export default function ExcelImporter({ onImportComplete }) {
         countValidation,
         delta: delta.toFixed(2),
         errors: allErrors,
+        warnings: allWarnings,
         status: finalStatus,
         importRunId
       });
@@ -953,6 +994,29 @@ export default function ExcelImporter({ onImportComplete }) {
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
     link.download = `import_errors_${importResult.importRunId}.csv`;
+    link.click();
+  };
+
+  const downloadWarningsReport = () => {
+    if (!importWarnings || importWarnings.length === 0) return;
+
+    const csv = [
+      ['שורה', 'דירה', 'בעלים', 'סיבה', 'שדה', 'ערך גולמי', 'הודעה'],
+      ...importWarnings.map(w => [
+        w.rowIndex,
+        w.apartmentNumber || w.apartmentRaw || '',
+        w.ownerNameRaw || '',
+        w.reason,
+        w.field || '',
+        w.rawValue || JSON.stringify(w.rawValues || ''),
+        w.message
+      ])
+    ].map(row => row.join(',')).join('\n');
+
+    const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `import_warnings_${importResult.importRunId}.csv`;
     link.click();
   };
 
@@ -1074,6 +1138,11 @@ export default function ExcelImporter({ onImportComplete }) {
                     <span className="import-mapping-label">דירה</span>
                   </div>
                   <div className="import-mapping-row">
+                    <span className="import-mapping-letter">D</span>
+                    <span className="import-mapping-arrow">→</span>
+                    <span className="import-mapping-label">סה"כ חוב</span>
+                  </div>
+                  <div className="import-mapping-row">
                     <span className="import-mapping-letter">G</span>
                     <span className="import-mapping-arrow">→</span>
                     <span className="import-mapping-label">מים חמים</span>
@@ -1094,9 +1163,9 @@ export default function ExcelImporter({ onImportComplete }) {
                     <span className="import-mapping-label">טלפון</span>
                   </div>
                   <div className="import-mapping-row">
-                    <span className="import-mapping-letter">I</span>
+                    <span className="import-mapping-letter">-</span>
                     <span className="import-mapping-arrow">→</span>
-                    <span className="import-mapping-label">דמי ניהול</span>
+                    <span className="import-mapping-label">דמי ניהול (מחושב)</span>
                   </div>
                 </div>
               </AlertDescription>
@@ -1114,7 +1183,7 @@ export default function ExcelImporter({ onImportComplete }) {
                     <ul className="text-blue-700 mt-2 space-y-1 list-disc pr-5" style={importRulesTextStyle}>
                       <li>טלפונים: עדכון רק אם ריקים</li>
                       <li>סכומים: עדכון תמיד</li>
-                      <li>סה״כ חוב מחושב: דמי ניהול + מים חמים</li>
+                      <li>דמי ניהול מחושב: סה״כ חוב - מים חמים</li>
                       <li>דירות שלא בקובץ: מתאפסות</li>
                     </ul>
                   </div>
@@ -1254,12 +1323,47 @@ export default function ExcelImporter({ onImportComplete }) {
               )}
             </div>
 
+            {importWarnings && importWarnings.length > 0 && (
+              <Alert className="bg-orange-50 border-orange-200 mb-4" dir="rtl">
+                <AlertTriangle className="w-4 h-4 text-orange-600" />
+                <AlertDescription className="text-right">
+                  <div className="space-y-2">
+                    <p className="font-bold text-orange-800">נמצאו {importWarnings.length} אזהרות:</p>
+                    <div className="max-h-40 overflow-y-auto text-xs space-y-1">
+                      {importWarnings.slice(0, 10).map((warn, idx) => (
+                        <div key={idx} className="text-orange-700">
+                          <span className="font-bold">שורה {warn.rowIndex}</span>
+                          {warn.apartmentNumber && <span>, דירה {warn.apartmentNumber}</span>}
+                          {warn.ownerNameRaw && <span>, {warn.ownerNameRaw}</span>}
+                          {': '}
+                          {warn.message}
+                          {warn.rawValue && <span className="text-orange-600"> (ערך: "{warn.rawValue}")</span>}
+                        </div>
+                      ))}
+                      {importWarnings.length > 10 && (
+                        <p className="text-orange-600 font-semibold">ועוד {importWarnings.length - 10} אזהרות...</p>
+                      )}
+                    </div>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={downloadWarningsReport}
+                      className="mt-2"
+                    >
+                      <Download className="w-4 h-4 ml-2" />
+                      הורד דוח אזהרות מלא
+                    </Button>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+
             {importResult.errors && importResult.errors.length > 0 && (
               <Alert className="bg-red-50 border-red-200 mb-4" dir="rtl">
                 <AlertTriangle className="w-4 h-4 text-red-600" />
                 <AlertDescription className="text-right">
                   <div className="space-y-2">
-                    <p className="font-bold text-red-800">נמצאו {importResult.errors.length} שגיאות:</p>
+                    <p className="font-bold text-red-800">נמצאו {importResult.errors.length} שגיאות קריטיות:</p>
                     <div className="max-h-40 overflow-y-auto text-xs space-y-1">
                       {importResult.errors.slice(0, 10).map((err, idx) => (
                         <div key={idx} className="text-red-700">
