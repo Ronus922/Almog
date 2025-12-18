@@ -12,6 +12,7 @@ import LinkedRecords from './pages/LinkedRecords';
 import StatusWorkflow from './pages/StatusWorkflow';
 import DebtorReport from './pages/DebtorReport';
 import DataAudit from './pages/DataAudit';
+import SmartImport from './pages/SmartImport';
 import __Layout from './Layout.jsx';
 
 
@@ -30,6 +31,7 @@ export const PAGES = {
     "StatusWorkflow": StatusWorkflow,
     "DebtorReport": DebtorReport,
     "DataAudit": DataAudit,
+    "SmartImport": SmartImport,
 }
 
 export const pagesConfig = {
