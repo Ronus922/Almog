@@ -45,6 +45,7 @@ export default function DebtorsTable({
   showArchived = false
 }) {
   const [search, setSearch] = useState('');
+  const [apartmentSearch, setApartmentSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [autoStatusFilter, setAutoStatusFilter] = useState('all');
   const [sortField, setSortField] = useState('totalDebt');
@@ -127,8 +128,15 @@ export default function DebtorsTable({
     return isTenant ? mainName + ' (שוכר)' : mainName;
   };
 
+  const normApt = (s) => String(s || '').replace(/\u00A0/g, '').trim().replace(/\s+/g, '');
+
   const filteredRecords = useMemo(() => {
     let result = [...records];
+
+    if (apartmentSearch) {
+      const normQuery = normApt(apartmentSearch);
+      result = result.filter(r => normApt(r.apartmentNumber).includes(normQuery));
+    }
 
     if (search) {
       const s = search.toLowerCase();
@@ -195,7 +203,7 @@ export default function DebtorsTable({
     });
 
     return result;
-  }, [records, search, statusFilter, autoStatusFilter, sortField, sortDir, minDebt, maxDebt, ownerNameFilter, phoneFilter, legalStatusFilter, allStatuses]);
+  }, [records, search, apartmentSearch, statusFilter, autoStatusFilter, sortField, sortDir, minDebt, maxDebt, ownerNameFilter, phoneFilter, legalStatusFilter, allStatuses]);
 
   // Notify parent of filtered data changes
   useEffect(() => {
@@ -221,6 +229,7 @@ export default function DebtorsTable({
     setStatusFilter('all');
     setAutoStatusFilter('all');
     setSearch('');
+    setApartmentSearch('');
     setMinDebt('');
     setMaxDebt('');
     setOwnerNameFilter('');
@@ -236,11 +245,12 @@ export default function DebtorsTable({
     setOwnerNameFilter('');
     setPhoneFilter('');
     setLegalStatusFilter('all');
+    setApartmentSearch('');
     setPage(1);
   };
 
-  const hasActiveFilters = statusFilter !== 'all' || autoStatusFilter !== 'all' || search !== '';
-  const hasAdvancedFilters = minDebt !== '' || maxDebt !== '' || ownerNameFilter !== '' || phoneFilter !== '' || legalStatusFilter !== 'all';
+  const hasActiveFilters = statusFilter !== 'all' || autoStatusFilter !== 'all' || search !== '' || apartmentSearch !== '';
+  const hasAdvancedFilters = minDebt !== '' || maxDebt !== '' || ownerNameFilter !== '' || phoneFilter !== '' || legalStatusFilter !== 'all' || apartmentSearch !== '';
 
   const handleArchiveToggle = async (record, e) => {
     e.stopPropagation();
@@ -291,10 +301,11 @@ export default function DebtorsTable({
               <div className="relative flex-1">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <Input
-                  placeholder="חיפוש..."
-                  value={search}
-                  onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                  placeholder="מספר דירה..."
+                  value={apartmentSearch}
+                  onChange={(e) => { setApartmentSearch(e.target.value); setPage(1); }}
                   className="pr-10 h-10 rounded-xl border-slate-300 text-sm"
+                  inputMode="numeric"
                 />
               </div>
               <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
@@ -325,6 +336,18 @@ export default function DebtorsTable({
                     <SheetTitle className="text-right">חיפוש מורחב</SheetTitle>
                   </SheetHeader>
                   <div className="mt-6 space-y-4">
+                    <div>
+                      <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">מספר דירה</label>
+                      <Input
+                        placeholder="חפש מספר דירה..."
+                        value={apartmentSearch}
+                        onChange={(e) => { setApartmentSearch(e.target.value); setPage(1); }}
+                        className="h-11 rounded-xl text-right"
+                        dir="rtl"
+                        inputMode="numeric"
+                      />
+                    </div>
+
                     <div>
                       <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">שם בעלים</label>
                       <Input
@@ -430,10 +453,21 @@ export default function DebtorsTable({
               <div className="relative">
                 <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <Input
-                  placeholder="חיפוש לפי דירה, שם או טלפון..."
+                  placeholder="מספר דירה..."
+                  value={apartmentSearch}
+                  onChange={(e) => { setApartmentSearch(e.target.value); setPage(1); }}
+                  className="pr-12 w-40 h-11 rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                  inputMode="numeric"
+                />
+              </div>
+
+              <div className="relative">
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Input
+                  placeholder="חיפוש שם או טלפון..."
                   value={search}
                   onChange={(e) => { setSearch(e.target.value); setPage(1); }}
-                  className="pr-12 w-64 h-11 rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                  className="pr-12 w-52 h-11 rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                 />
               </div>
 
@@ -557,10 +591,11 @@ export default function DebtorsTable({
                   <TableHead className="py-3 px-4">
                     <Input
                       placeholder="מספר דירה"
-                      value={search}
-                      onChange={(e) => { setSearch(e.target.value); setPage(1); }}
+                      value={apartmentSearch}
+                      onChange={(e) => { setApartmentSearch(e.target.value); setPage(1); }}
                       className="h-9 rounded-lg text-sm text-right"
                       dir="rtl"
+                      inputMode="numeric"
                     />
                   </TableHead>
                   <TableHead className="py-3 px-4">

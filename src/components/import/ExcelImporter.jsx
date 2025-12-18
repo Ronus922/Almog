@@ -40,14 +40,17 @@ const isRateLimitError = (error) => {
          message.includes('Rate limit exceeded');
 };
 
-// Normalize apartment number to prevent duplicates
+// Normalize apartment number to prevent duplicates (HARDENED)
 const normalizeApartmentKey = (apartmentNumber) => {
   if (!apartmentNumber) return '';
-  return String(apartmentNumber)
+  const normalized = String(apartmentNumber)
     .replace(/\u00A0/g, ' ')  // Remove NBSP
     .trim()
-    .replace(/\s+/g, '')      // Remove all whitespace
-    .replace(/^0+(?=\d)/, ''); // Remove leading zeros (keep single 0)
+    .replace(/[^\d]/g, '');    // Keep digits only
+  
+  // Remove leading zeros but keep single 0
+  if (normalized === '' || /^0+$/.test(normalized)) return normalized === '0' ? '0' : '';
+  return normalized.replace(/^0+/, '');
 };
 
 const rtlWrapStyle = {
@@ -175,9 +178,10 @@ export default function ExcelImporter({ onImportComplete }) {
     if (typeof val === 'number') return { value: val, valid: true };
 
     const cleaned = String(val)
+      .replace(/\u00A0/g, '')  // NBSP
       .replace(/₪/g, '')
       .replace(/,/g, '')
-      .replace(/\s/g, '')
+      .replace(/\s+/g, '')
       .trim();
 
     if (cleaned === '' || cleaned === '-') return { value: 0, valid: true };
@@ -187,41 +191,49 @@ export default function ExcelImporter({ onImportComplete }) {
       return { value: 0, valid: false, original: val };
     }
 
-    return { value: num, valid: true };
+    return { value: Math.round(num * 100) / 100, valid: true };
   };
 
   const extractPhoneNumbers = (phoneText) => {
-    if (!phoneText) return { phoneOwner: '', phoneTenant: '', phonePrimary: '' };
+    if (!phoneText) return { phoneOwner: '', phoneTenant: '', phonePrimary: '', phonesRaw: '' };
 
     const raw = String(phoneText).trim();
     let normalized = raw.replace(/\+972[\s-]*/g, '0');
-    const potentialNumbers = normalized.split(/[\/,;|\n]+/);
-
+    
+    const digitsOnly = normalized.replace(/\D/g, '');
     const validNumbers = [];
 
-    for (let part of potentialNumbers) {
-      const digitsOnly = part.replace(/\D/g, '');
-
-      if (digitsOnly.length >= 9 && digitsOnly.length <= 13) {
-        let cleanNumber = digitsOnly;
-
-        if (cleanNumber.startsWith('972')) {
-          cleanNumber = '0' + cleanNumber.substring(3);
-        }
-
-        if (cleanNumber.startsWith('0') && cleanNumber.length >= 9 && cleanNumber.length <= 10) {
-          validNumbers.push(cleanNumber);
-        } else if (cleanNumber.length === 9 && !cleanNumber.startsWith('0')) {
-          validNumbers.push('0' + cleanNumber);
+    // סריקה של רצפים של 9-10 ספרות
+    let i = 0;
+    while (i < digitsOnly.length) {
+      // נסה למצוא רצף של 10 ספרות (סלולרי)
+      if (i + 10 <= digitsOnly.length) {
+        const candidate = digitsOnly.substring(i, i + 10);
+        if (candidate.startsWith('05') && !/^0+$/.test(candidate)) {
+          validNumbers.push(candidate);
+          i += 10;
+          continue;
         }
       }
+      
+      // נסה למצוא רצף של 9 ספרות (קווי)
+      if (i + 9 <= digitsOnly.length) {
+        const candidate = digitsOnly.substring(i, i + 9);
+        if (candidate.startsWith('0') && !candidate.startsWith('05') && !/^0+$/.test(candidate)) {
+          validNumbers.push(candidate);
+          i += 9;
+          continue;
+        }
+      }
+      
+      i++;
     }
 
     const phoneOwner = validNumbers[0] || '';
     const phoneTenant = validNumbers[1] || '';
     const phonePrimary = phoneOwner || phoneTenant || '';
 
-    return { phoneOwner, phoneTenant, phonePrimary };
+    return { phoneOwner, phoneTenant, phonePrimary, phonesRaw: raw };
   };
 
   const readExcelFile = (file) => {
@@ -402,7 +414,7 @@ export default function ExcelImporter({ onImportComplete }) {
           });
         }
 
-        const { phoneOwner, phoneTenant, phonePrimary } = extractPhoneNumbers(phoneRaw);
+        const { phoneOwner, phoneTenant, phonePrimary, phonesRaw } = extractPhoneNumbers(phoneRaw);
 
         const monthlyDebt = monthlyDebtClean.value;
         const specialDebt = specialDebtClean.value;
@@ -434,7 +446,7 @@ export default function ExcelImporter({ onImportComplete }) {
             totalDebt,
             debt_status_auto,
             detailsMonthly: detailsMonthlyRaw,
-            phonesRaw: phoneRaw,
+            phonesRaw: phonesRaw,
             importedThisRun: true,
             lastImportRunId: context.importRunId,
             lastImportAt: context.timestamp,
@@ -480,7 +492,7 @@ export default function ExcelImporter({ onImportComplete }) {
             phoneOwner,
             phoneTenant,
             phonePrimary,
-            phonesRaw: phoneRaw,
+            phonesRaw: phonesRaw,
             monthlyDebt,
             specialDebt,
             totalDebt,

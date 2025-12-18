@@ -158,13 +158,102 @@ function DashboardContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100" dir="rtl">
       <style>{`
-        /* כשארכיון פעיל - להכהות את טאב חייבים */
-        .tabs-container.mode-archive .tab-debtors:not(.active) {
-          background: #e5e7eb;
-          border: 1px solid #cbd5e1;
+        .tabs-shell {
+          display: flex;
+          gap: 10px;
+          padding: 8px;
+          background: #f3f4f6;
+          border: 1px solid #e5e7eb;
+          border-radius: 16px;
+          width: fit-content;
+          max-width: 100%;
         }
-        .tabs-container.mode-archive .tab-debtors:not(.active):hover {
-          background: #d1d5db;
+
+        .tab-pill {
+          position: relative;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          min-width: 160px;
+          height: 44px;
+          padding: 0 14px;
+          border-radius: 14px;
+          border: 1px solid transparent;
+          background: #ffffff;
+          cursor: pointer;
+          user-select: none;
+          transition: transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
+        }
+
+        .tab-pill:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 18px rgba(0,0,0,.08);
+          border-color: #e5e7eb;
+        }
+
+        .tab-pill:active {
+          transform: translateY(0px);
+          box-shadow: 0 2px 8px rgba(0,0,0,.06);
+        }
+
+        .tab-label {
+          font-size: 14px;
+          font-weight: 800;
+          color: #111827;
+          letter-spacing: .2px;
+        }
+
+        .tab-badge {
+          min-width: 32px;
+          height: 26px;
+          padding: 0 10px;
+          border-radius: 999px;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 13px;
+          font-weight: 800;
+          background: #e5e7eb;
+          color: #111827;
+        }
+
+        .tab-pill.is-active {
+          background: #eef2ff;
+          border-color: #c7d2fe;
+          box-shadow: 0 10px 26px rgba(37,99,235,.18);
+        }
+
+        .tab-pill.is-active::after {
+          content: "";
+          position: absolute;
+          left: 10px;
+          right: 10px;
+          bottom: 6px;
+          height: 3px;
+          border-radius: 999px;
+          background: #2563eb;
+          opacity: .95;
+        }
+
+        .tab-pill.is-active .tab-badge {
+          background: #2563eb;
+          color: #ffffff;
+        }
+
+        .tab-archive:not(.is-active) {
+          background: #f8fafc;
+          border-color: #e5e7eb;
+        }
+
+        .tabs-shell.mode-archive .tab-pill:not(.tab-archive) {
+          background: #e5e7eb;
+          border-color: #cbd5e1;
+        }
+
+        @media (max-width: 480px) {
+          .tabs-shell { width: 100%; }
+          .tab-pill { flex: 1; min-width: 0; }
         }
       `}</style>
       <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8">
@@ -285,34 +374,26 @@ function DashboardContent() {
         {/* טאבים - חייבים / ארכיון (רק למנהלים) */}
         <div className="w-full">
           {isAdmin && (
-            <div className={`grid w-full max-w-md grid-cols-2 h-12 rounded-xl bg-slate-100 p-1 mb-6 tabs-container ${activeTab === 'archived' ? 'mode-archive' : ''}`} dir="rtl">
+            <div className={`tabs-shell ${activeTab === 'archived' ? 'mode-archive' : ''}`} dir="rtl">
               <button
                 onClick={() => setActiveTab('debtors')}
-                className={`tab-debtors rounded-lg text-base font-bold flex items-center justify-center gap-2 transition-all ${
-                  activeTab === 'debtors' 
-                    ? 'bg-white shadow-sm active' 
-                    : 'hover:bg-slate-200/50'
-                }`}
+                className={`tab-pill ${activeTab === 'debtors' ? 'is-active' : ''}`}
               >
-                <Users className="w-4 h-4" />
-                חייבים
-                <span className="text-xs bg-blue-600 text-white px-2 py-0.5 rounded-full font-bold">
-                  {debtorRecords.length}
+                <span className="tab-label">
+                  <Users className="w-4 h-4 inline ml-1" />
+                  חייבים
                 </span>
+                <span className="tab-badge">{debtorRecords.length}</span>
               </button>
               <button
                 onClick={() => setActiveTab('archived')}
-                className={`tab-archive rounded-lg text-base font-bold flex items-center justify-center gap-2 transition-all ${
-                  activeTab === 'archived' 
-                    ? 'bg-white shadow-sm active' 
-                    : 'bg-indigo-50 border border-indigo-200 hover:bg-indigo-100'
-                }`}
+                className={`tab-pill tab-archive ${activeTab === 'archived' ? 'is-active' : ''}`}
               >
-                <Archive className="w-4 h-4" />
-                ארכיון
-                <span className="text-xs bg-slate-600 text-white px-2 py-0.5 rounded-full font-bold">
-                  {archivedRecords.length}
+                <span className="tab-label">
+                  <Archive className="w-4 h-4 inline ml-1" />
+                  ארכיון
                 </span>
+                <span className="tab-badge">{archivedRecords.length}</span>
               </button>
             </div>
           )}
