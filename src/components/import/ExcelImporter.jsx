@@ -24,13 +24,38 @@ const FIXED_COLUMN_MAPPING = {
 };
 
 const ALLOWED_FILE_EXTENSIONS = ['.xlsx', '.xls'];
-const BATCH_SIZE = 10;
-const DELAY_BETWEEN_BATCHES = 6000; // 6 seconds
-const DELAY_BETWEEN_WRITES = 300; // ms between individual writes in batch
-const MAX_429_PAUSES = 5;
-const PAUSE_ON_429 = 60000; // 60 seconds
+const BATCH_SIZE = 25;
+const CONCURRENCY = 3; // Max 3 parallel operations
+const MAX_RETRIES = 3;
+const RETRY_DELAYS = [200, 400, 800]; // Exponential backoff
 
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+// Queue with concurrency limit
+class ConcurrentQueue {
+  constructor(concurrency) {
+    this.concurrency = concurrency;
+    this.running = 0;
+    this.queue = [];
+  }
+
+  async add(fn) {
+    while (this.running >= this.concurrency) {
+      await new Promise(resolve => {
+        this.queue.push(resolve);
+      });
+    }
+    
+    this.running++;
+    try {
+      return await fn();
+    } finally {
+      this.running--;
+      const resolve = this.queue.shift();
+      if (resolve) resolve();
+    }
+  }
+}
 
 const isRateLimitError = (error) => {
   const message = error?.message || '';
@@ -365,231 +390,223 @@ export default function ExcelImporter({ onImportComplete }) {
     }
   };
 
-  const processBatch = async (rows, startIdx, endIdx, context) => {
-    const batchResults = {
-      created: 0,
-      updated: 0,
-      skipped: 0,
-      failed: 0,
-      invalidMonthly: 0,
-      invalidSpecial: 0,
-      errors: [],
-      warnings: []
+  const processRowWithRetry = async (row, rowIndex, context, queue) => {
+    const result = {
+      success: false,
+      created: false,
+      updated: false,
+      skipped: false,
+      warnings: [],
+      error: null
     };
 
-    for (let i = startIdx; i < endIdx && i < rows.length; i++) {
-      const row = rows[i];
+    try {
+      const apartmentRaw = (row[FIXED_COLUMN_MAPPING.apartmentNumber] || '').toString().trim();
+      const apartmentKey = normalizeApartmentKey(apartmentRaw);
 
-      try {
-        const apartmentRaw = (row[FIXED_COLUMN_MAPPING.apartmentNumber] || '').toString().trim();
-        const apartmentKey = normalizeApartmentKey(apartmentRaw);
-
-        if (!apartmentKey) {
-          batchResults.skipped++;
-          batchResults.warnings.push({
-            rowIndex: i + 2,
-            apartmentRaw: apartmentRaw,
-            ownerNameRaw: (row[FIXED_COLUMN_MAPPING.ownerName] || '').toString().trim(),
-            reason: 'MISSING_APT',
-            message: 'מספר דירה ריק או לא תקין'
-          });
-          continue;
-        }
-
-        const ownerNameRaw = (row[FIXED_COLUMN_MAPPING.ownerName] || '').toString().trim();
-        const phoneRaw = (row[FIXED_COLUMN_MAPPING.phonesRaw] || '').toString().trim();
-        const detailsMonthlyRaw = (row[FIXED_COLUMN_MAPPING.detailsMonthly] || '').toString().trim();
-        
-        const totalDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.totalDebt]);
-        const hotWaterDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.hotWaterDebt]);
-
-        if (!totalDebtClean.valid) {
-          batchResults.warnings.push({
-            rowIndex: i + 2,
-            apartmentNumber: apartmentKey,
-            ownerNameRaw,
-            reason: 'BAD_NUMBER',
-            field: 'totalDebt',
-            rawValue: totalDebtClean.original,
-            message: `ערך לא תקין בסה"כ חוב`
-          });
-        }
-
-        if (!hotWaterDebtClean.valid) {
-          batchResults.warnings.push({
-            rowIndex: i + 2,
-            apartmentNumber: apartmentKey,
-            ownerNameRaw,
-            reason: 'BAD_NUMBER',
-            field: 'hotWaterDebt',
-            rawValue: hotWaterDebtClean.original,
-            message: 'ערך לא תקין במים חמים'
-          });
-        }
-
-        const { phoneOwner, phoneTenant, phonePrimary, phonesRaw } = extractPhoneNumbers(phoneRaw);
-
-        if (!phonePrimary && phoneRaw) {
-          batchResults.warnings.push({
-            rowIndex: i + 2,
-            apartmentNumber: apartmentKey,
-            ownerNameRaw,
-            reason: 'PHONE_PARSE_FAILED',
-            field: 'phone',
-            rawValue: phoneRaw,
-            message: 'לא ניתן לחלץ מספר טלפון תקין'
-          });
-        }
-
-        const totalDebt = totalDebtClean.value;
-        const hotWaterDebt = hotWaterDebtClean.value;
-        let managementDebt = Math.round((totalDebt - hotWaterDebt) * 100) / 100;
-
-        if (managementDebt < 0) {
-          batchResults.warnings.push({
-            rowIndex: i + 2,
-            apartmentNumber: apartmentKey,
-            ownerNameRaw,
-            reason: 'NEGATIVE_MANAGEMENT_DEBT',
-            message: `דמי ניהול שליליים (${managementDebt}), מאופס ל-0`,
-            rawValues: { totalDebt, hotWaterDebt }
-          });
-          managementDebt = 0;
-        }
-
-        let debt_status_auto = 'תקין';
-        if (totalDebt === 0) {
-          debt_status_auto = 'תקין';
-        } else if (totalDebt > context.settings.threshold_legal_from) {
-          debt_status_auto = 'חריגה מופרזת';
-        } else if (totalDebt > context.settings.threshold_collect_from) {
-          debt_status_auto = 'לגבייה מיידית';
-        }
-
-        // Use existingMap with normalized key
-        const existing = context.existingMap[apartmentKey];
-
-        const isEmpty = (val) => {
-          if (val === null || val === undefined || val === '') return true;
-          const str = String(val).trim();
-          return str === '' || str === 'אין מספר' || str === '-' || str === 'לא ידוע' || /^0+$/.test(str);
-        };
-
-        if (existing) {
-          const updateData = {
-            apartmentNumber: apartmentKey,
-            monthlyDebt: managementDebt,
-            specialDebt: hotWaterDebt,
-            totalDebt,
-            debt_status_auto,
-            detailsMonthly: detailsMonthlyRaw,
-            phonesRaw: phonesRaw,
-            importedThisRun: true,
-            lastImportRunId: context.importRunId,
-            lastImportAt: context.timestamp,
-            flaggedAsCleared: false,
-            clearedAt: null
-          };
-          
-          if (ownerNameRaw && ownerNameRaw.trim() !== '') {
-            updateData.ownerName = ownerNameRaw.split(/[\/,]/)[0]?.trim() || '';
-          }
-          
-          if (isEmpty(existing.phoneOwner) && !isEmpty(phoneOwner)) {
-            updateData.phoneOwner = phoneOwner;
-          }
-          if (isEmpty(existing.phoneTenant) && !isEmpty(phoneTenant)) {
-            updateData.phoneTenant = phoneTenant;
-          }
-          if (isEmpty(existing.phonePrimary) && !isEmpty(phonePrimary)) {
-            updateData.phonePrimary = phonePrimary;
-          }
-          
-          if (isEmpty(existing.monthsInArrears) && detailsMonthlyRaw) {
-            // Calculate from details if needed
-          }
-
-          updateData.notes = existing.notes;
-          updateData.lastContactDate = existing.lastContactDate;
-          updateData.nextActionDate = existing.nextActionDate;
-          updateData.legal_status_id = existing.legal_status_id;
-          updateData.legal_status_overridden = existing.legal_status_overridden;
-          updateData.legal_status_lock = existing.legal_status_lock;
-          updateData.legal_status_updated_at = existing.legal_status_updated_at;
-          updateData.legal_status_updated_by = existing.legal_status_updated_by;
-          updateData.legal_status_source = existing.legal_status_source;
-          updateData.legal_status_manual = existing.legal_status_manual;
-          
-          await base44.entities.DebtorRecord.update(existing.id, updateData);
-          batchResults.updated++;
-        } else {
-          const newRecord = {
-            apartmentNumber: apartmentKey,
-            ownerName: ownerNameRaw.split(/[\/,]/)[0]?.trim() || '',
-            phoneOwner,
-            phoneTenant,
-            phonePrimary,
-            phonesRaw: phonesRaw,
-            monthlyDebt: managementDebt,
-            specialDebt: hotWaterDebt,
-            totalDebt,
-            debt_status_auto,
-            detailsMonthly: detailsMonthlyRaw,
-            detailsSpecial: '',
-            monthlyPayment: 0,
-            monthsInArrears: 0,
-            importedThisRun: true,
-            lastImportRunId: context.importRunId,
-            lastImportAt: context.timestamp,
-            flaggedAsCleared: false
-          };
-
-          if (context.defaultLegalStatus) {
-            newRecord.legal_status_id = context.defaultLegalStatus.id;
-            newRecord.legal_status_overridden = false;
-          }
-          
-          await base44.entities.DebtorRecord.create(newRecord);
-          batchResults.created++;
-        }
-        
-        // Delay between writes
-        await sleep(DELAY_BETWEEN_WRITES);
-      } catch (rowError) {
-        batchResults.failed++;
-        const apartmentRaw = (row[FIXED_COLUMN_MAPPING.apartmentNumber] || '').toString().trim();
-        const apartmentKey = normalizeApartmentKey(apartmentRaw);
-        
-        let errorType = 'UNKNOWN_ERROR';
-        let errorMessage = rowError.message || 'שגיאה לא ידועה';
-
-        if (errorMessage.includes('Permission denied') || errorMessage.includes('Unauthorized')) {
-          errorType = 'PERMISSION_DENIED';
-          errorMessage = 'אין הרשאה לעדכן רשומה';
-        } else if (errorMessage.includes('Duplicate') || errorMessage.includes('unique')) {
-          errorType = 'DUPLICATE_KEY';
-          errorMessage = 'מספר דירה כבר קיים במערכת';
-        } else if (errorMessage.includes('Network') || errorMessage.includes('timeout')) {
-          errorType = 'NETWORK_ERROR';
-          errorMessage = 'שגיאת רשת או timeout';
-        }
-
-        batchResults.errors.push({
-          rowIndex: i + 2,
-          apartmentNumber: apartmentKey || 'לא ידוע',
-          errorType,
-          errorMessage
+      if (!apartmentKey) {
+        result.skipped = true;
+        result.warnings.push({
+          rowIndex: rowIndex + 2,
+          apartmentRaw: apartmentRaw,
+          ownerNameRaw: (row[FIXED_COLUMN_MAPPING.ownerName] || '').toString().trim(),
+          reason: 'MISSING_APT',
+          message: 'מספר דירה ריק או לא תקין'
         });
+        result.success = true;
+        return result;
+      }
 
-        console.error(`[Excel Import] Row ${i + 2} failed:`, {
+      const ownerNameRaw = (row[FIXED_COLUMN_MAPPING.ownerName] || '').toString().trim();
+      const phoneRaw = (row[FIXED_COLUMN_MAPPING.phonesRaw] || '').toString().trim();
+      const detailsMonthlyRaw = (row[FIXED_COLUMN_MAPPING.detailsMonthly] || '').toString().trim();
+      
+      const totalDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.totalDebt]);
+      const hotWaterDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.hotWaterDebt]);
+
+      if (!totalDebtClean.valid) {
+        result.warnings.push({
+          rowIndex: rowIndex + 2,
           apartmentNumber: apartmentKey,
-          errorType,
-          error: rowError
+          ownerNameRaw,
+          reason: 'BAD_NUMBER',
+          field: 'totalDebt',
+          rawValue: totalDebtClean.original,
+          message: `ערך לא תקין בסה"כ חוב`
         });
       }
+
+      if (!hotWaterDebtClean.valid) {
+        result.warnings.push({
+          rowIndex: rowIndex + 2,
+          apartmentNumber: apartmentKey,
+          ownerNameRaw,
+          reason: 'BAD_NUMBER',
+          field: 'hotWaterDebt',
+          rawValue: hotWaterDebtClean.original,
+          message: 'ערך לא תקין במים חמים'
+        });
+      }
+
+      const { phoneOwner, phoneTenant, phonePrimary, phonesRaw } = extractPhoneNumbers(phoneRaw);
+
+      if (!phonePrimary && phoneRaw) {
+        result.warnings.push({
+          rowIndex: rowIndex + 2,
+          apartmentNumber: apartmentKey,
+          ownerNameRaw,
+          reason: 'PHONE_PARSE_FAILED',
+          field: 'phone',
+          rawValue: phoneRaw,
+          message: 'לא ניתן לחלץ מספר טלפון תקין'
+        });
+      }
+
+      const totalDebt = totalDebtClean.value;
+      const hotWaterDebt = hotWaterDebtClean.value;
+      let managementDebt = Math.round((totalDebt - hotWaterDebt) * 100) / 100;
+
+      if (managementDebt < 0) {
+        result.warnings.push({
+          rowIndex: rowIndex + 2,
+          apartmentNumber: apartmentKey,
+          ownerNameRaw,
+          reason: 'NEGATIVE_MANAGEMENT_DEBT',
+          message: `דמי ניהול שליליים (${managementDebt}), מאופס ל-0`,
+          rawValues: { totalDebt, hotWaterDebt }
+        });
+        managementDebt = 0;
+      }
+
+      let debt_status_auto = 'תקין';
+      if (totalDebt === 0) {
+        debt_status_auto = 'תקין';
+      } else if (totalDebt > context.settings.threshold_legal_from) {
+        debt_status_auto = 'חריגה מופרזת';
+      } else if (totalDebt > context.settings.threshold_collect_from) {
+        debt_status_auto = 'לגבייה מיידית';
+      }
+
+      const existing = context.existingMap[apartmentKey];
+      const isEmpty = (val) => {
+        if (val === null || val === undefined || val === '') return true;
+        const str = String(val).trim();
+        return str === '' || str === 'אין מספר' || str === '-' || str === 'לא ידוע' || /^0+$/.test(str);
+      };
+
+      // Retry logic for API call
+      let attempt = 0;
+      let lastError = null;
+
+      while (attempt < MAX_RETRIES) {
+        try {
+          if (existing) {
+            const updateData = {
+              apartmentNumber: apartmentKey,
+              monthlyDebt: managementDebt,
+              specialDebt: hotWaterDebt,
+              totalDebt,
+              debt_status_auto,
+              detailsMonthly: detailsMonthlyRaw,
+              phonesRaw: phonesRaw,
+              importedThisRun: true,
+              lastImportRunId: context.importRunId,
+              lastImportAt: context.timestamp,
+              flaggedAsCleared: false,
+              clearedAt: null
+            };
+            
+            if (ownerNameRaw && ownerNameRaw.trim() !== '') {
+              updateData.ownerName = ownerNameRaw.split(/[\/,]/)[0]?.trim() || '';
+            }
+            
+            if (isEmpty(existing.phoneOwner) && !isEmpty(phoneOwner)) {
+              updateData.phoneOwner = phoneOwner;
+            }
+            if (isEmpty(existing.phoneTenant) && !isEmpty(phoneTenant)) {
+              updateData.phoneTenant = phoneTenant;
+            }
+            if (isEmpty(existing.phonePrimary) && !isEmpty(phonePrimary)) {
+              updateData.phonePrimary = phonePrimary;
+            }
+
+            updateData.notes = existing.notes;
+            updateData.lastContactDate = existing.lastContactDate;
+            updateData.nextActionDate = existing.nextActionDate;
+            updateData.legal_status_id = existing.legal_status_id;
+            updateData.legal_status_overridden = existing.legal_status_overridden;
+            updateData.legal_status_lock = existing.legal_status_lock;
+            updateData.legal_status_updated_at = existing.legal_status_updated_at;
+            updateData.legal_status_updated_by = existing.legal_status_updated_by;
+            updateData.legal_status_source = existing.legal_status_source;
+            updateData.legal_status_manual = existing.legal_status_manual;
+            
+            await queue.add(() => base44.entities.DebtorRecord.update(existing.id, updateData));
+            result.updated = true;
+          } else {
+            const newRecord = {
+              apartmentNumber: apartmentKey,
+              ownerName: ownerNameRaw.split(/[\/,]/)[0]?.trim() || '',
+              phoneOwner,
+              phoneTenant,
+              phonePrimary,
+              phonesRaw: phonesRaw,
+              monthlyDebt: managementDebt,
+              specialDebt: hotWaterDebt,
+              totalDebt,
+              debt_status_auto,
+              detailsMonthly: detailsMonthlyRaw,
+              detailsSpecial: '',
+              monthlyPayment: 0,
+              monthsInArrears: 0,
+              importedThisRun: true,
+              lastImportRunId: context.importRunId,
+              lastImportAt: context.timestamp,
+              flaggedAsCleared: false
+            };
+
+            if (context.defaultLegalStatus) {
+              newRecord.legal_status_id = context.defaultLegalStatus.id;
+              newRecord.legal_status_overridden = false;
+            }
+            
+            await queue.add(() => base44.entities.DebtorRecord.create(newRecord));
+            result.created = true;
+          }
+
+          result.success = true;
+          break; // Success, exit retry loop
+        } catch (err) {
+          lastError = err;
+          if (isRateLimitError(err) && attempt < MAX_RETRIES - 1) {
+            await sleep(RETRY_DELAYS[attempt]);
+            attempt++;
+          } else {
+            throw err;
+          }
+        }
+      }
+
+      if (!result.success && lastError) {
+        throw lastError;
+      }
+
+    } catch (err) {
+      result.error = {
+        rowIndex: rowIndex + 2,
+        apartmentNumber: apartmentKey || 'לא ידוע',
+        errorType: err.message?.includes('Permission') ? 'PERMISSION_DENIED' : 
+                   err.message?.includes('Duplicate') ? 'DUPLICATE_KEY' :
+                   err.message?.includes('Network') ? 'NETWORK_ERROR' : 'UNKNOWN_ERROR',
+        errorMessage: err.message || 'שגיאה לא ידועה'
+      };
     }
 
-    return batchResults;
+    return result;
+  };
+
+  const processBatch = async (rows, startIdx, endIdx, context) => {
+    // Legacy batch processor - no longer used
   };
 
   const handleImport = async () => {
@@ -679,8 +696,8 @@ export default function ExcelImporter({ onImportComplete }) {
         }
       }
 
-      // UPSERT בבאצ'ים עם delays
-      await base44.entities.ImportRun.update(importRun.id, { stage: 'WRITE_BATCHES' });
+      // PROCESS with Queue + Concurrency
+      await base44.entities.ImportRun.update(importRun.id, { stage: 'WRITE_WITH_QUEUE' });
       
       const { rows } = excelData;
       const allStatuses = await base44.entities.Status.list();
@@ -694,84 +711,43 @@ export default function ExcelImporter({ onImportComplete }) {
         existingMap
       };
 
+      const queue = new ConcurrentQueue(CONCURRENCY);
+
       let totalCreated = 0;
       let totalUpdated = 0;
       let totalSkipped = 0;
       let totalFailed = 0;
-      let totalInvalidMonthly = 0;
-      let totalInvalidSpecial = 0;
       const allErrors = [];
       const allWarnings = [];
 
-      const totalBatches = Math.ceil(rows.length / BATCH_SIZE);
-      let pauseCount = 0;
+      console.log(`[Excel Import] Processing ${rows.length} rows with concurrency=${CONCURRENCY}`);
 
-      for (let batchIdx = 0; batchIdx < totalBatches; batchIdx++) {
-        const startIdx = batchIdx * BATCH_SIZE;
-        const endIdx = Math.min((batchIdx + 1) * BATCH_SIZE, rows.length);
-
-        console.log(`[Excel Import] Processing batch ${batchIdx + 1}/${totalBatches} (rows ${startIdx + 1}-${endIdx})`);
-
-        let batchSuccess = false;
-        let batchRetries = 0;
-
-        while (!batchSuccess && batchRetries < 3) {
-          try {
-            const batchResults = await processBatch(rows, startIdx, endIdx, context);
-
-            totalCreated += batchResults.created;
-            totalUpdated += batchResults.updated;
-            totalSkipped += batchResults.skipped;
-            totalFailed += batchResults.failed;
-            totalInvalidMonthly += batchResults.invalidMonthly;
-            totalInvalidSpecial += batchResults.invalidSpecial;
-            allErrors.push(...batchResults.errors);
-            allWarnings.push(...batchResults.warnings);
-
-            batchSuccess = true;
-          } catch (batchError) {
-            if (isRateLimitError(batchError) && pauseCount < MAX_429_PAUSES) {
-              pauseCount++;
-              console.warn(`[Excel Import] Rate limit on batch ${batchIdx + 1}, pausing for ${PAUSE_ON_429 / 1000}s (pause ${pauseCount}/${MAX_429_PAUSES})`);
-              toast.warning(`המערכת מאטה את קצב הייבוא... ממשיכים אוטומטית`);
-              await sleep(PAUSE_ON_429);
-              batchRetries++;
-            } else {
-              throw batchError;
-            }
+      // Process all rows with queue
+      const promises = rows.map((row, idx) => 
+        processRowWithRetry(row, idx, context, queue).then(result => {
+          if (result.created) totalCreated++;
+          if (result.updated) totalUpdated++;
+          if (result.skipped) totalSkipped++;
+          if (result.error) {
+            totalFailed++;
+            allErrors.push(result.error);
           }
-        }
-
-        if (!batchSuccess) {
-          throw new Error(`Failed to process batch ${batchIdx + 1} after ${MAX_429_PAUSES} pauses`);
-        }
-
-        // Update progress
-        const currentProgress = Math.round(((endIdx) / rows.length) * 100);
-        setProgress(currentProgress);
-
-        // Update ImportRun with current counts (less frequently)
-        if (batchIdx % 5 === 0 || batchIdx === totalBatches - 1) {
-          try {
-            await base44.entities.ImportRun.update(importRun.id, {
-              createdCount: totalCreated,
-              updatedCount: totalUpdated,
-              failedRowsCount: totalFailed,
-              skippedRowsCount: totalSkipped,
-              successRowsCount: totalCreated + totalUpdated,
-              lastProcessedRowIndex: endIdx
-            });
-          } catch (err) {
-            console.warn('[Excel Import] Failed to update ImportRun progress');
+          if (result.warnings) {
+            allWarnings.push(...result.warnings);
           }
-        }
 
-        // Fixed delay between batches
-        if (batchIdx < totalBatches - 1) {
-          console.log(`[Excel Import] Waiting ${DELAY_BETWEEN_BATCHES / 1000}s before next batch`);
-          await sleep(DELAY_BETWEEN_BATCHES);
-        }
-      }
+          // Update progress
+          const processed = totalCreated + totalUpdated + totalSkipped + totalFailed;
+          const currentProgress = Math.round((processed / rows.length) * 100);
+          setProgress(currentProgress);
+
+          return result;
+        })
+      );
+
+      await Promise.all(promises);
+
+      console.log(`[Excel Import] Completed: created=${totalCreated}, updated=${totalUpdated}, skipped=${totalSkipped}, failed=${totalFailed}`);
 
       // POST_PROCESS: דירות שלא בקובץ (רק אם SUCCESS או PARTIAL)
       let clearedCount = 0;
