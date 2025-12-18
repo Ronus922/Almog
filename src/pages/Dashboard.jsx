@@ -167,6 +167,7 @@ function DashboardContent() {
           border-radius: 16px;
           width: fit-content;
           max-width: 100%;
+          border-bottom: none !important;
         }
 
         .tab-pill {
@@ -184,6 +185,9 @@ function DashboardContent() {
           cursor: pointer;
           user-select: none;
           transition: transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
+          text-decoration: none !important;
+          font-family: inherit;
+          border-bottom: none !important;
         }
 
         .tab-pill:hover {
@@ -199,9 +203,9 @@ function DashboardContent() {
 
         .tab-label {
           font-size: 14px;
-          font-weight: 800;
+          font-weight: 600;
           color: #111827;
-          letter-spacing: .2px;
+          letter-spacing: 0;
         }
 
         .tab-badge {
@@ -225,15 +229,11 @@ function DashboardContent() {
         }
 
         .tab-pill.is-active::after {
-          content: "";
-          position: absolute;
-          left: 10px;
-          right: 10px;
-          bottom: 6px;
-          height: 3px;
-          border-radius: 999px;
-          background: #2563eb;
-          opacity: .95;
+          content: none !important;
+        }
+
+        .tab-pill.is-active .tab-label {
+          font-weight: 700;
         }
 
         .tab-pill.is-active .tab-badge {

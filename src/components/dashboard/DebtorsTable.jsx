@@ -194,6 +194,14 @@ export default function DebtorsTable({
     result.sort((a, b) => {
       let aVal = a[sortField];
       let bVal = b[sortField];
+      
+      // מיון מיוחד למספר דירה - מספרי
+      if (sortField === 'apartmentNumber') {
+        const aNum = parseInt(normApt(aVal)) || 0;
+        const bNum = parseInt(normApt(bVal)) || 0;
+        return sortDir === 'asc' ? aNum - bNum : bNum - aNum;
+      }
+      
       if (typeof aVal === 'number' && typeof bVal === 'number') {
         return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
       }
@@ -554,7 +562,12 @@ export default function DebtorsTable({
           <Table className="border-separate border-spacing-0">
             <TableHeader>
               <TableRow className="bg-gradient-to-l from-slate-50 to-slate-100 hover:bg-gradient-to-l border-b-2 border-slate-200">
-                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">מס׳ דירה</TableHead>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('apartmentNumber')}>
+                  <div className="flex items-center gap-2 justify-end">
+                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'apartmentNumber' ? 'text-blue-600' : 'text-slate-400'}`} />
+                    מס׳ דירה
+                  </div>
+                </TableHead>
                 <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">שם בעל הדירה</TableHead>
                 <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">טלפון</TableHead>
                 <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('totalDebt')}>
