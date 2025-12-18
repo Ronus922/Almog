@@ -12,6 +12,7 @@ import {
 import { base44 } from '@/api/base44Client';
 import * as XLSX from 'xlsx';
 import { useImport } from './ImportContext';
+import { normalizeApartmentNumber } from '../utils/apartmentNormalizer';
 import { toast } from 'sonner';
 
 // ═══════════════════════════════════════════════════════════
@@ -45,16 +46,9 @@ const isRateLimitError = (error) => {
          message.includes('Rate limit exceeded');
 };
 
-const normalizeApartmentKey = (apartmentNumber) => {
-  if (!apartmentNumber) return '';
-  const normalized = String(apartmentNumber)
-    .replace(/\u00A0/g, ' ')
-    .trim()
-    .replace(/[^\d]/g, '');
-  
-  if (normalized === '' || /^0+$/.test(normalized)) return normalized === '0' ? '0' : '';
-  return normalized.replace(/^0+/, '');
-};
+import { normalizeApartmentNumber } from '../utils/apartmentNormalizer';
+
+const normalizeApartmentKey = normalizeApartmentNumber;
 
 const cleanNumber = (val) => {
   if (val === null || val === undefined || val === '') return { value: 0, valid: true };

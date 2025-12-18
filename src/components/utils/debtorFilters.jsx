@@ -5,6 +5,8 @@
  * and applies business logic filters.
  */
 
+import { normalizeApartmentNumber } from './apartmentNormalizer';
+
 /**
  * Get the most recent record for each apartmentNumber
  * @param {Array} records - All debtor records
@@ -13,11 +15,11 @@
 export function getUniqueDebtorRecords(records) {
   if (!records || records.length === 0) return [];
 
-  // Group by apartmentNumber
+  // Group by normalized apartmentNumber
   const grouped = {};
   
   records.forEach(record => {
-    const aptKey = record.apartmentNumber;
+    const aptKey = normalizeApartmentNumber(record.apartmentNumber);
     if (!aptKey) return;
 
     if (!grouped[aptKey]) {

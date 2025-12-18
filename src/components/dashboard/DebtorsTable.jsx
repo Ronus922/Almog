@@ -22,6 +22,7 @@ import {
 import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X, SlidersHorizontal, Archive, Undo2 } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import DebtorCard from './DebtorCard';
+import { normalizeApartmentNumber } from '../utils/apartmentNormalizer';
 import { toast } from 'sonner';
 
 const STATUS_COLORS = {
@@ -128,7 +129,7 @@ export default function DebtorsTable({
     return isTenant ? mainName + ' (שוכר)' : mainName;
   };
 
-  const normApt = (s) => String(s || '').replace(/\u00A0/g, '').trim().replace(/\s+/g, '');
+  const normApt = normalizeApartmentNumber;
 
   const filteredRecords = useMemo(() => {
     let result = [...records];
