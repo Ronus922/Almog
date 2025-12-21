@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { 
   LayoutDashboard, Upload, Settings, LogOut, 
-  User, ChevronDown, Building2, Menu, X, SlidersHorizontal, Users as UsersIcon
+  User, ChevronDown, Building2, Menu, X, SlidersHorizontal, Users as UsersIcon, Copy
 } from "lucide-react";
 
 import { Toaster } from 'sonner';
@@ -74,6 +74,7 @@ function LayoutContent({ children, currentPageName }) {
     { name: 'Dashboard', label: 'דשבורד', icon: LayoutDashboard, adminOnly: false },
     { name: 'UserManagement', label: 'משתמשים', icon: UsersIcon, adminOnly: true },
     { name: 'StatusManagement', label: 'סטטוסים', icon: SlidersHorizontal, adminOnly: true },
+    { name: 'DeduplicateRecords', label: 'ניקוי כפילויות', icon: Copy, adminOnly: true },
     { name: 'Import', label: 'ייבוא', icon: Upload, adminOnly: true },
     { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true },
   ];
