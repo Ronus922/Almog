@@ -1,7 +1,8 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogPortal, DialogOverlay } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogPortal, DialogOverlay, DialogTitle } from "@/components/ui/dialog";
 import { X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export default function AppModal({
   open,
@@ -21,15 +22,17 @@ export default function AppModal({
       <DialogPortal>
         <DialogOverlay className="bg-black/60 backdrop-blur-sm" />
         <DialogContent
-          className="p-0 gap-0 overflow-hidden max-h-[90vh] border-0 rounded-lg shadow-2xl"
+          className="p-0 gap-0 overflow-hidden max-h-[90vh] border-0 rounded-lg shadow-2xl [&>button]:hidden"
           style={{ width: 'min(620px, calc(100vw - 24px))', maxWidth: '620px' }}
           onPointerDownOutside={(e) => {
             if (dangerous) {
               e.preventDefault();
             }
           }}
-          hideClose={!showDefaultClose}
         >
+          <VisuallyHidden>
+            <DialogTitle>{title}</DialogTitle>
+          </VisuallyHidden>
           <div className="flex flex-col h-full max-h-[90vh] bg-white rounded-lg overflow-hidden">
             {/* Header - Sticky */}
             <div className="sticky top-0 z-30 flex items-center justify-between gap-4 px-5 py-4 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white border-b border-white/10">
