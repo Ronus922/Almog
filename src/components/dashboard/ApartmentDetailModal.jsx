@@ -16,6 +16,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { useAuth } from '@/components/auth/AuthContext';
+import InlineEditableField from './InlineEditableField';
 
 export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin }) {
   const { currentUser } = useAuth();
@@ -33,27 +34,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   const [isSaving, setIsSaving] = useState(false);
   const [lastContactDateError, setLastContactDateError] = useState('');
   const [nextActionDateError, setNextActionDateError] = useState('');
-  
-  // Inline edit states
-  const [editingPhoneOwner, setEditingPhoneOwner] = useState(false);
-  const [phoneOwnerValue, setPhoneOwnerValue] = useState('');
-  const [phoneOwnerError, setPhoneOwnerError] = useState('');
-  const [savingPhoneOwner, setSavingPhoneOwner] = useState(false);
-
-  const [editingPhoneTenant, setEditingPhoneTenant] = useState(false);
-  const [phoneTenantValue, setPhoneTenantValue] = useState('');
-  const [phoneTenantError, setPhoneTenantError] = useState('');
-  const [savingPhoneTenant, setSavingPhoneTenant] = useState(false);
-
-  const [editingPhone, setEditingPhone] = useState(false);
-  const [phoneValue, setPhoneValue] = useState('');
-  const [phoneError, setPhoneError] = useState('');
-  const [savingPhone, setSavingPhone] = useState(false);
-
-  const [editingMonths, setEditingMonths] = useState(false);
-  const [monthsValue, setMonthsValue] = useState('');
-  const [monthsError, setMonthsError] = useState('');
-  const [savingMonths, setSavingMonths] = useState(false);
 
   const [savingStatus, setSavingStatus] = useState(false);
   const [statusSaveError, setStatusSaveError] = useState('');
@@ -72,14 +52,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     
     setLastContactDateError('');
     setNextActionDateError('');
-    setEditingPhoneOwner(false);
-    setEditingPhoneTenant(false);
-    setEditingPhone(false);
-    setEditingMonths(false);
-    setPhoneOwnerError('');
-    setPhoneTenantError('');
-    setPhoneError('');
-    setMonthsError('');
   }, [record]);
 
   if (!record) return null;
@@ -137,6 +109,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     setIsSaving(false);
   };
 
+  // Validation functions
   const validatePhone = (phone) => {
     if (!phone || phone.trim() === '') return '';
     const cleaned = phone.replace(/\D/g, '');
@@ -146,209 +119,29 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     return '';
   };
 
-  const validateMonths = (months) => {
-    if (months === '' || months === null) return '';
-    const num = parseInt(months);
-    if (isNaN(num) || num < 0) {
-      return 'חודשי פיגור חייב להיות מספר שלם חיובי';
-    }
-    return '';
-  };
-
-  const handleEditPhoneOwner = () => {
-    console.log('[EDIT] Opening phoneOwner edit mode');
-    setPhoneOwnerValue(editedRecord?.phoneOwner || '');
-    setPhoneOwnerError('');
-    setEditingPhoneOwner(true);
+  // Universal field save handler with optimistic update
+  const handleFieldSave = async (fieldName, value) => {
+    console.log('[FIELD_SAVE] Saving field', fieldName, value, record.id);
     
-    // Auto-focus on input after render
-    setTimeout(() => {
-      const input = document.querySelector('input[data-field="phoneOwner"]');
-      if (input) {
-        input.focus();
-        input.select();
-      }
-    }, 50);
-  };
-
-  const handleCancelPhoneOwner = () => {
-    setEditingPhoneOwner(false);
-    setPhoneOwnerError('');
-  };
-
-  const handleSavePhoneOwner = async () => {
-    const error = validatePhone(phoneOwnerValue);
-    if (error) {
-      setPhoneOwnerError(error);
-      return;
-    }
-
-    setSavingPhoneOwner(true);
-    try {
-      const updatePayload = { 
-        phoneOwner: phoneOwnerValue,
-        phonesManualOverride: true
-      };
-      
-      await base44.entities.DebtorRecord.update(record.id, updatePayload);
-      
-      const updated = { ...editedRecord, phoneOwner: phoneOwnerValue, phonesManualOverride: true };
-      setEditedRecord(updated);
-      
-      // Optimistic update in cache
-      queryClient.setQueryData(['debtorRecords'], (old) => {
-        if (!old) return old;
-        return old.map(r => r.id === record.id ? { ...r, ...updatePayload } : r);
-      });
-      
-      toast.success('טלפון בעלים עודכן בהצלחה');
-      setEditingPhoneOwner(false);
-    } catch (err) {
-      toast.error('שגיאה בעדכון, נסה שוב');
-    } finally {
-      setSavingPhoneOwner(false);
-    }
-  };
-
-  const handleEditPhoneTenant = () => {
-    console.log('[EDIT] Opening phoneTenant edit mode');
-    setPhoneTenantValue(editedRecord?.phoneTenant || '');
-    setPhoneTenantError('');
-    setEditingPhoneTenant(true);
+    const updatePayload = { [fieldName]: value };
     
-    setTimeout(() => {
-      const input = document.querySelector('input[data-field="phoneTenant"]');
-      if (input) {
-        input.focus();
-        input.select();
-      }
-    }, 50);
-  };
-
-  const handleCancelPhoneTenant = () => {
-    setEditingPhoneTenant(false);
-    setPhoneTenantError('');
-  };
-
-  const handleSavePhoneTenant = async () => {
-    const error = validatePhone(phoneTenantValue);
-    if (error) {
-      setPhoneTenantError(error);
-      return;
+    // Set phonesManualOverride for phone fields
+    if (['phoneOwner', 'phoneTenant', 'phonePrimary'].includes(fieldName)) {
+      updatePayload.phonesManualOverride = true;
     }
-
-    setSavingPhoneTenant(true);
-    try {
-      const updatePayload = { 
-        phoneTenant: phoneTenantValue,
-        phonesManualOverride: true
-      };
-      
-      await base44.entities.DebtorRecord.update(record.id, updatePayload);
-      
-      const updated = { ...editedRecord, phoneTenant: phoneTenantValue, phonesManualOverride: true };
-      setEditedRecord(updated);
-      
-      // Optimistic update in cache
-      queryClient.setQueryData(['debtorRecords'], (old) => {
-        if (!old) return old;
-        return old.map(r => r.id === record.id ? { ...r, ...updatePayload } : r);
-      });
-      
-      toast.success('טלפון שוכר עודכן בהצלחה');
-      setEditingPhoneTenant(false);
-    } catch (err) {
-      toast.error('שגיאה בעדכון, נסה שוב');
-    } finally {
-      setSavingPhoneTenant(false);
-    }
-  };
-
-  const handleEditPhone = () => {
-    console.log('[EDIT] Opening phonePrimary edit mode');
-    setPhoneValue(editedRecord?.phonePrimary || '');
-    setPhoneError('');
-    setEditingPhone(true);
     
-    setTimeout(() => {
-      const input = document.querySelector('input[data-field="phonePrimary"]');
-      if (input) {
-        input.focus();
-        input.select();
-      }
-    }, 50);
-  };
-
-  const handleCancelPhone = () => {
-    setEditingPhone(false);
-    setPhoneError('');
-  };
-
-  const handleSavePhone = async () => {
-    const error = validatePhone(phoneValue);
-    if (error) {
-      setPhoneError(error);
-      return;
-    }
-
-    setSavingPhone(true);
-    try {
-      const updatePayload = { 
-        phonePrimary: phoneValue,
-        phonesManualOverride: true
-      };
-      
-      await base44.entities.DebtorRecord.update(record.id, updatePayload);
-      
-      const updated = { ...editedRecord, phonePrimary: phoneValue, phonesManualOverride: true };
-      setEditedRecord(updated);
-      
-      // Optimistic update in cache
-      queryClient.setQueryData(['debtorRecords'], (old) => {
-        if (!old) return old;
-        return old.map(r => r.id === record.id ? { ...r, ...updatePayload } : r);
-      });
-      
-      toast.success('טלפון עודכן בהצלחה');
-      setEditingPhone(false);
-    } catch (err) {
-      toast.error('שגיאה בעדכון, נסה שוב');
-    } finally {
-      setSavingPhone(false);
-    }
-  };
-
-  const handleEditMonths = () => {
-    setMonthsValue(editedRecord?.monthsInArrears?.toString() || '');
-    setMonthsError('');
-    setEditingMonths(true);
-  };
-
-  const handleCancelMonths = () => {
-    setEditingMonths(false);
-    setMonthsError('');
-  };
-
-  const handleSaveMonths = async () => {
-    const error = validateMonths(monthsValue);
-    if (error) {
-      setMonthsError(error);
-      return;
-    }
-
-    setSavingMonths(true);
-    try {
-      const numValue = monthsValue === '' ? null : parseInt(monthsValue);
-      await base44.entities.DebtorRecord.update(record.id, { monthsInArrears: numValue });
-      setEditedRecord({ ...editedRecord, monthsInArrears: numValue });
-      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
-      toast.success('חודשי פיגור עודכן בהצלחה');
-      setEditingMonths(false);
-    } catch (err) {
-      toast.error('שגיאה בעדכון, נסה שוב');
-    } finally {
-      setSavingMonths(false);
-    }
+    // Optimistic update - מיידי
+    setEditedRecord(prev => ({ ...prev, ...updatePayload }));
+    
+    queryClient.setQueryData(['debtorRecords'], (old) => {
+      if (!old) return old;
+      return old.map(r => r.id === record.id ? { ...r, ...updatePayload } : r);
+    });
+    
+    // Server update
+    await base44.entities.DebtorRecord.update(record.id, updatePayload);
+    
+    toast.success(`${fieldName === 'phoneOwner' ? 'טלפון בעלים' : fieldName === 'phoneTenant' ? 'טלפון שוכר' : fieldName === 'phonePrimary' ? 'טלפון להצגה' : 'שדה'} עודכן בהצלחה`);
   };
 
   const handleLegalStatusChange = async (newStatusId) => {
@@ -476,87 +269,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     </div>
   );
 
-  const EditableInfoRow = ({ icon: Icon, label, value, isEditing, editValue, onEdit, onCancel, onSave, onChange, error, saving, formatDisplay }) => (
-    <div className="flex items-start gap-3 md:gap-4 py-2 md:py-3" dir="rtl">
-      <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-slate-100 flex items-center justify-center">
-        <Icon className="w-4 h-4 md:w-5 md:h-5 text-slate-600" />
-      </div>
-      <div className="flex-1 text-right">
-        <p className="text-xs text-slate-500 font-semibold mb-1">{label}</p>
-        {!isEditing ? (
-          <div className="flex items-center gap-2 justify-end">
-            <p className="text-sm md:text-base font-bold text-slate-800 break-words">
-              {formatDisplay ? formatDisplay(value) : (value || '-')}
-            </p>
-            {isAdmin && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.preventDefault();
-                  e.stopPropagation();
-                  console.log('EDIT_CLICK', label, record?.id);
-                  onEdit();
-                }}
-                className="p-1 hover:bg-slate-200 rounded transition-colors flex-shrink-0"
-                title="ערוך"
-              >
-                <Pencil className="w-4 h-4 text-slate-600" />
-              </button>
-            )}
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <Input
-              type="text"
-              value={editValue}
-              onChange={(e) => onChange(e.target.value)}
-              className="h-10 rounded-lg text-right"
-              dir="rtl"
-              disabled={saving}
-              data-field={label.includes('בעלים') ? 'phoneOwner' : label.includes('שוכר') ? 'phoneTenant' : label.includes('להצגה') ? 'phonePrimary' : 'other'}
-              autoFocus
-            />
-            {error && (
-              <p className="text-xs text-red-600 font-semibold text-right flex items-center gap-1">
-                <AlertTriangle className="w-3 h-3" />
-                {error}
-              </p>
-            )}
-            <div className="flex gap-2 justify-end">
-              <Button
-                size="sm"
-                variant="outline"
-                onClick={onCancel}
-                disabled={saving}
-                className="h-8 px-3 rounded-lg"
-              >
-                <X className="w-3 h-3 ml-1" />
-                ביטול
-              </Button>
-              <Button
-                size="sm"
-                onClick={onSave}
-                disabled={saving}
-                className="h-8 px-3 rounded-lg bg-blue-600 hover:bg-blue-700"
-              >
-                {saving ? (
-                  <span className="flex items-center gap-1">
-                    <span className="animate-spin">⏳</span>
-                    שומר...
-                  </span>
-                ) : (
-                  <>
-                    <Check className="w-3 h-3 ml-1" />
-                    שמור
-                  </>
-                )}
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  );
+
 
   const currentStatusLabel = legalStatuses.find(s => s.id === selectedLegalStatusId)?.name || 'לא הוגדר';
   const currentStatusColor = legalStatuses.find(s => s.id === selectedLegalStatusId)?.color || 'bg-slate-100 text-slate-700';
@@ -607,47 +320,41 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               </h3>
               <InfoRow icon={Home} label="מספר דירה" value={editedRecord?.apartmentNumber} />
               <InfoRow icon={User} label="בעל דירה" value={editedRecord?.ownerName || 'לא צוין'} />
-              <EditableInfoRow
+
+              <InlineEditableField
                 icon={Phone}
                 label="טלפון בעלים"
                 value={editedRecord?.phoneOwner}
-                isEditing={editingPhoneOwner}
-                editValue={phoneOwnerValue}
-                onEdit={handleEditPhoneOwner}
-                onCancel={handleCancelPhoneOwner}
-                onSave={handleSavePhoneOwner}
-                onChange={setPhoneOwnerValue}
-                error={phoneOwnerError}
-                saving={savingPhoneOwner}
+                recordId={record.id}
+                fieldName="phoneOwner"
+                isAdmin={isAdmin}
+                onSave={handleFieldSave}
                 formatDisplay={formatPhone}
+                validate={validatePhone}
               />
-              <EditableInfoRow
+
+              <InlineEditableField
                 icon={Phone}
                 label="טלפון שוכר"
                 value={editedRecord?.phoneTenant}
-                isEditing={editingPhoneTenant}
-                editValue={phoneTenantValue}
-                onEdit={handleEditPhoneTenant}
-                onCancel={handleCancelPhoneTenant}
-                onSave={handleSavePhoneTenant}
-                onChange={setPhoneTenantValue}
-                error={phoneTenantError}
-                saving={savingPhoneTenant}
+                recordId={record.id}
+                fieldName="phoneTenant"
+                isAdmin={isAdmin}
+                onSave={handleFieldSave}
                 formatDisplay={formatPhone}
+                validate={validatePhone}
               />
-              <EditableInfoRow
+
+              <InlineEditableField
                 icon={Phone}
                 label="טלפון להצגה"
                 value={editedRecord?.phonePrimary}
-                isEditing={editingPhone}
-                editValue={phoneValue}
-                onEdit={handleEditPhone}
-                onCancel={handleCancelPhone}
-                onSave={handleSavePhone}
-                onChange={setPhoneValue}
-                error={phoneError}
-                saving={savingPhone}
+                recordId={record.id}
+                fieldName="phonePrimary"
+                isAdmin={isAdmin}
+                onSave={handleFieldSave}
                 formatDisplay={formatPhone}
+                validate={validatePhone}
               />
             </div>
             
