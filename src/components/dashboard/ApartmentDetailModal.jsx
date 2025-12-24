@@ -54,11 +54,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   const [monthsValue, setMonthsValue] = useState('');
   const [monthsError, setMonthsError] = useState('');
   const [savingMonths, setSavingMonths] = useState(false);
-  
-  const [editingPayment, setEditingPayment] = useState(false);
-  const [paymentValue, setPaymentValue] = useState('');
-  const [paymentError, setPaymentError] = useState('');
-  const [savingPayment, setSavingPayment] = useState(false);
 
   const [savingStatus, setSavingStatus] = useState(false);
   const [statusSaveError, setStatusSaveError] = useState('');
@@ -81,12 +76,10 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     setEditingPhoneTenant(false);
     setEditingPhone(false);
     setEditingMonths(false);
-    setEditingPayment(false);
     setPhoneOwnerError('');
     setPhoneTenantError('');
     setPhoneError('');
     setMonthsError('');
-    setPaymentError('');
   }, [record]);
 
   if (!record) return null;
@@ -158,14 +151,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     const num = parseInt(months);
     if (isNaN(num) || num < 0) {
       return 'חודשי פיגור חייב להיות מספר שלם חיובי';
-    }
-    return '';
-  };
-
-  const validatePayment = (payment) => {
-    const num = parseFloat(payment);
-    if (isNaN(num) || num < 0) {
-      return 'תשלום חודשי חייב להיות מספר תקין';
     }
     return '';
   };
@@ -296,39 +281,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       toast.error('שגיאה בעדכון, נסה שוב');
     } finally {
       setSavingMonths(false);
-    }
-  };
-
-  const handleEditPayment = () => {
-    setPaymentValue(editedRecord?.monthlyPayment?.toString() || '0');
-    setPaymentError('');
-    setEditingPayment(true);
-  };
-
-  const handleCancelPayment = () => {
-    setEditingPayment(false);
-    setPaymentError('');
-  };
-
-  const handleSavePayment = async () => {
-    const error = validatePayment(paymentValue);
-    if (error) {
-      setPaymentError(error);
-      return;
-    }
-
-    setSavingPayment(true);
-    try {
-      const numValue = parseFloat(paymentValue);
-      await base44.entities.DebtorRecord.update(record.id, { monthlyPayment: numValue });
-      setEditedRecord({ ...editedRecord, monthlyPayment: numValue });
-      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
-      toast.success('תשלום חודשי עודכן בהצלחה');
-      setEditingPayment(false);
-    } catch (err) {
-      toast.error('שגיאה בעדכון, נסה שוב');
-    } finally {
-      setSavingPayment(false);
     }
   };
 
@@ -626,22 +578,13 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             
             <div className="space-y-2 bg-slate-50/50 rounded-2xl p-4 md:p-6">
               <h3 className="font-bold text-slate-800 pb-2 md:pb-3 border-b-2 border-amber-200 text-right flex items-center gap-2 text-sm md:text-base">
-                <Wallet className="w-4 h-4 md:w-5 md:h-5 text-amber-600" />
+                <FileText className="w-4 h-4 md:w-5 md:h-5 text-amber-600" />
                 מידע נוסף
               </h3>
-              <EditableInfoRow
-                icon={Wallet}
-                label="תשלום חודשי"
-                value={editedRecord?.monthlyPayment}
-                isEditing={editingPayment}
-                editValue={paymentValue}
-                onEdit={handleEditPayment}
-                onCancel={handleCancelPayment}
-                onSave={handleSavePayment}
-                onChange={setPaymentValue}
-                error={paymentError}
-                saving={savingPayment}
-                formatDisplay={formatCurrency}
+              <InfoRow 
+                icon={FileText} 
+                label="פרטים מהייבוא" 
+                value={editedRecord?.detailsMonthly || 'אין נתונים'} 
               />
             </div>
           </div>

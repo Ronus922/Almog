@@ -22,9 +22,10 @@ const FIXED_COLUMN_MAPPING = {
   apartmentNumber: 0,  // A
   ownerName: 1,         // B
   phonesRaw: 2,         // C
+  totalDebt: 3,         // D
+  monthlyDebt: 4,       // E
   hotWaterDebt: 6,      // G
-  detailsMonthly: 7,    // H
-  managementDebt: 8     // I
+  detailsMonthly: 7     // H
 };
 
 const ALLOWED_FILE_EXTENSIONS = ['.xlsx', '.xls'];
@@ -473,17 +474,30 @@ export default function ExcelImporter({ onImportComplete }) {
         const phoneRaw = (row[FIXED_COLUMN_MAPPING.phonesRaw] || '').toString().trim();
         const detailsMonthlyRaw = (row[FIXED_COLUMN_MAPPING.detailsMonthly] || '').toString().trim();
         
-        const managementDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.managementDebt]);
+        const totalDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.totalDebt]);
+        const monthlyDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.monthlyDebt]);
         const hotWaterDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.hotWaterDebt]);
 
-        if (!managementDebtClean.valid) {
+        if (!totalDebtClean.valid) {
           allWarnings.push({
             rowIndex: i + 2,
             apartmentNumber: apartmentKey,
             ownerNameRaw,
             reason: 'BAD_NUMBER',
-            field: 'managementDebt',
-            rawValue: managementDebtClean.original,
+            field: 'totalDebt',
+            rawValue: totalDebtClean.original,
+            message: 'ערך לא תקין בסה״כ חוב'
+          });
+        }
+
+        if (!monthlyDebtClean.valid) {
+          allWarnings.push({
+            rowIndex: i + 2,
+            apartmentNumber: apartmentKey,
+            ownerNameRaw,
+            reason: 'BAD_NUMBER',
+            field: 'monthlyDebt',
+            rawValue: monthlyDebtClean.original,
             message: 'ערך לא תקין בדמי ניהול'
           });
         }
@@ -514,9 +528,9 @@ export default function ExcelImporter({ onImportComplete }) {
           });
         }
 
-        const managementDebt = managementDebtClean.value;
+        const totalDebt = totalDebtClean.value;
+        const monthlyDebt = monthlyDebtClean.value;
         const hotWaterDebt = hotWaterDebtClean.value;
-        const totalDebt = Math.round((managementDebt + hotWaterDebt) * 100) / 100;
 
         let debt_status_auto = 'תקין';
         if (totalDebt === 0) {
@@ -538,9 +552,9 @@ export default function ExcelImporter({ onImportComplete }) {
           // UPDATE
           const patch = {
             apartmentNumber: apartmentKey,
-            monthlyDebt: managementDebt,
-            specialDebt: hotWaterDebt,
             totalDebt,
+            monthlyDebt,
+            specialDebt: hotWaterDebt,
             debt_status_auto,
             detailsMonthly: detailsMonthlyRaw,
             phonesRaw: phonesRaw,
@@ -586,13 +600,12 @@ export default function ExcelImporter({ onImportComplete }) {
             phoneTenant,
             phonePrimary,
             phonesRaw: phonesRaw,
-            monthlyDebt: managementDebt,
-            specialDebt: hotWaterDebt,
             totalDebt,
+            monthlyDebt,
+            specialDebt: hotWaterDebt,
             debt_status_auto,
             detailsMonthly: detailsMonthlyRaw,
             detailsSpecial: '',
-            monthlyPayment: 0,
             monthsInArrears: 0,
             importedThisRun: true,
             lastImportRunId: importRunId,
@@ -1030,7 +1043,22 @@ export default function ExcelImporter({ onImportComplete }) {
                     <span className="import-mapping-label">דירה</span>
                   </div>
                   <div className="import-mapping-row">
-                    <span className="import-mapping-letter">I</span>
+                    <span className="import-mapping-letter">B</span>
+                    <span className="import-mapping-arrow">→</span>
+                    <span className="import-mapping-label">שם</span>
+                  </div>
+                  <div className="import-mapping-row">
+                    <span className="import-mapping-letter">C</span>
+                    <span className="import-mapping-arrow">→</span>
+                    <span className="import-mapping-label">טלפון</span>
+                  </div>
+                  <div className="import-mapping-row">
+                    <span className="import-mapping-letter">D</span>
+                    <span className="import-mapping-arrow">→</span>
+                    <span className="import-mapping-label">סה״כ</span>
+                  </div>
+                  <div className="import-mapping-row">
+                    <span className="import-mapping-letter">E</span>
                     <span className="import-mapping-arrow">→</span>
                     <span className="import-mapping-label">דמי ניהול</span>
                   </div>
@@ -1040,24 +1068,9 @@ export default function ExcelImporter({ onImportComplete }) {
                     <span className="import-mapping-label">מים חמים</span>
                   </div>
                   <div className="import-mapping-row">
-                    <span className="import-mapping-letter">B</span>
-                    <span className="import-mapping-arrow">→</span>
-                    <span className="import-mapping-label">שם</span>
-                  </div>
-                  <div className="import-mapping-row">
                     <span className="import-mapping-letter">H</span>
                     <span className="import-mapping-arrow">→</span>
                     <span className="import-mapping-label">פרטים</span>
-                  </div>
-                  <div className="import-mapping-row">
-                    <span className="import-mapping-letter">C</span>
-                    <span className="import-mapping-arrow">→</span>
-                    <span className="import-mapping-label">טלפון</span>
-                  </div>
-                  <div className="import-mapping-row">
-                    <span className="import-mapping-letter">-</span>
-                    <span className="import-mapping-arrow">→</span>
-                    <span className="import-mapping-label">סה"כ (I+G)</span>
                   </div>
                 </div>
               </AlertDescription>
@@ -1074,8 +1087,7 @@ export default function ExcelImporter({ onImportComplete }) {
                     </Label>
                     <ul className="text-blue-700 mt-2 space-y-1 list-disc pr-5" style={importRulesTextStyle}>
                       <li>טלפונים: עדכון רק אם ריקים</li>
-                      <li>סכומים: עדכון תמיד</li>
-                      <li>סה״כ חוב: I + G</li>
+                      <li>סכומים: עדכון תמיד מעמודות D/E/G</li>
                       <li>דירות שלא בקובץ: מתאפסות</li>
                     </ul>
                   </div>
