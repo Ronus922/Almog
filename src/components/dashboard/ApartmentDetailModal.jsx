@@ -175,9 +175,22 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
     setSavingPhoneOwner(true);
     try {
-      await base44.entities.DebtorRecord.update(record.id, { phoneOwner: phoneOwnerValue });
-      setEditedRecord({ ...editedRecord, phoneOwner: phoneOwnerValue });
-      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+      const updatePayload = { 
+        phoneOwner: phoneOwnerValue,
+        phonesManualOverride: true
+      };
+      
+      await base44.entities.DebtorRecord.update(record.id, updatePayload);
+      
+      const updated = { ...editedRecord, phoneOwner: phoneOwnerValue, phonesManualOverride: true };
+      setEditedRecord(updated);
+      
+      // Optimistic update in cache
+      queryClient.setQueryData(['debtorRecords'], (old) => {
+        if (!old) return old;
+        return old.map(r => r.id === record.id ? { ...r, ...updatePayload } : r);
+      });
+      
       toast.success('טלפון בעלים עודכן בהצלחה');
       setEditingPhoneOwner(false);
     } catch (err) {
@@ -207,9 +220,22 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
     setSavingPhoneTenant(true);
     try {
-      await base44.entities.DebtorRecord.update(record.id, { phoneTenant: phoneTenantValue });
-      setEditedRecord({ ...editedRecord, phoneTenant: phoneTenantValue });
-      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+      const updatePayload = { 
+        phoneTenant: phoneTenantValue,
+        phonesManualOverride: true
+      };
+      
+      await base44.entities.DebtorRecord.update(record.id, updatePayload);
+      
+      const updated = { ...editedRecord, phoneTenant: phoneTenantValue, phonesManualOverride: true };
+      setEditedRecord(updated);
+      
+      // Optimistic update in cache
+      queryClient.setQueryData(['debtorRecords'], (old) => {
+        if (!old) return old;
+        return old.map(r => r.id === record.id ? { ...r, ...updatePayload } : r);
+      });
+      
       toast.success('טלפון שוכר עודכן בהצלחה');
       setEditingPhoneTenant(false);
     } catch (err) {
@@ -239,9 +265,22 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
     setSavingPhone(true);
     try {
-      await base44.entities.DebtorRecord.update(record.id, { phonePrimary: phoneValue });
-      setEditedRecord({ ...editedRecord, phonePrimary: phoneValue });
-      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+      const updatePayload = { 
+        phonePrimary: phoneValue,
+        phonesManualOverride: true
+      };
+      
+      await base44.entities.DebtorRecord.update(record.id, updatePayload);
+      
+      const updated = { ...editedRecord, phonePrimary: phoneValue, phonesManualOverride: true };
+      setEditedRecord(updated);
+      
+      // Optimistic update in cache
+      queryClient.setQueryData(['debtorRecords'], (old) => {
+        if (!old) return old;
+        return old.map(r => r.id === record.id ? { ...r, ...updatePayload } : r);
+      });
+      
       toast.success('טלפון עודכן בהצלחה');
       setEditingPhone(false);
     } catch (err) {

@@ -66,42 +66,8 @@ const cleanNumber = (val) => {
   return { value: Math.round(num * 100) / 100, valid: true };
 };
 
-const extractPhoneNumbers = (phoneText) => {
-  if (!phoneText) return { phoneOwner: '', phoneTenant: '', phonePrimary: '', phonesRaw: '' };
-
-  const raw = String(phoneText).trim();
-  let normalized = raw.replace(/\+972[\s-]*/g, '0');
-  const digitsOnly = normalized.replace(/\D/g, '');
-  const validNumbers = [];
-
-  let i = 0;
-  while (i < digitsOnly.length) {
-    if (i + 10 <= digitsOnly.length) {
-      const candidate = digitsOnly.substring(i, i + 10);
-      if (candidate.startsWith('05') && !/^0+$/.test(candidate)) {
-        validNumbers.push(candidate);
-        i += 10;
-        continue;
-      }
-    }
-    
-    if (i + 9 <= digitsOnly.length) {
-      const candidate = digitsOnly.substring(i, i + 9);
-      if (candidate.startsWith('0') && !candidate.startsWith('05') && !/^0+$/.test(candidate)) {
-        validNumbers.push(candidate);
-        i += 9;
-        continue;
-      }
-    }
-    i++;
-  }
-
-  const phoneOwner = validNumbers[0] || '';
-  const phoneTenant = validNumbers[1] || '';
-  const phonePrimary = phoneOwner || phoneTenant || '';
-
-  return { phoneOwner, phoneTenant, phonePrimary, phonesRaw: raw };
-};
+// Use central phone parser
+import { parsePhoneNumbers } from '../utils/phoneParser';
 
 // ═══════════════════════════════════════════════════════════
 // THROTTLE QUEUE
@@ -421,6 +387,8 @@ export default function ExcelImporter({ onImportComplete }) {
           phoneOwner: record.phoneOwner,
           phoneTenant: record.phoneTenant,
           phonePrimary: record.phonePrimary,
+          phonesRaw: record.phonesRaw,
+          phonesManualOverride: record.phonesManualOverride || false,
           notes: record.notes,
           lastContactDate: record.lastContactDate,
           nextActionDate: record.nextActionDate,
@@ -514,7 +482,7 @@ export default function ExcelImporter({ onImportComplete }) {
           });
         }
 
-        const { phoneOwner, phoneTenant, phonePrimary, phonesRaw } = extractPhoneNumbers(phoneRaw);
+        const { phoneOwner, phoneTenant, phonePrimary, phonesRaw } = parsePhoneNumbers(phoneRaw);
 
         if (!phonePrimary && phoneRaw) {
           allWarnings.push({
@@ -557,7 +525,6 @@ export default function ExcelImporter({ onImportComplete }) {
             specialDebt: hotWaterDebt,
             debt_status_auto,
             detailsMonthly: detailsMonthlyRaw,
-            phonesRaw: phonesRaw,
             importedThisRun: true,
             lastImportRunId: importRunId,
             lastImportAt: importTimestamp,
@@ -569,14 +536,18 @@ export default function ExcelImporter({ onImportComplete }) {
             patch.ownerName = ownerNameRaw.split(/[\/,]/)[0]?.trim() || '';
           }
           
-          if (isEmpty(existing.phoneOwner) && !isEmpty(phoneOwner)) {
-            patch.phoneOwner = phoneOwner;
-          }
-          if (isEmpty(existing.phoneTenant) && !isEmpty(phoneTenant)) {
-            patch.phoneTenant = phoneTenant;
-          }
-          if (isEmpty(existing.phonePrimary) && !isEmpty(phonePrimary)) {
-            patch.phonePrimary = phonePrimary;
+          // Phone logic: respect manual override
+          if (existing.phonesManualOverride) {
+            // Don't update phones if manually overridden
+            // Keep existing values
+          } else {
+            // Update phonesRaw only if empty
+            if (isEmpty(existing.phonesRaw) && phonesRaw) {
+              patch.phonesRaw = phonesRaw;
+              patch.phoneOwner = phoneOwner;
+              patch.phoneTenant = phoneTenant;
+              patch.phonePrimary = phonePrimary;
+            }
           }
 
           patch.notes = existing.notes;
@@ -600,6 +571,7 @@ export default function ExcelImporter({ onImportComplete }) {
             phoneTenant,
             phonePrimary,
             phonesRaw: phonesRaw,
+            phonesManualOverride: false,
             totalDebt,
             monthlyDebt,
             specialDebt: hotWaterDebt,
