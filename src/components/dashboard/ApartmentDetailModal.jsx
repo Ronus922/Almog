@@ -156,9 +156,19 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   };
 
   const handleEditPhoneOwner = () => {
+    console.log('[EDIT] Opening phoneOwner edit mode');
     setPhoneOwnerValue(editedRecord?.phoneOwner || '');
     setPhoneOwnerError('');
     setEditingPhoneOwner(true);
+    
+    // Auto-focus on input after render
+    setTimeout(() => {
+      const input = document.querySelector('input[data-field="phoneOwner"]');
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    }, 50);
   };
 
   const handleCancelPhoneOwner = () => {
@@ -201,9 +211,18 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   };
 
   const handleEditPhoneTenant = () => {
+    console.log('[EDIT] Opening phoneTenant edit mode');
     setPhoneTenantValue(editedRecord?.phoneTenant || '');
     setPhoneTenantError('');
     setEditingPhoneTenant(true);
+    
+    setTimeout(() => {
+      const input = document.querySelector('input[data-field="phoneTenant"]');
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    }, 50);
   };
 
   const handleCancelPhoneTenant = () => {
@@ -246,9 +265,18 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   };
 
   const handleEditPhone = () => {
+    console.log('[EDIT] Opening phonePrimary edit mode');
     setPhoneValue(editedRecord?.phonePrimary || '');
     setPhoneError('');
     setEditingPhone(true);
+    
+    setTimeout(() => {
+      const input = document.querySelector('input[data-field="phonePrimary"]');
+      if (input) {
+        input.focus();
+        input.select();
+      }
+    }, 50);
   };
 
   const handleCancelPhone = () => {
@@ -462,8 +490,14 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             </p>
             {isAdmin && (
               <button
-                onClick={onEdit}
-                className="p-1 hover:bg-slate-200 rounded transition-colors"
+                type="button"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  console.log('EDIT_CLICK', label, record?.id);
+                  onEdit();
+                }}
+                className="p-1 hover:bg-slate-200 rounded transition-colors flex-shrink-0"
                 title="ערוך"
               >
                 <Pencil className="w-4 h-4 text-slate-600" />
@@ -479,6 +513,8 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               className="h-10 rounded-lg text-right"
               dir="rtl"
               disabled={saving}
+              data-field={label.includes('בעלים') ? 'phoneOwner' : label.includes('שוכר') ? 'phoneTenant' : label.includes('להצגה') ? 'phonePrimary' : 'other'}
+              autoFocus
             />
             {error && (
               <p className="text-xs text-red-600 font-semibold text-right flex items-center gap-1">
