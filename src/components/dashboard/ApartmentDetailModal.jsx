@@ -368,6 +368,32 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 label="פרטים מהייבוא" 
                 value={editedRecord?.detailsMonthly || 'אין נתונים'} 
               />
+              
+              <div className="flex items-start gap-3 md:gap-4 py-2 md:py-3" dir="rtl">
+                <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-slate-100 flex items-center justify-center">
+                  <Calendar className="w-4 h-4 md:w-5 md:h-5 text-slate-600" />
+                </div>
+                <div className="flex-1 text-right">
+                  <p className="text-xs text-slate-500 font-semibold mb-1">דמי ניהול לחודשים:</p>
+                  <div className="text-sm text-slate-700 bg-white rounded-lg p-3 border border-slate-200">
+                    {editedRecord?.managementMonthsRaw ? (
+                      <div className="space-y-1">
+                        {editedRecord.managementMonthsRaw.split(/[,،\n]/).map((item, idx) => {
+                          const trimmed = item.trim();
+                          return trimmed ? (
+                            <div key={idx} className="flex items-start gap-2">
+                              <span className="text-blue-600 font-bold">•</span>
+                              <span className="flex-1">{trimmed}</span>
+                            </div>
+                          ) : null;
+                        })}
+                      </div>
+                    ) : (
+                      <span className="text-slate-500">אין נתונים</span>
+                    )}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 
