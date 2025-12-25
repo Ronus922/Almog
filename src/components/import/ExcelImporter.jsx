@@ -24,6 +24,7 @@ const FIXED_COLUMN_MAPPING = {
   phonesRaw: 2,         // C
   totalDebt: 3,         // D
   monthlyDebt: 4,       // E
+  managementMonthsRaw: 5, // F
   hotWaterDebt: 6,      // G
   detailsMonthly: 7     // H
 };
@@ -381,25 +382,26 @@ export default function ExcelImporter({ onImportComplete }) {
       // Build Map with normalized keys
       const existingMap = {};
       for (const record of allExistingRecords) {
-        const normalizedKey = normalizeApartmentKey(record.apartmentNumber);
-        existingMap[normalizedKey] = {
-          id: record.id,
-          phoneOwner: record.phoneOwner,
-          phoneTenant: record.phoneTenant,
-          phonePrimary: record.phonePrimary,
-          phonesRaw: record.phonesRaw,
-          phonesManualOverride: record.phonesManualOverride || false,
-          notes: record.notes,
-          lastContactDate: record.lastContactDate,
-          nextActionDate: record.nextActionDate,
-          legal_status_id: record.legal_status_id,
-          legal_status_overridden: record.legal_status_overridden,
-          legal_status_lock: record.legal_status_lock,
-          legal_status_updated_at: record.legal_status_updated_at,
-          legal_status_updated_by: record.legal_status_updated_by,
-          legal_status_source: record.legal_status_source,
-          legal_status_manual: record.legal_status_manual
-        };
+      const normalizedKey = normalizeApartmentKey(record.apartmentNumber);
+      existingMap[normalizedKey] = {
+      id: record.id,
+      phoneOwner: record.phoneOwner,
+      phoneTenant: record.phoneTenant,
+      phonePrimary: record.phonePrimary,
+      phonesRaw: record.phonesRaw,
+      phonesManualOverride: record.phonesManualOverride || false,
+      managementMonthsRaw: record.managementMonthsRaw,
+      notes: record.notes,
+      lastContactDate: record.lastContactDate,
+      nextActionDate: record.nextActionDate,
+      legal_status_id: record.legal_status_id,
+      legal_status_overridden: record.legal_status_overridden,
+      legal_status_lock: record.legal_status_lock,
+      legal_status_updated_at: record.legal_status_updated_at,
+      legal_status_updated_by: record.legal_status_updated_by,
+      legal_status_source: record.legal_status_source,
+      legal_status_manual: record.legal_status_manual
+      };
       }
       
       console.log(`[Excel Import] PREFETCH: Loaded ${Object.keys(existingMap).length} records`);
@@ -440,6 +442,7 @@ export default function ExcelImporter({ onImportComplete }) {
 
         const ownerNameRaw = (row[FIXED_COLUMN_MAPPING.ownerName] || '').toString().trim();
         const phoneRaw = (row[FIXED_COLUMN_MAPPING.phonesRaw] || '').toString().trim();
+        const managementMonthsRaw = (row[FIXED_COLUMN_MAPPING.managementMonthsRaw] || '').toString().trim();
         const detailsMonthlyRaw = (row[FIXED_COLUMN_MAPPING.detailsMonthly] || '').toString().trim();
         
         const totalDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.totalDebt]);
@@ -531,6 +534,11 @@ export default function ExcelImporter({ onImportComplete }) {
             flaggedAsCleared: false,
             clearedAt: null
           };
+
+          // managementMonthsRaw: רק אם ריק (השלמה בלבד)
+          if (isEmpty(existing.managementMonthsRaw) && managementMonthsRaw) {
+            patch.managementMonthsRaw = managementMonthsRaw;
+          }
           
           if (ownerNameRaw && ownerNameRaw.trim() !== '') {
             patch.ownerName = ownerNameRaw.split(/[\/,]/)[0]?.trim() || '';
@@ -577,6 +585,7 @@ export default function ExcelImporter({ onImportComplete }) {
             specialDebt: hotWaterDebt,
             debt_status_auto,
             detailsMonthly: detailsMonthlyRaw,
+            managementMonthsRaw: managementMonthsRaw || '',
             detailsSpecial: '',
             monthsInArrears: 0,
             importedThisRun: true,
@@ -1033,6 +1042,11 @@ export default function ExcelImporter({ onImportComplete }) {
                     <span className="import-mapping-letter">E</span>
                     <span className="import-mapping-arrow">→</span>
                     <span className="import-mapping-label">דמי ניהול</span>
+                  </div>
+                  <div className="import-mapping-row">
+                    <span className="import-mapping-letter">F</span>
+                    <span className="import-mapping-arrow">→</span>
+                    <span className="import-mapping-label">דמי ניהול לחודשים</span>
                   </div>
                   <div className="import-mapping-row">
                     <span className="import-mapping-letter">G</span>
