@@ -203,6 +203,15 @@ export default function DebtorsTable({
         return sortDir === 'asc' ? aNum - bNum : bNum - aNum;
       }
       
+      // מיון מיוחד למצב משפטי - לפי שם הסטטוס
+      if (sortField === 'legal_status_id') {
+        const aStatus = getLegalStatusForRecord(a);
+        const bStatus = getLegalStatusForRecord(b);
+        const aName = aStatus?.name || 'zzz'; // רשומות ללא סטטוס בסוף
+        const bName = bStatus?.name || 'zzz';
+        return sortDir === 'asc' ? aName.localeCompare(bName) : bName.localeCompare(aName);
+      }
+      
       if (typeof aVal === 'number' && typeof bVal === 'number') {
         return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
       }
@@ -595,7 +604,12 @@ export default function DebtorsTable({
                     סטטוס
                   </div>
                 </TableHead>
-                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">מצב משפטי</TableHead>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('legal_status_id')}>
+                  <div className="flex items-center gap-2 justify-end">
+                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'legal_status_id' ? 'text-blue-600' : 'text-slate-400'}`} />
+                    מצב משפטי
+                  </div>
+                </TableHead>
                 {isAdmin && <TableHead className="text-center font-bold text-slate-700 text-base py-4 px-6" style={{ width: '72px' }}>פעולות</TableHead>}
               </TableRow>
               
