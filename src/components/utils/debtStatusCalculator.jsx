@@ -50,9 +50,9 @@ export function validateThresholds(settings) {
  * מחשב סטטוס חוב אוטומטי - דינמי לפי Settings
  */
 export function calculateDebtStatus(totalDebt, settings, isArchived = false) {
-  // רשומות בארכיון תמיד תקינות
+  // רשומות בארכיון - סטטוס מיוחד
   if (isArchived) {
-    return 'תקין';
+    return 'בארכיון';
   }
 
   const validation = validateThresholds(settings);
@@ -73,9 +73,13 @@ export function calculateDebtStatus(totalDebt, settings, isArchived = false) {
  * מחשב debug string עם פירוט הספים והסטטוס
  */
 export function calculateDebtStatusDebug(totalDebt, settings, isArchived = false) {
-  const validation = validateThresholds(settings);
   const td = totalDebt || 0;
   
+  if (isArchived) {
+    return `td=${td} | isArchived=true | result=בארכיון`;
+  }
+  
+  const validation = validateThresholds(settings);
   if (!validation.valid) {
     return `ERROR: ${validation.error}`;
   }
@@ -83,7 +87,7 @@ export function calculateDebtStatusDebug(totalDebt, settings, isArchived = false
   const { okMax, collectFrom, legalFrom } = validation.thresholds;
   const status = calculateDebtStatus(totalDebt, settings, isArchived);
   
-  return `td=${td} | okMax=${okMax} | collectFrom=${collectFrom} | legalFrom=${legalFrom} | result=${status}${isArchived ? ' | ARCHIVED' : ''}`;
+  return `td=${td} | okMax=${okMax} | collectFrom=${collectFrom} | legalFrom=${legalFrom} | result=${status}`;
 }
 
 /**

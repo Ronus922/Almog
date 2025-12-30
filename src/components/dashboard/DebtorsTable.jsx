@@ -29,7 +29,8 @@ import { toast } from 'sonner';
 const STATUS_COLORS = {
   'תקין': 'bg-green-100 text-green-700 border-green-200',
   'לגבייה מיידית': 'bg-orange-100 text-orange-700 border-orange-200',
-  'חריגה מופרזת': 'bg-[#ff8080] text-white border-[#ff8080]'
+  'חריגה מופרזת': 'bg-[#ff8080] text-white border-[#ff8080]',
+  'בארכיון': 'bg-slate-200 text-slate-700 border-slate-300'
 };
 
 export default function DebtorsTable({ 
