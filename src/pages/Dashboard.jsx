@@ -17,6 +17,7 @@ import ExcelExporter from '../components/export/ExcelExporter';
 import PDFExporter from '../components/export/PDFExporter';
 import LastImportIndicator from '../components/dashboard/LastImportIndicator';
 import { getActiveDebtors, getArchivedDebtors } from '@/components/utils/debtorFilters';
+import { getPhonePrimaryForTable } from '@/components/utils/phoneDisplay';
 
 function DashboardContent() {
   const { currentUser, loading, authChecked } = useAuth();
@@ -58,8 +59,23 @@ function DashboardContent() {
   }, []);
 
   const { data: allRecords = [], isLoading: allRecordsLoading } = useQuery({
-    queryKey: ['allDebtorRecords'],
-    queryFn: () => base44.entities.DebtorRecord.list('-totalDebt'),
+    queryKey: ['allDebtorRecords', refreshKey],
+    queryFn: async () => {
+      const records = await base44.entities.DebtorRecord.list('-totalDebt');
+      // Debug log
+      if (records.length > 0) {
+        const sample = records[0];
+        console.log('[Dashboard] Sample record:', {
+          apartmentNumber: sample.apartmentNumber,
+          phonePrimary: sample.phonePrimary,
+          phoneOwner: sample.phoneOwner,
+          phonePrimaryForTable: getPhonePrimaryForTable(sample)
+        });
+      }
+      return records;
+    },
+    staleTime: 0,
+    cacheTime: 0,
   });
 
   // Apply unique filtering: one record per apartmentNumber (most recent by updated_date)
@@ -114,9 +130,8 @@ function DashboardContent() {
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.DebtorRecord.update(id, data),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
-      queryClient.invalidateQueries({ queryKey: ['archivedRecords'] });
-      queryClient.invalidateQueries({ queryKey: ['allDebtorRecords'] });
+      // Trigger real refresh after save
+      setRefreshKey(Date.now());
       setIsModalOpen(false);
     },
   });
@@ -131,15 +146,12 @@ function DashboardContent() {
   };
 
   const handleRecordUpdate = (recordId) => {
-    // Invalidate both queries to refresh data immediately
-    queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
-    queryClient.invalidateQueries({ queryKey: ['archivedRecords'] });
-    queryClient.invalidateQueries({ queryKey: ['allDebtorRecords'] });
+    // Trigger real refresh
+    setRefreshKey(Date.now());
   };
 
-  const refetchRecords = () => {
-    refetchDebtors();
-    refetchArchived();
+  const handleRefresh = () => {
+    setRefreshKey(Date.now());
   };
 
   const records = activeTab === 'debtors' ? debtorRecords : archivedRecords;
@@ -357,7 +369,7 @@ function DashboardContent() {
                 צפייה בלבד
               </div>
             )}
-            <AppButton variant="outline" size="md" icon={RefreshCw} onClick={() => refetchRecords()}>
+            <AppButton variant="outline" size="md" icon={RefreshCw} onClick={handleRefresh}>
               רענן נתונים
             </AppButton>
             {isAdmin && (
