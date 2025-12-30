@@ -474,8 +474,8 @@ export default function DebtorsTable({
                 <Input
                     placeholder="מספר דירה..."
                     value={apartmentSearch}
-                    onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
-                    className="pr-12 w-40 h-11 rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                    onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}} className="bg-slate-100 px-3 py-1 text-base rounded-xl flex border shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm w-40 h-11 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+
                     inputMode="numeric" />
 
               </div>
@@ -485,8 +485,8 @@ export default function DebtorsTable({
                 <Input
                     placeholder="חיפוש שם או טלפון..."
                     value={search}
-                    onChange={(e) => {setSearch(e.target.value);setPage(1);}}
-                    className="pr-12 w-52 h-11 rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500" />
+                    onChange={(e) => {setSearch(e.target.value);setPage(1);}} className="bg-slate-100 pr-12 px-3 py-1 text-base rounded-xl flex border shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm w-52 h-11 border-slate-300 focus:border-blue-500 focus:ring-blue-500" />
+
 
               </div>
 
