@@ -17,8 +17,10 @@ import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
 import { useAuth } from '@/components/auth/AuthContext';
 import InlineEditableField from './InlineEditableField';
+import DebtSeverityBadge from './DebtSeverityBadge';
+import { calculateDebtStatusDebug } from '../utils/debtStatusCalculator';
 
-export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin }) {
+export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin, settings }) {
   const { currentUser } = useAuth();
   const { data: allStatuses = [] } = useQuery({
     queryKey: ['statuses'],
@@ -419,6 +421,31 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               <div className="text-right p-4 md:p-5 bg-white rounded-xl md:rounded-2xl shadow-sm border-r-4 border-purple-500">
                 <p className="text-xs text-slate-500 font-bold mb-1 md:mb-2">מים חמים</p>
                 <p className="text-xl md:text-2xl font-extrabold text-purple-600">{formatCurrency(record.specialDebt)}</p>
+              </div>
+            </div>
+          </div>
+
+          <Separator className="my-6" />
+
+          {/* סטטוס חוב אוטומטי */}
+          <div className="bg-slate-50/50 rounded-2xl p-4 md:p-6">
+            <h3 className="text-base md:text-lg font-bold text-slate-800 mb-3 md:mb-4 flex items-center gap-2 md:gap-3 text-right">
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-blue-100 flex items-center justify-center">
+                <Scale className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+              </div>
+              סטטוס חוב אוטומטי
+            </h3>
+            <div className="space-y-4">
+              <div className="flex flex-col gap-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-bold text-slate-700">סטטוס חוב אוטומטי:</span>
+                  <DebtSeverityBadge status={record.debt_status_auto} />
+                </div>
+                {settings && (
+                  <div className="text-xs text-slate-500 bg-slate-50 p-2 rounded border border-slate-200 font-mono" dir="ltr">
+                    {calculateDebtStatusDebug(record.totalDebt, settings, record.isArchived)}
+                  </div>
+                )}
               </div>
             </div>
           </div>

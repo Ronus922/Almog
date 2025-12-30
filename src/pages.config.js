@@ -1,4 +1,5 @@
 import AppLogin from './pages/AppLogin';
+import Dashboard from './pages/Dashboard';
 import DataAudit from './pages/DataAudit';
 import DebtorReport from './pages/DebtorReport';
 import DeduplicateRecords from './pages/DeduplicateRecords';
@@ -13,12 +14,12 @@ import StatusManagement from './pages/StatusManagement';
 import StatusWorkflow from './pages/StatusWorkflow';
 import UserManagement from './pages/UserManagement';
 import app from './pages/_app';
-import Dashboard from './pages/Dashboard';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AppLogin": AppLogin,
+    "Dashboard": Dashboard,
     "DataAudit": DataAudit,
     "DebtorReport": DebtorReport,
     "DeduplicateRecords": DeduplicateRecords,
@@ -33,7 +34,6 @@ export const PAGES = {
     "StatusWorkflow": StatusWorkflow,
     "UserManagement": UserManagement,
     "_app": app,
-    "Dashboard": Dashboard,
 }
 
 export const pagesConfig = {

@@ -11,6 +11,8 @@ import {
   Loader2, CheckCircle2, AlertTriangle, RefreshCw
 } from "lucide-react";
 import { base44 } from '@/api/base44Client';
+import { toast } from 'sonner';
+import { calculateDebtStatus, validateThresholds } from '../utils/debtStatusCalculator';
 
 export default function SettingsPanel() {
   const [settings, setSettings] = useState({
@@ -52,12 +54,18 @@ export default function SettingsPanel() {
   };
 
   const recalculateAllStatuses = async () => {
+    // Validate thresholds before recalculation
+    const validation = validateThresholds(settings);
+    if (!validation.valid) {
+      toast.error(validation.error);
+      return;
+    }
+
     setIsRecalculating(true);
     setRecalcSuccess(false);
     setRecalcMessage('');
     
     try {
-      const { calculateDebtStatus } = await import('@/components/utils/debtStatusCalculator');
       const allRecords = await base44.entities.DebtorRecord.list();
       
       let updated = 0;
@@ -87,12 +95,14 @@ export default function SettingsPanel() {
       
       setRecalcSuccess(true);
       setRecalcMessage(`${updated} רשומות עודכנו מתוך ${allRecords.length}`);
+      toast.success(`${updated} רשומות עודכנו בהצלחה`);
       setTimeout(() => {
         setRecalcSuccess(false);
         setRecalcMessage('');
       }, 5000);
     } catch (err) {
       setError('שגיאה בחישוב מחדש של הסטטוסים: ' + err.message);
+      toast.error('שגיאה בחישוב מחדש');
     } finally {
       setIsRecalculating(false);
     }
@@ -103,20 +113,17 @@ export default function SettingsPanel() {
     setError(null);
     setSaveSuccess(false);
 
-    // Validation
-    if (settings.threshold_ok_max >= settings.threshold_collect_from) {
-      setError('סף תקין חייב להיות קטן מסף לגבייה מיידית');
-      setIsSaving(false);
-      return;
-    }
-    if (settings.threshold_collect_from >= settings.threshold_legal_from) {
-      setError('סף לגבייה מיידית חייב להיות קטן מסף טיפול משפטי');
+    // Validate using centralized validator
+    const validation = validateThresholds(settings);
+    if (!validation.valid) {
+      setError(validation.error);
+      toast.error(validation.error);
       setIsSaving(false);
       return;
     }
 
     try {
-      const oldSettings = { ...settings };
+      const oldSettings = settingsId ? await base44.entities.Settings.list().then(l => l[0]) : {};
       
       if (settingsId) {
         await base44.entities.Settings.update(settingsId, settings);
@@ -126,9 +133,10 @@ export default function SettingsPanel() {
       }
       
       setSaveSuccess(true);
+      toast.success('ההגדרות נשמרו בהצלחה');
       
       // בדוק אם הספים השתנו
-      const thresholdsChanged = (
+      const thresholdsChanged = oldSettings && (
         oldSettings.threshold_ok_max !== settings.threshold_ok_max ||
         oldSettings.threshold_collect_from !== settings.threshold_collect_from ||
         oldSettings.threshold_legal_from !== settings.threshold_legal_from
@@ -136,6 +144,7 @@ export default function SettingsPanel() {
       
       if (thresholdsChanged) {
         // הפעל ריענון אוטומטי
+        toast.info('הספים השתנו - מעדכן סטטוסים אוטומטית...');
         setTimeout(() => {
           recalculateAllStatuses();
         }, 500);
@@ -144,6 +153,7 @@ export default function SettingsPanel() {
       }
     } catch (err) {
       setError(err.message || 'שגיאה בשמירת ההגדרות');
+      toast.error('שגיאה בשמירת ההגדרות');
     } finally {
       setIsSaving(false);
     }

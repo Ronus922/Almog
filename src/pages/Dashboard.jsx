@@ -454,6 +454,7 @@ function DashboardContent() {
           onClose={() => setIsModalOpen(false)}
           onSave={handleSaveRecord}
           isAdmin={isAdmin}
+          settings={settings}
         />
       </div>
     </div>
