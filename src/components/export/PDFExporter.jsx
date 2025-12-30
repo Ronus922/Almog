@@ -8,28 +8,28 @@ import html2pdf from 'html2pdf.js';
 
 export default function PDFExporter({ records, statuses, settings }) {
   const [isExporting, setIsExporting] = useState(false);
-  
+
   const handleExport = async () => {
     if (!records || records.length === 0) {
       toast.error('אין נתונים לייצוא');
       return;
     }
-    
+
     console.log(`[PDF Export] Starting export of ${records.length} records`);
     setIsExporting(true);
-    
+
     try {
       const totalRecords = records.length;
-      const exportDate = new Date().toLocaleDateString('he-IL', { 
-        year: 'numeric', 
-        month: 'long', 
+      const exportDate = new Date().toLocaleDateString('he-IL', {
+        year: 'numeric',
+        month: 'long',
         day: 'numeric',
         hour: '2-digit',
         minute: '2-digit'
       });
 
       console.log(`[PDF Export] Exporting ${totalRecords} records`);
-      
+
       // Create HTML content for PDF
       const htmlContent = `
         <div id="pdf-root" dir="rtl" lang="he" style="direction: rtl; text-align: right; unicode-bidi: plaintext; font-family: Arial, sans-serif;">
@@ -111,11 +111,11 @@ export default function PDFExporter({ records, statuses, settings }) {
               </tr>
             </thead>
             <tbody>
-              ${records.map(record => {
-                const legalStatus = statuses?.find(s => s.id === record.legal_status_id && s.type === 'LEGAL');
-                const legalStatusName = legalStatus?.name || 'לא הוגדר';
+              ${records.map((record) => {
+        const legalStatus = statuses?.find((s) => s.id === record.legal_status_id && s.type === 'LEGAL');
+        const legalStatusName = legalStatus?.name || 'לא הוגדר';
 
-                return `
+        return `
                   <tr>
                     <td><span class="num">${record.apartmentNumber || ''}</span></td>
                     <td>${record.ownerName || ''}</td>
@@ -127,45 +127,45 @@ export default function PDFExporter({ records, statuses, settings }) {
                     <td>${legalStatusName}</td>
                   </tr>
                 `;
-              }).join('')}
+      }).join('')}
             </tbody>
           </table>
         </div>
       `;
-      
+
       // Create temporary element
       const tempDiv = document.createElement('div');
       tempDiv.innerHTML = htmlContent;
       tempDiv.style.position = 'absolute';
       tempDiv.style.left = '-9999px';
       document.body.appendChild(tempDiv);
-      
+
       // Wait for fonts
       await document.fonts.ready;
-      
+
       // Generate PDF
-      await html2pdf()
-        .set({
-          margin: 10,
-          filename: `חייבים_${new Date().toISOString().split('T')[0]}.pdf`,
-          image: { type: 'jpeg', quality: 0.98 },
-          html2canvas: {
-            scale: 1,
-            useCORS: true,
-            backgroundColor: '#ffffff'
-          },
-          jsPDF: {
-            unit: 'mm',
-            format: 'a4',
-            orientation: 'portrait'
-          }
-        })
-        .from(tempDiv.querySelector('#pdf-root'))
-        .save();
-      
+      await html2pdf().
+      set({
+        margin: 10,
+        filename: `חייבים_${new Date().toISOString().split('T')[0]}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+          scale: 1,
+          useCORS: true,
+          backgroundColor: '#ffffff'
+        },
+        jsPDF: {
+          unit: 'mm',
+          format: 'a4',
+          orientation: 'portrait'
+        }
+      }).
+      from(tempDiv.querySelector('#pdf-root')).
+      save();
+
       // Cleanup
       document.body.removeChild(tempDiv);
-      
+
       console.log(`[PDF Export] Successfully exported ${totalRecords} records`);
       toast.success(`הקובץ יוצא בהצלחה (${totalRecords} רשומות)`);
     } catch (error) {
@@ -177,15 +177,15 @@ export default function PDFExporter({ records, statuses, settings }) {
   };
 
   return (
-    <AppButton 
-      variant="secondary" 
+    <AppButton
+      variant="secondary"
       size="md"
       icon={FileText}
       onClick={handleExport}
       loading={isExporting}
-      disabled={!records || records.length === 0}
-    >
+      disabled={!records || records.length === 0} className="bg-[#5492d9] text-slate-50 px-5 text-base font-semibold rounded-xl inline-flex items-center justify-center gap-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-200 border border-slate-300 h-11">
+
       ייצוא ל-PDF
-    </AppButton>
-  );
+    </AppButton>);
+
 }
