@@ -76,7 +76,7 @@ export default function SettingsPanel() {
         
         await Promise.all(
           batch.map(async (record) => {
-            const newStatus = calculateDebtStatus(record.totalDebt, settings, record.isArchived);
+            const newStatus = calculateDebtStatus(record.totalDebt, settings);
             
             if (record.debt_status_auto !== newStatus) {
               await base44.entities.DebtorRecord.update(record.id, {
