@@ -503,14 +503,9 @@ export default function ExcelImporter({ onImportComplete }) {
         const monthlyDebt = monthlyDebtClean.value;
         const hotWaterDebt = hotWaterDebtClean.value;
 
-        let debt_status_auto = 'תקין';
-        if (totalDebt === 0) {
-          debt_status_auto = 'תקין';
-        } else if (totalDebt > settings.threshold_legal_from) {
-          debt_status_auto = 'חריגה מופרזת';
-        } else if (totalDebt > settings.threshold_collect_from) {
-          debt_status_auto = 'לגבייה מיידית';
-        }
+        // חישוב סטטוס אוטומטי - שימוש בפונקציה המרכזית
+        const { calculateDebtStatus } = await import('@/components/utils/debtStatusCalculator');
+        const debt_status_auto = calculateDebtStatus(totalDebt, settings, false);
 
         const existing = existingMap[apartmentKey];
         const isEmpty = (val) => {
