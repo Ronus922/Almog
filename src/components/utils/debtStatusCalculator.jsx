@@ -50,10 +50,7 @@ export function validateThresholds(settings) {
  * מחשב סטטוס חוב אוטומטי - דינמי לפי Settings
  */
 export function calculateDebtStatus(totalDebt, settings, isArchived = false) {
-  // רשומות בארכיון תמיד תקינות
-  if (isArchived) {
-    return 'תקין';
-  }
+  // NOTE: isArchived does NOT affect status. Archive is a tab/filter only.
 
   const validation = validateThresholds(settings);
   if (!validation.valid) {
@@ -61,8 +58,11 @@ export function calculateDebtStatus(totalDebt, settings, isArchived = false) {
     return 'תקין'; // fallback
   }
 
-  const { okMax, collectFrom, legalFrom } = validation.thresholds;
-  const td = totalDebt || 0;
+  const { collectFrom, legalFrom } = validation.thresholds;
+
+  // חשוב: אל תשתמש ב-"totalDebt || 0" כי 0 תקין אבל גם NaN/undefined צריך טיפול ברור
+  const tdNum = Number(String(totalDebt ?? '').replace(/[^\d.]/g, ''));
+  const td = Number.isFinite(tdNum) ? tdNum : 0;
 
   if (td >= legalFrom) return 'חריגה מופרזת';
   if (td >= collectFrom) return 'לגבייה מיידית';
