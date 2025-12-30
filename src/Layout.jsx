@@ -246,10 +246,10 @@ function LayoutContent({ children, currentPageName }) {
       <AuthProvider>
       <ImportProvider>
         <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;600;700;800;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:wght@300;400;500;600;700;800;900&display=swap');
 
         * {
-          font-family: 'Heebo', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+          font-family: 'Noto Sans Hebrew', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
           letter-spacing: -0.01em;
         }
         html {
@@ -268,7 +268,7 @@ function LayoutContent({ children, currentPageName }) {
         strong, b {
           font-weight: 700;
         }
-      `}</style>
+        `}</style>
         <LayoutContent children={children} currentPageName={currentPageName} />
       </ImportProvider>
       </AuthProvider>
