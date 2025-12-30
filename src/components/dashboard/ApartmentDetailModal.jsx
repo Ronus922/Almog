@@ -443,7 +443,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 </div>
                 {settings && (
                   <div className="text-xs text-slate-500 bg-slate-50 p-2 rounded border border-slate-200 font-mono" dir="ltr">
-                    {calculateDebtStatusDebug(record.totalDebt, settings, record.isArchived)}
+                    {calculateDebtStatusDebug(record.totalDebt, settings)}
                   </div>
                 )}
               </div>

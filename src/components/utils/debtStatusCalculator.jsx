@@ -81,9 +81,9 @@ export function calculateDebtStatusDebug(totalDebt, settings, isArchived = false
   }
 
   const { okMax, collectFrom, legalFrom } = validation.thresholds;
-  const status = calculateDebtStatus(totalDebt, settings, isArchived);
+  const status = calculateDebtStatus(totalDebt, settings);
   
-  return `td=${td} | okMax=${okMax} | collectFrom=${collectFrom} | legalFrom=${legalFrom} | result=${status}${isArchived ? ' | ARCHIVED' : ''}`;
+  return `td=${td} | okMax=${okMax} | collectFrom=${collectFrom} | legalFrom=${legalFrom} | result=${status}`;
 }
 
 /**
@@ -92,7 +92,7 @@ export function calculateDebtStatusDebug(totalDebt, settings, isArchived = false
  */
 export function shouldUpdateDebtStatus(record, settings) {
   const currentStatus = record.debt_status_auto || 'תקין';
-  const calculatedStatus = calculateDebtStatus(record.totalDebt, settings, record.isArchived);
+  const calculatedStatus = calculateDebtStatus(record.totalDebt, settings);
 
   if (currentStatus !== calculatedStatus) {
     return {
