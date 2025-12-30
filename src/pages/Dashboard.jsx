@@ -22,6 +22,7 @@ function DashboardContent() {
   const { currentUser, loading, authChecked } = useAuth();
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(Date.now());
   const [statusFilterFromUrl, setStatusFilterFromUrl] = useState(null);
   const [filteredDataset, setFilteredDataset] = useState([]);
   const [activeTab, setActiveTab] = useState('debtors');

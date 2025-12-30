@@ -23,7 +23,7 @@ import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X, SlidersHoriz
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import DebtorCard from './DebtorCard';
 import { normalizeApartmentNumber } from '../utils/apartmentNormalizer';
-import { getPhoneForTable, formatPhoneForDisplay } from '../utils/phoneDisplay';
+import { getPhonePrimaryForTable, formatPhoneForDisplay } from '../utils/phoneDisplay';
 import { toast } from 'sonner';
 
 const STATUS_COLORS = {
@@ -756,7 +756,7 @@ export default function DebtorsTable({
                       ) : '-'}
                     </TableCell>
                     <TableCell className="text-base font-medium text-slate-600 py-6 px-6 align-middle text-right" dir="rtl">
-                      {formatPhoneForDisplay(getPhoneForTable(record))}
+                      {formatPhoneForDisplay(getPhonePrimaryForTable(record))}
                     </TableCell>
                     <TableCell className="py-6 px-6 align-middle text-center">
                       <span className="font-bold text-lg text-rose-600">{formatCurrency(record.totalDebt)}</span>

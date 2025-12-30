@@ -4,43 +4,34 @@
  */
 
 /**
- * בודק אם ערך טלפון תקין
+ * ניקוי ערך טלפון - מחזיר null אם לא תקין
  */
-function isValidPhone(phone) {
-  if (!phone) return false;
+export function normalizePhone(v) {
+  if (v === null || v === undefined) return null;
   
-  const cleaned = String(phone).trim();
+  const s = String(v).trim();
   
-  // ריק או whitespace
-  if (cleaned === '') return false;
+  // ריק
+  if (s === '') return null;
+  
+  // ערכים לא תקינים
+  if (s === '—' || s === '-') return null;
   
   // רק אפסים
-  if (/^0+$/.test(cleaned.replace(/\D/g, ''))) return false;
+  const digits = s.replace(/\D/g, '');
+  if (digits === '0' || digits === '000000000' || /^0+$/.test(digits)) return null;
   
-  // ערכים שליליים
-  if (cleaned === '-' || cleaned === '—' || cleaned.toLowerCase() === 'אין מספר') return false;
-  
-  return true;
+  return s;
 }
 
 /**
  * מחזיר טלפון להצגה בטבלה לפי כללי Fallback
  * @param {object} record - רשומת חייב
- * @returns {string} טלפון להצגה או ריק
+ * @returns {string} טלפון להצגה
  */
-export function getPhoneForTable(record) {
-  // 1. נסה phonePrimary (phoneDisplay)
-  if (isValidPhone(record.phonePrimary)) {
-    return record.phonePrimary.trim();
-  }
-  
-  // 2. נסה phoneOwner
-  if (isValidPhone(record.phoneOwner)) {
-    return record.phoneOwner.trim();
-  }
-  
-  // 3. ריק
-  return '';
+export function getPhonePrimaryForTable(record) {
+  // phonePrimaryForTable = normalizePhone(phonePrimary) ?? normalizePhone(phoneOwner) ?? null
+  return normalizePhone(record.phonePrimary) ?? normalizePhone(record.phoneOwner) ?? null;
 }
 
 /**
