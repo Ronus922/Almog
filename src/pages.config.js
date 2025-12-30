@@ -2,7 +2,6 @@ import AppLogin from './pages/AppLogin';
 import Dashboard from './pages/Dashboard';
 import DataAudit from './pages/DataAudit';
 import DebtorReport from './pages/DebtorReport';
-import DeduplicateRecords from './pages/DeduplicateRecords';
 import Home from './pages/Home';
 import Import from './pages/Import';
 import LegalStatusMigration from './pages/LegalStatusMigration';
@@ -14,6 +13,7 @@ import StatusManagement from './pages/StatusManagement';
 import StatusWorkflow from './pages/StatusWorkflow';
 import UserManagement from './pages/UserManagement';
 import app from './pages/_app';
+import DeduplicateRecords from './pages/DeduplicateRecords';
 import __Layout from './Layout.jsx';
 
 
@@ -22,7 +22,6 @@ export const PAGES = {
     "Dashboard": Dashboard,
     "DataAudit": DataAudit,
     "DebtorReport": DebtorReport,
-    "DeduplicateRecords": DeduplicateRecords,
     "Home": Home,
     "Import": Import,
     "LegalStatusMigration": LegalStatusMigration,
@@ -34,6 +33,7 @@ export const PAGES = {
     "StatusWorkflow": StatusWorkflow,
     "UserManagement": UserManagement,
     "_app": app,
+    "DeduplicateRecords": DeduplicateRecords,
 }
 
 export const pagesConfig = {
