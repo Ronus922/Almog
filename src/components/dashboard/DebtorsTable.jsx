@@ -604,6 +604,9 @@ export default function DebtorsTable({
                     סטטוס
                   </div>
                 </TableHead>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">
+                  Debug
+                </TableHead>
                 <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('legal_status_id')}>
                   <div className="flex items-center gap-2 justify-end">
                     <ArrowUpDown className={`w-5 h-5 ${sortField === 'legal_status_id' ? 'text-blue-600' : 'text-slate-400'}`} />
@@ -705,7 +708,7 @@ export default function DebtorsTable({
               {/* Filter Actions Row */}
               {showAdvancedFilters && (
                 <TableRow className="bg-blue-50/30 border-b border-blue-200">
-                  <TableHead colSpan={isAdmin ? 9 : 8} className="py-3 px-6">
+                  <TableHead colSpan={isAdmin ? 10 : 9} className="py-3 px-6">
                     <div className="flex items-center justify-end" dir="rtl">
                       <Button 
                         variant="outline" 
@@ -724,7 +727,7 @@ export default function DebtorsTable({
             <TableBody>
               {paginatedRecords.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={isAdmin ? 9 : 8} className="text-center py-12">
+                  <TableCell colSpan={isAdmin ? 10 : 9} className="text-center py-12">
                     <div className="flex flex-col items-center gap-3">
                       <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center">
                         <Filter className="w-8 h-8 text-slate-400" />
@@ -768,6 +771,11 @@ export default function DebtorsTable({
                       <Badge variant="outline" className={`${STATUS_COLORS[record.debt_status_auto] || STATUS_COLORS['תקין']} min-w-[96px] h-8 px-3 inline-flex items-center justify-center text-sm font-medium whitespace-nowrap transition-all duration-200 hover:opacity-80`}>
                         {record.debt_status_auto || 'תקין'}
                       </Badge>
+                    </TableCell>
+                    <TableCell className="py-6 px-6 align-middle text-right">
+                      <div className="text-xs text-slate-500 font-mono max-w-[200px] truncate" title={record.debt_status_debug}>
+                        {record.debt_status_debug || '-'}
+                      </div>
                     </TableCell>
                     <TableCell className="py-6 px-6 align-middle text-center">
                       {(() => {
