@@ -305,7 +305,7 @@ export default function DebtorsTable({
   return (
     <TooltipProvider>
     <Card className="border-0 shadow-xl rounded-2xl overflow-hidden">
-      <CardHeader className="bg-slate-200 pt-4 pb-4 p-6 flex flex-col space-y-1.5 md:pb-6 md:pt-6 from-white to-slate-50 border-b border-slate-200">
+      <CardHeader className="pb-4 md:pb-6 pt-4 md:pt-6 bg-gradient-to-l from-white to-slate-50 border-b border-slate-200">
         <div className="flex flex-col gap-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
@@ -474,8 +474,8 @@ export default function DebtorsTable({
                 <Input
                     placeholder="מספר דירה..."
                     value={apartmentSearch}
-                    onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}} className="bg-slate-100 px-3 py-1 text-base rounded-xl flex border shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm w-40 h-11 border-slate-300 focus:border-blue-500 focus:ring-blue-500"
-
+                    onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
+                    className="pr-12 w-40 h-11 rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                     inputMode="numeric" />
 
               </div>
@@ -485,8 +485,8 @@ export default function DebtorsTable({
                 <Input
                     placeholder="חיפוש שם או טלפון..."
                     value={search}
-                    onChange={(e) => {setSearch(e.target.value);setPage(1);}} className="bg-slate-100 pr-12 px-3 py-1 text-base rounded-xl flex border shadow-sm transition-colors file:border-0 file:bg-transparent file:text-sm file:font-medium file:text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50 md:text-sm w-52 h-11 border-slate-300 focus:border-blue-500 focus:ring-blue-500" />
-
+                    onChange={(e) => {setSearch(e.target.value);setPage(1);}}
+                    className="pr-12 w-52 h-11 rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500" />
 
               </div>
 
@@ -505,8 +505,8 @@ export default function DebtorsTable({
               <Button
                   variant={showAdvancedFilters ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)} className="bg-sky-100 text-slate-800 px-4 text-xs font-medium rounded-xl inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input shadow-sm hover:bg-accent hover:text-accent-foreground h-11"
-
+                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                  className="h-11 rounded-xl px-4"
                   style={{
                     fontSize: '15px',
                     fontWeight: 800,
