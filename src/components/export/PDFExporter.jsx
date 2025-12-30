@@ -183,8 +183,9 @@ export default function PDFExporter({ records, statuses, settings }) {
       icon={FileText}
       onClick={handleExport}
       loading={isExporting}
-      disabled={!records || records.length === 0} className="bg-[#5492d9] text-slate-50 px-5 text-base font-semibold rounded-xl inline-flex items-center justify-center gap-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-200 border border-slate-300 h-11">
-
+      disabled={!records || records.length === 0}
+      className="hover:text-slate-900"
+    >
       ייצוא ל-PDF
     </AppButton>);
 

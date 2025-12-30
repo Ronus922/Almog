@@ -56,7 +56,7 @@ export default function AppButton({
       Icon ?
       <Icon className="w-5 h-5" /> :
       null}
-      <span className="text-slate-50">{children}</span>
+      <span>{children}</span>
     </button>);
 
 }

@@ -369,7 +369,7 @@ function DashboardContent() {
                 צפייה בלבד
               </div>
             }
-            <AppButton variant="outline" size="md" icon={RefreshCw} onClick={handleRefresh} className="bg-[#5492d9] text-slate-50 px-5 text-base font-semibold rounded-xl inline-flex items-center justify-center gap-2 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-slate-50 border-2 border-slate-300 hover:border-slate-400 h-11">
+            <AppButton variant="outline" size="md" icon={RefreshCw} onClick={handleRefresh} className="hover:text-slate-900">
               רענן נתונים
             </AppButton>
             {isAdmin &&
