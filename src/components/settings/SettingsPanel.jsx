@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Settings, Building2, Scale, Webhook, Save, 
-  Loader2, CheckCircle2, AlertTriangle
+  Loader2, CheckCircle2, AlertTriangle, RefreshCw
 } from "lucide-react";
 import { base44 } from '@/api/base44Client';
 
@@ -29,6 +29,9 @@ export default function SettingsPanel() {
   const [isSaving, setIsSaving] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [error, setError] = useState(null);
+  const [isRecalculating, setIsRecalculating] = useState(false);
+  const [recalcSuccess, setRecalcSuccess] = useState(false);
+  const [recalcMessage, setRecalcMessage] = useState('');
 
   useEffect(() => {
     loadSettings();
@@ -45,6 +48,53 @@ export default function SettingsPanel() {
       console.error('Error loading settings:', err);
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const recalculateAllStatuses = async () => {
+    setIsRecalculating(true);
+    setRecalcSuccess(false);
+    setRecalcMessage('');
+    
+    try {
+      const { calculateDebtStatus } = await import('@/components/utils/debtStatusCalculator');
+      const allRecords = await base44.entities.DebtorRecord.list();
+      
+      let updated = 0;
+      const batchSize = 10;
+      
+      for (let i = 0; i < allRecords.length; i += batchSize) {
+        const batch = allRecords.slice(i, i + batchSize);
+        
+        await Promise.all(
+          batch.map(async (record) => {
+            const newStatus = calculateDebtStatus(record.totalDebt, settings, record.isArchived);
+            
+            if (record.debt_status_auto !== newStatus) {
+              await base44.entities.DebtorRecord.update(record.id, {
+                debt_status_auto: newStatus
+              });
+              updated++;
+            }
+          })
+        );
+        
+        // Throttle to avoid rate limits
+        if (i + batchSize < allRecords.length) {
+          await new Promise(resolve => setTimeout(resolve, 100));
+        }
+      }
+      
+      setRecalcSuccess(true);
+      setRecalcMessage(`${updated} רשומות עודכנו מתוך ${allRecords.length}`);
+      setTimeout(() => {
+        setRecalcSuccess(false);
+        setRecalcMessage('');
+      }, 5000);
+    } catch (err) {
+      setError('שגיאה בחישוב מחדש של הסטטוסים: ' + err.message);
+    } finally {
+      setIsRecalculating(false);
     }
   };
 
@@ -66,6 +116,8 @@ export default function SettingsPanel() {
     }
 
     try {
+      const oldSettings = { ...settings };
+      
       if (settingsId) {
         await base44.entities.Settings.update(settingsId, settings);
       } else {
@@ -74,7 +126,22 @@ export default function SettingsPanel() {
       }
       
       setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 3000);
+      
+      // בדוק אם הספים השתנו
+      const thresholdsChanged = (
+        oldSettings.threshold_ok_max !== settings.threshold_ok_max ||
+        oldSettings.threshold_collect_from !== settings.threshold_collect_from ||
+        oldSettings.threshold_legal_from !== settings.threshold_legal_from
+      );
+      
+      if (thresholdsChanged) {
+        // הפעל ריענון אוטומטי
+        setTimeout(() => {
+          recalculateAllStatuses();
+        }, 500);
+      } else {
+        setTimeout(() => setSaveSuccess(false), 3000);
+      }
     } catch (err) {
       setError(err.message || 'שגיאה בשמירת ההגדרות');
     } finally {
@@ -236,23 +303,54 @@ export default function SettingsPanel() {
       {saveSuccess && (
         <Alert className="bg-green-50 border-green-200">
           <CheckCircle2 className="w-4 h-4 text-green-600" />
-          <AlertDescription className="text-green-700">ההגדרות נשמרו בהצלחה</AlertDescription>
+          <AlertDescription className="text-green-700">
+            ההגדרות נשמרו בהצלחה
+            {isRecalculating && ' • הסטטוסים מתרעננים...'}
+          </AlertDescription>
         </Alert>
       )}
 
-      <Button onClick={handleSave} disabled={isSaving} className="w-full">
-        {isSaving ? (
-          <>
-            <Loader2 className="w-4 h-4 ml-2 animate-spin" />
-            שומר...
-          </>
-        ) : (
-          <>
-            <Save className="w-4 h-4 ml-2" />
-            שמור הגדרות
-          </>
-        )}
-      </Button>
+      {recalcSuccess && (
+        <Alert className="bg-blue-50 border-blue-200">
+          <CheckCircle2 className="w-4 h-4 text-blue-600" />
+          <AlertDescription className="text-blue-700">{recalcMessage}</AlertDescription>
+        </Alert>
+      )}
+
+      <div className="flex gap-3">
+        <Button onClick={handleSave} disabled={isSaving || isRecalculating} className="flex-1">
+          {isSaving ? (
+            <>
+              <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+              שומר...
+            </>
+          ) : (
+            <>
+              <Save className="w-4 h-4 ml-2" />
+              שמור הגדרות
+            </>
+          )}
+        </Button>
+        
+        <Button 
+          onClick={recalculateAllStatuses} 
+          disabled={isSaving || isRecalculating}
+          variant="outline"
+          className="flex-1"
+        >
+          {isRecalculating ? (
+            <>
+              <Loader2 className="w-4 h-4 ml-2 animate-spin" />
+              מעדכן...
+            </>
+          ) : (
+            <>
+              <RefreshCw className="w-4 h-4 ml-2" />
+              רענן סטטוסים
+            </>
+          )}
+        </Button>
+      </div>
     </div>
   );
 }
