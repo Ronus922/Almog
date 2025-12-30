@@ -603,6 +603,19 @@ export default function DebtorsTable({
                   <div className="flex items-center gap-2 justify-end">
                     <ArrowUpDown className={`w-5 h-5 ${sortField === 'debt_status_auto' ? 'text-blue-600' : 'text-slate-400'}`} />
                     סטטוס
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <span className="text-xs text-slate-400 cursor-help">ⓘ</span>
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs text-xs" dir="rtl">
+                        <p>סטטוס מחושב דינמית לפי הספים בהגדרות:</p>
+                        <p className="mt-1 font-mono text-[10px]">
+                          תקין: עד {settings?.threshold_ok_max || 1000}₪<br/>
+                          גבייה: {settings?.threshold_collect_from || 1500}₪+<br/>
+                          משפטי: {settings?.threshold_legal_from || 5000}₪+
+                        </p>
+                      </TooltipContent>
+                    </Tooltip>
                   </div>
                 </TableHead>
                 <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('legal_status_id')}>
