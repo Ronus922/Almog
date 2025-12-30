@@ -49,14 +49,14 @@ export default function AppButton({
         fullWidth && 'w-full',
         className
       )}
-      {...props}
-    >
-      {loading ? (
-        <Loader2 className="w-5 h-5 animate-spin" />
-      ) : Icon ? (
-        <Icon className="w-5 h-5" />
-      ) : null}
-      <span>{children}</span>
-    </button>
-  );
+      {...props}>
+
+      {loading ?
+      <Loader2 className="w-5 h-5 animate-spin" /> :
+      Icon ?
+      <Icon className="w-5 h-5" /> :
+      null}
+      <span className="text-slate-50">{children}</span>
+    </button>);
+
 }
