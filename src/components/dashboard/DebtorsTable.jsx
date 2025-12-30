@@ -505,8 +505,8 @@ export default function DebtorsTable({
               <Button
                   variant={showAdvancedFilters ? "default" : "outline"}
                   size="sm"
-                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                  className="h-11 rounded-xl px-4"
+                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)} className="bg-sky-100 px-4 text-xs font-medium rounded-xl inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input shadow-sm hover:bg-accent hover:text-accent-foreground h-11"
+
                   style={{
                     fontSize: '15px',
                     fontWeight: 800,
