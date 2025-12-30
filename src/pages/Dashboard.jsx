@@ -9,6 +9,7 @@ import AppButton from "@/components/ui/app-button";
 import { Loader2, Building2, RefreshCw, X, Users, Archive } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { isManagerRole } from '@/components/utils/roles';
+import { getDebtStatus, getActiveSettings } from '@/components/utils/debtStatusCalculator';
 
 import KPICards from '../components/dashboard/KPICards';
 import DebtorsTable from '../components/dashboard/DebtorsTable';
@@ -17,6 +18,7 @@ import ExcelExporter from '../components/export/ExcelExporter';
 import PDFExporter from '../components/export/PDFExporter';
 import LastImportIndicator from '../components/dashboard/LastImportIndicator';
 import { getActiveDebtors, getArchivedDebtors } from '@/components/utils/debtorFilters';
+import { toast } from 'sonner';
 
 function DashboardContent() {
   const { currentUser, loading, authChecked } = useAuth();
@@ -25,6 +27,7 @@ function DashboardContent() {
   const [statusFilterFromUrl, setStatusFilterFromUrl] = useState(null);
   const [filteredDataset, setFilteredDataset] = useState([]);
   const [activeTab, setActiveTab] = useState('debtors');
+  const [isRefreshingStatuses, setIsRefreshingStatuses] = useState(false);
   const queryClient = useQueryClient();
 
   // CRITICAL: Require authentication
@@ -139,6 +142,58 @@ function DashboardContent() {
   const refetchRecords = () => {
     refetchDebtors();
     refetchArchived();
+  };
+
+  const handleRefreshStatuses = async () => {
+    if (isRefreshingStatuses) return;
+    
+    setIsRefreshingStatuses(true);
+    try {
+      // Fetch active settings
+      const activeSettings = getActiveSettings(settingsList);
+      
+      if (!activeSettings) {
+        toast.error('לא נמצאו הגדרות פעילות');
+        setIsRefreshingStatuses(false);
+        return;
+      }
+
+      // Validate thresholds
+      const testResult = getDebtStatus(0, false, activeSettings);
+      if (testResult.error) {
+        toast.error('הגדרות לא תקינות - בדוק את הסכומים בעמוד הגדרות');
+        setIsRefreshingStatuses(false);
+        return;
+      }
+
+      // Update all records (both active and archived)
+      let updatedCount = 0;
+      for (const record of allRecords) {
+        const { status, debug } = getDebtStatus(
+          record.totalDebt,
+          record.isArchived,
+          activeSettings
+        );
+
+        // Only update if changed
+        if (record.debt_status_auto !== status || record.debt_status_debug !== debug) {
+          await base44.entities.DebtorRecord.update(record.id, {
+            debt_status_auto: status,
+            debt_status_debug: debug
+          });
+          updatedCount++;
+        }
+      }
+
+      toast.success(`עודכנו ${updatedCount} רשומות`);
+      queryClient.invalidateQueries({ queryKey: ['allDebtorRecords'] });
+      
+    } catch (error) {
+      console.error('Refresh statuses error:', error);
+      toast.error('שגיאה בעדכון סטטוסים');
+    } finally {
+      setIsRefreshingStatuses(false);
+    }
   };
 
   const records = activeTab === 'debtors' ? debtorRecords : archivedRecords;
@@ -361,6 +416,14 @@ function DashboardContent() {
             </AppButton>
             {isAdmin && (
               <>
+                <Button
+                  onClick={handleRefreshStatuses}
+                  disabled={isRefreshingStatuses}
+                  variant="outline"
+                  className="rounded-xl h-10 px-4 text-sm font-bold border-2"
+                >
+                  {isRefreshingStatuses ? 'מעדכן...' : 'רענן סטטוסים'}
+                </Button>
                 <ExcelExporter records={filteredDataset.length > 0 ? filteredDataset : records} statuses={allStatuses} />
                 <PDFExporter records={filteredDataset.length > 0 ? filteredDataset : records} statuses={allStatuses} settings={settings} />
               </>
