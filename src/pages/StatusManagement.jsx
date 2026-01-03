@@ -48,9 +48,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
-import { Plus, Edit, Trash2, Shield, Loader2, Save, X, ArrowRight, SlidersHorizontal, Wrench } from "lucide-react";
+import { Plus, Edit, Trash2, Shield, Loader2, Save, X, ArrowRight, SlidersHorizontal, Wrench, Palette } from "lucide-react";
 import { toast } from "sonner";
 import { isManagerRole, getUserRoleDisplay } from '@/components/utils/roles';
+import ColorPicker from '../components/status/ColorPicker';
 
 const COLOR_OPTIONS = [
   { value: 'bg-green-100 text-green-700 border-green-200', label: 'ירוק', preview: 'bg-green-100 border-green-200' },
@@ -80,6 +81,7 @@ export default function StatusManagement() {
   const [workflowStatusId, setWorkflowStatusId] = useState(null);
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     type: 'LEGAL',
@@ -584,21 +586,20 @@ export default function StatusManagement() {
             </div>
             <div>
               <Label>צבע תג</Label>
-              <Select value={formData.color} onValueChange={(v) => setFormData({...formData, color: v})}>
-                <SelectTrigger className="text-right" dir="rtl">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent dir="rtl">
-                  {COLOR_OPTIONS.map(opt => (
-                    <SelectItem key={opt.value} value={opt.value}>
-                      <div className="flex items-center gap-2">
-                        <div className={`w-5 h-5 rounded border ${opt.preview}`} />
-                        {opt.label}
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <div className="flex items-center gap-3 mt-2">
+                <Badge className={`${formData.color} border px-4 py-2 text-sm font-semibold`}>
+                  {formData.name || 'תצוגה מקדימה'}
+                </Badge>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsColorPickerOpen(true)}
+                  className="gap-2"
+                >
+                  <Palette className="w-4 h-4" />
+                  בחר צבע
+                </Button>
+              </div>
             </div>
             <div className="flex items-center justify-between">
               <Label>סטטוס פעיל</Label>
@@ -742,6 +743,15 @@ export default function StatusManagement() {
           isAdmin={isAdmin}
           />
           )}
+
+      {/* Color Picker */}
+      <ColorPicker
+        open={isColorPickerOpen}
+        onClose={() => setIsColorPickerOpen(false)}
+        currentColor={formData.color}
+        onSelectColor={(color) => setFormData({...formData, color})}
+        statusName={formData.name || 'סטטוס'}
+      />
 
           {/* Debug Panel */}
           <AuthDebugPanel currentUser={currentUser} />
