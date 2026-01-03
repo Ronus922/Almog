@@ -52,6 +52,7 @@ import { Plus, Edit, Trash2, Shield, Loader2, Save, X, ArrowRight, SlidersHorizo
 import { toast } from "sonner";
 import { isManagerRole, getUserRoleDisplay } from '@/components/utils/roles';
 import ColorPicker from '../components/status/ColorPicker';
+import ColorBulkEditor from '../components/status/ColorBulkEditor';
 
 const COLOR_OPTIONS = [
   { value: 'bg-green-100 text-green-700 border-green-200', label: 'ירוק', preview: 'bg-green-100 border-green-200' },
@@ -82,6 +83,7 @@ export default function StatusManagement() {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
   const [isColorPickerOpen, setIsColorPickerOpen] = useState(false);
+  const [isBulkColorEditorOpen, setIsBulkColorEditorOpen] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     type: 'LEGAL',
@@ -449,6 +451,15 @@ export default function StatusManagement() {
               עדכן דירה-דירה
             </Button>
 
+            <Button
+              variant="outline"
+              onClick={() => setIsBulkColorEditorOpen(true)}
+              className="gap-2 bg-purple-50 hover:bg-purple-100 border-purple-300 text-purple-700"
+            >
+              <Palette className="w-5 h-5" />
+              ערוך צבעים
+            </Button>
+
             <Button onClick={handleAdd} className="gap-2">
               <Plus className="w-5 h-5" />
               הוסף סטטוס
@@ -751,6 +762,16 @@ export default function StatusManagement() {
         currentColor={formData.color}
         onSelectColor={(color) => setFormData({...formData, color})}
         statusName={formData.name || 'סטטוס'}
+      />
+
+      {/* Bulk Color Editor */}
+      <ColorBulkEditor
+        open={isBulkColorEditorOpen}
+        onClose={() => setIsBulkColorEditorOpen(false)}
+        statuses={statuses}
+        onUpdateStatus={async (statusId, updateData) => {
+          await updateMutation.mutateAsync({ id: statusId, data: updateData });
+        }}
       />
 
           {/* Debug Panel */}
