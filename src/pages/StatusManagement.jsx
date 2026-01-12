@@ -456,7 +456,7 @@ export default function StatusManagement() {
               onClick={() => window.open('https://api.example.com/legal-treatment', '_blank')}
               className="gap-2 bg-indigo-50 hover:bg-indigo-100 border-indigo-300 text-indigo-700"
             >
-              API Card
+              API CARD בטיפול משפטי
               <ArrowRight className="w-4 h-4" />
             </Button>
 
@@ -465,7 +465,7 @@ export default function StatusManagement() {
               onClick={() => window.open('https://api.example.com/legal-process', '_blank')}
               className="gap-2 bg-teal-50 hover:bg-teal-100 border-teal-300 text-teal-700"
             >
-              API נוסף
+              API נוסף בהליך משפטי
               <ArrowRight className="w-4 h-4" />
             </Button>
 
