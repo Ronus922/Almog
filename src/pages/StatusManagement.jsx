@@ -453,6 +453,24 @@ export default function StatusManagement() {
 
             <Button
               variant="outline"
+              onClick={() => window.open('https://api.example.com/legal-treatment', '_blank')}
+              className="gap-2 bg-indigo-50 hover:bg-indigo-100 border-indigo-300 text-indigo-700"
+            >
+              API Card
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+
+            <Button
+              variant="outline"
+              onClick={() => window.open('https://api.example.com/legal-process', '_blank')}
+              className="gap-2 bg-teal-50 hover:bg-teal-100 border-teal-300 text-teal-700"
+            >
+              API נוסף
+              <ArrowRight className="w-4 h-4" />
+            </Button>
+
+            <Button
+              variant="outline"
               onClick={() => setIsBulkColorEditorOpen(true)}
               className="gap-2 bg-purple-50 hover:bg-purple-100 border-purple-300 text-purple-700"
             >
