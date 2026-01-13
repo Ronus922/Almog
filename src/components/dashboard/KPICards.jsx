@@ -51,6 +51,8 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
   // Status-based filters
   const legalLawsuitStatus = allStatuses.find(s => s.type === 'LEGAL' && s.name === 'תביעה משפטית');
   const legalWarningStatus = allStatuses.find(s => s.type === 'LEGAL' && s.name === 'מכתב התראה');
+  const legalTreatmentStatus = allStatuses.find(s => s.type === 'LEGAL' && s.name === 'בטיפול משפטי');
+  const legalProceedingsStatus = allStatuses.find(s => s.type === 'LEGAL' && s.name === 'בהליך משפטי');
   
   const inLegalProcessCount = legalLawsuitStatus 
     ? records.filter(r => r.legal_status_id === legalLawsuitStatus.id).length 
@@ -58,6 +60,14 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
   
   const warningLettersSentCount = legalWarningStatus 
     ? records.filter(r => r.legal_status_id === legalWarningStatus.id).length 
+    : 0;
+  
+  const inLegalTreatmentCount = legalTreatmentStatus 
+    ? records.filter(r => r.legal_status_id === legalTreatmentStatus.id).length 
+    : 0;
+  
+  const inLegalProceedingsCount = legalProceedingsStatus 
+    ? records.filter(r => r.legal_status_id === legalProceedingsStatus.id).length 
     : 0;
 
   const formatCurrency = (num) => 
@@ -131,6 +141,22 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
       color: "text-yellow-600",
       isClickable: true,
       onClick: () => handleCardClick('WARNING_LETTER')
+    }] : []),
+    ...(legalTreatmentStatus ? [{
+      title: "בטיפול משפטי",
+      value: inLegalTreatmentCount,
+      icon: Gavel,
+      color: "text-indigo-600",
+      isClickable: true,
+      onClick: () => navigate(`${createPageUrl('LinkedRecords')}?statusId=${legalTreatmentStatus.id}&statusName=${encodeURIComponent('בטיפול משפטי')}`)
+    }] : []),
+    ...(legalProceedingsStatus ? [{
+      title: "בהליך משפטי",
+      value: inLegalProceedingsCount,
+      icon: Gavel,
+      color: "text-teal-600",
+      isClickable: true,
+      onClick: () => navigate(`${createPageUrl('LinkedRecords')}?statusId=${legalProceedingsStatus.id}&statusName=${encodeURIComponent('בהליך משפטי')}`)
     }] : [])
   ];
 
