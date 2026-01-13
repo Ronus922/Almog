@@ -140,11 +140,11 @@ export default function LinkedRecords() {
             <Button 
               variant="outline" 
               size="sm"
-              onClick={() => navigate(createPageUrl('StatusManagement'))}
+              onClick={() => navigate(createPageUrl('Dashboard'))}
               className="gap-2 rounded-xl h-10 px-4 font-semibold"
             >
               <ArrowRight className="w-4 h-4" />
-              חזרה לסטטוסים
+              חזרה לדשבורד
             </Button>
           </div>
         </div>
