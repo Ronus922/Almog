@@ -51,7 +51,7 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
   // Status-based filters
   const legalLawsuitStatus = allStatuses.find(s => s.type === 'LEGAL' && s.name === 'תביעה משפטית');
   const legalWarningStatus = allStatuses.find(s => s.type === 'LEGAL' && s.name === 'מכתב התראה');
-  const legalTreatmentStatus = allStatuses.find(s => s.type === 'LEGAL' && s.name === 'בטיפול משפטי');
+  const legalTreatmentStatus = allStatuses.find(s => s.type === 'LEGAL' && s.name === 'לטיפול משפטי');
   const legalProceedingsStatus = allStatuses.find(s => s.type === 'LEGAL' && s.name === 'בהליך משפטי');
   
   const inLegalProcessCount = legalLawsuitStatus 
@@ -143,12 +143,12 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
       onClick: () => handleCardClick('WARNING_LETTER')
     }] : []),
     ...(legalTreatmentStatus ? [{
-      title: "בטיפול משפטי",
+      title: "לטיפול משפטי",
       value: inLegalTreatmentCount,
       icon: Gavel,
       color: "text-indigo-600",
       isClickable: true,
-      onClick: () => navigate(`${createPageUrl('LinkedRecords')}?statusId=${legalTreatmentStatus.id}&statusName=${encodeURIComponent('בטיפול משפטי')}`)
+      onClick: () => navigate(`${createPageUrl('LinkedRecords')}?statusId=${legalTreatmentStatus.id}&statusName=${encodeURIComponent('לטיפול משפטי')}`)
     }] : []),
     ...(legalProceedingsStatus ? [{
       title: "בהליך משפטי",
