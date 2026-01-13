@@ -265,6 +265,9 @@ export default function DebtorsTable({
     setPhoneFilter('');
     setLegalStatusFilter('all');
     setApartmentSearch('');
+    setStatusFilter('all');
+    setAutoStatusFilter('all');
+    setSearch('');
     setPage(1);
   };
 
