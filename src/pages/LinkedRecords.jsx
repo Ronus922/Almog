@@ -8,9 +8,11 @@ import { Card } from "@/components/ui/card";
 import { ArrowRight, Loader2, Shield } from "lucide-react";
 import DebtorsTable from '../components/dashboard/DebtorsTable';
 import ApartmentDetailModal from '../components/dashboard/ApartmentDetailModal';
+import { useAuth } from '@/components/auth/AuthContext';
+import { isManagerRole } from '@/components/utils/roles';
 
 export default function LinkedRecords() {
-  const [user, setUser] = useState(null);
+  const { currentUser } = useAuth();
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -20,14 +22,6 @@ export default function LinkedRecords() {
   const urlParams = new URLSearchParams(window.location.search);
   const statusId = urlParams.get('statusId');
   const statusName = urlParams.get('statusName');
-
-  React.useEffect(() => {
-    const loadUser = async () => {
-      const currentUser = await base44.auth.me();
-      setUser(currentUser);
-    };
-    loadUser();
-  }, []);
 
   const { data: debtorRecords = [], isLoading } = useQuery({
     queryKey: ['debtorRecords'],
@@ -45,7 +39,7 @@ export default function LinkedRecords() {
   });
 
   const settings = settingsList[0] || {};
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = isManagerRole(currentUser);
 
   // סינון רשומות לפי סטטוס מקושר
   const linkedRecords = useMemo(() => {
@@ -69,7 +63,7 @@ export default function LinkedRecords() {
     await updateMutation.mutateAsync({ id: editedRecord.id, data: editedRecord });
   };
 
-  if (!user || user.role !== 'admin') {
+  if (!currentUser || !isAdmin) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100" dir="rtl">
         <Card className="max-w-md">
