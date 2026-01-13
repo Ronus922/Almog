@@ -44,8 +44,9 @@ export default function LinkedRecords() {
   const settings = settingsList[0] || {};
   const isAdmin = isManagerRole(currentUser);
 
-  // סינון רשומות לפי סטטוס מקושר
+  // סינון רשומות לפי סטטוס מקושר - רק אם יש statusId
   const linkedRecords = useMemo(() => {
+    if (!statusId) return debtorRecords;
     return debtorRecords.filter(r => r.legal_status_id === statusId);
   }, [debtorRecords, statusId]);
 
@@ -135,8 +136,8 @@ export default function LinkedRecords() {
             >
               הדפס
             </AppButton>
-            <ExcelExporter records={linkedRecords} statuses={allStatuses} />
-            <PDFExporter records={linkedRecords} statuses={allStatuses} settings={settings} />
+            <ExcelExporter records={debtorRecords} statuses={allStatuses} />
+            <PDFExporter records={debtorRecords} statuses={allStatuses} settings={settings} />
             <Button 
               variant="outline" 
               size="sm"
@@ -151,13 +152,13 @@ export default function LinkedRecords() {
 
         {/* טבלת חייבים - אותה טבלה מהדשבורד */}
         <DebtorsTable 
-          records={linkedRecords} 
+          records={debtorRecords} 
           onRowClick={handleRowClick}
           isAdmin={isAdmin}
           settings={settings}
           initialStatusFilter={statusName}
           allStatuses={allStatuses}
-          hideStatusFilter={true}
+          hideStatusFilter={false}
         />
 
         {/* מודל פרטי דירה */}
