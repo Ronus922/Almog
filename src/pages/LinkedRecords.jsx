@@ -5,9 +5,12 @@ import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { ArrowRight, Loader2, Shield } from "lucide-react";
+import { ArrowRight, Loader2, Shield, Printer } from "lucide-react";
 import DebtorsTable from '../components/dashboard/DebtorsTable';
 import ApartmentDetailModal from '../components/dashboard/ApartmentDetailModal';
+import ExcelExporter from '../components/export/ExcelExporter';
+import PDFExporter from '../components/export/PDFExporter';
+import AppButton from "@/components/ui/app-button";
 import { useAuth } from '@/components/auth/AuthContext';
 import { isManagerRole } from '@/components/utils/roles';
 
@@ -90,6 +93,25 @@ export default function LinkedRecords() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100" dir="rtl">
+      <style>{`
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          .debtors-table-container, .debtors-table-container * {
+            visibility: visible;
+          }
+          .debtors-table-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
+          button, .filter-controls {
+            display: none !important;
+          }
+        }
+      `}</style>
       <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8">
         {/* כותרת */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -103,15 +125,28 @@ export default function LinkedRecords() {
               סה״כ: <span className="font-bold text-blue-600">{linkedRecords.length}</span> דירות
             </p>
           </div>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => navigate(createPageUrl('StatusManagement'))}
-            className="gap-2 rounded-xl h-10 px-4 font-semibold"
-          >
-            <ArrowRight className="w-4 h-4" />
-            חזרה לסטטוסים
-          </Button>
+          <div className="flex flex-wrap items-center gap-2 md:gap-3">
+            <AppButton 
+              variant="outline" 
+              size="md" 
+              icon={Printer} 
+              onClick={() => window.print()}
+              className="hover:text-slate-900"
+            >
+              הדפס
+            </AppButton>
+            <ExcelExporter records={linkedRecords} statuses={allStatuses} />
+            <PDFExporter records={linkedRecords} statuses={allStatuses} settings={settings} />
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => navigate(createPageUrl('StatusManagement'))}
+              className="gap-2 rounded-xl h-10 px-4 font-semibold"
+            >
+              <ArrowRight className="w-4 h-4" />
+              חזרה לסטטוסים
+            </Button>
+          </div>
         </div>
 
         {/* טבלת חייבים - אותה טבלה מהדשבורד */}
