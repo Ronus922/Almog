@@ -139,10 +139,9 @@ export default function LinkedRecords() {
             <ExcelExporter records={debtorRecords} statuses={allStatuses} />
             <PDFExporter records={debtorRecords} statuses={allStatuses} settings={settings} />
             <Button 
-              variant="outline" 
               size="sm"
               onClick={() => navigate(createPageUrl('Dashboard'))}
-              className="gap-2 rounded-xl h-10 px-4 font-semibold"
+              className="gap-2 rounded-xl h-10 px-4 font-semibold bg-blue-600 hover:bg-blue-700 text-white"
             >
               <ArrowRight className="w-4 h-4" />
               חזרה לדשבורד
