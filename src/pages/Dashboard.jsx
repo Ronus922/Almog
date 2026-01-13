@@ -6,7 +6,7 @@ import { createPageUrl } from '@/utils';
 import { useAuth } from '@/components/auth/AuthContext';
 import { Button } from "@/components/ui/button";
 import AppButton from "@/components/ui/app-button";
-import { Loader2, Building2, RefreshCw, X, Users, Archive } from "lucide-react";
+import { Loader2, Building2, RefreshCw, X, Users, Archive, Printer } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { isManagerRole } from '@/components/utils/roles';
 
@@ -174,6 +174,24 @@ function DashboardContent() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100" dir="rtl">
       <style>{`
+        @media print {
+          body * {
+            visibility: hidden;
+          }
+          .debtors-table-container, .debtors-table-container * {
+            visibility: visible;
+          }
+          .debtors-table-container {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+          }
+          button, .filter-controls, .tabs-shell {
+            display: none !important;
+          }
+        }
+
         .tabs-shell {
           display: flex;
           gap: 10px;
@@ -374,6 +392,15 @@ function DashboardContent() {
             </AppButton>
             {isAdmin &&
             <>
+                <AppButton 
+                  variant="outline" 
+                  size="md" 
+                  icon={Printer} 
+                  onClick={() => window.print()}
+                  className="hover:text-slate-900"
+                >
+                  הדפס
+                </AppButton>
                 <ExcelExporter records={filteredDataset.length > 0 ? filteredDataset : records} statuses={allStatuses} />
                 <PDFExporter records={filteredDataset.length > 0 ? filteredDataset : records} statuses={allStatuses} settings={settings} />
               </>
