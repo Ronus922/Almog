@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Home, Phone, Wallet, Calendar, FileText, Scale, 
-  Save, X, AlertTriangle, Lock, User, Pencil, Check
+  Save, X, AlertTriangle, Lock, User, Pencil, Check, MessageSquare
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -19,6 +19,7 @@ import { useAuth } from '@/components/auth/AuthContext';
 import InlineEditableField from './InlineEditableField';
 import DebtSeverityBadge from './DebtSeverityBadge';
 import { calculateDebtStatusDebug } from '../utils/debtStatusCalculator';
+import CommentsSection from '../comments/CommentsSection';
 
 export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin, settings }) {
   const { currentUser } = useAuth();
@@ -546,15 +547,15 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               </div>
 
               <div className="text-right">
-                <Label className="text-sm font-bold text-slate-700 mb-2 block">הערות</Label>
-                <Textarea 
-                  value={editedRecord?.notes || ''} 
-                  onChange={(e) => setEditedRecord({...editedRecord, notes: e.target.value})}
-                  placeholder="הוסף הערות..."
-                  className="mt-2 rounded-xl text-right resize-none"
-                  rows={4}
-                  dir="rtl"
-                  style={{ direction: 'rtl', textAlign: 'right' }}
+                <Label className="text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
+                  <MessageSquare className="w-4 h-4 text-blue-600" />
+                  הערות ותיעוד
+                </Label>
+                <CommentsSection
+                  debtorRecordId={record.id}
+                  apartmentNumber={record.apartmentNumber}
+                  currentUser={currentUser}
+                  isAdmin={isAdmin}
                 />
               </div>
             </div>
