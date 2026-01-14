@@ -47,11 +47,15 @@ export default function CommentsSection({ debtorRecordId, apartmentNumber, curre
 
     setIsSubmitting(true);
 
+    const fullName = currentUser.firstName && currentUser.lastName 
+      ? `${currentUser.firstName} ${currentUser.lastName}`
+      : currentUser.firstName || currentUser.username || currentUser.email;
+
     createCommentMutation.mutate({
       debtor_record_id: debtorRecordId,
       apartment_number: apartmentNumber,
       content: newComment.trim(),
-      author_name: currentUser.username || currentUser.email,
+      author_name: fullName,
       author_email: currentUser.email || currentUser.username,
     });
   };
