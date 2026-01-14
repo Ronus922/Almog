@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Send } from "lucide-react";
+import { Send, Printer } from "lucide-react";
 import { toast } from 'sonner';
 
 export default function CommentsSection({ debtorRecordId, apartmentNumber, currentUser, isAdmin }) {
@@ -64,10 +64,44 @@ export default function CommentsSection({ debtorRecordId, apartmentNumber, curre
     return `${timeStr}  ${dateStr}`;
   };
 
+  const handlePrint = () => {
+    const printWindow = window.open('', '_blank');
+    const commentsHtml = comments.map(comment => `
+      <div style="border-bottom: 1px solid #e2e8f0; padding: 16px 0;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+          <strong style="font-size: 14px;">${comment.author_name}</strong>
+          <span style="font-size: 12px; color: #64748b;">${formatDateTime(comment.created_date)}</span>
+        </div>
+        <p style="font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${comment.content}</p>
+      </div>
+    `).join('');
+
+    printWindow.document.write(`
+      <!DOCTYPE html>
+      <html dir="rtl">
+        <head>
+          <meta charset="utf-8">
+          <title>הערות - דירה ${apartmentNumber}</title>
+          <style>
+            body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; padding: 20px; direction: rtl; }
+            h1 { font-size: 24px; margin-bottom: 20px; border-bottom: 2px solid #3b82f6; padding-bottom: 10px; }
+          </style>
+        </head>
+        <body>
+          <h1>הערות - דירה ${apartmentNumber}</h1>
+          ${commentsHtml}
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+    printWindow.print();
+  };
+
   return (
     <div className="space-y-4" dir="rtl">
       {/* רשימת הערות */}
-      <div className="bg-white border border-slate-200 rounded-xl max-h-80 overflow-y-auto">
+      <div>
+        <div className="bg-white border border-slate-200 rounded-xl max-h-80 overflow-y-auto">
         {isLoading ? (
           <div className="p-4 text-center text-slate-500 text-sm">טוען הערות...</div>
         ) : comments.length === 0 ? (
@@ -92,6 +126,19 @@ export default function CommentsSection({ debtorRecordId, apartmentNumber, curre
               </div>
             ))}
           </div>
+        )}
+        </div>
+        
+        {comments.length > 0 && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handlePrint}
+            className="mt-2 gap-2 text-xs"
+          >
+            <Printer className="w-3 h-3" />
+            הדפס הערות
+          </Button>
         )}
       </div>
 
