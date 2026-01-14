@@ -316,51 +316,49 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         <div className="space-y-4 md:space-y-5 py-2" dir="rtl">
           {/* פרטים כלליים */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-            <div className="space-y-2 bg-slate-50/50 rounded-2xl p-4 md:p-6">
-              <h3 className="font-bold text-slate-800 pb-2 md:pb-3 border-b-2 border-blue-200 text-right flex items-center gap-2 text-sm md:text-base">
+            <div className="space-y-1 bg-slate-50/50 rounded-2xl p-4 md:p-6">
+              <h3 className="font-bold text-slate-800 pb-2 border-b-2 border-blue-200 text-right flex items-center gap-2 text-sm md:text-base mb-2">
                 <Home className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
                 פרטים עיקריים
               </h3>
               <InfoRow icon={Home} label="מספר דירה" value={editedRecord?.apartmentNumber} />
               <InfoRow icon={User} label="בעל דירה" value={editedRecord?.ownerName || 'לא צוין'} />
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
-                <InlineEditableField
-                  icon={Phone}
-                  label="טלפון בעלים"
-                  value={editedRecord?.phoneOwner}
-                  recordId={record.id}
-                  fieldName="phoneOwner"
-                  isAdmin={isAdmin}
-                  onSave={handleFieldSave}
-                  formatDisplay={formatPhone}
-                  validate={validatePhone}
-                />
+              <InlineEditableField
+                icon={Phone}
+                label="טלפון בעלים"
+                value={editedRecord?.phoneOwner}
+                recordId={record.id}
+                fieldName="phoneOwner"
+                isAdmin={isAdmin}
+                onSave={handleFieldSave}
+                formatDisplay={formatPhone}
+                validate={validatePhone}
+              />
 
-                <InlineEditableField
-                  icon={Phone}
-                  label="טלפון שוכר"
-                  value={editedRecord?.phoneTenant}
-                  recordId={record.id}
-                  fieldName="phoneTenant"
-                  isAdmin={isAdmin}
-                  onSave={handleFieldSave}
-                  formatDisplay={formatPhone}
-                  validate={validatePhone}
-                />
+              <InlineEditableField
+                icon={Phone}
+                label="טלפון שוכר"
+                value={editedRecord?.phoneTenant}
+                recordId={record.id}
+                fieldName="phoneTenant"
+                isAdmin={isAdmin}
+                onSave={handleFieldSave}
+                formatDisplay={formatPhone}
+                validate={validatePhone}
+              />
 
-                <InlineEditableField
-                  icon={Phone}
-                  label="טלפון להצגה"
-                  value={editedRecord?.phonePrimary}
-                  recordId={record.id}
-                  fieldName="phonePrimary"
-                  isAdmin={isAdmin}
-                  onSave={handleFieldSave}
-                  formatDisplay={formatPhone}
-                  validate={validatePhone}
-                />
-              </div>
+              <InlineEditableField
+                icon={Phone}
+                label="טלפון להצגה"
+                value={editedRecord?.phonePrimary}
+                recordId={record.id}
+                fieldName="phonePrimary"
+                isAdmin={isAdmin}
+                onSave={handleFieldSave}
+                formatDisplay={formatPhone}
+                validate={validatePhone}
+              />
             </div>
             
             <div className="space-y-2 bg-slate-50/50 rounded-2xl p-4 md:p-6">
