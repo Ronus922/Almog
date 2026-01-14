@@ -47,9 +47,13 @@ export default function CommentsSection({ debtorRecordId, apartmentNumber, curre
 
     setIsSubmitting(true);
 
-    const fullName = currentUser.firstName && currentUser.lastName 
-      ? `${currentUser.firstName} ${currentUser.lastName}`
-      : currentUser.firstName || currentUser.username || currentUser.email;
+    // משתמש Base44 Admin - firstName הוא כבר השם המלא
+    // משתמש רגיל - צריך לשלב firstName + lastName
+    const fullName = currentUser.isBase44Admin 
+      ? currentUser.firstName
+      : (currentUser.firstName && currentUser.lastName 
+          ? `${currentUser.firstName} ${currentUser.lastName}`
+          : currentUser.firstName || currentUser.username);
 
     createCommentMutation.mutate({
       debtor_record_id: debtorRecordId,
