@@ -313,7 +313,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           </Alert>
         )}
 
-        <div className="space-y-6 md:space-y-8 py-4" dir="rtl">
+        <div className="space-y-4 md:space-y-5 py-2" dir="rtl">
           {/* פרטים כלליים */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
             <div className="space-y-2 bg-slate-50/50 rounded-2xl p-4 md:p-6">
@@ -430,7 +430,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
           {/* שדות עריכה למנהל */}
           {isAdmin && (
-            <div className="space-y-4 md:space-y-6 bg-blue-50/30 rounded-2xl p-4 md:p-6">
+            <div className="space-y-3 md:space-y-4 bg-blue-50/30 rounded-2xl p-4 md:p-5">
               <h3 className="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2 md:gap-3 text-right">
                 <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-blue-100 flex items-center justify-center">
                   <Scale className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
@@ -503,48 +503,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                <div className="text-right">
-                  <Label className="text-sm font-bold text-slate-700 mb-2 block">תאריך קשר אחרון</Label>
-                  <Input 
-                    type="date" 
-                    value={editedRecord?.lastContactDate || ''} 
-                    max={getTodayDate()}
-                    onChange={(e) => {
-                      setEditedRecord({...editedRecord, lastContactDate: e.target.value});
-                      setLastContactDateError('');
-                    }}
-                    className={`mt-2 h-12 rounded-xl text-right ${lastContactDateError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
-                    dir="rtl"
-                  />
-                  {lastContactDateError && (
-                    <p className="text-xs text-red-600 font-semibold mt-2 text-right flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4" />
-                      {lastContactDateError}
-                    </p>
-                  )}
-                </div>
-                <div className="text-right">
-                  <Label className="text-sm font-bold text-slate-700 mb-2 block">תאריך פעולה הבאה</Label>
-                  <Input 
-                    type="date" 
-                    value={editedRecord?.nextActionDate || ''} 
-                    min={getTodayDate()}
-                    onChange={(e) => {
-                      setEditedRecord({...editedRecord, nextActionDate: e.target.value});
-                      setNextActionDateError('');
-                    }}
-                    className={`mt-2 h-12 rounded-xl text-right ${nextActionDateError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`}
-                    dir="rtl"
-                  />
-                  {nextActionDateError && (
-                    <p className="text-xs text-red-600 font-semibold mt-2 text-right flex items-center gap-2">
-                      <AlertTriangle className="w-4 h-4" />
-                      {nextActionDateError}
-                    </p>
-                  )}
-                </div>
-              </div>
+
 
               <div className="text-right">
                 <Label className="text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
