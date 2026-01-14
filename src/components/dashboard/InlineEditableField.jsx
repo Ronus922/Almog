@@ -88,20 +88,20 @@ export default function InlineEditableField({
   const displayValue = formatDisplay ? formatDisplay(value) : (value || '-');
 
   return (
-    <div className="flex items-start gap-3 md:gap-4 py-2 md:py-3" dir="rtl">
-      <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-slate-100 flex items-center justify-center">
-        <Icon className="w-4 h-4 md:w-5 md:h-5 text-slate-600" />
+    <div className="flex items-center gap-2 py-1.5" dir="rtl">
+      <div className="flex-shrink-0 w-7 h-7 rounded-lg bg-slate-100 flex items-center justify-center">
+        <Icon className="w-3.5 h-3.5 text-slate-600" />
       </div>
       
-      <div className="flex-1 text-right">
-        <p className="text-xs text-slate-500 font-semibold mb-1">{label}</p>
+      <div className="flex-1 text-right min-w-0">
+        <p className="text-xs text-slate-500 font-semibold">{label}</p>
         
         {!isEditing ? (
-          <div className="flex items-center gap-2 justify-end">
+          <div className="flex items-center gap-1.5 justify-end mt-0.5">
             <p 
-              className={`text-sm md:text-base font-bold text-slate-800 break-words ${isAdmin ? 'cursor-pointer hover:text-blue-600 transition-colors' : ''}`}
+              className={`text-sm font-bold text-slate-800 truncate ${isAdmin ? 'cursor-pointer hover:text-blue-600 transition-colors' : ''}`}
               onClick={handleEnterEdit}
-              title={isAdmin ? 'לחץ לעריכה' : ''}
+              title={isAdmin ? 'לחץ לעריכה' : displayValue}
             >
               {displayValue}
             </p>
@@ -113,10 +113,10 @@ export default function InlineEditableField({
                   e.stopPropagation();
                   handleEnterEdit();
                 }}
-                className="p-1 hover:bg-slate-200 rounded transition-colors flex-shrink-0"
+                className="p-0.5 hover:bg-slate-200 rounded transition-colors flex-shrink-0"
                 title="ערוך"
               >
-                <Pencil className="w-4 h-4 text-slate-600" />
+                <Pencil className="w-3.5 h-3.5 text-slate-600" />
               </button>
             )}
           </div>
