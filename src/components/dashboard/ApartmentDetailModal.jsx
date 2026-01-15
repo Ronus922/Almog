@@ -313,10 +313,10 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           </Alert>
         )}
 
-        <div className="space-y-4 md:space-y-5 py-2" dir="rtl">
+        <div className="space-y-2 md:space-y-3 py-1" dir="rtl">
           {/* פרטים כלליים */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8">
-            <div className="space-y-1 bg-slate-50/50 rounded-2xl p-4 md:p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
+            <div className="space-y-1 bg-slate-50/50 rounded-2xl p-3 md:p-4">
               <h3 className="font-bold text-slate-800 pb-2 border-b-2 border-blue-200 text-right flex items-center gap-2 text-sm md:text-base mb-2">
                 <Home className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
                 פרטים עיקריים
@@ -325,7 +325,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               <InfoRow icon={User} label="בעל דירה" value={editedRecord?.ownerName || 'לא צוין'} />
             </div>
             
-            <div className="space-y-2 bg-slate-50/50 rounded-2xl p-4 md:p-6">
+            <div className="space-y-1 bg-slate-50/50 rounded-2xl p-3 md:p-4">
               <h3 className="font-bold text-slate-800 pb-2 md:pb-3 border-b-2 border-amber-200 text-right flex items-center gap-2 text-sm md:text-base">
                 <FileText className="w-4 h-4 md:w-5 md:h-5 text-amber-600" />
                 מידע נוסף
@@ -364,10 +364,10 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             </div>
           </div>
 
-          <Separator className="my-6" />
+          <Separator className="my-2 md:my-3" />
 
           {/* טלפונים */}
-          <div className="bg-slate-50/50 rounded-2xl p-4 md:p-6">
+          <div className="bg-slate-50/50 rounded-2xl p-3 md:p-4">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
               <InlineEditableField
                 icon={Phone}
@@ -407,11 +407,11 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             </div>
           </div>
 
-          <Separator className="my-6" />
+          <Separator className="my-2 md:my-3" />
 
           {/* נתוני חוב */}
-          <div className="bg-gradient-to-l from-slate-50 to-slate-100 rounded-2xl p-4 md:p-6">
-            <h3 className="text-base md:text-lg font-bold text-slate-800 mb-3 md:mb-4 flex items-center gap-2 md:gap-3 text-right">
+          <div className="bg-gradient-to-l from-slate-50 to-slate-100 rounded-2xl p-3 md:p-4">
+            <h3 className="text-base md:text-lg font-bold text-slate-800 mb-2 md:mb-3 flex items-center gap-2 md:gap-3 text-right">
               <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-rose-100 flex items-center justify-center">
                 <Wallet className="w-4 h-4 md:w-5 md:h-5 text-rose-600" />
               </div>
@@ -433,11 +433,11 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             </div>
           </div>
 
-          <Separator className="my-6" />
+          <Separator className="my-2 md:my-3" />
 
           {/* שדות עריכה למנהל */}
           {isAdmin && (
-            <div className="space-y-3 md:space-y-4 bg-blue-50/30 rounded-2xl p-4 md:p-5">
+            <div className="space-y-2 md:space-y-3 bg-blue-50/30 rounded-2xl p-3 md:p-4">
               <h3 className="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2 md:gap-3 text-right">
                 <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-blue-100 flex items-center justify-center">
                   <Scale className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
