@@ -411,15 +411,15 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
               <div className="text-center p-4 md:p-5 bg-white rounded-xl md:rounded-2xl shadow-sm border-r-4 border-rose-500">
                 <p className="text-xs text-slate-500 font-bold mb-1 md:mb-2">סה״כ חוב</p>
-                <p className="text-2xl md:text-3xl font-extrabold text-rose-600">{formatCurrency(record.totalDebt)}</p>
+                <p className="text-sm md:text-base font-bold text-rose-600">{formatCurrency(record.totalDebt)}</p>
               </div>
               <div className="text-center p-4 md:p-5 bg-white rounded-xl md:rounded-2xl shadow-sm border-r-4 border-amber-500">
                 <p className="text-xs text-slate-500 font-bold mb-1 md:mb-2">דמי ניהול</p>
-                <p className="text-2xl md:text-3xl font-extrabold text-amber-600">{formatCurrency(record.monthlyDebt)}</p>
+                <p className="text-sm md:text-base font-bold text-amber-600">{formatCurrency(record.monthlyDebt)}</p>
               </div>
               <div className="text-center p-4 md:p-5 bg-white rounded-xl md:rounded-2xl shadow-sm border-r-4 border-purple-500">
                 <p className="text-xs text-slate-500 font-bold mb-1 md:mb-2">מים חמים</p>
-                <p className="text-2xl md:text-3xl font-extrabold text-purple-600">{formatCurrency(record.specialDebt)}</p>
+                <p className="text-sm md:text-base font-bold text-purple-600">{formatCurrency(record.specialDebt)}</p>
               </div>
             </div>
           </div>
