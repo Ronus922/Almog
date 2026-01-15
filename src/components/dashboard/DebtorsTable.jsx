@@ -762,19 +762,16 @@ export default function DebtorsTable({
                       {record.apartmentNumber}
                     </TableCell>
                     <TableCell className="text-slate-700 text-base py-6 px-6 align-middle">
-                      {record.ownerName ? (
-                        <>
-                          {(() => {
-                            const mainName = record.ownerName.split(/[\/,]/)[0]?.trim() || record.ownerName;
-                            const isTenant = record.ownerName.includes('/') || record.ownerName.includes(',');
-                            const displayName = mainName.length > 22 ? mainName.substring(0, 22) + '...' : mainName;
-                            return displayName;
-                          })()}
-                          {(record.ownerName.includes('/') || record.ownerName.includes(',')) && (
-                            <span> (שוכר)</span>
-                          )}
-                        </>
-                      ) : '-'}
+                      <div className="line-clamp-2 break-words">
+                        {record.ownerName ? (
+                          <>
+                            {record.ownerName.split(/[\/,]/)[0]?.trim() || record.ownerName}
+                            {(record.ownerName.includes('/') || record.ownerName.includes(',')) && (
+                              <span> (שוכר)</span>
+                            )}
+                          </>
+                        ) : '-'}
+                      </div>
                     </TableCell>
                     <TableCell className="text-base font-medium text-slate-600 py-6 px-6 align-middle text-right" dir="rtl">
                       {formatPhoneForDisplay(getPhonePrimaryForTable(record))}
