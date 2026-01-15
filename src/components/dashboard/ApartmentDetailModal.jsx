@@ -77,6 +77,9 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     return phone;
   };
 
+  // Computed phone for display - choose first available
+  const displayPhone = editedRecord?.phoneOwner || editedRecord?.phoneTenant || record.phoneOwner || record.phoneTenant;
+
   const handleSave = async () => {
     setLastContactDateError('');
     setNextActionDateError('');
@@ -282,7 +285,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       open={isOpen}
       onClose={onClose}
       title={`פרטי דירה ${record.apartmentNumber}`}
-      subtitle={`${record.ownerName || 'ללא שם בעלים'} • ${record.phonePrimary ? `טלפון: ${formatPhone(record.phonePrimary)}` : 'ללא טלפון'}`}
+      subtitle={`${record.ownerName || 'ללא שם בעלים'} • ${displayPhone ? `טלפון: ${formatPhone(displayPhone)}` : 'ללא טלפון'}`}
       statusPill={{
         text: currentStatusLabel,
         color: `${currentStatusColor} border`
@@ -368,7 +371,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
           {/* טלפונים */}
           <div className="bg-slate-50/50 rounded-2xl p-3 md:p-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
               <InlineEditableField
                 icon={Phone}
                 label="טלפון בעלים"
@@ -387,18 +390,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 value={editedRecord?.phoneTenant}
                 recordId={record.id}
                 fieldName="phoneTenant"
-                isAdmin={isAdmin}
-                onSave={handleFieldSave}
-                formatDisplay={formatPhone}
-                validate={validatePhone}
-              />
-
-              <InlineEditableField
-                icon={Phone}
-                label="טלפון להצגה"
-                value={editedRecord?.phonePrimary}
-                recordId={record.id}
-                fieldName="phonePrimary"
                 isAdmin={isAdmin}
                 onSave={handleFieldSave}
                 formatDisplay={formatPhone}
