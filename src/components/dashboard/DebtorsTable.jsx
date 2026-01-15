@@ -767,7 +767,7 @@ export default function DebtorsTable({
                           {(() => {
                             const mainName = record.ownerName.split(/[\/,]/)[0]?.trim() || record.ownerName;
                             const isTenant = record.ownerName.includes('/') || record.ownerName.includes(',');
-                            const displayName = mainName.length > 15 ? mainName.substring(0, 15) + '...' : mainName;
+                            const displayName = mainName.length > 26 ? mainName.substring(0, 26) + '...' : mainName;
                             return displayName;
                           })()}
                           {(record.ownerName.includes('/') || record.ownerName.includes(',')) && (
