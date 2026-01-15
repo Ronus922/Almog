@@ -367,7 +367,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             </div>
           </div>
 
-          <Separator className="my-2 md:my-3" />
+          <Separator className="my-1 md:my-2" />
 
           {/* טלפונים */}
           <div className="bg-slate-50/50 rounded-2xl p-3 md:p-4">
@@ -398,7 +398,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             </div>
           </div>
 
-          <Separator className="my-2 md:my-3" />
+          <Separator className="my-1 md:my-2" />
 
           {/* נתוני חוב */}
           <div className="bg-gradient-to-l from-slate-50 to-slate-100 rounded-2xl p-3 md:p-4">
@@ -424,7 +424,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             </div>
           </div>
 
-          <Separator className="my-2 md:my-3" />
+          <Separator className="my-1 md:my-2" />
 
           {/* שדות עריכה למנהל */}
           {isAdmin && (
