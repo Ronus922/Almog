@@ -99,7 +99,7 @@ export default function InlineEditableField({
         {!isEditing ? (
           <div className="flex items-center gap-1.5 justify-end mt-0.5">
             <p 
-              className={`text-sm font-bold text-slate-800 truncate ${isAdmin ? 'cursor-pointer hover:text-blue-600 transition-colors' : ''}`}
+              className={`text-sm md:text-base font-bold text-slate-800 truncate ${isAdmin ? 'cursor-pointer hover:text-blue-600 transition-colors' : ''}`}
               onClick={handleEnterEdit}
               title={isAdmin ? 'לחץ לעריכה' : displayValue}
             >
