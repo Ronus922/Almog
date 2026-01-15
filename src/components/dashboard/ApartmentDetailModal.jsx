@@ -368,7 +368,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
           {/* טלפונים */}
           <div className="bg-slate-50/50 rounded-2xl p-3 md:p-4">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
               <InlineEditableField
                 icon={Phone}
                 label="טלפון בעלים"
@@ -417,7 +417,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               </div>
               פירוט חובות
             </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
               <div className="text-right p-4 md:p-5 bg-white rounded-xl md:rounded-2xl shadow-sm border-r-4 border-rose-500">
                 <p className="text-xs text-slate-500 font-bold mb-1 md:mb-2">סה״כ חוב</p>
                 <p className="text-xl md:text-2xl font-extrabold text-rose-600">{formatCurrency(record.totalDebt)}</p>
