@@ -323,42 +323,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               </h3>
               <InfoRow icon={Home} label="מספר דירה" value={editedRecord?.apartmentNumber} />
               <InfoRow icon={User} label="בעל דירה" value={editedRecord?.ownerName || 'לא צוין'} />
-
-              <InlineEditableField
-                icon={Phone}
-                label="טלפון בעלים"
-                value={editedRecord?.phoneOwner}
-                recordId={record.id}
-                fieldName="phoneOwner"
-                isAdmin={isAdmin}
-                onSave={handleFieldSave}
-                formatDisplay={formatPhone}
-                validate={validatePhone}
-              />
-
-              <InlineEditableField
-                icon={Phone}
-                label="טלפון שוכר"
-                value={editedRecord?.phoneTenant}
-                recordId={record.id}
-                fieldName="phoneTenant"
-                isAdmin={isAdmin}
-                onSave={handleFieldSave}
-                formatDisplay={formatPhone}
-                validate={validatePhone}
-              />
-
-              <InlineEditableField
-                icon={Phone}
-                label="טלפון להצגה"
-                value={editedRecord?.phonePrimary}
-                recordId={record.id}
-                fieldName="phonePrimary"
-                isAdmin={isAdmin}
-                onSave={handleFieldSave}
-                formatDisplay={formatPhone}
-                validate={validatePhone}
-              />
             </div>
             
             <div className="space-y-2 bg-slate-50/50 rounded-2xl p-4 md:p-6">
@@ -397,6 +361,49 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                   </div>
                 </div>
               </div>
+            </div>
+          </div>
+
+          <Separator className="my-6" />
+
+          {/* טלפונים */}
+          <div className="bg-slate-50/50 rounded-2xl p-4 md:p-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 md:gap-4">
+              <InlineEditableField
+                icon={Phone}
+                label="טלפון בעלים"
+                value={editedRecord?.phoneOwner}
+                recordId={record.id}
+                fieldName="phoneOwner"
+                isAdmin={isAdmin}
+                onSave={handleFieldSave}
+                formatDisplay={formatPhone}
+                validate={validatePhone}
+              />
+
+              <InlineEditableField
+                icon={Phone}
+                label="טלפון שוכר"
+                value={editedRecord?.phoneTenant}
+                recordId={record.id}
+                fieldName="phoneTenant"
+                isAdmin={isAdmin}
+                onSave={handleFieldSave}
+                formatDisplay={formatPhone}
+                validate={validatePhone}
+              />
+
+              <InlineEditableField
+                icon={Phone}
+                label="טלפון להצגה"
+                value={editedRecord?.phonePrimary}
+                recordId={record.id}
+                fieldName="phonePrimary"
+                isAdmin={isAdmin}
+                onSave={handleFieldSave}
+                formatDisplay={formatPhone}
+                validate={validatePhone}
+              />
             </div>
           </div>
 
