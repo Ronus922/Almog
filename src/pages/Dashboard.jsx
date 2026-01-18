@@ -100,21 +100,7 @@ function DashboardContent() {
 
   // Apply unique filtering: one record per apartmentNumber (most recent by updated_date)
   // Active debtors: NOT archived AND totalDebt>0
-  const debtorRecordsLoading = allRecordsLoading;
-  const debtorRecords = React.useMemo(() => {
-    const active = getActiveDebtors(allRecords);
-    console.log('[Dashboard] 📊 Filtered debtors:', {
-      allRecords: allRecords.length,
-      activeDebtors: active.length,
-      loading: debtorRecordsLoading,
-      sampleRecords: allRecords.slice(0, 3).map(r => ({
-        apt: r.apartmentNumber,
-        debt: r.totalDebt,
-        archived: r.isArchived
-      }))
-    });
-    return active;
-  }, [allRecords]);
+  const debtorRecords = getActiveDebtors(allRecords);
 
   // Archived debtors: isArchived=true (unique per apartmentNumber)
   const archivedRecords = getArchivedDebtors(allRecords);
