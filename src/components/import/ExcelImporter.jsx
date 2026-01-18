@@ -716,21 +716,23 @@ export default function ExcelImporter({ onImportComplete }) {
         }
       }
 
-      // BULK ZERO - split into batches of 50
+      // BULK ZERO - SLOW and SAFE (Rate limit protection)
       if (zeroQueue.length > 0) {
         setProgressMessage(`מאפס ${zeroQueue.length} דירות שלא בקובץ...`);
         setProgress(90);
         await base44.entities.ImportRun.update(importRun.id, { stage: 'ZERO' });
         
-        const BATCH_SIZE = 50;
+        const BATCH_SIZE = 10; // REDUCED from 50
         for (let i = 0; i < zeroQueue.length; i += BATCH_SIZE) {
           const batch = zeroQueue.slice(i, i + BATCH_SIZE);
           
           try {
-            await Promise.all(batch.map(item => 
-              base44.entities.DebtorRecord.update(item.id, item.patch)
-            ));
-            totalZeroed += batch.length;
+            // SEQUENTIAL processing instead of Promise.all
+            for (const item of batch) {
+              await base44.entities.DebtorRecord.update(item.id, item.patch);
+              totalZeroed++;
+              await sleep(100); // Small delay between each request
+            }
             
             const currentProgress = 90 + Math.round((totalZeroed / zeroQueue.length) * 5);
             setProgress(currentProgress);
@@ -746,7 +748,8 @@ export default function ExcelImporter({ onImportComplete }) {
           
           // Wait between batches
           if (i + BATCH_SIZE < zeroQueue.length) {
-            await sleep(1000);
+            await sleep(2000); // INCREASED from 1000ms
+            setProgressMessage(`מאפס דירות... (${totalZeroed}/${zeroQueue.length})`);
           }
         }
       }
