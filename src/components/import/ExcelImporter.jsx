@@ -455,6 +455,12 @@ export default function ExcelImporter({ onImportComplete }) {
           continue;
         }
 
+        // DEBUG: Log first 3 apartments to see column mapping
+        if (i < 3) {
+          console.log(`[DEBUG Row ${i + 2}] Apartment: ${apartmentRaw}, Full row:`, row);
+          console.log(`[DEBUG] Col A (0): ${row[0]}, Col B (1): ${row[1]}, Col C (2): ${row[2]}, Col D (3): ${row[3]}, Col E (4): ${row[4]}, Col F (5): ${row[5]}, Col G (6): ${row[6]}, Col H (7): ${row[7]}`);
+        }
+
         seenInFile.add(apartmentKey);
 
         const ownerNameRaw = (row[FIXED_COLUMN_MAPPING.ownerName] || '').toString().trim();
