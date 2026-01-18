@@ -835,17 +835,10 @@ export default function ExcelImporter({ onImportComplete }) {
       setProgress(100);
       setStep(3);
       
-      // Force reload data after import
-      if (onImportComplete) {
-        setTimeout(() => {
-          window.location.reload();
-        }, 1000);
-      }
-      
       if (finalStatus === 'SUCCESS') {
-        toast.success('הייבוא הושלם בהצלחה ללא אזהרות - מרענן נתונים...');
+        toast.success('הייבוא הושלם בהצלחה ללא אזהרות');
       } else {
-        toast.warning(`הייבוא הושלם - ${allWarnings.length} שורות לא יובאו - מרענן נתונים...`);
+        toast.warning(`הייבוא הושלם - ${allWarnings.length} שורות לא יובאו (ראה אזהרות)`);
       }
       
       console.log(`[Excel Import] ========== END ${importRunId} ==========`);
