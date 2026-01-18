@@ -835,10 +835,14 @@ export default function ExcelImporter({ onImportComplete }) {
       setProgress(100);
       setStep(3);
       
+      // Signal Dashboard to refresh
+      localStorage.setItem('lastImportTimestamp', Date.now().toString());
+      localStorage.setItem('lastImportStatus', finalStatus);
+      
       if (finalStatus === 'SUCCESS') {
-        toast.success('הייבוא הושלם בהצלחה ללא אזהרות');
+        toast.success('הייבוא הושלם בהצלחה - הנתונים יתעדכנו בדשבורד');
       } else {
-        toast.warning(`הייבוא הושלם - ${allWarnings.length} שורות לא יובאו (ראה אזהרות)`);
+        toast.warning(`הייבוא הושלם - ${allWarnings.length} שורות לא יובאו (הנתונים יתעדכנו בדשבורד)`);
       }
       
       console.log(`[Excel Import] ========== END ${importRunId} ==========`);

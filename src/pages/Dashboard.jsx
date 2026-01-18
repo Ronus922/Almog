@@ -9,6 +9,7 @@ import AppButton from "@/components/ui/app-button";
 import { Loader2, Building2, RefreshCw, X, Users, Archive, Printer } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { isManagerRole } from '@/components/utils/roles';
+import { toast } from 'sonner';
 
 import KPICards from '../components/dashboard/KPICards';
 import DebtorsTable from '../components/dashboard/DebtorsTable';
@@ -28,6 +29,39 @@ function DashboardContent() {
   const [filteredDataset, setFilteredDataset] = useState([]);
   const [activeTab, setActiveTab] = useState('debtors');
   const queryClient = useQueryClient();
+
+  // Auto-refresh after import
+  useEffect(() => {
+    const checkForNewImport = () => {
+      const lastImport = localStorage.getItem('lastImportTimestamp');
+      if (lastImport) {
+        const timestamp = parseInt(lastImport);
+        if (Date.now() - timestamp < 30000) { // Within 30 seconds
+          console.log('[Dashboard] New import detected - refreshing data');
+          setRefreshKey(Date.now());
+          queryClient.invalidateQueries({ queryKey: ['allDebtorRecords'] });
+          queryClient.invalidateQueries({ queryKey: ['settings'] });
+          localStorage.removeItem('lastImportTimestamp');
+          
+          const status = localStorage.getItem('lastImportStatus');
+          if (status === 'SUCCESS') {
+            toast.success('הנתונים עודכנו מהייבוא האחרון');
+          } else {
+            toast.info('הנתונים עודכנו מהייבוא האחרון');
+          }
+          localStorage.removeItem('lastImportStatus');
+        }
+      }
+    };
+    
+    // Check immediately on mount
+    checkForNewImport();
+    
+    // Check every 2 seconds
+    const interval = setInterval(checkForNewImport, 2000);
+    
+    return () => clearInterval(interval);
+  }, [queryClient]);
 
   // CRITICAL: Require authentication
   if (authChecked && !currentUser) {
