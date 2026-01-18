@@ -33,18 +33,11 @@ export function normalizeRole(role) {
  */
 export function isManagerRole(user) {
   if (!user || !user.role) {
-    console.warn('[Roles] isManagerRole called with invalid user:', user);
     return false;
   }
   
   const normalizedRole = normalizeRole(user.role);
   const isManager = normalizedRole === 'ADMIN';
-  
-  console.log('[Roles] isManagerRole check:', { 
-    userRole: user.role, 
-    normalized: normalizedRole, 
-    isManager 
-  });
   
   return isManager;
 }
