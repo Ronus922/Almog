@@ -681,21 +681,23 @@ export default function ExcelImporter({ onImportComplete }) {
         }
       }
 
-      // BULK UPDATES - split into batches of 50
+      // BULK UPDATES - SLOW and SAFE (Rate limit protection)
       if (updatesQueue.length > 0) {
         setProgressMessage(`מעדכן ${updatesQueue.length} רשומות...`);
         setProgress(50);
         await base44.entities.ImportRun.update(importRun.id, { stage: 'UPDATES' });
         
-        const BATCH_SIZE = 50;
+        const BATCH_SIZE = 10; // REDUCED from 50
         for (let i = 0; i < updatesQueue.length; i += BATCH_SIZE) {
           const batch = updatesQueue.slice(i, i + BATCH_SIZE);
           
           try {
-            await Promise.all(batch.map(item => 
-              base44.entities.DebtorRecord.update(item.id, item.patch)
-            ));
-            totalUpdated += batch.length;
+            // SEQUENTIAL processing instead of Promise.all
+            for (const item of batch) {
+              await base44.entities.DebtorRecord.update(item.id, item.patch);
+              totalUpdated++;
+              await sleep(100); // Small delay between each request
+            }
             
             const currentProgress = 50 + Math.round((totalUpdated / updatesQueue.length) * 35);
             setProgress(currentProgress);
@@ -711,7 +713,8 @@ export default function ExcelImporter({ onImportComplete }) {
           
           // Wait between batches
           if (i + BATCH_SIZE < updatesQueue.length) {
-            await sleep(1000);
+            await sleep(2000); // INCREASED from 1000ms
+            setProgressMessage(`מעדכן רשומות... (${totalUpdated}/${updatesQueue.length})`);
           }
         }
       }
