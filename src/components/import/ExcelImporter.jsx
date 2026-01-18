@@ -617,7 +617,26 @@ export default function ExcelImporter({ onImportComplete }) {
         }
       }
 
-      console.log(`[Excel Import] PARSE: creates=${createsQueue.length}, updates=${updatesQueue.length}, warnings=${allWarnings.length}`);
+      // Build ZERO queue (apartments not in file)
+      const zeroQueue = [];
+      for (const aptKey of Object.keys(existingMap)) {
+        if (!seenInFile.has(aptKey)) {
+          zeroQueue.push({
+            id: existingMap[aptKey].id,
+            patch: {
+              monthlyDebt: 0,
+              specialDebt: 0,
+              totalDebt: 0,
+              debt_status_auto: 'תקין',
+              flaggedAsCleared: true,
+              clearedAt: importTimestamp
+            },
+            aptKey
+          });
+        }
+      }
+
+      console.log(`[Excel Import] PARSE: creates=${createsQueue.length}, updates=${updatesQueue.length}, zero=${zeroQueue.length}, warnings=${allWarnings.length}`);
 
       // ═══════════════════════════════════════════════════════════
       // SAFETY CHECK: מניעת כפילויות (Upsert לפי apartmentKey)
@@ -631,6 +650,7 @@ export default function ExcelImporter({ onImportComplete }) {
       // ═══════════════════════════════════════════════════════════
       let totalCreated = 0;
       let totalUpdated = 0;
+      let totalZeroed = 0;
 
       // BULK CREATES
       if (createsQueue.length > 0) {
@@ -671,7 +691,7 @@ export default function ExcelImporter({ onImportComplete }) {
             ));
             totalUpdated += batch.length;
             
-            const currentProgress = 50 + Math.round((totalUpdated / updatesQueue.length) * 40);
+            const currentProgress = 50 + Math.round((totalUpdated / updatesQueue.length) * 35);
             setProgress(currentProgress);
           } catch (err) {
             console.error(`[Excel Import] ❌ Batch update failed:`, err);
@@ -690,14 +710,49 @@ export default function ExcelImporter({ onImportComplete }) {
         }
       }
 
-      console.log(`[Excel Import] ✅ COMPLETE: created=${totalCreated}, updated=${totalUpdated}, warnings=${allWarnings.length}`);
+      // BULK ZERO - split into batches of 50
+      if (zeroQueue.length > 0) {
+        setProgressMessage(`מאפס ${zeroQueue.length} דירות שלא בקובץ...`);
+        setProgress(90);
+        await base44.entities.ImportRun.update(importRun.id, { stage: 'ZERO' });
+        
+        const BATCH_SIZE = 50;
+        for (let i = 0; i < zeroQueue.length; i += BATCH_SIZE) {
+          const batch = zeroQueue.slice(i, i + BATCH_SIZE);
+          
+          try {
+            await Promise.all(batch.map(item => 
+              base44.entities.DebtorRecord.update(item.id, item.patch)
+            ));
+            totalZeroed += batch.length;
+            
+            const currentProgress = 90 + Math.round((totalZeroed / zeroQueue.length) * 5);
+            setProgress(currentProgress);
+          } catch (err) {
+            console.error(`[Excel Import] ❌ Batch zero failed:`, err);
+            allWarnings.push({
+              rowIndex: 0,
+              apartmentNumber: 'קבוצה',
+              reason: 'BATCH_ZERO_FAILED',
+              message: `איפוס קבוצתי נכשל: ${err.message || 'שגיאה לא ידועה'}`
+            });
+          }
+          
+          // Wait between batches
+          if (i + BATCH_SIZE < zeroQueue.length) {
+            await sleep(1000);
+          }
+        }
+      }
+
+      console.log(`[Excel Import] ✅ COMPLETE: created=${totalCreated}, updated=${totalUpdated}, zeroed=${totalZeroed}, warnings=${allWarnings.length}`);
       console.log(`[Excel Import] 📊 Total records should be: ${totalCreated + totalUpdated}`);
 
       // ═══════════════════════════════════════════════════════════
       // STEP 4: QA (קריאה אחת בסוף)
       // ═══════════════════════════════════════════════════════════
       setProgressMessage('בודק איכות...');
-      setProgress(90);
+      setProgress(95);
       await base44.entities.ImportRun.update(importRun.id, { stage: 'QA' });
       
       const finalRecords = await base44.entities.DebtorRecord.list();
@@ -742,7 +797,7 @@ export default function ExcelImporter({ onImportComplete }) {
         successRowsCount: totalCreated + totalUpdated,
         createdCount: totalCreated,
         updatedCount: totalUpdated,
-        clearedCount: 0,
+        clearedCount: totalZeroed,
         failedRowsCount: allWarnings.length,
         skippedRowsCount: allWarnings.length,
         qaValidation,
@@ -778,7 +833,7 @@ export default function ExcelImporter({ onImportComplete }) {
         updated: totalUpdated, 
         skipped: allWarnings.length,
         failed: 0, // כל השגיאות עברו לאזהרות
-        clearedCount: 0,
+        clearedCount: totalZeroed,
         total: rows.length,
         expectedRows: excelData.expectedRows,
         uniqueInFile: excelData.uniqueInFile,
