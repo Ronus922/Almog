@@ -49,7 +49,7 @@ export function getActiveDebtors(records) {
   console.log('[debtorFilters] After dedup:', uniqueRecords.length, 'unique records');
   
   const activeRecords = uniqueRecords.filter(record => {
-    const isActive = !record.isArchived && (record.totalDebt || 0) > 0;
+    const isActive = (record.isArchived !== true) && (record.totalDebt || 0) > 0;
     if (!isActive && uniqueRecords.length <= 5) {
       console.log('[debtorFilters] Filtered out:', {
         apt: record.apartmentNumber,
