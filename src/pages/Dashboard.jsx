@@ -30,39 +30,6 @@ function DashboardContent() {
   const [activeTab, setActiveTab] = useState('debtors');
   const queryClient = useQueryClient();
 
-  // Auto-refresh after import
-  useEffect(() => {
-    const checkForNewImport = async () => {
-      const lastImport = localStorage.getItem('lastImportTimestamp');
-      if (lastImport) {
-        const timestamp = parseInt(lastImport);
-        if (Date.now() - timestamp < 60000) {
-          console.log('[Dashboard] 🔄 IMPORT DETECTED - REFRESHING NOW');
-          
-          // Clear ALL cache
-          queryClient.clear();
-          
-          // Force immediate refetch
-          await refetchAllRecords();
-          await queryClient.invalidateQueries({ queryKey: ['settings'] });
-          
-          // Update refresh key
-          setRefreshKey(Date.now());
-          
-          toast.success('✅ הנתונים עודכנו מהייבוא');
-          
-          localStorage.removeItem('lastImportTimestamp');
-          localStorage.removeItem('lastImportStatus');
-        }
-      }
-    };
-    
-    checkForNewImport();
-    const interval = setInterval(checkForNewImport, 1000);
-    
-    return () => clearInterval(interval);
-  }, [queryClient, refetchAllRecords]);
-
   // CRITICAL: Require authentication
   if (authChecked && !currentUser) {
     return <Navigate to={createPageUrl('AppLogin')} replace />;
@@ -105,6 +72,34 @@ function DashboardContent() {
     refetchOnMount: 'always',
     refetchOnWindowFocus: true
   });
+
+  // Auto-refresh after import
+  useEffect(() => {
+    const checkForNewImport = async () => {
+      const lastImport = localStorage.getItem('lastImportTimestamp');
+      if (lastImport) {
+        const timestamp = parseInt(lastImport);
+        if (Date.now() - timestamp < 60000) {
+          console.log('[Dashboard] 🔄 IMPORT DETECTED - REFRESHING NOW');
+          
+          queryClient.clear();
+          await refetchAllRecords();
+          await queryClient.invalidateQueries({ queryKey: ['settings'] });
+          setRefreshKey(Date.now());
+          
+          toast.success('✅ הנתונים עודכנו מהייבוא');
+          
+          localStorage.removeItem('lastImportTimestamp');
+          localStorage.removeItem('lastImportStatus');
+        }
+      }
+    };
+    
+    checkForNewImport();
+    const interval = setInterval(checkForNewImport, 1000);
+    
+    return () => clearInterval(interval);
+  }, [queryClient, refetchAllRecords]);
 
   // Apply unique filtering: one record per apartmentNumber (most recent by updated_date)
   // Active debtors: isArchived=false AND totalDebt>0
