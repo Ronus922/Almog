@@ -646,97 +646,103 @@ export default function ExcelImporter({ onImportComplete }) {
       // שחזור ייבוא שנכשל: בריצה נוספת רשומות קיימות יתעדכנו (לא ישוכפלו)
 
       // ═══════════════════════════════════════════════════════════
-      // STEP 3: RUN QUEUES - Throttle עם CONCURRENCY=2
+      // STEP 3: RUN QUEUES - BULK OPERATIONS
       // ═══════════════════════════════════════════════════════════
-      setProgressMessage('מבצע יצירות...');
-      setProgress(20);
-      await base44.entities.ImportRun.update(importRun.id, { stage: 'CREATES' });
-      
-      const queue = new ThrottleQueue(CONCURRENCY);
       let totalCreated = 0;
       let totalUpdated = 0;
       let totalZeroed = 0;
-      const allErrors = [];
 
-      // CREATES
-      console.log(`[Excel Import] 🚀 Starting CREATES - queue length: ${createsQueue.length}`);
-      for (let i = 0; i < createsQueue.length; i++) {
-        const item = createsQueue[i];
+      // BULK CREATES
+      if (createsQueue.length > 0) {
+        setProgressMessage(`יוצר ${createsQueue.length} רשומות חדשות...`);
+        setProgress(20);
+        await base44.entities.ImportRun.update(importRun.id, { stage: 'CREATES' });
+        
         try {
-          console.log(`[Excel Import] Creating apt ${item.aptKey}:`, JSON.stringify(item.data, null, 2));
-          const created = await queue.add(() => retryableRequest(
-            () => base44.entities.DebtorRecord.create(item.data),
-            `create:${item.aptKey}`
-          ));
-          console.log(`[Excel Import] ✅ Created record for apt ${item.aptKey}, ID: ${created?.id}`);
-          totalCreated++;
+          const createData = createsQueue.map(item => item.data);
+          console.log(`[Excel Import] 🚀 Bulk creating ${createData.length} records`);
+          await base44.entities.DebtorRecord.bulkCreate(createData);
+          totalCreated = createsQueue.length;
+          console.log(`[Excel Import] ✅ Bulk create completed - created: ${totalCreated}`);
         } catch (err) {
-          console.error(`[Excel Import] ❌ Failed to create apt ${item.aptKey}:`, err);
+          console.error(`[Excel Import] ❌ Bulk create failed:`, err);
           allWarnings.push({
             rowIndex: 0,
-            apartmentNumber: item.aptKey,
-            ownerNameRaw: item.data.ownerName,
-            reason: 'CREATE_FAILED',
-            message: `נכשל ייצור רשומה חדשה: ${err.message || 'שגיאה לא ידועה'}`
+            apartmentNumber: 'כללי',
+            reason: 'BULK_CREATE_FAILED',
+            message: `יצירה קבוצתית נכשלה: ${err.message || 'שגיאה לא ידועה'}`
           });
         }
-        
-        const currentProgress = 20 + Math.round((i / (createsQueue.length + updatesQueue.length + zeroQueue.length)) * 60);
-        setProgress(currentProgress);
-      }
-      console.log(`[Excel Import] ✅ CREATES completed - created: ${totalCreated}`);
-
-      // UPDATES
-      setProgressMessage('מבצע עדכונים...');
-      await base44.entities.ImportRun.update(importRun.id, { stage: 'UPDATES' });
-      
-      for (let i = 0; i < updatesQueue.length; i++) {
-        const item = updatesQueue[i];
-        try {
-          await queue.add(() => retryableRequest(
-            () => base44.entities.DebtorRecord.update(item.id, item.patch),
-            `update:${item.aptKey}`
-          ));
-          totalUpdated++;
-        } catch (err) {
-          // שגיאה בעדכון רשומה - נרשם כאזהרה ולא עוצרים
-          allWarnings.push({
-            rowIndex: 0,
-            apartmentNumber: item.aptKey,
-            ownerNameRaw: item.patch.ownerName || '',
-            reason: 'UPDATE_FAILED',
-            message: `נכשל עדכון רשומה קיימת: ${err.message || 'שגיאה לא ידועה'}`
-          });
-        }
-        
-        const currentProgress = 20 + Math.round(((createsQueue.length + i) / (createsQueue.length + updatesQueue.length + zeroQueue.length)) * 60);
-        setProgress(currentProgress);
       }
 
-      // ZERO
-      setProgressMessage('מאפס דירות שלא בקובץ...');
-      await base44.entities.ImportRun.update(importRun.id, { stage: 'ZERO' });
-      
-      for (let i = 0; i < zeroQueue.length; i++) {
-        const item = zeroQueue[i];
-        try {
-          await queue.add(() => retryableRequest(
-            () => base44.entities.DebtorRecord.update(item.id, item.patch),
-            `zero:${item.aptKey}`
-          ));
-          totalZeroed++;
-        } catch (err) {
-          // שגיאה באיפוס - נרשם כאזהרה ולא עוצרים
-          allWarnings.push({
-            rowIndex: 0,
-            apartmentNumber: item.aptKey,
-            reason: 'ZERO_FAILED',
-            message: `נכשל איפוס דירה שלא בקובץ: ${err.message || 'שגיאה לא ידועה'}`
-          });
-        }
+      // BULK UPDATES - split into batches of 50
+      if (updatesQueue.length > 0) {
+        setProgressMessage(`מעדכן ${updatesQueue.length} רשומות...`);
+        setProgress(50);
+        await base44.entities.ImportRun.update(importRun.id, { stage: 'UPDATES' });
         
-        const currentProgress = 20 + Math.round(((createsQueue.length + updatesQueue.length + i) / (createsQueue.length + updatesQueue.length + zeroQueue.length)) * 60);
-        setProgress(currentProgress);
+        const BATCH_SIZE = 50;
+        for (let i = 0; i < updatesQueue.length; i += BATCH_SIZE) {
+          const batch = updatesQueue.slice(i, i + BATCH_SIZE);
+          
+          try {
+            await Promise.all(batch.map(item => 
+              base44.entities.DebtorRecord.update(item.id, item.patch)
+            ));
+            totalUpdated += batch.length;
+            
+            const currentProgress = 50 + Math.round((totalUpdated / (updatesQueue.length + zeroQueue.length)) * 30);
+            setProgress(currentProgress);
+          } catch (err) {
+            console.error(`[Excel Import] ❌ Batch update failed:`, err);
+            allWarnings.push({
+              rowIndex: 0,
+              apartmentNumber: 'קבוצה',
+              reason: 'BATCH_UPDATE_FAILED',
+              message: `עדכון קבוצתי נכשל: ${err.message || 'שגיאה לא ידועה'}`
+            });
+          }
+          
+          // Wait between batches
+          if (i + BATCH_SIZE < updatesQueue.length) {
+            await sleep(1000);
+          }
+        }
+      }
+
+      // BULK ZERO - split into batches of 50
+      if (zeroQueue.length > 0) {
+        setProgressMessage(`מאפס ${zeroQueue.length} דירות...`);
+        setProgress(80);
+        await base44.entities.ImportRun.update(importRun.id, { stage: 'ZERO' });
+        
+        const BATCH_SIZE = 50;
+        for (let i = 0; i < zeroQueue.length; i += BATCH_SIZE) {
+          const batch = zeroQueue.slice(i, i + BATCH_SIZE);
+          
+          try {
+            await Promise.all(batch.map(item => 
+              base44.entities.DebtorRecord.update(item.id, item.patch)
+            ));
+            totalZeroed += batch.length;
+            
+            const currentProgress = 80 + Math.round((totalZeroed / zeroQueue.length) * 10);
+            setProgress(currentProgress);
+          } catch (err) {
+            console.error(`[Excel Import] ❌ Batch zero failed:`, err);
+            allWarnings.push({
+              rowIndex: 0,
+              apartmentNumber: 'קבוצה',
+              reason: 'BATCH_ZERO_FAILED',
+              message: `איפוס קבוצתי נכשל: ${err.message || 'שגיאה לא ידועה'}`
+            });
+          }
+          
+          // Wait between batches
+          if (i + BATCH_SIZE < zeroQueue.length) {
+            await sleep(1000);
+          }
+        }
       }
 
       console.log(`[Excel Import] ✅ COMPLETE: created=${totalCreated}, updated=${totalUpdated}, zeroed=${totalZeroed}, warnings=${allWarnings.length}`);
