@@ -66,11 +66,12 @@ function DashboardContent() {
       const records = await base44.entities.DebtorRecord.list('-totalDebt');
       console.log('[Dashboard] ✅ Fetched records:', {
         total: records.length,
-        sample: records.length > 0 ? {
-          apt: records[0].apartmentNumber,
-          debt: records[0].totalDebt,
-          archived: records[0].isArchived
-        } : null
+        hasData: records.length > 0,
+        sample: records.length > 0 ? records.slice(0, 3).map(r => ({
+          apt: r.apartmentNumber,
+          debt: r.totalDebt,
+          archived: r.isArchived
+        })) : null
       });
       return records;
     },
@@ -108,15 +109,22 @@ function DashboardContent() {
   }, [queryClient, refetchAllRecords]);
 
   // Apply unique filtering: one record per apartmentNumber (most recent by updated_date)
-  // Active debtors: isArchived=false AND totalDebt>0
-  const debtorRecords = getActiveDebtors(allRecords);
+  // Active debtors: NOT archived AND totalDebt>0
+  const debtorRecords = React.useMemo(() => {
+    const active = getActiveDebtors(allRecords);
+    console.log('[Dashboard] 📊 Filtered debtors:', {
+      allRecords: allRecords.length,
+      activeDebtors: active.length,
+      loading: debtorRecordsLoading,
+      sampleRecords: allRecords.slice(0, 3).map(r => ({
+        apt: r.apartmentNumber,
+        debt: r.totalDebt,
+        archived: r.isArchived
+      }))
+    });
+    return active;
+  }, [allRecords]);
   const debtorRecordsLoading = allRecordsLoading;
-  
-  console.log('[Dashboard] 📊 Filtered debtors:', {
-    allRecords: allRecords.length,
-    activeDebtors: debtorRecords.length,
-    loading: debtorRecordsLoading
-  });
 
   // Archived debtors: isArchived=true (unique per apartmentNumber)
   const archivedRecords = getArchivedDebtors(allRecords);
