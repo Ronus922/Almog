@@ -100,6 +100,7 @@ function DashboardContent() {
   // Apply unique filtering: one record per apartmentNumber (most recent by updated_date)
   // Active debtors: NOT archived AND totalDebt>0
   const debtorRecords = getActiveDebtors(allRecords);
+  const debtorRecordsLoading = allRecordsLoading;
 
   // Archived debtors: isArchived=true (unique per apartmentNumber)
   const archivedRecords = getArchivedDebtors(allRecords);
