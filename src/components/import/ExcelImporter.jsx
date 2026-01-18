@@ -1363,9 +1363,21 @@ export default function ExcelImporter({ onImportComplete }) {
         )}
 
         {step === 3 && (
-          <div className="p-4 w-full" dir="rtl">
-            <AppButton variant="primary" icon={RefreshCw} onClick={onImportComplete} fullWidth>
-              סיום ומעבר לדשבורד
+          <div className="p-4 w-full flex gap-3" dir="rtl">
+            <AppButton 
+              variant="primary" 
+              icon={RefreshCw} 
+              onClick={() => window.location.href = '/Dashboard'} 
+              className="flex-1"
+            >
+              חזור לדשבורד
+            </AppButton>
+            <AppButton 
+              variant="outline" 
+              onClick={() => window.location.reload()} 
+              className="flex-1"
+            >
+              ייבוא נוסף
             </AppButton>
           </div>
         )}

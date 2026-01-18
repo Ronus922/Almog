@@ -16,9 +16,8 @@ export default function Import() {
   const { attemptNavigation } = useNavigationBlock();
 
   const handleImportComplete = () => {
-    attemptNavigation(() => {
-      navigate(createPageUrl('Dashboard'));
-    });
+    // Don't navigate - stay on import page to show results and warnings
+    console.log('[Import] Import completed - staying on page');
   };
 
   if (loading) {
