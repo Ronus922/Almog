@@ -275,14 +275,26 @@ export default function ExcelImporter({ onImportComplete }) {
         }
       }
 
-      // 3. עצירת ייבוא אם יש בעיות
+      // 3. אזהרות במקום עצירה - תן למשתמש להמשיך
+      const preValidationWarnings = [];
+      
       if (emptyRows.length > 0) {
-        throw new Error(`VALIDATION_FAILED: נמצאו ${emptyRows.length} שורות עם מספר דירה ריק (שורות: ${emptyRows.slice(0, 10).join(', ')}${emptyRows.length > 10 ? '...' : ''})`);
+        preValidationWarnings.push({
+          type: 'EMPTY_ROWS',
+          count: emptyRows.length,
+          message: `נמצאו ${emptyRows.length} שורות עם מספר דירה ריק (שורות: ${emptyRows.slice(0, 10).join(', ')}${emptyRows.length > 10 ? '...' : ''})`,
+          severity: 'warning'
+        });
       }
 
       if (duplicates.length > 0) {
         const uniqueDuplicates = [...new Set(duplicates.map(d => d.key))];
-        throw new Error(`VALIDATION_FAILED: נמצאו דירות כפולות: ${uniqueDuplicates.slice(0, 5).join(', ')}${uniqueDuplicates.length > 5 ? ` ועוד ${uniqueDuplicates.length - 5}` : ''}`);
+        preValidationWarnings.push({
+          type: 'DUPLICATES',
+          count: uniqueDuplicates.length,
+          message: `נמצאו דירות כפולות: ${uniqueDuplicates.slice(0, 5).join(', ')}${uniqueDuplicates.length > 5 ? ` ועוד ${uniqueDuplicates.length - 5}` : ''}`,
+          severity: 'warning'
+        });
       }
 
       if (validRowsCount === 0) {
@@ -297,22 +309,27 @@ export default function ExcelImporter({ onImportComplete }) {
         uniqueApartments: apartmentKeys.size,
         expectedRows: validRowsCount,
         uniqueInFile: apartmentKeys.size,
-        fileName: selectedFile.name 
+        fileName: selectedFile.name,
+        preValidationWarnings: preValidationWarnings || []
       });
       setStep(2);
     } catch (err) {
+      let errorMessage = '';
+      
       if (err.message === 'no_sheets') {
-        setError('שגיאת פורמט: הקובץ אינו מכיל גיליון נתונים תקין.');
+        errorMessage = '📄 שגיאת פורמט: הקובץ אינו מכיל גיליון נתונים תקין.\n\nייתכן שהקובץ פגום או לא בפורמט Excel תקני.';
       } else if (err.message === 'empty_sheet' || err.message === 'empty_file') {
-        setError('שגיאת תוכן: הקובץ ריק או אינו מכיל נתונים.');
+        errorMessage = '📭 שגיאת תוכן: הקובץ ריק או אינו מכיל נתונים.\n\nוודא שהגיליון הראשון בקובץ מכיל נתונים החל משורה 2 (לאחר כותרת).';
       } else if (err.message === 'file_read_error') {
-        setError('שגיאת קריאה: לא ניתן לקרוא את הקובץ (פגום או מוגן).');
+        errorMessage = '🔒 שגיאת קריאה: לא ניתן לקרוא את הקובץ.\n\nסיבות אפשריות:\n• הקובץ פגום\n• הקובץ מוגן בסיסמה\n• הקובץ פתוח ביישום אחר\n\nנסה לשמור עותק חדש של הקובץ ולהעלות אותו.';
       } else if (err.message.startsWith('VALIDATION_FAILED:')) {
         const details = err.message.replace('VALIDATION_FAILED: ', '');
-        setError(`⛔ בדיקת תקינות נכשלה: ${details}\n\nהייבוא לא החל. אנא תקן את הקובץ והעלה מחדש.`);
+        errorMessage = `⛔ בדיקת תקינות נכשלה:\n\n${details}\n\n💡 טיפים:\n• ודא שעמודה A מכילה מספרי דירות\n• הסר שורות ריקות לחלוטין\n• ודא שאין דירות כפולות בקובץ`;
       } else {
-        setError(`שגיאה לא צפויה: ${err.message}`);
+        errorMessage = `❌ שגיאה בעיבוד הקובץ:\n\n${err.message}\n\nאם הבעיה חוזרת, צור קשר עם התמיכה.`;
       }
+      
+      setError(errorMessage);
       
       if (e.target) e.target.value = '';
     } finally {
@@ -818,11 +835,15 @@ export default function ExcelImporter({ onImportComplete }) {
       console.error('[Excel Import] FATAL ERROR:', err);
       
       let errorStage = 'FATAL_ERROR';
-      let errorMessage = err.message || 'שגיאה לא ידועה';
+      let errorMessage = '';
 
       if (isRateLimitError(err)) {
         errorStage = 'RATE_LIMIT_FATAL';
-        errorMessage = `חריגה ממגבלת קצב לאחר ${RETRY_MAX} ניסיונות. המערכת תצטרך לקבל הפסקה.`;
+        errorMessage = `⏱️ חריגה ממגבלת קצב\n\nהמערכת ביצעה ${RETRY_MAX} ניסיונות אך נכשלה.\n\nנא להמתין 5 דקות ולנסות שוב.`;
+      } else if (err.message?.includes('network') || err.message?.includes('fetch')) {
+        errorMessage = `🌐 שגיאת תקשורת\n\nהחיבור לשרת נכשל.\n\nנא לבדוק את החיבור לאינטרנט ולנסות שוב.\n\nפרטים טכניים: ${err.message}`;
+      } else {
+        errorMessage = `❌ שגיאה בתהליך הייבוא\n\n${err.message || 'שגיאה לא ידועה'}\n\n💾 הנתונים הקיימים לא נמחקו.\nניתן לנסות שוב בבטחה.`;
       }
 
       if (importRun) {
@@ -844,8 +865,8 @@ export default function ExcelImporter({ onImportComplete }) {
         }
       }
 
-      setError(`ייבוא נכשל: ${errorMessage}`);
-      toast.error('ייבוא נכשל');
+      setError(errorMessage);
+      toast.error('ייבוא נכשל - לא בוצעו שינויים בנתונים הקיימים');
     } finally {
       setIsImporting(false);
       finishImport();
@@ -994,7 +1015,7 @@ export default function ExcelImporter({ onImportComplete }) {
             {error && (
               <Alert variant="destructive" className="mt-4" dir="rtl">
                 <AlertTriangle className="w-4 h-4" />
-                <AlertDescription className="text-right">{error}</AlertDescription>
+                <AlertDescription className="text-right whitespace-pre-line">{error}</AlertDescription>
               </Alert>
             )}
           </div>
@@ -1008,6 +1029,21 @@ export default function ExcelImporter({ onImportComplete }) {
                 קובץ האקסל נטען בהצלחה. נמצאו {excelData.uniqueApartments} דירות ייחודיות לייבוא.
               </AlertDescription>
             </Alert>
+
+            {excelData.preValidationWarnings && excelData.preValidationWarnings.length > 0 && (
+              <Alert className="bg-orange-50 border-orange-300" dir="rtl">
+                <AlertTriangle className="w-4 h-4 text-orange-600" />
+                <AlertDescription className="text-orange-800 text-right">
+                  <p className="font-bold mb-2">⚠️ אזהרות בקובץ:</p>
+                  <div className="space-y-1 text-sm">
+                    {excelData.preValidationWarnings.map((warn, idx) => (
+                      <div key={idx}>• {warn.message}</div>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-xs font-semibold">שורות אלו לא ייובאו, אך ניתן להמשיך עם שאר הנתונים.</p>
+                </AlertDescription>
+              </Alert>
+            )}
 
             <Alert className="bg-blue-50 border-blue-300" dir="rtl">
               <AlertDescription className="text-blue-800 font-semibold text-right">
@@ -1143,7 +1179,7 @@ export default function ExcelImporter({ onImportComplete }) {
             {error && (
               <Alert variant="destructive" dir="rtl">
                 <AlertTriangle className="w-4 h-4" />
-                <AlertDescription className="text-right">{error}</AlertDescription>
+                <AlertDescription className="text-right whitespace-pre-line">{error}</AlertDescription>
               </Alert>
             )}
           </div>
