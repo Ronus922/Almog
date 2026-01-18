@@ -1288,7 +1288,12 @@ export default function ExcelImporter({ onImportComplete }) {
                     <div className="max-h-40 overflow-y-auto text-xs space-y-1">
                       {importResult.errors.slice(0, 10).map((err, idx) => (
                         <div key={idx} className="text-red-700">
-                          {err.apartmentNumber}: {err.errorMessage}
+                          {err.rowIndex > 0 && <span className="font-bold">שורה {err.rowIndex}</span>}
+                          {err.apartmentNumber && err.apartmentNumber !== 'N/A' && <span>{err.rowIndex > 0 ? ', ' : ''}דירה {err.apartmentNumber}</span>}
+                          {': '}
+                          <span className="font-semibold">{err.errorType}</span>
+                          {' - '}
+                          {err.errorMessage}
                         </div>
                       ))}
                       {importResult.errors.length > 10 && (
