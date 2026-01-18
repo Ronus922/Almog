@@ -44,23 +44,28 @@ export function getUniqueDebtorRecords(records) {
  * @returns {Array} - Filtered active debtors
  */
 export function getActiveDebtors(records) {
-  console.log('[debtorFilters] getActiveDebtors called with:', records.length, 'records');
+  console.log('[debtorFilters] 🔍 INPUT:', records.length, 'records');
   const uniqueRecords = getUniqueDebtorRecords(records);
-  console.log('[debtorFilters] After dedup:', uniqueRecords.length, 'unique records');
+  console.log('[debtorFilters] 📦 UNIQUE:', uniqueRecords.length);
   
   const activeRecords = uniqueRecords.filter(record => {
-    const isActive = (record.isArchived !== true) && (record.totalDebt || 0) > 0;
-    if (!isActive && uniqueRecords.length <= 5) {
-      console.log('[debtorFilters] Filtered out:', {
-        apt: record.apartmentNumber,
-        isArchived: record.isArchived,
-        totalDebt: record.totalDebt
-      });
-    }
+    const notArchived = record.isArchived !== true;
+    const hasDebt = (record.totalDebt || 0) > 0;
+    const isActive = notArchived && hasDebt;
+    
+    console.log('[debtorFilters] Testing:', {
+      apt: record.apartmentNumber,
+      archived: record.isArchived,
+      debt: record.totalDebt,
+      notArchived,
+      hasDebt,
+      isActive
+    });
+    
     return isActive;
   });
   
-  console.log('[debtorFilters] Active debtors:', activeRecords.length);
+  console.log('[debtorFilters] ✅ ACTIVE:', activeRecords.length);
   return activeRecords;
 }
 

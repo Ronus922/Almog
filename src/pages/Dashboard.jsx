@@ -64,14 +64,14 @@ function DashboardContent() {
     queryFn: async () => {
       console.log('[Dashboard] 🔍 Fetching all records - refreshKey:', refreshKey);
       const records = await base44.entities.DebtorRecord.list('-totalDebt');
-      console.log('[Dashboard] ✅ Fetched records:', {
-        total: records.length,
-        hasData: records.length > 0,
-        sample: records.length > 0 ? records.slice(0, 3).map(r => ({
+      console.log('[Dashboard] ✅ RAW RECORDS:', records.length);
+      records.forEach((r, i) => {
+        if (i < 5) console.log(`Record ${i}:`, {
           apt: r.apartmentNumber,
           debt: r.totalDebt,
-          archived: r.isArchived
-        })) : null
+          archived: r.isArchived,
+          archivedType: typeof r.isArchived
+        });
       });
       return records;
     },
