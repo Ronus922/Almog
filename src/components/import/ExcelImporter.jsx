@@ -450,7 +450,7 @@ export default function ExcelImporter({ onImportComplete }) {
             apartmentRaw: apartmentRaw,
             ownerNameRaw: (row[FIXED_COLUMN_MAPPING.ownerName] || '').toString().trim(),
             reason: 'MISSING_APT',
-            message: 'מספר דירה ריק או לא תקין'
+            message: 'מספר דירה ריק או לא תקין - השורה לא יובאה'
           });
           continue;
         }
@@ -466,6 +466,9 @@ export default function ExcelImporter({ onImportComplete }) {
         const monthlyDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.monthlyDebt]);
         const hotWaterDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.hotWaterDebt]);
 
+        // בדיקה: אם יש שגיאות קריטיות בנתונים - דלג על השורה
+        let hasSkipErrors = false;
+
         if (!totalDebtClean.valid) {
           allWarnings.push({
             rowIndex: i + 2,
@@ -474,8 +477,9 @@ export default function ExcelImporter({ onImportComplete }) {
             reason: 'BAD_NUMBER',
             field: 'totalDebt',
             rawValue: totalDebtClean.original,
-            message: 'ערך לא תקין בסה״כ חוב'
+            message: 'ערך לא תקין בסה״כ חוב - השורה לא יובאה'
           });
+          hasSkipErrors = true;
         }
 
         if (!monthlyDebtClean.valid) {
@@ -486,8 +490,9 @@ export default function ExcelImporter({ onImportComplete }) {
             reason: 'BAD_NUMBER',
             field: 'monthlyDebt',
             rawValue: monthlyDebtClean.original,
-            message: 'ערך לא תקין בדמי ניהול'
+            message: 'ערך לא תקין בדמי ניהול - השורה לא יובאה'
           });
+          hasSkipErrors = true;
         }
 
         if (!hotWaterDebtClean.valid) {
@@ -498,8 +503,14 @@ export default function ExcelImporter({ onImportComplete }) {
             reason: 'BAD_NUMBER',
             field: 'hotWaterDebt',
             rawValue: hotWaterDebtClean.original,
-            message: 'ערך לא תקין במים חמים'
+            message: 'ערך לא תקין במים חמים - השורה לא יובאה'
           });
+          hasSkipErrors = true;
+        }
+
+        // אם יש שגיאות קריטיות - דלג על השורה ולא תיצור/תעדכן אותה
+        if (hasSkipErrors) {
+          continue;
         }
 
         const { phoneOwner, phoneTenant, phonePrimary, phonesRaw } = parsePhoneNumbers(phoneRaw);
@@ -512,7 +523,7 @@ export default function ExcelImporter({ onImportComplete }) {
             reason: 'PHONE_PARSE_FAILED',
             field: 'phone',
             rawValue: phoneRaw,
-            message: 'לא ניתן לחלץ מספר טלפון תקין'
+            message: 'לא ניתן לחלץ מספר טלפון תקין (השורה יובאה ללא טלפון)'
           });
         }
 
@@ -667,11 +678,13 @@ export default function ExcelImporter({ onImportComplete }) {
           ));
           totalCreated++;
         } catch (err) {
-          allErrors.push({
+          // שגיאה ביצירת רשומה - נרשם כאזהרה ולא עוצרים
+          allWarnings.push({
             rowIndex: 0,
             apartmentNumber: item.aptKey,
-            errorType: 'CREATE_FAILED',
-            errorMessage: err.message || 'נכשל ייצור רשומה'
+            ownerNameRaw: item.data.ownerName,
+            reason: 'CREATE_FAILED',
+            message: `נכשל ייצור רשומה חדשה: ${err.message || 'שגיאה לא ידועה'}`
           });
         }
         
@@ -692,11 +705,13 @@ export default function ExcelImporter({ onImportComplete }) {
           ));
           totalUpdated++;
         } catch (err) {
-          allErrors.push({
+          // שגיאה בעדכון רשומה - נרשם כאזהרה ולא עוצרים
+          allWarnings.push({
             rowIndex: 0,
             apartmentNumber: item.aptKey,
-            errorType: 'UPDATE_FAILED',
-            errorMessage: err.message || 'נכשל עדכון רשומה'
+            ownerNameRaw: item.patch.ownerName || '',
+            reason: 'UPDATE_FAILED',
+            message: `נכשל עדכון רשומה קיימת: ${err.message || 'שגיאה לא ידועה'}`
           });
         }
         
@@ -717,11 +732,12 @@ export default function ExcelImporter({ onImportComplete }) {
           ));
           totalZeroed++;
         } catch (err) {
-          allErrors.push({
+          // שגיאה באיפוס - נרשם כאזהרה ולא עוצרים
+          allWarnings.push({
             rowIndex: 0,
             apartmentNumber: item.aptKey,
-            errorType: 'ZERO_FAILED',
-            errorMessage: err.message || 'נכשל איפוס רשומה'
+            reason: 'ZERO_FAILED',
+            message: `נכשל איפוס דירה שלא בקובץ: ${err.message || 'שגיאה לא ידועה'}`
           });
         }
         
@@ -729,7 +745,7 @@ export default function ExcelImporter({ onImportComplete }) {
         setProgress(currentProgress);
       }
 
-      console.log(`[Excel Import] COMPLETE: created=${totalCreated}, updated=${totalUpdated}, zeroed=${totalZeroed}, errors=${allErrors.length}`);
+      console.log(`[Excel Import] COMPLETE: created=${totalCreated}, updated=${totalUpdated}, zeroed=${totalZeroed}, warnings=${allWarnings.length}`);
 
       // ═══════════════════════════════════════════════════════════
       // STEP 4: QA (קריאה אחת בסוף)
@@ -749,14 +765,14 @@ export default function ExcelImporter({ onImportComplete }) {
       const qaValidation = delta <= 0.01;
       const countValidation = importedCount === excelData.uniqueInFile;
 
-      console.log(`[Excel Import - QA] Expected: ${excelData.uniqueInFile}, Imported: ${importedCount}, Delta: ${delta.toFixed(2)}`);
+      console.log(`[Excel Import - QA] Expected: ${excelData.uniqueInFile}, Imported: ${importedCount}, Delta: ${delta.toFixed(2)}, Warnings: ${allWarnings.length}`);
 
       let finalStatus = 'SUCCESS';
       let errorSummary = '';
 
-      if (allErrors.length > 0) {
+      if (allWarnings.length > 0) {
         finalStatus = 'PARTIAL';
-        errorSummary = `${allErrors.length} פעולות נכשלו`;
+        errorSummary = `${allWarnings.length} שורות לא יובאו`;
       }
 
       if (!qaValidation) {
@@ -777,12 +793,17 @@ export default function ExcelImporter({ onImportComplete }) {
         createdCount: totalCreated,
         updatedCount: totalUpdated,
         clearedCount: totalZeroed,
-        failedRowsCount: allErrors.length,
-        skippedRowsCount: allWarnings.filter(w => w.reason === 'MISSING_APT').length,
+        failedRowsCount: allWarnings.length,
+        skippedRowsCount: allWarnings.length,
         qaValidation,
         qaDelta: parseFloat(delta.toFixed(2)),
         errorSummary: errorSummary || 'אין שגיאות',
-        errorDetails: allErrors
+        errorDetails: allWarnings.map(w => ({
+          rowIndex: w.rowIndex,
+          apartmentNumber: w.apartmentNumber || w.apartmentRaw || '',
+          errorType: w.reason,
+          errorMessage: w.message
+        }))
       });
 
       // Update Settings
@@ -805,8 +826,8 @@ export default function ExcelImporter({ onImportComplete }) {
       setImportResult({ 
         created: totalCreated, 
         updated: totalUpdated, 
-        skipped: allWarnings.filter(w => w.reason === 'MISSING_APT').length,
-        failed: allErrors.length,
+        skipped: allWarnings.length,
+        failed: 0, // כל השגיאות עברו לאזהרות
         clearedCount: totalZeroed,
         total: rows.length,
         expectedRows: excelData.expectedRows,
@@ -815,7 +836,7 @@ export default function ExcelImporter({ onImportComplete }) {
         qaValidation,
         countValidation,
         delta: delta.toFixed(2),
-        errors: allErrors,
+        errors: [], // אין שגיאות שעוצרות - הכל באזהרות
         warnings: allWarnings,
         status: finalStatus,
         importRunId
@@ -825,9 +846,9 @@ export default function ExcelImporter({ onImportComplete }) {
       setStep(3);
       
       if (finalStatus === 'SUCCESS') {
-        toast.success('הייבוא הושלם בהצלחה');
+        toast.success('הייבוא הושלם בהצלחה ללא אזהרות');
       } else {
-        toast.warning(`הייבוא הושלם חלקית - ${allErrors.length} פעולות נכשלו`);
+        toast.warning(`הייבוא הושלם - ${allWarnings.length} שורות לא יובאו (ראה אזהרות)`);
       }
       
       console.log(`[Excel Import] ========== END ${importRunId} ==========`);
