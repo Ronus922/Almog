@@ -80,13 +80,13 @@ function DashboardContent() {
     refetchOnWindowFocus: true
   });
 
-  // Auto-refresh after import
+  // Auto-refresh after import - check once on mount only
   useEffect(() => {
     const checkForNewImport = async () => {
       const lastImport = localStorage.getItem('lastImportTimestamp');
       if (lastImport) {
         const timestamp = parseInt(lastImport);
-        if (Date.now() - timestamp < 60000) {
+        if (Date.now() - timestamp < 10000) { // Only within 10 seconds
           console.log('[Dashboard] 🔄 IMPORT DETECTED - REFRESHING NOW');
           
           queryClient.clear();
@@ -95,17 +95,16 @@ function DashboardContent() {
           setRefreshKey(Date.now());
           
           toast.success('✅ הנתונים עודכנו מהייבוא');
-          
-          localStorage.removeItem('lastImportTimestamp');
-          localStorage.removeItem('lastImportStatus');
         }
+        
+        // Always remove after checking
+        localStorage.removeItem('lastImportTimestamp');
+        localStorage.removeItem('lastImportStatus');
       }
     };
     
+    // Check only once on mount
     checkForNewImport();
-    const interval = setInterval(checkForNewImport, 1000);
-    
-    return () => clearInterval(interval);
   }, [queryClient, refetchAllRecords]);
 
   // Apply unique filtering: one record per apartmentNumber (most recent by updated_date)
