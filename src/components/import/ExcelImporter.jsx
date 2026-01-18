@@ -466,10 +466,8 @@ export default function ExcelImporter({ onImportComplete }) {
         const monthlyDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.monthlyDebt]);
         const hotWaterDebtClean = cleanNumber(row[FIXED_COLUMN_MAPPING.hotWaterDebt]);
 
-        // בדיקה: אם יש שגיאות קריטיות בנתונים - דלג על השורה
-        let hasSkipErrors = false;
-
-        if (!totalDebtClean.valid) {
+        // אזהרות על ערכים לא תקינים - אך ממשיכים עם 0
+        if (!totalDebtClean.valid && totalDebtClean.original) {
           allWarnings.push({
             rowIndex: i + 2,
             apartmentNumber: apartmentKey,
@@ -477,12 +475,11 @@ export default function ExcelImporter({ onImportComplete }) {
             reason: 'BAD_NUMBER',
             field: 'totalDebt',
             rawValue: totalDebtClean.original,
-            message: 'ערך לא תקין בסה״כ חוב - השורה לא יובאה'
+            message: 'ערך לא תקין בסה״כ חוב - השתמשנו ב-0'
           });
-          hasSkipErrors = true;
         }
 
-        if (!monthlyDebtClean.valid) {
+        if (!monthlyDebtClean.valid && monthlyDebtClean.original) {
           allWarnings.push({
             rowIndex: i + 2,
             apartmentNumber: apartmentKey,
@@ -490,12 +487,11 @@ export default function ExcelImporter({ onImportComplete }) {
             reason: 'BAD_NUMBER',
             field: 'monthlyDebt',
             rawValue: monthlyDebtClean.original,
-            message: 'ערך לא תקין בדמי ניהול - השורה לא יובאה'
+            message: 'ערך לא תקין בדמי ניהול - השתמשנו ב-0'
           });
-          hasSkipErrors = true;
         }
 
-        if (!hotWaterDebtClean.valid) {
+        if (!hotWaterDebtClean.valid && hotWaterDebtClean.original) {
           allWarnings.push({
             rowIndex: i + 2,
             apartmentNumber: apartmentKey,
@@ -503,14 +499,8 @@ export default function ExcelImporter({ onImportComplete }) {
             reason: 'BAD_NUMBER',
             field: 'hotWaterDebt',
             rawValue: hotWaterDebtClean.original,
-            message: 'ערך לא תקין במים חמים - השורה לא יובאה'
+            message: 'ערך לא תקין במים חמים - השתמשנו ב-0'
           });
-          hasSkipErrors = true;
-        }
-
-        // אם יש שגיאות קריטיות - דלג על השורה ולא תיצור/תעדכן אותה
-        if (hasSkipErrors) {
-          continue;
         }
 
         const { phoneOwner, phoneTenant, phonePrimary, phonesRaw } = parsePhoneNumbers(phoneRaw);
