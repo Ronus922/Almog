@@ -65,10 +65,9 @@ function DashboardContent() {
       const records = await base44.entities.DebtorRecord.list('-totalDebt');
       return records;
     },
-    staleTime: 0,
-    gcTime: 0,
-    refetchOnMount: 'always',
-    refetchOnWindowFocus: true
+    staleTime: 30000,
+    refetchOnMount: false,
+    refetchOnWindowFocus: false
   });
 
   // Auto-refresh after import - check once on mount only
