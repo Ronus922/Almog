@@ -30,38 +30,38 @@ function DashboardContent() {
   const [activeTab, setActiveTab] = useState('debtors');
   const queryClient = useQueryClient();
 
-  // Auto-refresh after import
+  // Auto-refresh after import - continuous polling
   useEffect(() => {
     const checkForNewImport = () => {
       const lastImport = localStorage.getItem('lastImportTimestamp');
       if (lastImport) {
         const timestamp = parseInt(lastImport);
-        if (Date.now() - timestamp < 30000) { // Within 30 seconds
-          console.log('[Dashboard] New import detected - refreshing data');
+        // Within 60 seconds and not already processed
+        if (Date.now() - timestamp < 60000) {
+          console.log('[Dashboard] New import detected - FORCE REFRESH');
+          
+          // Force complete refresh
+          queryClient.clear();
           setRefreshKey(Date.now());
-          queryClient.invalidateQueries({ queryKey: ['allDebtorRecords'] });
-          queryClient.invalidateQueries({ queryKey: ['settings'] });
-          localStorage.removeItem('lastImportTimestamp');
           
           const status = localStorage.getItem('lastImportStatus');
-          if (status === 'SUCCESS') {
-            toast.success('הנתונים עודכנו מהייבוא האחרון');
-          } else {
-            toast.info('הנתונים עודכנו מהייבוא האחרון');
-          }
+          toast.success('✅ הנתונים התעדכנו מהייבוא');
+          
+          // Clear after processing
+          localStorage.removeItem('lastImportTimestamp');
           localStorage.removeItem('lastImportStatus');
         }
       }
     };
     
-    // Check immediately on mount
+    // Immediate check on mount
     checkForNewImport();
     
-    // Check every 2 seconds
-    const interval = setInterval(checkForNewImport, 2000);
+    // Aggressive polling - every 1 second for 60 seconds
+    const interval = setInterval(checkForNewImport, 1000);
     
     return () => clearInterval(interval);
-  }, [queryClient]);
+  }, [queryClient, setRefreshKey]);
 
   // CRITICAL: Require authentication
   if (authChecked && !currentUser) {
@@ -92,24 +92,18 @@ function DashboardContent() {
     }
   }, []);
 
-  const { data: allRecords = [], isLoading: allRecordsLoading } = useQuery({
+  const { data: allRecords = [], isLoading: allRecordsLoading, refetch: refetchAllRecords } = useQuery({
     queryKey: ['allDebtorRecords', refreshKey],
     queryFn: async () => {
+      console.log('[Dashboard] Fetching all records - refreshKey:', refreshKey);
       const records = await base44.entities.DebtorRecord.list('-totalDebt');
-      // Debug log
-      if (records.length > 0) {
-        const sample = records[0];
-        console.log('[Dashboard] Sample record:', {
-          apartmentNumber: sample.apartmentNumber,
-          phonePrimary: sample.phonePrimary,
-          phoneOwner: sample.phoneOwner,
-          phonePrimaryForTable: getPhonePrimaryForTable(sample)
-        });
-      }
+      console.log('[Dashboard] Fetched records count:', records.length);
       return records;
     },
     staleTime: 0,
-    cacheTime: 0
+    gcTime: 0, // Changed from cacheTime
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true
   });
 
   // Apply unique filtering: one record per apartmentNumber (most recent by updated_date)
