@@ -44,12 +44,24 @@ export function getUniqueDebtorRecords(records) {
  * @returns {Array} - Filtered active debtors
  */
 export function getActiveDebtors(records) {
+  console.log('[debtorFilters] getActiveDebtors called with:', records.length, 'records');
   const uniqueRecords = getUniqueDebtorRecords(records);
+  console.log('[debtorFilters] After dedup:', uniqueRecords.length, 'unique records');
   
-  return uniqueRecords.filter(record => 
-    record.isArchived === false && 
-    (record.totalDebt || 0) > 0
-  );
+  const activeRecords = uniqueRecords.filter(record => {
+    const isActive = record.isArchived === false && (record.totalDebt || 0) > 0;
+    if (!isActive && uniqueRecords.length <= 5) {
+      console.log('[debtorFilters] Filtered out:', {
+        apt: record.apartmentNumber,
+        isArchived: record.isArchived,
+        totalDebt: record.totalDebt
+      });
+    }
+    return isActive;
+  });
+  
+  console.log('[debtorFilters] Active debtors:', activeRecords.length);
+  return activeRecords;
 }
 
 /**
