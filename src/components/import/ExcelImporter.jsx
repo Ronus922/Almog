@@ -659,9 +659,11 @@ export default function ExcelImporter({ onImportComplete }) {
       const allErrors = [];
 
       // CREATES
+      console.log(`[Excel Import] 🚀 Starting CREATES - queue length: ${createsQueue.length}`);
       for (let i = 0; i < createsQueue.length; i++) {
         const item = createsQueue[i];
         try {
+          console.log(`[Excel Import] Creating apt ${item.aptKey}:`, JSON.stringify(item.data, null, 2));
           const created = await queue.add(() => retryableRequest(
             () => base44.entities.DebtorRecord.create(item.data),
             `create:${item.aptKey}`
@@ -682,6 +684,7 @@ export default function ExcelImporter({ onImportComplete }) {
         const currentProgress = 20 + Math.round((i / (createsQueue.length + updatesQueue.length + zeroQueue.length)) * 60);
         setProgress(currentProgress);
       }
+      console.log(`[Excel Import] ✅ CREATES completed - created: ${totalCreated}`);
 
       // UPDATES
       setProgressMessage('מבצע עדכונים...');

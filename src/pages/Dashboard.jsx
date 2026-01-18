@@ -62,13 +62,20 @@ function DashboardContent() {
   const { data: allRecords = [], isLoading: allRecordsLoading, refetch: refetchAllRecords } = useQuery({
     queryKey: ['allDebtorRecords', refreshKey],
     queryFn: async () => {
-      console.log('[Dashboard] Fetching all records - refreshKey:', refreshKey);
+      console.log('[Dashboard] 🔍 Fetching all records - refreshKey:', refreshKey);
       const records = await base44.entities.DebtorRecord.list('-totalDebt');
-      console.log('[Dashboard] Fetched records count:', records.length);
+      console.log('[Dashboard] ✅ Fetched records:', {
+        total: records.length,
+        sample: records.length > 0 ? {
+          apt: records[0].apartmentNumber,
+          debt: records[0].totalDebt,
+          archived: records[0].isArchived
+        } : null
+      });
       return records;
     },
     staleTime: 0,
-    gcTime: 0, // Changed from cacheTime
+    gcTime: 0,
     refetchOnMount: 'always',
     refetchOnWindowFocus: true
   });
@@ -105,6 +112,12 @@ function DashboardContent() {
   // Active debtors: isArchived=false AND totalDebt>0
   const debtorRecords = getActiveDebtors(allRecords);
   const debtorRecordsLoading = allRecordsLoading;
+  
+  console.log('[Dashboard] 📊 Filtered debtors:', {
+    allRecords: allRecords.length,
+    activeDebtors: debtorRecords.length,
+    loading: debtorRecordsLoading
+  });
 
   // Archived debtors: isArchived=true (unique per apartmentNumber)
   const archivedRecords = getArchivedDebtors(allRecords);
