@@ -662,13 +662,14 @@ export default function ExcelImporter({ onImportComplete }) {
       for (let i = 0; i < createsQueue.length; i++) {
         const item = createsQueue[i];
         try {
-          await queue.add(() => retryableRequest(
+          const created = await queue.add(() => retryableRequest(
             () => base44.entities.DebtorRecord.create(item.data),
             `create:${item.aptKey}`
           ));
+          console.log(`[Excel Import] ✅ Created record for apt ${item.aptKey}, ID: ${created?.id}`);
           totalCreated++;
         } catch (err) {
-          // שגיאה ביצירת רשומה - נרשם כאזהרה ולא עוצרים
+          console.error(`[Excel Import] ❌ Failed to create apt ${item.aptKey}:`, err);
           allWarnings.push({
             rowIndex: 0,
             apartmentNumber: item.aptKey,
@@ -735,7 +736,8 @@ export default function ExcelImporter({ onImportComplete }) {
         setProgress(currentProgress);
       }
 
-      console.log(`[Excel Import] COMPLETE: created=${totalCreated}, updated=${totalUpdated}, zeroed=${totalZeroed}, warnings=${allWarnings.length}`);
+      console.log(`[Excel Import] ✅ COMPLETE: created=${totalCreated}, updated=${totalUpdated}, zeroed=${totalZeroed}, warnings=${allWarnings.length}`);
+      console.log(`[Excel Import] 📊 Total records should be: ${totalCreated + totalUpdated}`);
 
       // ═══════════════════════════════════════════════════════════
       // STEP 4: QA (קריאה אחת בסוף)
@@ -746,6 +748,10 @@ export default function ExcelImporter({ onImportComplete }) {
       
       const finalRecords = await base44.entities.DebtorRecord.list();
       const importedCount = finalRecords.filter(r => r.lastImportRunId === importRunId).length;
+      
+      console.log(`[Excel Import - QA] 📊 Total records in DB: ${finalRecords.length}`);
+      console.log(`[Excel Import - QA] 🎯 Records from this import: ${importedCount}`);
+      console.log(`[Excel Import - QA] 📝 Expected: ${excelData.uniqueInFile}`);
 
       const sumMonthly = finalRecords.reduce((sum, r) => sum + (r.monthlyDebt || 0), 0);
       const sumSpecial = finalRecords.reduce((sum, r) => sum + (r.specialDebt || 0), 0);
@@ -755,7 +761,7 @@ export default function ExcelImporter({ onImportComplete }) {
       const qaValidation = delta <= 0.01;
       const countValidation = importedCount === excelData.uniqueInFile;
 
-      console.log(`[Excel Import - QA] Expected: ${excelData.uniqueInFile}, Imported: ${importedCount}, Delta: ${delta.toFixed(2)}, Warnings: ${allWarnings.length}`);
+      console.log(`[Excel Import - QA] ✅ QA Check - Expected: ${excelData.uniqueInFile}, Got: ${importedCount}, Delta: ${delta.toFixed(2)}, Warnings: ${allWarnings.length}`);
 
       let finalStatus = 'SUCCESS';
       let errorSummary = '';

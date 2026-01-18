@@ -30,38 +30,38 @@ function DashboardContent() {
   const [activeTab, setActiveTab] = useState('debtors');
   const queryClient = useQueryClient();
 
-  // Auto-refresh after import - continuous polling
+  // Auto-refresh after import
   useEffect(() => {
-    const checkForNewImport = () => {
+    const checkForNewImport = async () => {
       const lastImport = localStorage.getItem('lastImportTimestamp');
       if (lastImport) {
         const timestamp = parseInt(lastImport);
-        // Within 60 seconds and not already processed
         if (Date.now() - timestamp < 60000) {
-          console.log('[Dashboard] New import detected - FORCE REFRESH');
+          console.log('[Dashboard] 🔄 IMPORT DETECTED - REFRESHING NOW');
           
-          // Force complete refresh
+          // Clear ALL cache
           queryClient.clear();
+          
+          // Force immediate refetch
+          await refetchAllRecords();
+          await queryClient.invalidateQueries({ queryKey: ['settings'] });
+          
+          // Update refresh key
           setRefreshKey(Date.now());
           
-          const status = localStorage.getItem('lastImportStatus');
-          toast.success('✅ הנתונים התעדכנו מהייבוא');
+          toast.success('✅ הנתונים עודכנו מהייבוא');
           
-          // Clear after processing
           localStorage.removeItem('lastImportTimestamp');
           localStorage.removeItem('lastImportStatus');
         }
       }
     };
     
-    // Immediate check on mount
     checkForNewImport();
-    
-    // Aggressive polling - every 1 second for 60 seconds
     const interval = setInterval(checkForNewImport, 1000);
     
     return () => clearInterval(interval);
-  }, [queryClient, setRefreshKey]);
+  }, [queryClient, refetchAllRecords]);
 
   // CRITICAL: Require authentication
   if (authChecked && !currentUser) {
