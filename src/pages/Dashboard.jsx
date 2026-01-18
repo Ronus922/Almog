@@ -62,17 +62,7 @@ function DashboardContent() {
   const { data: allRecords = [], isLoading: allRecordsLoading, refetch: refetchAllRecords } = useQuery({
     queryKey: ['allDebtorRecords', refreshKey],
     queryFn: async () => {
-      console.log('[Dashboard] 🔍 Fetching all records - refreshKey:', refreshKey);
       const records = await base44.entities.DebtorRecord.list('-totalDebt');
-      console.log('[Dashboard] ✅ RAW RECORDS:', records.length);
-      records.forEach((r, i) => {
-        if (i < 5) console.log(`Record ${i}:`, {
-          apt: r.apartmentNumber,
-          debt: r.totalDebt,
-          archived: r.isArchived,
-          archivedType: typeof r.isArchived
-        });
-      });
       return records;
     },
     staleTime: 0,
