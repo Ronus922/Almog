@@ -30,9 +30,9 @@ const FIXED_COLUMN_MAPPING = {
 };
 
 const ALLOWED_FILE_EXTENSIONS = ['.xlsx', '.xls'];
-const CONCURRENCY = 2;
+const CONCURRENCY = 1;
 const RETRY_MAX = 5;
-const BACKOFF_MS = [250, 500, 1000, 2000, 4000];
+const BACKOFF_MS = [1000, 2000, 4000, 8000, 16000];
 const FETCH_PAGE_SIZE = 500;
 
 // ═══════════════════════════════════════════════════════════
