@@ -34,9 +34,7 @@ Deno.serve(async (req) => {
 
     const emails = status.notification_emails.split(',').map(e => e.trim()).filter(e => e);
     
-    // יצירת PDF עם פרטי הדירה
-    const pdfBuffer = await generateApartmentPDF(record, status, comments);
-    const pdfBase64 = btoa(String.fromCharCode.apply(null, new Uint8Array(pdfBuffer)));
+    // עדיין לא מחוברים PDF - שלח את המייל בלי
     
     const emailResults = [];
     for (const email of emails) {
