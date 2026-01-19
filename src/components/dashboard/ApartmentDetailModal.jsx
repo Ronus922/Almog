@@ -267,146 +267,121 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   const handleExportPDF = async () => {
     setIsExporting(true);
     try {
+      const html2canvas = (await import('html2canvas')).default;
       const { jsPDF } = await import('jspdf');
-      const { loadHebrewFont } = await import('../export/hebrewFont');
       
       // Fetch comments
       const comments = await base44.entities.Comment.filter({ debtor_record_id: record.id }, '-created_date');
       const currentStatus = legalStatuses.find(s => s.id === selectedLegalStatusId);
       
-      const doc = new jsPDF({
+      // Create HTML content
+      const printContent = document.createElement('div');
+      printContent.style.cssText = 'position: absolute; left: -9999px; width: 800px; background: white; padding: 40px; font-family: Arial, sans-serif; direction: rtl;';
+      
+      printContent.innerHTML = `
+        <div style="direction: rtl; text-align: right;">
+          <h1 style="color: #1e40af; border-bottom: 3px solid #1e40af; padding-bottom: 10px; margin-bottom: 20px;">
+            פרטי דירה ${record.apartmentNumber}
+          </h1>
+          
+          <div style="margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 8px;">
+            <h3 style="color: #334155; margin: 0 0 10px 0;">פרטים עיקריים</h3>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+              <div><strong>מספר דירה:</strong> ${record.apartmentNumber}</div>
+              <div><strong>בעל דירה:</strong> ${record.ownerName || 'לא צוין'}</div>
+              <div><strong>טלפון בעלים:</strong> ${formatPhone(record.phoneOwner)}</div>
+              <div><strong>טלפון שוכר:</strong> ${formatPhone(record.phoneTenant)}</div>
+            </div>
+          </div>
+
+          ${currentStatus ? `
+            <div style="margin-bottom: 20px; background: #eff6ff; padding: 15px; border-radius: 8px;">
+              <h3 style="color: #334155; margin: 0 0 10px 0;">סטטוס משפטי</h3>
+              <div style="font-weight: bold; font-size: 16px; margin-bottom: 5px;">${currentStatus.name}</div>
+              ${editedRecord?.legal_status_updated_at ? `
+                <div style="font-size: 12px; color: #64748b;">
+                  עודכן: ${new Date(editedRecord.legal_status_updated_at).toLocaleString('he-IL')}
+                </div>
+              ` : ''}
+            </div>
+          ` : ''}
+
+          <div style="margin-bottom: 20px; background: #fef2f2; border: 2px solid #fca5a5; padding: 15px; border-radius: 8px;">
+            <h3 style="color: #991b1b; margin: 0 0 10px 0;">פירוט חובות</h3>
+            <div style="font-size: 24px; font-weight: bold; color: #dc2626; margin-bottom: 10px;">
+              סה״כ חוב: ${formatCurrency(record.totalDebt)}
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+              <div><strong>דמי ניהול:</strong> ${formatCurrency(record.monthlyDebt)}</div>
+              <div><strong>מים חמים:</strong> ${formatCurrency(record.specialDebt)}</div>
+            </div>
+          </div>
+
+          ${record.managementMonthsRaw ? `
+            <div style="margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 8px;">
+              <h3 style="color: #334155; margin: 0 0 10px 0;">דמי ניהול לחודשים</h3>
+              <div style="white-space: pre-wrap;">${record.managementMonthsRaw}</div>
+            </div>
+          ` : ''}
+
+          ${comments && comments.length > 0 ? `
+            <div style="margin-top: 20px;">
+              <h3 style="color: #334155; margin-bottom: 10px;">הערות ותיעוד</h3>
+              ${comments.map(comment => `
+                <div style="background: #f8fafc; border-right: 4px solid #3b82f6; padding: 12px; margin-bottom: 10px; border-radius: 4px;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; color: #64748b;">
+                    <strong style="color: #1e40af;">${comment.author_name}</strong>
+                    <span>${new Date(comment.created_date).toLocaleString('he-IL')}</span>
+                  </div>
+                  <div style="white-space: pre-wrap;">${comment.content}</div>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+
+          <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 12px;">
+            נוצר ב-${new Date().toLocaleString('he-IL')} • מערכת ניהול חייבים
+          </div>
+        </div>
+      `;
+      
+      document.body.appendChild(printContent);
+      
+      // Convert to canvas
+      const canvas = await html2canvas(printContent, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff'
+      });
+      
+      // Create PDF
+      const imgData = canvas.toDataURL('image/jpeg', 1.0);
+      const pdf = new jsPDF({
         orientation: 'portrait',
         unit: 'mm',
         format: 'a4'
       });
+      
+      const imgWidth = 210;
+      const pageHeight = 297;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      let heightLeft = imgHeight;
+      let position = 0;
 
-      // Add Hebrew font
-      const hebrewFont = await loadHebrewFont();
-      if (hebrewFont) {
-        doc.addFileToVFS('Heebo-Regular.ttf', hebrewFont);
-        doc.addFont('Heebo-Regular.ttf', 'Heebo', 'normal');
-        doc.setFont('Heebo');
+      pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+
+      while (heightLeft > 0) {
+        position = heightLeft - imgHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
       }
-      doc.setR2L(true);
-
-      let yPos = 20;
-      const pageWidth = 210;
-      const margin = 20;
-      const contentWidth = pageWidth - (2 * margin);
-
-      // Title
-      doc.setFontSize(22);
-      doc.setTextColor(30, 64, 175);
-      doc.text(`פרטי דירה ${record.apartmentNumber}`, pageWidth - margin, yPos, { align: 'right' });
-      yPos += 10;
-
-      // Section: פרטים עיקריים
-      doc.setFontSize(16);
-      doc.setTextColor(51, 65, 85);
-      yPos += 5;
-      doc.text('פרטים עיקריים', pageWidth - margin, yPos, { align: 'right' });
-      yPos += 8;
-
-      doc.setFontSize(12);
-      doc.setTextColor(0, 0, 0);
-      const details = [
-        ['מספר דירה:', record.apartmentNumber],
-        ['בעל דירה:', record.ownerName || 'לא צוין'],
-        ['טלפון בעלים:', formatPhone(record.phoneOwner)],
-        ['טלפון שוכר:', formatPhone(record.phoneTenant)]
-      ];
-
-      details.forEach(([label, value]) => {
-        doc.setFont('Heebo', 'bold');
-        doc.text(label, pageWidth - margin, yPos, { align: 'right' });
-        doc.setFont('Heebo', 'normal');
-        doc.text(String(value), pageWidth - margin - 45, yPos, { align: 'right' });
-        yPos += 7;
-      });
-
-      // Section: סטטוס משפטי
-      if (currentStatus) {
-        yPos += 5;
-        doc.setFontSize(16);
-        doc.setTextColor(51, 65, 85);
-        doc.text('סטטוס משפטי', pageWidth - margin, yPos, { align: 'right' });
-        yPos += 8;
-        
-        doc.setFontSize(12);
-        doc.setTextColor(0, 0, 0);
-        doc.setFont('Heebo', 'bold');
-        doc.text(currentStatus.name, pageWidth - margin, yPos, { align: 'right' });
-        yPos += 7;
-        
-        if (editedRecord?.legal_status_updated_at) {
-          doc.setFont('Heebo', 'normal');
-          doc.setFontSize(10);
-          doc.setTextColor(100, 116, 139);
-          doc.text(`עודכן: ${new Date(editedRecord.legal_status_updated_at).toLocaleString('he-IL')}`, pageWidth - margin, yPos, { align: 'right' });
-          yPos += 5;
-        }
-      }
-
-      // Section: פירוט חובות
-      yPos += 5;
-      doc.setFontSize(16);
-      doc.setTextColor(153, 27, 27);
-      doc.text('פירוט חובות', pageWidth - margin, yPos, { align: 'right' });
-      yPos += 8;
-
-      doc.setFontSize(14);
-      doc.setTextColor(220, 38, 38);
-      doc.setFont('Heebo', 'bold');
-      doc.text(`סה״כ חוב: ${formatCurrency(record.totalDebt)}`, pageWidth - margin, yPos, { align: 'right' });
-      yPos += 8;
-
-      doc.setFontSize(12);
-      doc.setTextColor(0, 0, 0);
-      doc.setFont('Heebo', 'normal');
-      doc.text(`דמי ניהול: ${formatCurrency(record.monthlyDebt)}`, pageWidth - margin, yPos, { align: 'right' });
-      yPos += 6;
-      doc.text(`מים חמים: ${formatCurrency(record.specialDebt)}`, pageWidth - margin, yPos, { align: 'right' });
-      yPos += 10;
-
-      // Section: הערות
-      if (comments && comments.length > 0) {
-        doc.setFontSize(16);
-        doc.setTextColor(51, 65, 85);
-        doc.text('הערות ותיעוד', pageWidth - margin, yPos, { align: 'right' });
-        yPos += 8;
-
-        comments.forEach(comment => {
-          if (yPos > 270) {
-            doc.addPage();
-            yPos = 20;
-          }
-          
-          doc.setFontSize(10);
-          doc.setTextColor(30, 64, 175);
-          doc.setFont('Heebo', 'bold');
-          doc.text(comment.author_name, pageWidth - margin, yPos, { align: 'right' });
-          
-          doc.setTextColor(148, 163, 184);
-          doc.setFont('Heebo', 'normal');
-          doc.text(new Date(comment.created_date).toLocaleDateString('he-IL'), margin, yPos, { align: 'left' });
-          yPos += 6;
-          
-          doc.setFontSize(11);
-          doc.setTextColor(0, 0, 0);
-          const lines = doc.splitTextToSize(comment.content, contentWidth - 10);
-          lines.forEach(line => {
-            if (yPos > 280) {
-              doc.addPage();
-              yPos = 20;
-            }
-            doc.text(line, pageWidth - margin - 5, yPos, { align: 'right' });
-            yPos += 5;
-          });
-          yPos += 5;
-        });
-      }
-
-      doc.save(`דירה_${record.apartmentNumber}_${new Date().toISOString().split('T')[0]}.pdf`);
+      
+      document.body.removeChild(printContent);
+      
+      pdf.save(`דירה_${record.apartmentNumber}_${new Date().toISOString().split('T')[0]}.pdf`);
       toast.success('PDF הורד בהצלחה');
     } catch (error) {
       console.error('PDF export error:', error);
