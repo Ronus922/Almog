@@ -228,8 +228,12 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           newStatusId: newStatusId
         }).then(response => {
           console.log('[EMAIL NOTIFICATION] Success:', response.data);
-          if (response.data.success) {
-            toast.success('התראת מייל נשלחה בהצלחה');
+          // בדיקה אם באמת נשלחו מיילים (emailResults יכיל תוצאות)
+          if (response.data.success && response.data.emailResults && response.data.emailResults.length > 0) {
+            const successCount = response.data.emailResults.filter(r => r.success).length;
+            if (successCount > 0) {
+              toast.success(`התראת מייל נשלחה בהצלחה ל-${successCount} כתובות`);
+            }
           }
         }).catch(err => {
           console.error('[EMAIL NOTIFICATION] Failed:', err);
