@@ -4,6 +4,14 @@ import { Resend } from 'npm:resend@4.0.0';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
+    
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    if (!resendApiKey) {
+      console.error('RESEND_API_KEY not configured');
+      return Response.json({ error: 'Email service not configured' }, { status: 500 });
+    }
+    
+    const resend = new Resend(resendApiKey);
 
     const { debtorRecordId, newStatusId } = await req.json();
 
