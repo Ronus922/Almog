@@ -61,12 +61,10 @@ Deno.serve(async (req) => {
     }
     
     // Get debtor record
-    const record = await base44.asServiceRole.entities.DebtorRecord.filter({ id: debtorRecordId });
-    if (!record || record.length === 0) {
+    const debtor = await base44.asServiceRole.entities.DebtorRecord.get(debtorRecordId);
+    if (!debtor) {
       return Response.json({ error: 'Record not found' }, { status: 404 });
     }
-    
-    const debtor = record[0];
     
     // Get comments
     const comments = await base44.asServiceRole.entities.Comment.filter(
