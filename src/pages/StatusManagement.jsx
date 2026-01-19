@@ -426,52 +426,6 @@ export default function StatusManagement() {
             <p className="text-slate-600 mt-1">ניהול סטטוסים משפטיים המקושרים לרשומות החייבים</p>
             </div>
             <div className="flex flex-wrap gap-3">
-            <Button 
-              variant="outline" 
-              onClick={handleFixAll}
-              disabled={isFixing}
-              className="gap-2 bg-orange-50 hover:bg-orange-100 border-orange-300 text-orange-700"
-            >
-              {isFixing ? (
-                <>
-                  <Loader2 className="w-5 h-5 animate-spin" />
-                  סורק...
-                </>
-              ) : (
-                <>
-                  <Wrench className="w-5 h-5" />
-                  סרוק ותקן הכל
-                </>
-              )}
-            </Button>
-
-            <Button
-              variant="outline"
-              onClick={() => setIsWorkflowOpen(true)}
-              className="gap-2 bg-blue-50 hover:bg-blue-100 border-blue-300 text-blue-700"
-            >
-              <SlidersHorizontal className="w-5 h-5" />
-              עדכן דירה-דירה
-            </Button>
-
-            <Button
-              variant="outline"
-              onClick={() => window.open('https://api.example.com/legal-treatment', '_blank')}
-              className="gap-2 bg-indigo-50 hover:bg-indigo-100 border-indigo-300 text-indigo-700"
-            >
-              API CARD בטיפול משפטי
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-
-            <Button
-              variant="outline"
-              onClick={() => window.open('https://api.example.com/legal-process', '_blank')}
-              className="gap-2 bg-teal-50 hover:bg-teal-100 border-teal-300 text-teal-700"
-            >
-              API נוסף בהליך משפטי
-              <ArrowRight className="w-4 h-4" />
-            </Button>
-
             <Button
               variant="outline"
               onClick={() => setIsBulkColorEditorOpen(true)}
