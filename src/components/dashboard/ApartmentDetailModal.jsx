@@ -267,7 +267,26 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   const handleExportPDF = async () => {
     setIsExporting(true);
     try {
+      // Fetch comments
+      const comments = await base44.entities.Comment.filter({ debtor_record_id: record.id }, '-created_date');
+      
+      const currentStatus = legalStatuses.find(s => s.id === selectedLegalStatusId);
       const html2pdf = (await import('html2pdf.js')).default;
+      
+      const commentsHtml = comments && comments.length > 0 ? `
+        <div class="section">
+          <div class="section-title">הערות ותיעוד</div>
+          ${comments.map(comment => `
+            <div class="comment-box">
+              <div class="comment-header">
+                <span class="comment-author">${comment.author_name}</span>
+                <span class="comment-date">${new Date(comment.created_date).toLocaleString('he-IL')}</span>
+              </div>
+              <div class="comment-content">${comment.content}</div>
+            </div>
+          `).join('')}
+        </div>
+      ` : '';
       
       const content = `
         <html dir="rtl">
@@ -277,15 +296,21 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap');
               * { font-family: 'Heebo', sans-serif; }
               body { padding: 20px; direction: rtl; text-align: right; }
-              h1 { color: #1e40af; margin-bottom: 20px; }
-              .section { margin-bottom: 20px; }
-              .section-title { font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #334155; }
+              h1 { color: #1e40af; margin-bottom: 20px; border-bottom: 3px solid #1e40af; padding-bottom: 10px; }
+              .section { margin-bottom: 20px; page-break-inside: avoid; }
+              .section-title { font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #334155; background: #f1f5f9; padding: 8px; border-radius: 4px; }
               .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e2e8f0; }
               .label { font-weight: bold; color: #64748b; }
               .value { color: #1e293b; }
               .debt-box { background: #fef2f2; border: 2px solid #fca5a5; padding: 15px; border-radius: 8px; margin: 10px 0; }
               .debt-title { font-weight: bold; color: #991b1b; margin-bottom: 8px; }
               .debt-amount { font-size: 24px; font-weight: bold; color: #dc2626; }
+              .status-badge { display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: bold; margin: 10px 0; }
+              .comment-box { background: #f8fafc; border-right: 4px solid #3b82f6; padding: 12px; margin: 10px 0; border-radius: 4px; }
+              .comment-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; color: #64748b; }
+              .comment-author { font-weight: bold; color: #1e40af; }
+              .comment-date { color: #94a3b8; }
+              .comment-content { color: #334155; line-height: 1.6; white-space: pre-wrap; }
             </style>
           </head>
           <body>
@@ -311,6 +336,29 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               </div>
             </div>
 
+            ${currentStatus ? `
+              <div class="section">
+                <div class="section-title">סטטוס משפטי</div>
+                <div style="padding: 10px 0;">
+                  <span class="status-badge" style="background: ${currentStatus.color.includes('bg-') ? '#' : ''}e2e8f0; color: #1e293b;">
+                    ${currentStatus.name}
+                  </span>
+                </div>
+                ${editedRecord?.legal_status_updated_at ? `
+                  <div class="info-row">
+                    <span class="label">עודכן לאחרונה:</span>
+                    <span class="value">${new Date(editedRecord.legal_status_updated_at).toLocaleString('he-IL')}</span>
+                  </div>
+                ` : ''}
+                ${editedRecord?.legal_status_updated_by ? `
+                  <div class="info-row">
+                    <span class="label">על ידי:</span>
+                    <span class="value">${editedRecord.legal_status_updated_by}</span>
+                  </div>
+                ` : ''}
+              </div>
+            ` : ''}
+
             <div class="debt-box">
               <div class="debt-title">פירוט חובות</div>
               <div class="info-row">
@@ -330,16 +378,22 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             ${record.managementMonthsRaw ? `
               <div class="section">
                 <div class="section-title">דמי ניהול לחודשים</div>
-                <div class="value">${record.managementMonthsRaw}</div>
+                <div class="value" style="background: white; padding: 10px; border-radius: 4px; border: 1px solid #e2e8f0;">${record.managementMonthsRaw.replace(/\n/g, '<br>')}</div>
               </div>
             ` : ''}
 
             ${record.detailsMonthly ? `
               <div class="section">
                 <div class="section-title">פרטים מהייבוא</div>
-                <div class="value">${record.detailsMonthly}</div>
+                <div class="value" style="background: white; padding: 10px; border-radius: 4px; border: 1px solid #e2e8f0;">${record.detailsMonthly}</div>
               </div>
             ` : ''}
+
+            ${commentsHtml}
+
+            <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 12px;">
+              נוצר ב-${new Date().toLocaleString('he-IL')} • מערכת ניהול חייבים
+            </div>
           </body>
         </html>
       `;
@@ -352,7 +406,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
       const opt = {
         margin: 10,
-        filename: `דירה_${record.apartmentNumber}.pdf`,
+        filename: `דירה_${record.apartmentNumber}_${new Date().toISOString().split('T')[0]}.pdf`,
         image: { type: 'jpeg', quality: 0.98 },
         html2canvas: { scale: 2 },
         jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
@@ -361,7 +415,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       await html2pdf().set(opt).from(element).save();
       
       document.body.removeChild(element);
-      toast.success('הקובץ הורד בהצלחה');
+      toast.success('PDF הורד בהצלחה');
     } catch (error) {
       console.error('PDF export error:', error);
       toast.error('שגיאה בייצוא PDF');
