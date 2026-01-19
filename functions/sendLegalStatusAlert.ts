@@ -273,6 +273,9 @@ Deno.serve(async (req) => {
         to: email,
         subject: emailSubject,
         body: emailBody
+      }).catch(err => {
+        console.error(`[EMAIL ALERT] Failed to send to ${email}:`, err);
+        throw err;
       })
     );
     
@@ -282,7 +285,8 @@ Deno.serve(async (req) => {
     
     return Response.json({ 
       success: true, 
-      message: `Emails sent to ${recipientEmails.length} recipient(s)` 
+      message: `Emails sent to ${recipientEmails.length} recipient(s)`,
+      recipients: recipientEmails.join(', ')
     });
     
   } catch (error) {
