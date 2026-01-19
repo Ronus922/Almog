@@ -222,22 +222,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           source: 'MANUAL'
         }).catch(() => {});
 
-        // שליחת התראת מייל (non-blocking)
-        base44.functions.invoke('sendLegalStatusAlert', {
-          debtorRecordId: record.id,
-          newStatusId: newStatusId,
-          statusName: newStatus?.name || ''
-        }).then((response) => {
-          console.log('[STATUS CHANGE] Email response:', response);
-          if (response?.data?.success) {
-            toast.success('מייל התראה נשלח ל-' + (response.data.recipients || 'הנמענים'));
-          }
-        }).catch((err) => {
-          console.error('[STATUS CHANGE] Email error:', err);
-          const errorMsg = err?.response?.data?.error || err?.message || 'שגיאה לא ידועה';
-          toast.error('שגיאה בשליחת מייל: ' + errorMsg);
-        });
-
         // עדכון נקודתי של cache (ללא refetch כבד)
         queryClient.setQueryData(['debtorRecords'], (old) => {
           if (!old) return old;
