@@ -69,13 +69,7 @@ Deno.serve(async (req) => {
               </div>
             </div>
           `,
-          attachments: [
-            {
-              filename: `דירה_${record.apartmentNumber}_${new Date().toISOString().split('T')[0]}.pdf`,
-              content: pdfBase64,
-              encoding: 'base64'
-            }
-          ]
+
         });
         
         console.log(`Email sent successfully to ${email}:`, result);
