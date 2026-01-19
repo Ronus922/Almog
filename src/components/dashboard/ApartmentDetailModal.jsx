@@ -267,154 +267,144 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   const handleExportPDF = async () => {
     setIsExporting(true);
     try {
+      const { jsPDF } = await import('jspdf');
+      const { getHebrewFont } = await import('../export/hebrewFont');
+      
       // Fetch comments
       const comments = await base44.entities.Comment.filter({ debtor_record_id: record.id }, '-created_date');
-      
       const currentStatus = legalStatuses.find(s => s.id === selectedLegalStatusId);
-      const html2pdf = (await import('html2pdf.js')).default;
       
-      const commentsHtml = comments && comments.length > 0 ? `
-        <div class="section">
-          <div class="section-title">הערות ותיעוד</div>
-          ${comments.map(comment => `
-            <div class="comment-box">
-              <div class="comment-header">
-                <span class="comment-author">${comment.author_name}</span>
-                <span class="comment-date">${new Date(comment.created_date).toLocaleString('he-IL')}</span>
-              </div>
-              <div class="comment-content">${comment.content}</div>
-            </div>
-          `).join('')}
-        </div>
-      ` : '';
-      
-      const content = `
-        <html dir="rtl">
-          <head>
-            <meta charset="utf-8">
-            <style>
-              @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap');
-              * { font-family: 'Heebo', sans-serif; }
-              body { padding: 20px; direction: rtl; text-align: right; }
-              h1 { color: #1e40af; margin-bottom: 20px; border-bottom: 3px solid #1e40af; padding-bottom: 10px; }
-              .section { margin-bottom: 20px; page-break-inside: avoid; }
-              .section-title { font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #334155; background: #f1f5f9; padding: 8px; border-radius: 4px; }
-              .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e2e8f0; }
-              .label { font-weight: bold; color: #64748b; }
-              .value { color: #1e293b; }
-              .debt-box { background: #fef2f2; border: 2px solid #fca5a5; padding: 15px; border-radius: 8px; margin: 10px 0; }
-              .debt-title { font-weight: bold; color: #991b1b; margin-bottom: 8px; }
-              .debt-amount { font-size: 24px; font-weight: bold; color: #dc2626; }
-              .status-badge { display: inline-block; padding: 6px 12px; border-radius: 6px; font-weight: bold; margin: 10px 0; }
-              .comment-box { background: #f8fafc; border-right: 4px solid #3b82f6; padding: 12px; margin: 10px 0; border-radius: 4px; }
-              .comment-header { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; color: #64748b; }
-              .comment-author { font-weight: bold; color: #1e40af; }
-              .comment-date { color: #94a3b8; }
-              .comment-content { color: #334155; line-height: 1.6; white-space: pre-wrap; }
-            </style>
-          </head>
-          <body>
-            <h1>פרטי דירה ${record.apartmentNumber}</h1>
-            
-            <div class="section">
-              <div class="section-title">פרטים עיקריים</div>
-              <div class="info-row">
-                <span class="label">מספר דירה:</span>
-                <span class="value">${record.apartmentNumber}</span>
-              </div>
-              <div class="info-row">
-                <span class="label">בעל דירה:</span>
-                <span class="value">${record.ownerName || 'לא צוין'}</span>
-              </div>
-              <div class="info-row">
-                <span class="label">טלפון בעלים:</span>
-                <span class="value">${formatPhone(record.phoneOwner)}</span>
-              </div>
-              <div class="info-row">
-                <span class="label">טלפון שוכר:</span>
-                <span class="value">${formatPhone(record.phoneTenant)}</span>
-              </div>
-            </div>
+      const doc = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      });
 
-            ${currentStatus ? `
-              <div class="section">
-                <div class="section-title">סטטוס משפטי</div>
-                <div style="padding: 10px 0;">
-                  <span class="status-badge" style="background: ${currentStatus.color.includes('bg-') ? '#' : ''}e2e8f0; color: #1e293b;">
-                    ${currentStatus.name}
-                  </span>
-                </div>
-                ${editedRecord?.legal_status_updated_at ? `
-                  <div class="info-row">
-                    <span class="label">עודכן לאחרונה:</span>
-                    <span class="value">${new Date(editedRecord.legal_status_updated_at).toLocaleString('he-IL')}</span>
-                  </div>
-                ` : ''}
-                ${editedRecord?.legal_status_updated_by ? `
-                  <div class="info-row">
-                    <span class="label">על ידי:</span>
-                    <span class="value">${editedRecord.legal_status_updated_by}</span>
-                  </div>
-                ` : ''}
-              </div>
-            ` : ''}
+      // Add Hebrew font
+      const hebrewFont = getHebrewFont();
+      doc.addFileToVFS('Heebo-Regular.ttf', hebrewFont);
+      doc.addFont('Heebo-Regular.ttf', 'Heebo', 'normal');
+      doc.setFont('Heebo');
+      doc.setR2L(true);
 
-            <div class="debt-box">
-              <div class="debt-title">פירוט חובות</div>
-              <div class="info-row">
-                <span class="label">סה״כ חוב:</span>
-                <span class="debt-amount">${formatCurrency(record.totalDebt)}</span>
-              </div>
-              <div class="info-row">
-                <span class="label">דמי ניהול:</span>
-                <span class="value">${formatCurrency(record.monthlyDebt)}</span>
-              </div>
-              <div class="info-row">
-                <span class="label">מים חמים:</span>
-                <span class="value">${formatCurrency(record.specialDebt)}</span>
-              </div>
-            </div>
+      let yPos = 20;
+      const pageWidth = 210;
+      const margin = 20;
+      const contentWidth = pageWidth - (2 * margin);
 
-            ${record.managementMonthsRaw ? `
-              <div class="section">
-                <div class="section-title">דמי ניהול לחודשים</div>
-                <div class="value" style="background: white; padding: 10px; border-radius: 4px; border: 1px solid #e2e8f0;">${record.managementMonthsRaw.replace(/\n/g, '<br>')}</div>
-              </div>
-            ` : ''}
+      // Title
+      doc.setFontSize(22);
+      doc.setTextColor(30, 64, 175);
+      doc.text(`פרטי דירה ${record.apartmentNumber}`, pageWidth - margin, yPos, { align: 'right' });
+      yPos += 10;
 
-            ${record.detailsMonthly ? `
-              <div class="section">
-                <div class="section-title">פרטים מהייבוא</div>
-                <div class="value" style="background: white; padding: 10px; border-radius: 4px; border: 1px solid #e2e8f0;">${record.detailsMonthly}</div>
-              </div>
-            ` : ''}
+      // Section: פרטים עיקריים
+      doc.setFontSize(16);
+      doc.setTextColor(51, 65, 85);
+      yPos += 5;
+      doc.text('פרטים עיקריים', pageWidth - margin, yPos, { align: 'right' });
+      yPos += 8;
 
-            ${commentsHtml}
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      const details = [
+        ['מספר דירה:', record.apartmentNumber],
+        ['בעל דירה:', record.ownerName || 'לא צוין'],
+        ['טלפון בעלים:', formatPhone(record.phoneOwner)],
+        ['טלפון שוכר:', formatPhone(record.phoneTenant)]
+      ];
 
-            <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 12px;">
-              נוצר ב-${new Date().toLocaleString('he-IL')} • מערכת ניהול חייבים
-            </div>
-          </body>
-        </html>
-      `;
+      details.forEach(([label, value]) => {
+        doc.setFont('Heebo', 'bold');
+        doc.text(label, pageWidth - margin, yPos, { align: 'right' });
+        doc.setFont('Heebo', 'normal');
+        doc.text(String(value), pageWidth - margin - 45, yPos, { align: 'right' });
+        yPos += 7;
+      });
 
-      const element = document.createElement('div');
-      element.innerHTML = content;
-      element.style.position = 'absolute';
-      element.style.left = '-9999px';
-      document.body.appendChild(element);
+      // Section: סטטוס משפטי
+      if (currentStatus) {
+        yPos += 5;
+        doc.setFontSize(16);
+        doc.setTextColor(51, 65, 85);
+        doc.text('סטטוס משפטי', pageWidth - margin, yPos, { align: 'right' });
+        yPos += 8;
+        
+        doc.setFontSize(12);
+        doc.setTextColor(0, 0, 0);
+        doc.setFont('Heebo', 'bold');
+        doc.text(currentStatus.name, pageWidth - margin, yPos, { align: 'right' });
+        yPos += 7;
+        
+        if (editedRecord?.legal_status_updated_at) {
+          doc.setFont('Heebo', 'normal');
+          doc.setFontSize(10);
+          doc.setTextColor(100, 116, 139);
+          doc.text(`עודכן: ${new Date(editedRecord.legal_status_updated_at).toLocaleString('he-IL')}`, pageWidth - margin, yPos, { align: 'right' });
+          yPos += 5;
+        }
+      }
 
-      const opt = {
-        margin: 10,
-        filename: `דירה_${record.apartmentNumber}_${new Date().toISOString().split('T')[0]}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: { scale: 2 },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-      };
+      // Section: פירוט חובות
+      yPos += 5;
+      doc.setFontSize(16);
+      doc.setTextColor(153, 27, 27);
+      doc.text('פירוט חובות', pageWidth - margin, yPos, { align: 'right' });
+      yPos += 8;
 
-      await html2pdf().set(opt).from(element).save();
-      
-      document.body.removeChild(element);
+      doc.setFontSize(14);
+      doc.setTextColor(220, 38, 38);
+      doc.setFont('Heebo', 'bold');
+      doc.text(`סה״כ חוב: ${formatCurrency(record.totalDebt)}`, pageWidth - margin, yPos, { align: 'right' });
+      yPos += 8;
+
+      doc.setFontSize(12);
+      doc.setTextColor(0, 0, 0);
+      doc.setFont('Heebo', 'normal');
+      doc.text(`דמי ניהול: ${formatCurrency(record.monthlyDebt)}`, pageWidth - margin, yPos, { align: 'right' });
+      yPos += 6;
+      doc.text(`מים חמים: ${formatCurrency(record.specialDebt)}`, pageWidth - margin, yPos, { align: 'right' });
+      yPos += 10;
+
+      // Section: הערות
+      if (comments && comments.length > 0) {
+        doc.setFontSize(16);
+        doc.setTextColor(51, 65, 85);
+        doc.text('הערות ותיעוד', pageWidth - margin, yPos, { align: 'right' });
+        yPos += 8;
+
+        comments.forEach(comment => {
+          if (yPos > 270) {
+            doc.addPage();
+            yPos = 20;
+          }
+          
+          doc.setFontSize(10);
+          doc.setTextColor(30, 64, 175);
+          doc.setFont('Heebo', 'bold');
+          doc.text(comment.author_name, pageWidth - margin, yPos, { align: 'right' });
+          
+          doc.setTextColor(148, 163, 184);
+          doc.setFont('Heebo', 'normal');
+          doc.text(new Date(comment.created_date).toLocaleDateString('he-IL'), margin, yPos, { align: 'left' });
+          yPos += 6;
+          
+          doc.setFontSize(11);
+          doc.setTextColor(0, 0, 0);
+          const lines = doc.splitTextToSize(comment.content, contentWidth - 10);
+          lines.forEach(line => {
+            if (yPos > 280) {
+              doc.addPage();
+              yPos = 20;
+            }
+            doc.text(line, pageWidth - margin - 5, yPos, { align: 'right' });
+            yPos += 5;
+          });
+          yPos += 5;
+        });
+      }
+
+      doc.save(`דירה_${record.apartmentNumber}_${new Date().toISOString().split('T')[0]}.pdf`);
       toast.success('PDF הורד בהצלחה');
     } catch (error) {
       console.error('PDF export error:', error);
