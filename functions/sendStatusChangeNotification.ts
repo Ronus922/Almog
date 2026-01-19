@@ -1,4 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
+import { Resend } from 'npm:resend@4.0.0';
+
+const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 
 Deno.serve(async (req) => {
   try {
@@ -22,22 +25,44 @@ Deno.serve(async (req) => {
       });
     }
 
-    // שליחת מייל פשוט מאוד לבדיקה
     const emails = status.notification_emails.split(',').map(e => e.trim()).filter(e => e);
     
     const emailResults = [];
     for (const email of emails) {
       try {
-        console.log(`Attempting to send email to: ${email}`);
+        console.log(`Sending email via Resend to: ${email}`);
         
-        const result = await base44.asServiceRole.integrations.Core.SendEmail({
+        const result = await resend.emails.send({
+          from: 'ניהול חייבים <onboarding@resend.dev>',
           to: email,
-          subject: `בדיקה - עדכון דירה ${record.apartmentNumber}`,
-          body: `<div dir="rtl"><h2>עדכון סטטוס</h2><p>דירה ${record.apartmentNumber} עודכנה לסטטוס: ${status.name}</p></div>`
+          subject: `עדכון סטטוס - דירה ${record.apartmentNumber}`,
+          html: `
+            <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background: #f8fafc; border-radius: 8px;">
+              <div style="background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                <h2 style="color: #1e40af; margin-top: 0; border-bottom: 3px solid #1e40af; padding-bottom: 10px;">
+                  עדכון סטטוס משפטי
+                </h2>
+                <div style="margin: 20px 0; padding: 15px; background: #eff6ff; border-right: 4px solid #3b82f6; border-radius: 4px;">
+                  <p style="margin: 5px 0; font-size: 16px;"><strong>דירה:</strong> ${record.apartmentNumber}</p>
+                  <p style="margin: 5px 0; font-size: 16px;"><strong>בעל דירה:</strong> ${record.ownerName || 'לא צוין'}</p>
+                  <p style="margin: 5px 0; font-size: 16px;"><strong>סטטוס חדש:</strong> <span style="color: #dc2626; font-weight: bold;">${status.name}</span></p>
+                </div>
+                ${status.description ? `
+                  <div style="margin: 20px 0; padding: 15px; background: #fef2f2; border-radius: 4px;">
+                    <p style="margin: 0; color: #991b1b;"><strong>תיאור הסטטוס:</strong></p>
+                    <p style="margin: 10px 0 0 0;">${status.description}</p>
+                  </div>
+                ` : ''}
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 12px;">
+                  מערכת ניהול חייבים • ${new Date().toLocaleString('he-IL')}
+                </div>
+              </div>
+            </div>
+          `
         });
         
         console.log(`Email sent successfully to ${email}:`, result);
-        emailResults.push({ email, success: true });
+        emailResults.push({ email, success: true, messageId: result.id });
       } catch (emailError) {
         console.error(`Failed to send email to ${email}:`, emailError);
         emailResults.push({ email, success: false, error: emailError.message });
