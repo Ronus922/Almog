@@ -151,7 +151,11 @@ Deno.serve(async (req) => {
           from: 'ניהול חייבים <onboarding@resend.dev>',
           to: email,
           subject: `עדכון סטטוס - דירה ${record.apartmentNumber}`,
-          html: emailHtml
+          html: emailHtml,
+          attachments: pdfBytes ? [{
+            filename: fileName,
+            content: pdfBytes
+          }] : []
         });
         
         console.log(`Email sent successfully to ${email}:`, result);
