@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Home, Phone, Wallet, Calendar, FileText, Scale, 
-  Save, X, AlertTriangle, Lock, User, Pencil, Check, MessageSquare
+  Save, X, AlertTriangle, Lock, User, Pencil, Check, MessageSquare, FileDown
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -23,6 +23,7 @@ import CommentsSection from '../comments/CommentsSection';
 
 export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin, settings }) {
   const { currentUser } = useAuth();
+  const [isExporting, setIsExporting] = useState(false);
   const { data: allStatuses = [] } = useQuery({
     queryKey: ['statuses'],
     queryFn: () => base44.entities.Status.list('order'),
@@ -263,6 +264,112 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     })();
   };
 
+  const handleExportPDF = async () => {
+    setIsExporting(true);
+    try {
+      const html2pdf = (await import('html2pdf.js')).default;
+      
+      const content = `
+        <html dir="rtl">
+          <head>
+            <meta charset="utf-8">
+            <style>
+              @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@400;700&display=swap');
+              * { font-family: 'Heebo', sans-serif; }
+              body { padding: 20px; direction: rtl; text-align: right; }
+              h1 { color: #1e40af; margin-bottom: 20px; }
+              .section { margin-bottom: 20px; }
+              .section-title { font-weight: bold; font-size: 18px; margin-bottom: 10px; color: #334155; }
+              .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #e2e8f0; }
+              .label { font-weight: bold; color: #64748b; }
+              .value { color: #1e293b; }
+              .debt-box { background: #fef2f2; border: 2px solid #fca5a5; padding: 15px; border-radius: 8px; margin: 10px 0; }
+              .debt-title { font-weight: bold; color: #991b1b; margin-bottom: 8px; }
+              .debt-amount { font-size: 24px; font-weight: bold; color: #dc2626; }
+            </style>
+          </head>
+          <body>
+            <h1>פרטי דירה ${record.apartmentNumber}</h1>
+            
+            <div class="section">
+              <div class="section-title">פרטים עיקריים</div>
+              <div class="info-row">
+                <span class="label">מספר דירה:</span>
+                <span class="value">${record.apartmentNumber}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">בעל דירה:</span>
+                <span class="value">${record.ownerName || 'לא צוין'}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">טלפון בעלים:</span>
+                <span class="value">${formatPhone(record.phoneOwner)}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">טלפון שוכר:</span>
+                <span class="value">${formatPhone(record.phoneTenant)}</span>
+              </div>
+            </div>
+
+            <div class="debt-box">
+              <div class="debt-title">פירוט חובות</div>
+              <div class="info-row">
+                <span class="label">סה״כ חוב:</span>
+                <span class="debt-amount">${formatCurrency(record.totalDebt)}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">דמי ניהול:</span>
+                <span class="value">${formatCurrency(record.monthlyDebt)}</span>
+              </div>
+              <div class="info-row">
+                <span class="label">מים חמים:</span>
+                <span class="value">${formatCurrency(record.specialDebt)}</span>
+              </div>
+            </div>
+
+            ${record.managementMonthsRaw ? `
+              <div class="section">
+                <div class="section-title">דמי ניהול לחודשים</div>
+                <div class="value">${record.managementMonthsRaw}</div>
+              </div>
+            ` : ''}
+
+            ${record.detailsMonthly ? `
+              <div class="section">
+                <div class="section-title">פרטים מהייבוא</div>
+                <div class="value">${record.detailsMonthly}</div>
+              </div>
+            ` : ''}
+          </body>
+        </html>
+      `;
+
+      const element = document.createElement('div');
+      element.innerHTML = content;
+      element.style.position = 'absolute';
+      element.style.left = '-9999px';
+      document.body.appendChild(element);
+
+      const opt = {
+        margin: 10,
+        filename: `דירה_${record.apartmentNumber}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+      };
+
+      await html2pdf().set(opt).from(element).save();
+      
+      document.body.removeChild(element);
+      toast.success('הקובץ הורד בהצלחה');
+    } catch (error) {
+      console.error('PDF export error:', error);
+      toast.error('שגיאה בייצוא PDF');
+    } finally {
+      setIsExporting(false);
+    }
+  };
+
   const InfoRow = ({ icon: Icon, label, value }) => (
     <div className="flex items-start gap-3 md:gap-4 py-2 md:py-3" dir="rtl">
       <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-slate-100 flex items-center justify-center">
@@ -295,6 +402,15 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           <Button variant="outline" onClick={onClose} className="rounded-xl h-11 px-6 font-semibold">
             <X className="w-5 h-5 ml-2" />
             סגור
+          </Button>
+          <Button 
+            variant="outline" 
+            onClick={handleExportPDF} 
+            disabled={isExporting}
+            className="rounded-xl h-11 px-6 font-semibold"
+          >
+            <FileDown className="w-5 h-5 ml-2" />
+            {isExporting ? 'מייצא...' : 'יצא ל-PDF'}
           </Button>
           {isAdmin && (
             <Button onClick={handleSave} disabled={isSaving} className="rounded-xl h-11 px-6 font-semibold bg-gradient-to-l from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
