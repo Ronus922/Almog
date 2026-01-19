@@ -222,6 +222,14 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           source: 'MANUAL'
         }).catch(() => {});
 
+        // שליחת התראות מייל עם PDF (non-blocking)
+        base44.functions.invoke('sendStatusChangeNotification', {
+          debtorRecordId: record.id,
+          newStatusId: newStatusId
+        }).catch(err => {
+          console.error('[EMAIL NOTIFICATION] Failed:', err);
+        });
+
         // עדכון נקודתי של cache (ללא refetch כבד)
         queryClient.setQueryData(['debtorRecords'], (old) => {
           if (!old) return old;
