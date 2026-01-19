@@ -61,8 +61,7 @@ Deno.serve(async (req) => {
                   </div>
                 ` : ''}
                 <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 12px;">
-                  מערכת ניהול חייבים • ${new Date().toLocaleString('he-IL')}<br/>
-                  <em>פרטי הדירה מצורפים כ-PDF</em>
+                  מערכת ניהול חייבים • ${new Date().toLocaleString('he-IL')}
                 </div>
               </div>
             </div>
