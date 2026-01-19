@@ -103,19 +103,7 @@ Deno.serve(async (req) => {
       const pdfBytes = await pdfDoc.save();
       const fileName = `apartment_${record.apartmentNumber}_${Date.now()}.pdf`;
       
-      // upload כ-private file
-      const uploadResult = await base44.asServiceRole.integrations.Core.UploadPrivateFile({
-        file: pdfBytes
-      });
-      
-      // create signed URL
-      const signedUrlResult = await base44.asServiceRole.integrations.Core.CreateFileSignedUrl({
-        file_uri: uploadResult.file_uri,
-        expires_in: 86400 // 24 hours
-      });
-      
-      pdfUrl = signedUrlResult.signed_url;
-      console.log('PDF created and signed URL generated:', pdfUrl);
+      console.log('PDF generated, size:', pdfBytes.length);
     } catch (pdfError) {
       console.error('Failed to generate PDF:', pdfError);
       // continue without PDF
