@@ -24,6 +24,7 @@ Deno.serve(async (req) => {
     // טעינת נתונים
     const record = await base44.asServiceRole.entities.DebtorRecord.get(debtorRecordId);
     const status = await base44.asServiceRole.entities.Status.get(newStatusId);
+    const comments = await base44.asServiceRole.entities.Comment.filter({ debtor_record_id: debtorRecordId }, '-created_date');
 
     // בדיקה אם יש אימיילים להתראה
     if (!status.notification_emails || status.notification_emails.trim() === '') {
@@ -34,6 +35,10 @@ Deno.serve(async (req) => {
     }
 
     const emails = status.notification_emails.split(',').map(e => e.trim()).filter(e => e);
+    
+    // יצירת PDF עם פרטי הדירה
+    const pdfBuffer = await generateApartmentPDF(record, status, comments);
+    const pdfBase64 = btoa(String.fromCharCode.apply(null, new Uint8Array(pdfBuffer)));
     
     const emailResults = [];
     for (const email of emails) {
@@ -62,11 +67,19 @@ Deno.serve(async (req) => {
                   </div>
                 ` : ''}
                 <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 12px;">
-                  מערכת ניהול חייבים • ${new Date().toLocaleString('he-IL')}
+                  מערכת ניהול חייבים • ${new Date().toLocaleString('he-IL')}<br/>
+                  <em>פרטי הדירה מצורפים כ-PDF</em>
                 </div>
               </div>
             </div>
-          `
+          `,
+          attachments: [
+            {
+              filename: `דירה_${record.apartmentNumber}_${new Date().toISOString().split('T')[0]}.pdf`,
+              content: pdfBase64,
+              encoding: 'base64'
+            }
+          ]
         });
         
         console.log(`Email sent successfully to ${email}:`, result);
