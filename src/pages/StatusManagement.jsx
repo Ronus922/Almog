@@ -90,7 +90,8 @@ export default function StatusManagement() {
     description: '',
     color: 'bg-slate-100 text-slate-700',
     is_active: true,
-    is_default: false
+    is_default: false,
+    notification_emails: ''
   });
 
   const queryClient = useQueryClient();
@@ -234,7 +235,8 @@ export default function StatusManagement() {
       description: '',
       color: 'bg-slate-100 text-slate-700',
       is_active: true,
-      is_default: false
+      is_default: false,
+      notification_emails: ''
     });
   };
 
@@ -251,7 +253,8 @@ export default function StatusManagement() {
       description: status.description || '',
       color: status.color,
       is_active: status.is_active,
-      is_default: status.is_default || false
+      is_default: status.is_default || false,
+      notification_emails: status.notification_emails || ''
     });
     setIsEditDialogOpen(true);
   };
@@ -647,6 +650,17 @@ export default function StatusManagement() {
                 checked={formData.is_default}
                 onCheckedChange={(checked) => setFormData({...formData, is_default: checked})}
               />
+            </div>
+            <div>
+              <Label>אימיילים לשליחת התראות</Label>
+              <Input
+                value={formData.notification_emails}
+                onChange={(e) => setFormData({...formData, notification_emails: e.target.value})}
+                placeholder="email1@example.com, email2@example.com"
+                className="text-right"
+                dir="rtl"
+              />
+              <p className="text-xs text-slate-500 mt-1">הזן כתובות מייל מופרדות בפסיקים - יישלח PDF עם פרטי הדירה בכל שינוי סטטוס</p>
             </div>
           </div>
           <DialogFooter className="gap-2">
