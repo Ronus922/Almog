@@ -17,6 +17,7 @@ export default function EditUserDialog({ user, isOpen, onClose, onSave, existing
     first_name: '',
     last_name: '',
     username: '',
+    email: '',
     password: '',
     role: 'viewer_password',
     is_active: true
@@ -30,6 +31,7 @@ export default function EditUserDialog({ user, isOpen, onClose, onSave, existing
         first_name: user.first_name || '',
         last_name: user.last_name || '',
         username: user.username || '',
+        email: user.email || '',
         password: '', // Always empty for edit
         role: user.role || 'viewer_password',
         is_active: user.is_active !== false
@@ -132,6 +134,20 @@ export default function EditUserDialog({ user, isOpen, onClose, onSave, existing
               placeholder="username"
               value={formData.username}
               onChange={(e) => setFormData({ ...formData, username: e.target.value })}
+              className="h-11 rounded-xl text-left"
+              dir="ltr"
+            />
+          </div>
+
+          <div className="text-right">
+            <Label className="text-sm font-bold text-slate-700 mb-2 block">
+              כתובת אימייל (לקבלת התראות)
+            </Label>
+            <Input
+              type="email"
+              placeholder="email@example.com"
+              value={formData.email}
+              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
               className="h-11 rounded-xl text-left"
               dir="ltr"
             />

@@ -40,6 +40,7 @@ export default function UserManagement() {
     first_name: '',
     last_name: '',
     username: '',
+    email: '',
     password: '',
     role: 'viewer_password'
   });
@@ -59,15 +60,17 @@ export default function UserManagement() {
         first_name: userData.first_name,
         last_name: userData.last_name || '',
         username: userData.username,
+        email: userData.email || '',
         password_hash: passwordHash,
         role: userData.role,
-        is_active: true
+        is_active: true,
+        base44_user_invited: false
       });
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['appUsers'] });
       setIsAddDialogOpen(false);
-      setNewUser({ first_name: '', last_name: '', username: '', password: '', role: 'viewer_password' });
+      setNewUser({ first_name: '', last_name: '', username: '', email: '', password: '', role: 'viewer_password' });
       setFormError('');
       toast.success('המשתמש נוצר בהצלחה');
     },
@@ -98,6 +101,7 @@ export default function UserManagement() {
         first_name: userData.first_name,
         last_name: userData.last_name || '',
         username: userData.username,
+        email: userData.email || '',
         role: userData.role,
         is_active: userData.is_active
       };
@@ -217,6 +221,7 @@ export default function UserManagement() {
                   <TableHead className="text-right font-bold">שם פרטי</TableHead>
                   <TableHead className="text-right font-bold">שם משפחה</TableHead>
                   <TableHead className="text-right font-bold">שם משתמש</TableHead>
+                  <TableHead className="text-right font-bold">אימייל</TableHead>
                   <TableHead className="text-right font-bold">תפקיד</TableHead>
                   <TableHead className="text-right font-bold">סטטוס</TableHead>
                   <TableHead className="text-right font-bold">פעולות</TableHead>
@@ -237,6 +242,9 @@ export default function UserManagement() {
                     </TableCell>
                     <TableCell className="font-medium" dir="ltr" style={{ textAlign: 'right' }}>
                       {user.username}
+                    </TableCell>
+                    <TableCell className="text-slate-600" dir="ltr" style={{ textAlign: 'right' }}>
+                      {user.email || '-'}
                     </TableCell>
                     <TableCell>
                       {user.role === 'admin' ? (
@@ -362,6 +370,20 @@ export default function UserManagement() {
                   placeholder="username"
                   value={newUser.username}
                   onChange={(e) => setNewUser({ ...newUser, username: e.target.value })}
+                  className="h-11 rounded-xl text-left"
+                  dir="ltr"
+                />
+              </div>
+
+              <div className="text-right">
+                <Label className="text-sm font-bold text-slate-700 mb-2 block">
+                  כתובת אימייל (לקבלת התראות)
+                </Label>
+                <Input
+                  type="email"
+                  placeholder="email@example.com"
+                  value={newUser.email}
+                  onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
                   className="h-11 rounded-xl text-left"
                   dir="ltr"
                 />
