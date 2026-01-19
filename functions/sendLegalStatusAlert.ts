@@ -30,6 +30,21 @@ Deno.serve(async (req) => {
     
     const debtor = record[0];
     
+    // Check if current status should trigger alert
+    if (!settings.legal_alert_statuses || settings.legal_alert_statuses.length === 0) {
+      return Response.json({ 
+        success: false, 
+        message: 'No statuses configured for alerts' 
+      });
+    }
+    
+    if (!debtor.legal_status_id || !settings.legal_alert_statuses.includes(debtor.legal_status_id)) {
+      return Response.json({ 
+        success: false, 
+        message: 'Current status does not trigger alerts' 
+      });
+    }
+    
     // Get comments
     const comments = await base44.asServiceRole.entities.Comment.filter(
       { debtor_record_id: debtorRecordId },
