@@ -1,5 +1,4 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { jsPDF } from 'npm:jspdf@2.5.2';
 
 Deno.serve(async (req) => {
   try {
@@ -32,95 +31,57 @@ Deno.serve(async (req) => {
       });
     }
 
-    // יצירת PDF
-    const doc = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    });
-
-    // כותרת
-    doc.setFont('helvetica', 'bold');
-    doc.setFontSize(20);
-    doc.text(`Apartment ${record.apartmentNumber}`, 105, 20, { align: 'center' });
-
-    // פרטים עיקריים
-    doc.setFontSize(12);
-    doc.setFont('helvetica', 'bold');
-    doc.text('Main Details:', 20, 35);
-    
-    doc.setFont('helvetica', 'normal');
-    doc.setFontSize(10);
-    let y = 45;
-    doc.text(`Apartment: ${record.apartmentNumber}`, 20, y);
-    y += 7;
-    doc.text(`Owner: ${record.ownerName || 'N/A'}`, 20, y);
-    y += 7;
-    doc.text(`Owner Phone: ${record.phoneOwner || 'N/A'}`, 20, y);
-    y += 7;
-    doc.text(`Tenant Phone: ${record.phoneTenant || 'N/A'}`, 20, y);
-    y += 10;
-
-    // סטטוס משפטי
-    doc.setFont('helvetica', 'bold');
-    doc.text('Legal Status:', 20, y);
-    y += 7;
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Status: ${status.name}`, 20, y);
-    y += 7;
-    if (record.legal_status_updated_at) {
-      doc.text(`Updated: ${new Date(record.legal_status_updated_at).toLocaleString('en-US')}`, 20, y);
-      y += 7;
-    }
-    y += 5;
-
-    // חובות
-    doc.setFont('helvetica', 'bold');
-    doc.text('Debts:', 20, y);
-    y += 7;
-    doc.setFont('helvetica', 'normal');
-    doc.text(`Total Debt: ${(record.totalDebt || 0).toLocaleString('en-US', { style: 'currency', currency: 'ILS' })}`, 20, y);
-    y += 7;
-    doc.text(`Monthly Debt: ${(record.monthlyDebt || 0).toLocaleString('en-US', { style: 'currency', currency: 'ILS' })}`, 20, y);
-    y += 7;
-    doc.text(`Special Debt: ${(record.specialDebt || 0).toLocaleString('en-US', { style: 'currency', currency: 'ILS' })}`, 20, y);
-    y += 10;
-
-    // הערות
-    if (comments && comments.length > 0) {
-      doc.setFont('helvetica', 'bold');
-      doc.text('Comments:', 20, y);
-      y += 7;
-      doc.setFont('helvetica', 'normal');
-      
-      for (const comment of comments) {
-        if (y > 270) {
-          doc.addPage();
-          y = 20;
-        }
-        doc.setFontSize(9);
-        doc.text(`${comment.author_name} - ${new Date(comment.created_date).toLocaleString('en-US')}`, 20, y);
-        y += 5;
-        
-        const lines = doc.splitTextToSize(comment.content, 170);
-        doc.text(lines, 20, y);
-        y += lines.length * 5 + 5;
-      }
-    }
-
-    // המרת PDF ל-base64
-    const pdfBase64 = doc.output('datauristring').split(',')[1];
-
     // תוכן המייל בעברית (RTL)
     const emailBody = `
-      <div dir="rtl" style="text-align: right; font-family: Arial, sans-serif;">
-        <p>שלום,</p>
-        <p>
-          היוזר <strong>${user.username || user.email}</strong> מבקש לעדכן אותך על שינוי סטטוס של דירה 
+      <div dir="rtl" style="text-align: right; font-family: Arial, sans-serif; padding: 20px;">
+        <h2 style="color: #1e40af; border-bottom: 3px solid #1e40af; padding-bottom: 10px;">
+          עדכון סטטוס משפטי - דירה ${record.apartmentNumber}
+        </h2>
+        
+        <p style="font-size: 16px;">שלום,</p>
+        
+        <p style="font-size: 16px;">
+          <strong>${user.username || user.email}</strong> עדכן את הסטטוס המשפטי של דירה 
           <strong>${record.apartmentNumber}</strong> ל-<strong>${status.name}</strong>
         </p>
-        <p>מצורף קובץ PDF עם פרטי הדירה המלאים (ראה קובץ מצורף).</p>
-        <p>בברכה,<br/>מערכת ניהול חייבים</p>
+
+        <div style="background: #f8fafc; border-right: 4px solid #3b82f6; padding: 15px; margin: 20px 0; border-radius: 4px;">
+          <h3 style="color: #334155; margin: 0 0 10px 0;">פרטי הדירה:</h3>
+          <p style="margin: 5px 0;"><strong>מספר דירה:</strong> ${record.apartmentNumber}</p>
+          <p style="margin: 5px 0;"><strong>בעל דירה:</strong> ${record.ownerName || 'לא צוין'}</p>
+          <p style="margin: 5px 0;"><strong>טלפון בעלים:</strong> ${record.phoneOwner || 'לא צוין'}</p>
+          <p style="margin: 5px 0;"><strong>טלפון שוכר:</strong> ${record.phoneTenant || 'לא צוין'}</p>
+        </div>
+
+        <div style="background: #fef2f2; border: 2px solid #fca5a5; padding: 15px; margin: 20px 0; border-radius: 4px;">
+          <h3 style="color: #991b1b; margin: 0 0 10px 0;">פירוט חובות:</h3>
+          <p style="margin: 5px 0; font-size: 18px; font-weight: bold; color: #dc2626;">
+            סה״כ חוב: ${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.totalDebt || 0)}
+          </p>
+          <p style="margin: 5px 0;"><strong>דמי ניהול:</strong> ${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.monthlyDebt || 0)}</p>
+          <p style="margin: 5px 0;"><strong>מים חמים:</strong> ${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(record.specialDebt || 0)}</p>
+        </div>
+
+        ${comments && comments.length > 0 ? `
+          <div style="margin-top: 20px;">
+            <h3 style="color: #334155; margin-bottom: 10px;">הערות ותיעוד:</h3>
+            ${comments.map(comment => `
+              <div style="background: #f8fafc; border-right: 4px solid #3b82f6; padding: 12px; margin-bottom: 10px; border-radius: 4px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; color: #64748b;">
+                  <strong style="color: #1e40af;">${comment.author_name}</strong>
+                  <span>${new Date(comment.created_date).toLocaleString('he-IL')}</span>
+                </div>
+                <div style="white-space: pre-wrap;">${comment.content}</div>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+
+        <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 30px 0;" />
+        
+        <p style="color: #64748b; font-size: 12px; text-align: center;">
+          נוצר ב-${new Date().toLocaleString('he-IL')} • מערכת ניהול חייבים
+        </p>
       </div>
     `;
 
@@ -145,8 +106,7 @@ Deno.serve(async (req) => {
     return Response.json({ 
       success: true, 
       message: `Notifications sent to ${emails.length} recipients`,
-      emailResults,
-      pdfGenerated: true
+      emailResults
     });
 
   } catch (error) {
