@@ -1,6 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { Resend } from 'npm:resend@4.0.0';
-import puppeteer from 'npm:puppeteer@23.0.0';
 
 Deno.serve(async (req) => {
   try {
