@@ -135,28 +135,115 @@ Deno.serve(async (req) => {
       </html>
     `;
     
-    // Convert HTML to base64 for attachment
-    const encoder = new TextEncoder();
-    const htmlBytes = encoder.encode(pdfHtml);
-    const base64Html = btoa(String.fromCharCode(...htmlBytes));
-    
-    // Send email with HTML attachment
-    const emailSubject = `התראה: שינוי סטטוס ל"${statusName}" - דירה ${debtor.apartmentNumber}`;
+    // Send styled HTML email
+    const emailSubject = `🚨 התראה: שינוי סטטוס ל"${statusName}" - דירה ${debtor.apartmentNumber}`;
     const emailBody = `
-שלום,
+<!DOCTYPE html>
+<html dir="rtl">
+  <head>
+    <meta charset="utf-8">
+    <style>
+      body { font-family: Arial, sans-serif; direction: rtl; margin: 0; padding: 0; background-color: #f3f4f6; }
+      .container { max-width: 600px; margin: 20px auto; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+      .header { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 30px 20px; text-align: center; }
+      .header h1 { margin: 0; font-size: 24px; }
+      .alert-badge { display: inline-block; background: #fef2f2; color: #dc2626; padding: 8px 16px; border-radius: 8px; margin-top: 10px; font-weight: bold; font-size: 16px; }
+      .content { padding: 30px 20px; }
+      .info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+      .info-item { background: #f8fafc; padding: 15px; border-radius: 8px; border-right: 4px solid #3b82f6; }
+      .info-label { font-size: 12px; color: #64748b; margin-bottom: 4px; }
+      .info-value { font-size: 16px; font-weight: bold; color: #1e293b; }
+      .debt-section { background: #fef2f2; border: 2px solid #fca5a5; border-radius: 12px; padding: 20px; margin: 20px 0; text-align: center; }
+      .debt-total { font-size: 32px; font-weight: bold; color: #dc2626; margin-bottom: 10px; }
+      .debt-breakdown { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+      .debt-item { background: white; padding: 10px; border-radius: 6px; }
+      .section { margin: 20px 0; }
+      .section-title { font-size: 18px; font-weight: bold; color: #334155; margin-bottom: 15px; border-bottom: 2px solid #e2e8f0; padding-bottom: 8px; }
+      .comment { background: #f8fafc; border-right: 4px solid #3b82f6; padding: 15px; margin-bottom: 10px; border-radius: 6px; }
+      .comment-header { font-size: 12px; color: #64748b; margin-bottom: 8px; }
+      .comment-author { font-weight: bold; color: #1e40af; }
+      .footer { background: #f8fafc; padding: 20px; text-align: center; font-size: 12px; color: #94a3b8; }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h1>🔔 התראת שינוי סטטוס משפטי</h1>
+        <div class="alert-badge">${statusName}</div>
+      </div>
+      
+      <div class="content">
+        <p style="font-size: 16px; color: #475569; margin-bottom: 25px;">
+          שלום,<br><br>
+          התקבל עדכון על שינוי סטטוס משפטי בדירה ${debtor.apartmentNumber}. להלן פרטים מלאים:
+        </p>
+        
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">🏠 מספר דירה</div>
+            <div class="info-value">${debtor.apartmentNumber}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">👤 בעל דירה</div>
+            <div class="info-value">${debtor.ownerName || 'לא צוין'}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">📞 טלפון בעלים</div>
+            <div class="info-value">${formatPhone(debtor.phoneOwner)}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">📞 טלפון שוכר</div>
+            <div class="info-value">${formatPhone(debtor.phoneTenant)}</div>
+          </div>
+        </div>
 
-נשלח אליך מסמך פרטי דירה בעקבות שינוי סטטוס משפטי.
+        <div class="debt-section">
+          <div style="font-size: 14px; color: #991b1b; font-weight: bold; margin-bottom: 10px;">💰 פירוט חובות</div>
+          <div class="debt-total">סה״כ חוב: ${formatCurrency(debtor.totalDebt)}</div>
+          <div class="debt-breakdown">
+            <div class="debt-item">
+              <div style="font-size: 12px; color: #64748b;">דמי ניהול</div>
+              <div style="font-size: 16px; font-weight: bold; color: #dc2626;">${formatCurrency(debtor.monthlyDebt)}</div>
+            </div>
+            <div class="debt-item">
+              <div style="font-size: 12px; color: #64748b;">מים חמים</div>
+              <div style="font-size: 16px; font-weight: bold; color: #dc2626;">${formatCurrency(debtor.specialDebt)}</div>
+            </div>
+          </div>
+        </div>
 
-📋 פרטים:
-- דירה: ${debtor.apartmentNumber}
-- בעל דירה: ${debtor.ownerName || 'לא צוין'}
-- סטטוס חדש: ${statusName}
-- סה״כ חוב: ${formatCurrency(debtor.totalDebt)}
+        ${debtor.managementMonthsRaw ? `
+          <div class="section">
+            <div class="section-title">📅 דמי ניהול לחודשים</div>
+            <div style="background: #f8fafc; padding: 15px; border-radius: 8px; white-space: pre-wrap; font-size: 14px;">
+              ${debtor.managementMonthsRaw}
+            </div>
+          </div>
+        ` : ''}
 
-המסמך המלא מצורף כקובץ HTML (פתח בדפדפן).
+        ${comments && comments.length > 0 ? `
+          <div class="section">
+            <div class="section-title">💬 הערות ותיעוד (${comments.length})</div>
+            ${comments.map(comment => `
+              <div class="comment">
+                <div class="comment-header">
+                  <span class="comment-author">${comment.author_name}</span>
+                  <span style="float: left;">${new Date(comment.created_date).toLocaleString('he-IL')}</span>
+                </div>
+                <div style="clear: both; font-size: 14px; line-height: 1.6; white-space: pre-wrap;">${comment.content}</div>
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+      </div>
 
-בברכה,
-מערכת ניהול חייבים
+      <div class="footer">
+        נוצר אוטומטית ב-${new Date().toLocaleString('he-IL')}<br>
+        מערכת ניהול חייבים • ${settings.buildingName || 'בניין אלמוג'}
+      </div>
+    </div>
+  </body>
+</html>
     `;
     
     await base44.integrations.Core.SendEmail({
