@@ -268,7 +268,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     setIsExporting(true);
     try {
       const { jsPDF } = await import('jspdf');
-      const { getHebrewFont } = await import('../export/hebrewFont');
+      const { loadHebrewFont } = await import('../export/hebrewFont');
       
       // Fetch comments
       const comments = await base44.entities.Comment.filter({ debtor_record_id: record.id }, '-created_date');
@@ -281,10 +281,12 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       });
 
       // Add Hebrew font
-      const hebrewFont = getHebrewFont();
-      doc.addFileToVFS('Heebo-Regular.ttf', hebrewFont);
-      doc.addFont('Heebo-Regular.ttf', 'Heebo', 'normal');
-      doc.setFont('Heebo');
+      const hebrewFont = await loadHebrewFont();
+      if (hebrewFont) {
+        doc.addFileToVFS('Heebo-Regular.ttf', hebrewFont);
+        doc.addFont('Heebo-Regular.ttf', 'Heebo', 'normal');
+        doc.setFont('Heebo');
+      }
       doc.setR2L(true);
 
       let yPos = 20;
