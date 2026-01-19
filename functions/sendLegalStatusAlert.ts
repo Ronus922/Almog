@@ -5,9 +5,9 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const payload = await req.json();
     
-    const { debtorRecordId, statusName } = payload;
+    const { debtorRecordId, newStatusId, statusName } = payload;
     
-    if (!debtorRecordId || !statusName) {
+    if (!debtorRecordId || !statusName || !newStatusId) {
       return Response.json({ error: 'Missing required parameters' }, { status: 400 });
     }
     
@@ -22,15 +22,7 @@ Deno.serve(async (req) => {
       });
     }
     
-    // Get debtor record
-    const record = await base44.asServiceRole.entities.DebtorRecord.filter({ id: debtorRecordId });
-    if (!record || record.length === 0) {
-      return Response.json({ error: 'Record not found' }, { status: 404 });
-    }
-    
-    const debtor = record[0];
-    
-    // Check if current status should trigger alert
+    // Check if new status should trigger alert
     if (!settings.legal_alert_statuses || settings.legal_alert_statuses.length === 0) {
       return Response.json({ 
         success: false, 
@@ -38,12 +30,20 @@ Deno.serve(async (req) => {
       });
     }
     
-    if (!debtor.legal_status_id || !settings.legal_alert_statuses.includes(debtor.legal_status_id)) {
+    if (!settings.legal_alert_statuses.includes(newStatusId)) {
       return Response.json({ 
         success: false, 
-        message: 'Current status does not trigger alerts' 
+        message: 'New status does not trigger alerts' 
       });
     }
+    
+    // Get debtor record
+    const record = await base44.asServiceRole.entities.DebtorRecord.filter({ id: debtorRecordId });
+    if (!record || record.length === 0) {
+      return Response.json({ error: 'Record not found' }, { status: 404 });
+    }
+    
+    const debtor = record[0];
     
     // Get comments
     const comments = await base44.asServiceRole.entities.Comment.filter(

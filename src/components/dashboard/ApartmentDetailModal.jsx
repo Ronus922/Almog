@@ -225,6 +225,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         // שליחת התראת מייל (non-blocking) - הפונקציה תבדוק אם צריך לשלוח
         base44.functions.invoke('sendLegalStatusAlert', {
           debtorRecordId: record.id,
+          newStatusId: newStatusId,
           statusName: newStatus?.name || ''
         }).catch((err) => {
           console.log('[STATUS CHANGE] Email alert skipped or failed:', err.message);
