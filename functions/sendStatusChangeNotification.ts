@@ -133,11 +133,9 @@ Deno.serve(async (req) => {
                   <p style="margin: 10px 0 0 0;">${status.description}</p>
                 </div>
               ` : ''}
-              ${pdfUrl ? `
-                <div style="margin: 20px 0; text-align: center;">
-                  <a href="${pdfUrl}" style="display: inline-block; padding: 12px 24px; background: #1e40af; color: white; text-decoration: none; border-radius: 6px; font-weight: bold;">
-                    הורד פרטי דירה PDF
-                  </a>
+              ${pdfBytes ? `
+                <div style="margin: 20px 0; padding: 15px; background: #eff6ff; border-radius: 4px; text-align: center;">
+                  <p style="margin: 0; color: #1e40af; font-size: 14px;"><strong>✓ קובץ PDF עם פרטי הדירה מצורף למייל</strong></p>
                 </div>
               ` : ''}
               <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 12px;">
