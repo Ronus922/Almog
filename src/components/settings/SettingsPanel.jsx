@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Settings, Building2, Scale, Webhook, Save, 
-  Loader2, CheckCircle2, AlertTriangle, RefreshCw, Mail
+  Loader2, CheckCircle2, AlertTriangle, RefreshCw
 } from "lucide-react";
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
@@ -25,9 +25,7 @@ export default function SettingsPanel() {
     makeWebhookNewLawsuitCandidateUrl: '',
     makeWebhookNewRecordUrl: '',
     buildingName: 'בניין אלמוג',
-    buildingAddress: 'דוד אלעזר 10, חיפה',
-    legal_alert_email: '',
-    legal_alert_statuses: []
+    buildingAddress: 'דוד אלעזר 10, חיפה'
   });
   const [settingsId, setSettingsId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -38,12 +36,7 @@ export default function SettingsPanel() {
   const [recalcSuccess, setRecalcSuccess] = useState(false);
   const [recalcMessage, setRecalcMessage] = useState('');
 
-  const { data: allStatuses = [] } = useQuery({
-    queryKey: ['statuses'],
-    queryFn: () => base44.entities.Status.list('order'),
-  });
 
-  const legalStatuses = allStatuses.filter(s => s.type === 'LEGAL' && s.is_active);
 
   useEffect(() => {
     loadSettings();
@@ -54,10 +47,7 @@ export default function SettingsPanel() {
       const settingsList = await base44.entities.Settings.list();
       if (settingsList.length > 0) {
         const loadedSettings = settingsList[0];
-        setSettings({
-          ...loadedSettings,
-          legal_alert_statuses: loadedSettings.legal_alert_statuses || []
-        });
+        setSettings(loadedSettings);
         setSettingsId(loadedSettings.id);
       }
     } catch (err) {
@@ -253,63 +243,6 @@ export default function SettingsPanel() {
                 dir="rtl"
               />
               <p className="text-xs text-slate-500 mt-1">מעל סכום זה הסטטוס: לטיפול משפטי (אדום)</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* התראות מייל על שינוי סטטוס משפטי */}
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <Mail className="w-4 h-4 text-slate-600" />
-            התראות מייל - שינוי סטטוס משפטי
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div>
-            <Label>כתובת מייל לקבלת התראות</Label>
-            <Input
-              type="email"
-              value={settings.legal_alert_email || ''}
-              onChange={(e) => setSettings({...settings, legal_alert_email: e.target.value})}
-              placeholder="example@mail.com"
-              className="mt-1"
-              dir="ltr"
-            />
-            <p className="text-xs text-slate-500 mt-1">
-              כשמשנים סטטוס משפטי לאחד מהסטטוסים שנבחרו, יישלח מייל עם PDF
-            </p>
-          </div>
-
-          <div>
-            <Label className="mb-2 block">סטטוסים שיפעילו התראה</Label>
-            <div className="space-y-2 max-h-48 overflow-y-auto border border-slate-200 rounded-lg p-3">
-              {legalStatuses.length === 0 ? (
-                <p className="text-xs text-slate-400">אין סטטוסים משפטיים פעילים</p>
-              ) : (
-                legalStatuses.map((status) => (
-                  <div key={status.id} className="flex items-center gap-2">
-                    <input
-                      type="checkbox"
-                      id={`status-${status.id}`}
-                      checked={(settings.legal_alert_statuses || []).includes(status.id)}
-                      onChange={(e) => {
-                        const newStatuses = e.target.checked
-                          ? [...(settings.legal_alert_statuses || []), status.id]
-                          : (settings.legal_alert_statuses || []).filter(id => id !== status.id);
-                        setSettings({...settings, legal_alert_statuses: newStatuses});
-                      }}
-                      className="w-4 h-4 rounded border-slate-300"
-                    />
-                    <label htmlFor={`status-${status.id}`} className="text-sm cursor-pointer flex-1">
-                      <span className={`inline-block px-2 py-1 rounded text-xs font-semibold ${status.color}`}>
-                        {status.name}
-                      </span>
-                    </label>
-                  </div>
-                ))
-              )}
             </div>
           </div>
         </CardContent>
