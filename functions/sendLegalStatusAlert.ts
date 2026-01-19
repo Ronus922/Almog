@@ -14,22 +14,13 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing required parameters' }, { status: 400 });
     }
     
-    // Get settings for email recipient
+    // Get settings for alert configuration
     const settingsList = await base44.asServiceRole.entities.Settings.list();
     const settings = settingsList[0];
     
     console.log('[EMAIL ALERT] Settings:', { 
-      email: settings?.legal_alert_email,
       alertStatuses: settings?.legal_alert_statuses 
     });
-    
-    if (!settings?.legal_alert_email) {
-      console.log('[EMAIL ALERT] No email configured');
-      return Response.json({ 
-        success: false, 
-        message: 'No alert email configured in settings' 
-      });
-    }
     
     // Check if new status should trigger alert
     if (!settings.legal_alert_statuses || settings.legal_alert_statuses.length === 0) {
@@ -51,7 +42,23 @@ Deno.serve(async (req) => {
       });
     }
     
-    console.log('[EMAIL ALERT] All checks passed, sending email...');
+    console.log('[EMAIL ALERT] All checks passed, getting recipient emails...');
+    
+    // Get all active users with emails
+    const users = await base44.asServiceRole.entities.AppUser.filter({ is_active: true });
+    const recipientEmails = users
+      .map(u => u.email)
+      .filter(email => email && email.trim() !== '');
+    
+    console.log('[EMAIL ALERT] Recipient emails:', recipientEmails);
+    
+    if (!recipientEmails || recipientEmails.length === 0) {
+      console.log('[EMAIL ALERT] No users with email addresses found');
+      return Response.json({ 
+        success: false, 
+        message: 'No active users with email addresses' 
+      });
+    }
     
     // Get debtor record
     const record = await base44.asServiceRole.entities.DebtorRecord.filter({ id: debtorRecordId });
@@ -262,17 +269,22 @@ Deno.serve(async (req) => {
 </html>
     `;
     
-    await base44.integrations.Core.SendEmail({
-      to: settings.legal_alert_email,
-      subject: emailSubject,
-      body: emailBody
-    });
+    // Send email to all recipients
+    const emailPromises = recipientEmails.map(email => 
+      base44.integrations.Core.SendEmail({
+        to: email,
+        subject: emailSubject,
+        body: emailBody
+      })
+    );
     
-    console.log('[EMAIL ALERT] Email sent successfully to:', settings.legal_alert_email);
+    await Promise.all(emailPromises);
+    
+    console.log('[EMAIL ALERT] Emails sent successfully to:', recipientEmails.join(', '));
     
     return Response.json({ 
       success: true, 
-      message: `Email sent to ${settings.legal_alert_email}` 
+      message: `Emails sent to ${recipientEmails.length} recipient(s)` 
     });
     
   } catch (error) {
