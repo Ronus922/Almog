@@ -34,8 +34,6 @@ Deno.serve(async (req) => {
 
     const emails = status.notification_emails.split(',').map(e => e.trim()).filter(e => e);
     
-    // עדיין לא מחוברים PDF - שלח את המייל בלי
-    
     const emailResults = [];
     for (const email of emails) {
       try {
