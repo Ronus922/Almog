@@ -3,11 +3,6 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-
-    if (!user) {
-      return Response.json({ error: 'Unauthorized' }, { status: 401 });
-    }
 
     const { debtorRecordId, newStatusId } = await req.json();
 
@@ -41,8 +36,7 @@ Deno.serve(async (req) => {
         <p style="font-size: 16px;">שלום,</p>
         
         <p style="font-size: 16px;">
-          <strong>${user.username || user.email}</strong> עדכן את הסטטוס המשפטי של דירה 
-          <strong>${record.apartmentNumber}</strong> ל-<strong>${status.name}</strong>
+          הסטטוס המשפטי של דירה <strong>${record.apartmentNumber}</strong> עודכן ל-<strong>${status.name}</strong>
         </p>
 
         <div style="background: #f8fafc; border-right: 4px solid #3b82f6; padding: 15px; margin: 20px 0; border-radius: 4px;">
