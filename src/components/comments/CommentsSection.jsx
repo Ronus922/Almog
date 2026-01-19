@@ -137,17 +137,7 @@ export default function CommentsSection({ debtorRecordId, apartmentNumber, curre
         )}
         </div>
         
-        {comments.length > 0 && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handlePrint}
-            className="mt-2 gap-2 text-xs"
-          >
-            <Printer className="w-3 h-3" />
-            הדפס הערות
-          </Button>
-        )}
+
       </div>
 
       {/* טופס הוספת הערה */}
