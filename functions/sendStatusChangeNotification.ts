@@ -167,8 +167,7 @@ Deno.serve(async (req) => {
     return Response.json({ 
       success: true, 
       message: `Notifications sent to ${emails.length} recipients`,
-      emailResults,
-      pdfUrl
+      emailResults
     });
 
   } catch (error) {
