@@ -7,7 +7,10 @@ Deno.serve(async (req) => {
     
     const { debtorRecordId, newStatusId, statusName } = payload;
     
+    console.log('[EMAIL ALERT] Received payload:', { debtorRecordId, newStatusId, statusName });
+    
     if (!debtorRecordId || !statusName || !newStatusId) {
+      console.log('[EMAIL ALERT] Missing parameters');
       return Response.json({ error: 'Missing required parameters' }, { status: 400 });
     }
     
@@ -15,7 +18,13 @@ Deno.serve(async (req) => {
     const settingsList = await base44.asServiceRole.entities.Settings.list();
     const settings = settingsList[0];
     
+    console.log('[EMAIL ALERT] Settings:', { 
+      email: settings?.legal_alert_email,
+      alertStatuses: settings?.legal_alert_statuses 
+    });
+    
     if (!settings?.legal_alert_email) {
+      console.log('[EMAIL ALERT] No email configured');
       return Response.json({ 
         success: false, 
         message: 'No alert email configured in settings' 
@@ -24,6 +33,7 @@ Deno.serve(async (req) => {
     
     // Check if new status should trigger alert
     if (!settings.legal_alert_statuses || settings.legal_alert_statuses.length === 0) {
+      console.log('[EMAIL ALERT] No alert statuses configured');
       return Response.json({ 
         success: false, 
         message: 'No statuses configured for alerts' 
@@ -31,11 +41,17 @@ Deno.serve(async (req) => {
     }
     
     if (!settings.legal_alert_statuses.includes(newStatusId)) {
+      console.log('[EMAIL ALERT] Status not in alert list:', { 
+        newStatusId, 
+        alertStatuses: settings.legal_alert_statuses 
+      });
       return Response.json({ 
         success: false, 
         message: 'New status does not trigger alerts' 
       });
     }
+    
+    console.log('[EMAIL ALERT] All checks passed, sending email...');
     
     // Get debtor record
     const record = await base44.asServiceRole.entities.DebtorRecord.filter({ id: debtorRecordId });
@@ -251,6 +267,8 @@ Deno.serve(async (req) => {
       subject: emailSubject,
       body: emailBody
     });
+    
+    console.log('[EMAIL ALERT] Email sent successfully to:', settings.legal_alert_email);
     
     return Response.json({ 
       success: true, 
