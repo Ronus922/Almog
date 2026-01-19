@@ -112,158 +112,89 @@ async function generateApartmentPDF(record, status, comments) {
     return phone;
   };
 
-  // HTML content
+  // HTML בדיוק כמו בפרונטאנד
   const htmlContent = `
-    <div style="direction: rtl; text-align: right; font-family: Arial, sans-serif; padding: 40px; background: white;">
-      <h1 style="color: #1e40af; border-bottom: 3px solid #1e40af; padding-bottom: 10px; margin-bottom: 20px;">
-        פרטי דירה ${record.apartmentNumber}
-      </h1>
-      
-      <div style="margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 8px;">
-        <h3 style="color: #334155; margin: 0 0 10px 0;">פרטים עיקריים</h3>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-          <div><strong>מספר דירה:</strong> ${record.apartmentNumber}</div>
-          <div><strong>בעל דירה:</strong> ${record.ownerName || 'לא צוין'}</div>
-          <div><strong>טלפון בעלים:</strong> ${formatPhone(record.phoneOwner)}</div>
-          <div><strong>טלפון שוכר:</strong> ${formatPhone(record.phoneTenant)}</div>
-        </div>
-      </div>
-
-      <div style="margin-bottom: 20px; background: #eff6ff; padding: 15px; border-radius: 8px;">
-        <h3 style="color: #334155; margin: 0 0 10px 0;">סטטוס משפטי</h3>
-        <div style="font-weight: bold; font-size: 16px; margin-bottom: 5px;">${status.name}</div>
-        ${status.description ? `<div style="font-size: 14px; color: #64748b;">${status.description}</div>` : ''}
-      </div>
-
-      <div style="margin-bottom: 20px; background: #fef2f2; border: 2px solid #fca5a5; padding: 15px; border-radius: 8px;">
-        <h3 style="color: #991b1b; margin: 0 0 10px 0;">פירוט חובות</h3>
-        <div style="font-size: 24px; font-weight: bold; color: #dc2626; margin-bottom: 10px;">
-          סה״כ חוב: ${formatCurrency(record.totalDebt)}
-        </div>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
-          <div><strong>דמי ניהול:</strong> ${formatCurrency(record.monthlyDebt)}</div>
-          <div><strong>מים חמים:</strong> ${formatCurrency(record.specialDebt)}</div>
-        </div>
-      </div>
-
-      ${record.managementMonthsRaw ? `
+    <!DOCTYPE html>
+    <html dir="rtl">
+    <head>
+      <meta charset="UTF-8">
+      <style>
+        body { font-family: Arial, sans-serif; direction: rtl; }
+        * { margin: 0; padding: 0; }
+      </style>
+    </head>
+    <body style="direction: rtl; text-align: right; font-family: Arial, sans-serif; padding: 40px; background: white;">
+      <div style="direction: rtl; text-align: right;">
+        <h1 style="color: #1e40af; border-bottom: 3px solid #1e40af; padding-bottom: 10px; margin-bottom: 20px;">
+          פרטי דירה ${record.apartmentNumber}
+        </h1>
+        
         <div style="margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 8px;">
-          <h3 style="color: #334155; margin: 0 0 10px 0;">דמי ניהול לחודשים</h3>
-          <div style="white-space: pre-wrap;">${record.managementMonthsRaw}</div>
+          <h3 style="color: #334155; margin: 0 0 10px 0;">פרטים עיקריים</h3>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <div><strong>מספר דירה:</strong> ${record.apartmentNumber}</div>
+            <div><strong>בעל דירה:</strong> ${record.ownerName || 'לא צוין'}</div>
+            <div><strong>טלפון בעלים:</strong> ${formatPhone(record.phoneOwner)}</div>
+            <div><strong>טלפון שוכר:</strong> ${formatPhone(record.phoneTenant)}</div>
+          </div>
         </div>
-      ` : ''}
 
-      ${comments && comments.length > 0 ? `
-        <div style="margin-top: 20px;">
-          <h3 style="color: #334155; margin-bottom: 10px;">הערות ותיעוד</h3>
-          ${comments.map(comment => `
-            <div style="background: #f8fafc; border-right: 4px solid #3b82f6; padding: 12px; margin-bottom: 10px; border-radius: 4px;">
-              <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; color: #64748b;">
-                <strong style="color: #1e40af;">${comment.author_name}</strong>
-                <span>${new Date(comment.created_date).toLocaleString('he-IL')}</span>
+        <div style="margin-bottom: 20px; background: #eff6ff; padding: 15px; border-radius: 8px;">
+          <h3 style="color: #334155; margin: 0 0 10px 0;">סטטוס משפטי</h3>
+          <div style="font-weight: bold; font-size: 16px; margin-bottom: 5px;">${status.name}</div>
+          ${status.description ? `<div style="font-size: 14px; color: #64748b;">${status.description}</div>` : ''}
+        </div>
+
+        <div style="margin-bottom: 20px; background: #fef2f2; border: 2px solid #fca5a5; padding: 15px; border-radius: 8px;">
+          <h3 style="color: #991b1b; margin: 0 0 10px 0;">פירוט חובות</h3>
+          <div style="font-size: 24px; font-weight: bold; color: #dc2626; margin-bottom: 10px;">
+            סה״כ חוב: ${formatCurrency(record.totalDebt)}
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+            <div><strong>דמי ניהול:</strong> ${formatCurrency(record.monthlyDebt)}</div>
+            <div><strong>מים חמים:</strong> ${formatCurrency(record.specialDebt)}</div>
+          </div>
+        </div>
+
+        ${record.managementMonthsRaw ? `
+          <div style="margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 8px;">
+            <h3 style="color: #334155; margin: 0 0 10px 0;">דמי ניהול לחודשים</h3>
+            <div style="white-space: pre-wrap;">${record.managementMonthsRaw}</div>
+          </div>
+        ` : ''}
+
+        ${comments && comments.length > 0 ? `
+          <div style="margin-top: 20px;">
+            <h3 style="color: #334155; margin-bottom: 10px;">הערות ותיעוד</h3>
+            ${comments.map(comment => `
+              <div style="background: #f8fafc; border-right: 4px solid #3b82f6; padding: 12px; margin-bottom: 10px; border-radius: 4px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; color: #64748b;">
+                  <strong style="color: #1e40af;">${comment.author_name}</strong>
+                  <span>${new Date(comment.created_date).toLocaleString('he-IL')}</span>
+                </div>
+                <div style="white-space: pre-wrap;">${comment.content}</div>
               </div>
-              <div style="white-space: pre-wrap;">${comment.content}</div>
-            </div>
-          `).join('')}
-        </div>
-      ` : ''}
+            `).join('')}
+          </div>
+        ` : ''}
 
-      <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 12px;">
-        נוצר ב-${new Date().toLocaleString('he-IL')} • מערכת ניהול חייבים
+        <div style="margin-top: 30px; padding-top: 20px; border-top: 2px solid #e2e8f0; text-align: center; color: #94a3b8; font-size: 12px;">
+          נוצר ב-${new Date().toLocaleString('he-IL')} • מערכת ניהול חייבים
+        </div>
       </div>
-    </div>
+    </body>
+    </html>
   `;
 
-  // Create PDF using jsPDF
-  const pdf = new jsPDF({
-    orientation: 'portrait',
-    unit: 'mm',
-    format: 'a4'
-  });
-
-  const pageWidth = pdf.internal.pageSize.getWidth();
-  const pageHeight = pdf.internal.pageSize.getHeight();
-  const margin = 10;
-  const contentWidth = pageWidth - 2 * margin;
-
-  // Simple text rendering (jsPDF HTML support is limited in Deno environment)
-  pdf.setFont('Arial', 'normal');
-  pdf.setFontSize(16);
-  pdf.text(`פרטי דירה ${record.apartmentNumber}`, margin + contentWidth / 2, margin + 10, { align: 'right' });
-
-  pdf.setFontSize(12);
-  let yPosition = margin + 25;
-
-  // Details
-  pdf.text(`בעל דירה: ${record.ownerName || 'לא צוין'}`, margin, yPosition);
-  yPosition += 8;
-  pdf.text(`טלפון בעלים: ${formatPhone(record.phoneOwner)}`, margin, yPosition);
-  yPosition += 8;
-  pdf.text(`טלפון שוכר: ${formatPhone(record.phoneTenant)}`, margin, yPosition);
-  yPosition += 15;
-
-  // Status
-  pdf.setFont('Arial', 'bold');
-  pdf.text(`סטטוס משפטי: ${status.name}`, margin, yPosition);
-  pdf.setFont('Arial', 'normal');
-  yPosition += 8;
-  if (status.description) {
-    pdf.text(status.description, margin, yPosition, { maxWidth: contentWidth });
-    yPosition += 8;
+  // שימוש בPuppeteer כדי ליצור PDF בדיוק כמו בפרונטאנד
+  let browser;
+  try {
+    browser = await puppeteer.launch({ headless: 'new' });
+    const page = await browser.newPage();
+    await page.setContent(htmlContent, { waitUntil: 'networkidle0' });
+    const pdfBuffer = await page.pdf({ format: 'A4', margin: { top: 0, bottom: 0, left: 0, right: 0 } });
+    return pdfBuffer;
+  } finally {
+    if (browser) await browser.close();
   }
-  yPosition += 5;
-
-  // Debt info
-  pdf.setFont('Arial', 'bold');
-  pdf.setFontSize(14);
-  pdf.text(`סה״כ חוב: ${formatCurrency(record.totalDebt)}`, margin, yPosition);
-  yPosition += 10;
-
-  pdf.setFontSize(12);
-  pdf.setFont('Arial', 'normal');
-  pdf.text(`דמי ניהול: ${formatCurrency(record.monthlyDebt)}`, margin, yPosition);
-  yPosition += 8;
-  pdf.text(`מים חמים: ${formatCurrency(record.specialDebt)}`, margin, yPosition);
-  yPosition += 15;
-
-  // Management months
-  if (record.managementMonthsRaw) {
-    pdf.setFont('Arial', 'bold');
-    pdf.text('דמי ניהול לחודשים:', margin, yPosition);
-    yPosition += 8;
-    pdf.setFont('Arial', 'normal');
-    const months = record.managementMonthsRaw.split(/[,،\n]/).filter(m => m.trim());
-    months.forEach(month => {
-      pdf.text(`• ${month.trim()}`, margin + 5, yPosition);
-      yPosition += 6;
-    });
-    yPosition += 5;
-  }
-
-  // Comments
-  if (comments && comments.length > 0) {
-    pdf.setFont('Arial', 'bold');
-    pdf.text('הערות ותיעוד:', margin, yPosition);
-    yPosition += 8;
-    
-    comments.forEach(comment => {
-      pdf.setFont('Arial', 'bold');
-      pdf.setFontSize(10);
-      pdf.text(`${comment.author_name} - ${new Date(comment.created_date).toLocaleDateString('he-IL')}`, margin, yPosition);
-      yPosition += 6;
-      
-      pdf.setFont('Arial', 'normal');
-      pdf.setFontSize(11);
-      const lines = pdf.splitTextToSize(comment.content, contentWidth - 5);
-      pdf.text(lines, margin + 5, yPosition);
-      yPosition += lines.length * 5 + 5;
-      
-      if (yPosition > pageHeight - 20) {
-        pdf.addPage();
-        yPosition = margin;
-      }
-    });
-  }
-
-  return pdf.output('arraybuffer');
 }
