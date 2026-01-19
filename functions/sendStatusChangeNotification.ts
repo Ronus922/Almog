@@ -108,16 +108,8 @@ Deno.serve(async (req) => {
       }
     }
 
-    // המרת PDF לבייטים
-    const pdfBytes = doc.output('arraybuffer');
-    const pdfBase64 = btoa(String.fromCharCode(...new Uint8Array(pdfBytes)));
-
-    // העלאת הקובץ
-    const fileName = `apartment_${record.apartmentNumber}_${new Date().toISOString().split('T')[0]}.pdf`;
-    const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-    const file = new File([blob], fileName, { type: 'application/pdf' });
-
-    const { file_url } = await base44.asServiceRole.integrations.Core.UploadFile({ file });
+    // המרת PDF ל-base64
+    const pdfBase64 = doc.output('datauristring').split(',')[1];
 
     // תוכן המייל בעברית (RTL)
     const emailBody = `
@@ -127,7 +119,7 @@ Deno.serve(async (req) => {
           היוזר <strong>${user.username || user.email}</strong> מבקש לעדכן אותך על שינוי סטטוס של דירה 
           <strong>${record.apartmentNumber}</strong> ל-<strong>${status.name}</strong>
         </p>
-        <p>מצורף קובץ PDF עם פרטי הדירה המלאים.</p>
+        <p>מצורף קובץ PDF עם פרטי הדירה המלאים (ראה קובץ מצורף).</p>
         <p>בברכה,<br/>מערכת ניהול חייבים</p>
       </div>
     `;
@@ -135,6 +127,7 @@ Deno.serve(async (req) => {
     // שליחת מיילים
     const emails = status.notification_emails.split(',').map(e => e.trim()).filter(e => e);
     
+    const emailResults = [];
     for (const email of emails) {
       try {
         await base44.asServiceRole.integrations.Core.SendEmail({
@@ -142,15 +135,18 @@ Deno.serve(async (req) => {
           subject: `עדכון סטטוס - דירה ${record.apartmentNumber}`,
           body: emailBody
         });
+        emailResults.push({ email, success: true });
       } catch (emailError) {
         console.error(`Failed to send email to ${email}:`, emailError);
+        emailResults.push({ email, success: false, error: emailError.message });
       }
     }
 
     return Response.json({ 
       success: true, 
       message: `Notifications sent to ${emails.length} recipients`,
-      file_url 
+      emailResults,
+      pdfGenerated: true
     });
 
   } catch (error) {
