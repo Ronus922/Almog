@@ -228,13 +228,14 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           newStatusId: newStatusId,
           statusName: newStatus?.name || ''
         }).then((response) => {
-          console.log('[STATUS CHANGE] Email response:', response.data);
-          if (response.data?.success) {
-            toast.success('מייל התראה נשלח בהצלחה');
+          console.log('[STATUS CHANGE] Email response:', response);
+          if (response?.data?.success) {
+            toast.success('מייל התראה נשלח ל-' + (response.data.recipients || 'הנמענים'));
           }
         }).catch((err) => {
           console.error('[STATUS CHANGE] Email error:', err);
-          toast.error('שגיאה בשליחת מייל: ' + (err.response?.data?.message || err.message));
+          const errorMsg = err?.response?.data?.error || err?.message || 'שגיאה לא ידועה';
+          toast.error('שגיאה בשליחת מייל: ' + errorMsg);
         });
 
         // עדכון נקודתי של cache (ללא refetch כבד)
