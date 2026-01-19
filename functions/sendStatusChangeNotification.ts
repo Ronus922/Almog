@@ -1,6 +1,5 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
 import { Resend } from 'npm:resend@4.0.0';
-import { PDFDocument, PDFPage, rgb } from 'npm:pdf-lib@1.17.1';
 
 Deno.serve(async (req) => {
   try {
@@ -27,89 +26,16 @@ Deno.serve(async (req) => {
 
     // בדיקה אם יש אימיילים להתראה
     if (!status.notification_emails || status.notification_emails.trim() === '') {
+      console.log('No notification emails configured for status:', status.id);
       return Response.json({ 
         success: true, 
         message: 'No notification emails configured for this status' 
       });
     }
 
-    // יצירת PDF
-    let pdfUrl = null;
-    try {
-      const pdfDoc = PDFDocument.create();
-      let page = pdfDoc.addPage([595, 842]); // A4
-      const { width, height } = page.getSize();
-      let yPosition = height - 40;
-      
-      const fontSize = 12;
-      const colors = { dark: rgb(0.11, 0.25, 0.69), text: rgb(0, 0, 0), light: rgb(0.94, 0.96, 0.99) };
-      
-      // כותרת
-      page.drawText(`פרטי דירה ${record.apartmentNumber}`, { 
-        x: width - 40, 
-        y: yPosition, 
-        size: 18, 
-        color: colors.dark,
-        maxWidth: width - 80
-      });
-      yPosition -= 30;
-      
-      // פרטים עיקריים
-      page.drawText('פרטים עיקריים', { x: width - 40, y: yPosition, size: 14, color: colors.dark });
-      yPosition -= 20;
-      page.drawText(`מספר דירה: ${record.apartmentNumber}`, { x: width - 40, y: yPosition, size: fontSize, color: colors.text, maxWidth: width - 80 });
-      yPosition -= 15;
-      page.drawText(`בעל דירה: ${record.ownerName || 'לא צוין'}`, { x: width - 40, y: yPosition, size: fontSize, color: colors.text, maxWidth: width - 80 });
-      yPosition -= 15;
-      page.drawText(`טלפון: ${record.phoneOwner || 'אין'}`, { x: width - 40, y: yPosition, size: fontSize, color: colors.text, maxWidth: width - 80 });
-      yPosition -= 25;
-      
-      // סטטוס משפטי
-      page.drawText('סטטוס משפטי', { x: width - 40, y: yPosition, size: 14, color: colors.dark });
-      yPosition -= 20;
-      page.drawText(status.name, { x: width - 40, y: yPosition, size: fontSize, color: colors.dark, maxWidth: width - 80 });
-      yPosition -= 25;
-      
-      // חוב
-      page.drawText('פירוט חובות', { x: width - 40, y: yPosition, size: 14, color: colors.dark });
-      yPosition -= 20;
-      const totalDebtStr = `סה"כ חוב: ${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS' }).format(record.totalDebt)}`;
-      page.drawText(totalDebtStr, { x: width - 40, y: yPosition, size: fontSize, color: rgb(0.86, 0.12, 0.12), maxWidth: width - 80 });
-      yPosition -= 15;
-      page.drawText(`דמי ניהול: ${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS' }).format(record.monthlyDebt)}`, { x: width - 40, y: yPosition, size: fontSize, color: colors.text, maxWidth: width - 80 });
-      yPosition -= 15;
-      page.drawText(`מים חמים: ${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS' }).format(record.specialDebt)}`, { x: width - 40, y: yPosition, size: fontSize, color: colors.text, maxWidth: width - 80 });
-      yPosition -= 25;
-      
-      // הערות
-      if (comments && comments.length > 0) {
-        page.drawText('הערות ותיעוד', { x: width - 40, y: yPosition, size: 14, color: colors.dark });
-        yPosition -= 20;
-        for (const comment of comments) {
-          const commentLines = comment.content.split('\n');
-          for (const line of commentLines.slice(0, 3)) {
-            if (yPosition < 50) {
-              page = pdfDoc.addPage([595, 842]);
-              yPosition = height - 40;
-            }
-            page.drawText(`• ${line.substring(0, 70)}`, { x: width - 40, y: yPosition, size: 10, color: colors.text, maxWidth: width - 80 });
-            yPosition -= 12;
-          }
-          yPosition -= 5;
-        }
-      }
-      
-      // שמירת PDF
-      const pdfBytes = await pdfDoc.save();
-      const fileName = `apartment_${record.apartmentNumber}_${Date.now()}.pdf`;
-      
-      console.log('PDF generated, size:', pdfBytes.length);
-    } catch (pdfError) {
-      console.error('Failed to generate PDF:', pdfError);
-      // continue without PDF
-    }
-
     const emails = status.notification_emails.split(',').map(e => e.trim()).filter(e => e);
+    
+    console.log('Sending notifications to emails:', emails);
     
     const emailResults = [];
     for (const email of emails) {
@@ -133,9 +59,24 @@ Deno.serve(async (req) => {
                   <p style="margin: 10px 0 0 0;">${status.description}</p>
                 </div>
               ` : ''}
-              ${pdfBytes ? `
-                <div style="margin: 20px 0; padding: 15px; background: #eff6ff; border-radius: 4px; text-align: center;">
-                  <p style="margin: 0; color: #1e40af; font-size: 14px;"><strong>✓ קובץ PDF עם פרטי הדירה מצורף למייל</strong></p>
+              <div style="margin: 20px 0; padding: 15px; background: #f0fdf4; border-radius: 4px;">
+                <p style="margin: 0; color: #166534; font-size: 14px;"><strong>פרטי הדירה:</strong></p>
+                <div style="margin-top: 10px; font-size: 13px; line-height: 1.8;">
+                  <p style="margin: 5px 0;"><strong>טלפון בעלים:</strong> ${record.phoneOwner || 'לא צוין'}</p>
+                  <p style="margin: 5px 0;"><strong>טלפון שוכר:</strong> ${record.phoneTenant || 'לא צוין'}</p>
+                  <p style="margin: 5px 0;"><strong>סה"כ חוב:</strong> ${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS' }).format(record.totalDebt || 0)}</p>
+                  <p style="margin: 5px 0;"><strong>דמי ניהול:</strong> ${new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS' }).format(record.monthlyDebt || 0)}</p>
+                </div>
+              </div>
+              ${comments && comments.length > 0 ? `
+                <div style="margin: 20px 0; padding: 15px; background: #faf5ff; border-radius: 4px;">
+                  <p style="margin: 0 0 10px 0; color: #6b21a8;"><strong>הערות אחרונות:</strong></p>
+                  ${comments.slice(0, 2).map(c => `
+                    <div style="margin: 8px 0; padding: 8px; background: white; border-right: 3px solid #a78bfa; border-radius: 3px; font-size: 12px;">
+                      <strong>${c.author_name}</strong> - ${new Date(c.created_date).toLocaleString('he-IL')}<br/>
+                      ${c.content.substring(0, 100)}${c.content.length > 100 ? '...' : ''}
+                    </div>
+                  `).join('')}
                 </div>
               ` : ''}
               <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e5e7eb; text-align: center; color: #6b7280; font-size: 12px;">
@@ -149,17 +90,13 @@ Deno.serve(async (req) => {
           from: 'ניהול חייבים <onboarding@resend.dev>',
           to: email,
           subject: `עדכון סטטוס - דירה ${record.apartmentNumber}`,
-          html: emailHtml,
-          attachments: pdfBytes ? [{
-            filename: fileName,
-            content: pdfBytes
-          }] : []
+          html: emailHtml
         });
         
-        console.log(`Email sent successfully to ${email}:`, result);
+        console.log(`Email sent successfully to ${email}:`, result.id);
         emailResults.push({ email, success: true, messageId: result.id });
       } catch (emailError) {
-        console.error(`Failed to send email to ${email}:`, emailError);
+        console.error(`Failed to send email to ${email}:`, emailError.message);
         emailResults.push({ email, success: false, error: emailError.message });
       }
     }
