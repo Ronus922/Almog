@@ -79,186 +79,97 @@ Deno.serve(async (req) => {
 
         const subject = `שינוי סטטוס משפטי - דירה ${apartmentNumber}`;
         
-        const htmlContent = `
-            <!DOCTYPE html>
-            <html dir="rtl">
-            <head>
-                <meta charset="UTF-8">
-            </head>
-            <body style="margin: 0; padding: 20px; font-family: Arial, sans-serif; background-color: #f0f4f8; direction: rtl;">
-                <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: #f0f4f8;">
-                    <tr>
-                        <td align="center">
-                            <table cellpadding="0" cellspacing="0" border="0" width="650" style="max-width: 650px; background-color: #ffffff; border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
-                                
-                                <!-- Header -->
-                                <tr>
-                                    <td style="background-color: #1e3a8a; color: white; padding: 25px 30px; text-align: center;">
-                                        <h1 style="margin: 0; font-size: 26px; font-weight: 700;">פרטי דירה ${apartmentNumber}</h1>
-                                        <p style="margin: 8px 0 0 0; font-size: 14px;">${ownerName || 'לא צוין'} • ${phoneOwner}</p>
-                                    </td>
-                                </tr>
+        // Build simple HTML to avoid CPU timeout
+        let htmlContent = `<!DOCTYPE html>
+<html dir="rtl">
+<head><meta charset="UTF-8"></head>
+<body style="margin:0;padding:20px;font-family:Arial,sans-serif;background:#f0f4f8;direction:rtl">
+<div style="max-width:650px;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden">
+<div style="background:#1e3a8a;color:#fff;padding:25px;text-align:center">
+<h1 style="margin:0;font-size:26px">פרטי דירה ${apartmentNumber}</h1>
+<p style="margin:8px 0 0;font-size:14px">${ownerName || 'לא צוין'} • ${phoneOwner}</p>
+</div>
+<div style="padding:25px">
+<div style="background:#eff6ff;border-right:4px solid #3b82f6;padding:15px;margin-bottom:25px;border-radius:8px">
+<p style="font-size:15px;color:#1e3a8a;margin:0">שלום,<br>נשלח אליך מסמך זה בעקבות שינוי סטטוס משפטי בדירה הנ"ל:</p>
+</div>
+<div style="background:#dcfce7;border:2px solid #16a34a;border-radius:12px;padding:20px;margin-bottom:25px;text-align:center">
+<div style="background:#fff;border-radius:8px;padding:15px">
+<p style="margin:0 0 5px;font-size:13px;color:#15803d;font-weight:600">סטטוס משפטי</p>
+<p style="margin:0;font-size:24px;font-weight:700;color:#16a34a">${statusName}</p>
+</div>`;
+        
+        if (oldStatusName) {
+            htmlContent += `<p style="margin:12px 0 0;font-size:13px;color:#15803d">עודכן מ: <span style="font-weight:600">${oldStatusName}</span></p>`;
+        }
+        
+        htmlContent += `</div>
+<div style="margin-bottom:25px">
+<div style="display:inline-block;width:48%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:15px;text-align:center">
+<p style="margin:0 0 5px;font-size:12px;color:#64748b;font-weight:600">מספר דירה</p>
+<p style="margin:0;font-size:22px;font-weight:700;color:#1e293b">${apartmentNumber}</p>
+</div>
+<div style="display:inline-block;width:48%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:15px;text-align:center;margin-right:4%">
+<p style="margin:0 0 5px;font-size:12px;color:#64748b;font-weight:600">בעל דירה</p>
+<p style="margin:0;font-size:16px;font-weight:600;color:#1e293b">${ownerName || 'לא צוין'}</p>
+</div>
+</div>
+<div style="background:#fee2e2;border:3px solid #dc2626;border-radius:12px;padding:20px;margin-bottom:25px">
+<h3 style="color:#991b1b;margin:0 0 15px;font-size:17px;text-align:center;font-weight:700">פירוט חובות</h3>
+<div style="background:#fff;border-radius:10px;padding:20px;text-align:center;margin-bottom:15px">
+<p style="margin:0 0 8px;font-size:13px;color:#991b1b;font-weight:600">סה"כ חוב</p>
+<p style="margin:0;font-size:36px;font-weight:800;color:#dc2626">₪${totalDebt.toLocaleString('he-IL')}</p>
+</div>
+<div style="display:inline-block;width:48%;background:#fff;border-right:4px solid #f97316;border-radius:8px;padding:15px;text-align:center">
+<p style="margin:0 0 5px;font-size:12px;color:#9a3412;font-weight:600">דמי ניהול</p>
+<p style="margin:0;font-size:20px;font-weight:700;color:#ea580c">₪${monthlyDebt.toLocaleString('he-IL')}</p>
+</div>
+<div style="display:inline-block;width:48%;background:#fff;border-right:4px solid #a855f7;border-radius:8px;padding:15px;text-align:center;margin-right:4%">
+<p style="margin:0 0 5px;font-size:12px;color:#6b21a8;font-weight:600">מים חמים</p>
+<p style="margin:0;font-size:20px;font-weight:700;color:#9333ea">₪${specialDebt.toLocaleString('he-IL')}</p>
+</div>
+</div>`;
 
-                                <!-- Main Content -->
-                                <tr>
-                                    <td style="padding: 25px 30px;">
-                                        
-                                        <!-- Greeting -->
-                                        <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 25px;">
-                                            <tr>
-                                                <td style="background-color: #eff6ff; border-right: 4px solid #3b82f6; padding: 15px 20px; border-radius: 8px;">
-                                                    <p style="font-size: 15px; color: #1e3a8a; margin: 0; line-height: 1.6; font-weight: 500;">
-                                                        שלום,<br>
-                                                        נשלח אליך מסמך זה בעקבות שינוי סטטוס משפטי בדירה הנ"ל:
-                                                    </p>
-                                                </td>
-                                            </tr>
-                                        </table>
+        if (managementMonthsRaw) {
+            const months = managementMonthsRaw.split(/[,،\n]/).map(m => m.trim()).filter(m => m).slice(0, 10);
+            htmlContent += `<div style="background:#fefce8;border:1px solid #facc15;border-radius:10px;padding:18px;margin-bottom:25px">
+<h4 style="color:#854d0e;margin:0 0 12px;font-size:15px;font-weight:700">דמי ניהול לחודשים</h4>
+<div style="background:#fff;border-radius:6px;padding:12px;font-size:13px;color:#78716c">`;
+            months.forEach(m => {
+                htmlContent += `<div style="padding:6px 0;border-bottom:1px solid #fef3c7"><span style="color:#ca8a04">•</span> ${m}</div>`;
+            });
+            htmlContent += `</div></div>`;
+        }
 
-                                        <!-- Status Update -->
-                                        <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 25px;">
-                                            <tr>
-                                                <td style="background-color: #dcfce7; border: 2px solid #16a34a; border-radius: 12px; padding: 20px; text-align: center;">
-                                                    <table cellpadding="0" cellspacing="0" border="0" width="100%">
-                                                        <tr>
-                                                            <td style="background-color: #ffffff; border-radius: 8px; padding: 15px; margin-bottom: 12px;">
-                                                                <p style="margin: 0 0 5px 0; font-size: 13px; color: #15803d; font-weight: 600;">סטטוס משפטי</p>
-                                                                <p style="margin: 0; font-size: 24px; font-weight: 700; color: #16a34a;">${statusName}</p>
-                                                            </td>
-                                                        </tr>
-                                                        ${oldStatusName ? `
-                                                        <tr>
-                                                            <td>
-                                                                <p style="margin: 12px 0 0 0; font-size: 13px; color: #15803d;">
-                                                                    עודכן מ: <span style="font-weight: 600;">${oldStatusName}</span>
-                                                                </p>
-                                                            </td>
-                                                        </tr>
-                                                        ` : ''}
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
+        if (comments && comments.length > 0) {
+            const limitedComments = comments.slice(0, 5);
+            htmlContent += `<div style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:10px;padding:18px;margin-bottom:20px">
+<h4 style="color:#1e293b;margin:0 0 15px;font-size:15px;font-weight:700">הערות ותיעוד</h4>
+<table style="width:100%;border-collapse:collapse;background:#fff;border-radius:8px">
+<tr style="background:#1e40af">
+<th style="padding:12px;text-align:right;color:#fff;font-size:13px;width:25%">תאריך</th>
+<th style="padding:12px;text-align:right;color:#fff;font-size:13px;width:20%">מאת</th>
+<th style="padding:12px;text-align:right;color:#fff;font-size:13px;width:55%">תוכן</th>
+</tr>`;
+            limitedComments.forEach((c, i) => {
+                const bg = i % 2 === 0 ? '#f8fafc' : '#fff';
+                const date = new Date(c.created_date).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                htmlContent += `<tr style="background:${bg};border-bottom:1px solid #e2e8f0">
+<td style="padding:12px;color:#64748b;font-size:12px">${date}</td>
+<td style="padding:12px;color:#1e40af;font-weight:600;font-size:13px">${c.author_name}</td>
+<td style="padding:12px;color:#475569;font-size:13px">${c.content.substring(0, 100)}</td>
+</tr>`;
+            });
+            htmlContent += `</table></div>`;
+        }
 
-                                        <!-- Main Details - using table -->
-                                        <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 25px;">
-                                            <tr>
-                                                <td width="48%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; text-align: center;">
-                                                    <p style="margin: 0 0 5px 0; font-size: 12px; color: #64748b; font-weight: 600;">מספר דירה</p>
-                                                    <p style="margin: 0; font-size: 22px; font-weight: 700; color: #1e293b;">${apartmentNumber}</p>
-                                                </td>
-                                                <td width="4%"></td>
-                                                <td width="48%" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 10px; padding: 15px; text-align: center;">
-                                                    <p style="margin: 0 0 5px 0; font-size: 12px; color: #64748b; font-weight: 600;">בעל דירה</p>
-                                                    <p style="margin: 0; font-size: 16px; font-weight: 600; color: #1e293b;">${ownerName || 'לא צוין'}</p>
-                                                </td>
-                                            </tr>
-                                        </table>
-
-                                        <!-- Debt Summary -->
-                                        <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 25px;">
-                                            <tr>
-                                                <td style="background-color: #fee2e2; border: 3px solid #dc2626; border-radius: 12px; padding: 20px;">
-                                                    <h3 style="color: #991b1b; margin: 0 0 15px 0; font-size: 17px; text-align: center; font-weight: 700;">פירוט חובות</h3>
-                                                    
-                                                    <!-- Total Debt -->
-                                                    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 15px;">
-                                                        <tr>
-                                                            <td style="background-color: white; border-radius: 10px; padding: 20px; text-align: center;">
-                                                                <p style="margin: 0 0 8px 0; font-size: 13px; color: #991b1b; font-weight: 600;">סה"כ חוב</p>
-                                                                <p style="margin: 0; font-size: 36px; font-weight: 800; color: #dc2626;">₪${totalDebt.toLocaleString('he-IL')}</p>
-                                                            </td>
-                                                        </tr>
-                                                    </table>
-
-                                                    <!-- Breakdown -->
-                                                    <table cellpadding="0" cellspacing="0" border="0" width="100%">
-                                                        <tr>
-                                                            <td width="48%" style="background-color: white; border-right: 4px solid #f97316; border-radius: 8px; padding: 15px; text-align: center;">
-                                                                <p style="margin: 0 0 5px 0; font-size: 12px; color: #9a3412; font-weight: 600;">דמי ניהול</p>
-                                                                <p style="margin: 0; font-size: 20px; font-weight: 700; color: #ea580c;">₪${monthlyDebt.toLocaleString('he-IL')}</p>
-                                                            </td>
-                                                            <td width="4%"></td>
-                                                            <td width="48%" style="background-color: white; border-right: 4px solid #a855f7; border-radius: 8px; padding: 15px; text-align: center;">
-                                                                <p style="margin: 0 0 5px 0; font-size: 12px; color: #6b21a8; font-weight: 600;">מים חמים</p>
-                                                                <p style="margin: 0; font-size: 20px; font-weight: 700; color: #9333ea;">₪${specialDebt.toLocaleString('he-IL')}</p>
-                                                            </td>
-                                                        </tr>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
-
-                                        ${managementMonthsRaw ? `
-                                        <!-- Management Months -->
-                                        <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 25px;">
-                                            <tr>
-                                                <td style="background-color: #fefce8; border: 1px solid #facc15; border-radius: 10px; padding: 18px;">
-                                                    <h4 style="color: #854d0e; margin: 0 0 12px 0; font-size: 15px; font-weight: 700;">דמי ניהול לחודשים</h4>
-                                                    <table cellpadding="0" cellspacing="0" border="0" width="100%">
-                                                        <tr>
-                                                            <td style="background-color: white; border-radius: 6px; padding: 12px; font-size: 13px; color: #78716c; line-height: 1.8;">
-                                                                ${managementMonthsRaw.split(/[,،\n]/).map(item => item.trim()).filter(item => item).map(item => `<div style="padding: 6px 0; border-bottom: 1px solid #fef3c7;"><span style="color: #ca8a04; font-weight: 600;">•</span> ${item}</div>`).join('')}
-                                                            </td>
-                                                        </tr>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                        ` : ''}
-
-                                        ${comments && comments.length > 0 ? `
-                                        <!-- Comments -->
-                                        <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom: 20px;">
-                                            <tr>
-                                                <td style="background-color: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 10px; padding: 18px;">
-                                                    <h4 style="color: #1e293b; margin: 0 0 15px 0; font-size: 15px; font-weight: 700;">הערות ותיעוד</h4>
-                                                    <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background-color: white; border-radius: 8px;">
-                                                        <thead>
-                                                            <tr style="background-color: #1e40af;">
-                                                                <th style="padding: 12px; text-align: right; color: white; font-size: 13px; font-weight: 600; border-left: 1px solid rgba(255,255,255,0.1); width: 25%;">תאריך</th>
-                                                                <th style="padding: 12px; text-align: right; color: white; font-size: 13px; font-weight: 600; border-left: 1px solid rgba(255,255,255,0.1); width: 20%;">מאת</th>
-                                                                <th style="padding: 12px; text-align: right; color: white; font-size: 13px; font-weight: 600; width: 55%;">תוכן</th>
-                                                            </tr>
-                                                        </thead>
-                                                        <tbody>
-                                                            ${comments.map((comment, idx) => `
-                                                                <tr style="border-bottom: 1px solid #e2e8f0; background-color: ${idx % 2 === 0 ? '#f8fafc' : 'white'};">
-                                                                    <td style="padding: 12px; color: #64748b; font-size: 12px; vertical-align: top; border-left: 1px solid #e2e8f0;">
-                                                                        <div style="font-weight: 600;">${new Date(comment.created_date).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' })}</div>
-                                                                        <div style="font-size: 11px; margin-top: 2px;">${new Date(comment.created_date).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' })}</div>
-                                                                    </td>
-                                                                    <td style="padding: 12px; color: #1e40af; font-weight: 600; font-size: 13px; vertical-align: top; border-left: 1px solid #e2e8f0;">${comment.author_name}</td>
-                                                                    <td style="padding: 12px; color: #475569; font-size: 13px; line-height: 1.6; vertical-align: top;">${comment.content}</td>
-                                                                </tr>
-                                                            `).join('')}
-                                                        </tbody>
-                                                    </table>
-                                                </td>
-                                            </tr>
-                                        </table>
-                                        ` : ''}
-
-                                    </td>
-                                </tr>
-
-                                <!-- Footer -->
-                                <tr>
-                                    <td style="background-color: #e2e8f0; border-top: 1px solid #cbd5e1; padding: 20px 30px; text-align: center;">
-                                        <p style="margin: 0; color: #64748b; font-size: 12px; line-height: 1.6; font-weight: 500;">
-                                            הודעה זו נשלחה אוטומטית ממערכת ניהול חובות בניין אלמוג<br>
-                                            <span style="font-size: 11px;">${new Date().toLocaleDateString('he-IL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })}</span>
-                                        </p>
-                                    </td>
-                                </tr>
-
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-            </body>
-            </html>
-        `;
+        htmlContent += `</div>
+<div style="background:#e2e8f0;border-top:1px solid #cbd5e1;padding:20px;text-align:center">
+<p style="margin:0;color:#64748b;font-size:12px">הודעה זו נשלחה אוטומטית ממערכת ניהול חובות בניין אלמוג</p>
+</div>
+</div>
+</body>
+</html>`;
 
         const results = [];
         console.log(`[EMAIL] 📧 Starting to send ${emailAddresses.length} emails...`);
