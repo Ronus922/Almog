@@ -38,16 +38,12 @@ Deno.serve(async (req) => {
         console.log('[EMAIL] Extracted notification_emails:', notificationEmails);
 
         if (!notificationEmails || notificationEmails.trim() === '') {
-            console.log('[EMAIL] ❌ NO EMAILS CONFIGURED - returning early');
+            const statusName = newStatus.name || newStatus.data?.name || 'לא ידוע';
+            console.log(`[EMAIL] ❌ NO EMAILS CONFIGURED for status: ${statusName}`);
             return Response.json({ 
                 success: true, 
-                message: 'אין כתובות מייל מוגדרות',
-                results: [],
-                debug: {
-                    statusId: newStatusId,
-                    statusName: newStatus.name || newStatus.data?.name,
-                    rawStatus: newStatus
-                }
+                message: `אין כתובות מייל מוגדרות לסטטוס "${statusName}"`,
+                results: []
             });
         }
 
