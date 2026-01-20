@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
             </style>
           </head>
           <body style="margin: 0; padding: 20px; background: #f5f5f5;">
-            <div style="max-width: 700px; margin: 0 auto; background: white; padding: 0;">
+            <div style="width: 600px; margin: 0 auto; background: white; padding: 0;">
 
               <!-- Header -->
               <div style="background: #2563eb; color: white; padding: 20px 30px; border-bottom: 4px solid #1e40af;">
