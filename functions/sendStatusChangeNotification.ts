@@ -82,9 +82,18 @@ Deno.serve(async (req) => {
         // Build simple HTML to avoid CPU timeout
         let htmlContent = `<!DOCTYPE html>
 <html dir="rtl">
-<head><meta charset="UTF-8"></head>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+.email-container { max-width: 650px; width: 100%; margin: 0 auto; }
+@media only screen and (min-width: 768px) {
+  .email-container { width: 50% !important; }
+}
+</style>
+</head>
 <body style="margin:0;padding:20px;font-family:Arial,sans-serif;background:#f0f4f8;direction:rtl">
-<div style="max-width:650px;width:50%;margin:0 auto;background:#fff;border-radius:16px;overflow:hidden">
+<div class="email-container" style="background:#fff;border-radius:16px;overflow:hidden">
 <div style="background:#1e3a8a;color:#fff;padding:25px;text-align:center">
 <h1 style="margin:0;font-size:26px">פרטי דירה ${apartmentNumber}</h1>
 <p style="margin:8px 0 0;font-size:14px">${ownerName || 'לא צוין'} • ${phoneOwner}</p>
