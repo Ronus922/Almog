@@ -48,10 +48,14 @@ Deno.serve(async (req) => {
     console.log('Sending notifications to emails:', emails);
     
     const emailResults = [];
+
+    console.log(`[SEND_EMAIL] Preparing to send to ${emails.length} recipients:`, emails);
+    console.log(`[SEND_EMAIL] Status: ${status.name} (ID: ${status.id})`);
+
     for (const email of emails) {
       try {
-        console.log(`Sending email via Resend to: ${email}`);
-        
+        console.log(`[SEND_EMAIL] Processing email to: ${email}`);
+
         const emailHtml = `
           <!DOCTYPE html>
           <html dir="rtl">
@@ -74,10 +78,10 @@ Deno.serve(async (req) => {
 
                 <!-- הודעת פתיחה -->
                 <div style="margin-bottom: 20px; padding: 15px; background: #eff6ff; border-radius: 8px; border-right: 4px solid #3b82f6;">
-                  <p style="margin: 0 0 8px 0; color: #1e293b; font-size: 14px; text-align: right; line-height: 1.6;">
+                  <p style="margin: 0 0 8px 0; color: #1e293b; font-size: 16px; font-weight: bold; text-align: right; line-height: 1.6;">
                     שלום, נשלח אליך מסמך פרטי דירה בעקבות שינוי סטטוס משפטי.
                   </p>
-                  <p style="margin: 0; color: #64748b; font-size: 12px; text-align: right;">
+                  <p style="margin: 0; color: #64748b; font-size: 14px; text-align: right;">
                     הסטטוס עודכן ע"י: ${record.legal_status_updated_by || 'מערכת'}
                   </p>
                 </div>
@@ -176,25 +180,33 @@ Deno.serve(async (req) => {
           </html>
         `;
         
+        console.log(`[SEND_EMAIL] Calling Resend API for ${email}...`);
+
         const result = await resend.emails.send({
           from: 'ניהול חייבים <onboarding@resend.dev>',
           to: email,
           subject: `עדכון סטטוס - דירה ${record.apartmentNumber}`,
           html: emailHtml
         });
-        
-        console.log(`Email sent successfully to ${email}:`, result.id);
+
+        console.log(`[SEND_EMAIL] ✓ Success for ${email}. Message ID:`, result.id);
         emailResults.push({ email, success: true, messageId: result.id });
-      } catch (emailError) {
-        console.error(`Failed to send email to ${email}:`, emailError.message);
-        emailResults.push({ email, success: false, error: emailError.message });
-      }
+        } catch (emailError) {
+        console.error(`[SEND_EMAIL] ✗ Failed for ${email}:`, emailError);
+        emailResults.push({ email, success: false, error: emailError.message, details: emailError });
+        }
     }
+
+    console.log('[SEND_EMAIL] Final results:', emailResults);
+
+    const successCount = emailResults.filter(r => r.success).length;
+    const failedCount = emailResults.filter(r => !r.success).length;
 
     return Response.json({ 
       success: true, 
-      message: `Notifications sent to ${emails.length} recipients`,
-      emailResults
+      message: `Sent to ${successCount}/${emails.length} recipients (${failedCount} failed)`,
+      emailResults,
+      summary: { total: emails.length, success: successCount, failed: failedCount }
     });
 
   } catch (error) {
