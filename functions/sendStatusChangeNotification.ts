@@ -119,12 +119,16 @@ Deno.serve(async (req) => {
 </table>`;
         
         if (oldStatusName) {
-            htmlContent += `<p style="margin:12px 0 0;font-size:13px;color:#15803d">עודכן מ: <span style="font-weight:600">${oldStatusName}</span></p>`;
+            htmlContent += `<tr><td style="padding-top:12px;font-size:13px;color:#15803d;text-align:center">עודכן מ: <span style="font-weight:600">${oldStatusName}</span></td></tr>`;
         }
         
-        htmlContent += `</div>
-<div style="margin-bottom:25px">
-<table cellpadding="0" cellspacing="0" border="0" width="100%">
+        htmlContent += `</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:25px">
 <tr>
 <td width="48%" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:15px;text-align:center">
 <p style="margin:0 0 5px;font-size:12px;color:#64748b;font-weight:600">מספר דירה</p>
@@ -137,13 +141,18 @@ Deno.serve(async (req) => {
 </td>
 </tr>
 </table>
-</div>
-<div style="background:#fee2e2;border:3px solid #dc2626;border-radius:12px;padding:20px;margin-bottom:25px">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#fee2e2;border:3px solid #dc2626;border-radius:12px;padding:20px;margin-bottom:25px">
+<tr>
+<td>
 <h3 style="color:#991b1b;margin:0 0 15px;font-size:17px;text-align:center;font-weight:700">פירוט חובות</h3>
-<div style="background:#fff;border-radius:10px;padding:20px;text-align:center;margin-bottom:15px">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#fff;border-radius:10px;padding:20px;margin-bottom:15px">
+<tr>
+<td style="text-align:center">
 <p style="margin:0 0 8px;font-size:13px;color:#991b1b;font-weight:600">סה"כ חוב</p>
 <p style="margin:0;font-size:36px;font-weight:800;color:#dc2626">₪${totalDebt.toLocaleString('he-IL')}</p>
-</div>
+</td>
+</tr>
+</table>
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
 <tr>
 <td width="48%" style="background:#fff;border-right:4px solid #f97316;border-radius:8px;padding:15px;text-align:center">
@@ -157,7 +166,9 @@ Deno.serve(async (req) => {
 </td>
 </tr>
 </table>
-</div>`;
+</td>
+</tr>
+</table>`;
 
         if (managementMonthsRaw) {
             const months = managementMonthsRaw.split(/[,،\n]/).map(m => m.trim()).filter(m => m).slice(0, 10);
