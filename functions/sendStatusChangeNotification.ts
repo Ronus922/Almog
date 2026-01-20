@@ -85,29 +85,38 @@ Deno.serve(async (req) => {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<style>
-body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background: #f0f4f8; direction: rtl; }
-.email-container { max-width: 650px; width: 100%; margin: 0 auto; background: #fff; border-radius: 16px; overflow: hidden; }
-@media only screen and (min-width: 768px) {
-  .email-container { max-width: 450px; }
-}
-</style>
 </head>
-<body>
-<div class="email-container">
-<div style="background:#1e3a8a;color:#fff;padding:25px;text-align:center">
-<h1 style="margin:0;font-size:26px">פרטי דירה ${apartmentNumber}</h1>
+<body style="margin:0;padding:20px;font-family:Arial,sans-serif;background:#f0f4f8;direction:rtl">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:600px;margin:0 auto">
+<tr>
+<td>
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,0.1)">
+<tr>
+<td style="background:#1e3a8a;color:#fff;padding:25px;text-align:center">
+<h1 style="margin:0;font-size:26px;font-weight:700">פרטי דירה ${apartmentNumber}</h1>
 <p style="margin:8px 0 0;font-size:14px">${ownerName || 'לא צוין'} • ${phoneOwner}</p>
-</div>
-<div style="padding:25px">
-<div style="background:#eff6ff;border-right:4px solid #3b82f6;padding:15px;margin-bottom:25px;border-radius:8px">
+</td>
+</tr>
+<tr>
+<td style="padding:25px">
+<table cellpadding="0" cellspacing="0" border="0" width="100%">
+<tr>
+<td style="background:#eff6ff;border-right:4px solid #3b82f6;padding:15px;margin-bottom:25px;border-radius:8px">
 <p style="font-size:15px;color:#1e3a8a;margin:0">שלום,<br>נשלח אליך מסמך זה בעקבות שינוי סטטוס משפטי בדירה הנ"ל:</p>
-</div>
-<div style="background:#dcfce7;border:2px solid #16a34a;border-radius:12px;padding:20px;margin-bottom:25px;text-align:center">
-<div style="background:#fff;border-radius:8px;padding:15px">
+</td>
+</tr>
+</table>
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:25px">
+<tr>
+<td style="background:#dcfce7;border:2px solid #16a34a;border-radius:12px;padding:20px;text-align:center">
+<table cellpadding="0" cellspacing="0" border="0" width="100%">
+<tr>
+<td style="background:#fff;border-radius:8px;padding:15px">
 <p style="margin:0 0 5px;font-size:13px;color:#15803d;font-weight:600">סטטוס משפטי</p>
 <p style="margin:0;font-size:24px;font-weight:700;color:#16a34a">${statusName}</p>
-</div>`;
+</td>
+</tr>
+</table>`;
         
         if (oldStatusName) {
             htmlContent += `<p style="margin:12px 0 0;font-size:13px;color:#15803d">עודכן מ: <span style="font-weight:600">${oldStatusName}</span></p>`;
