@@ -223,21 +223,27 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         }).catch(() => {});
 
         // שליחת התראות מייל (non-blocking)
+        console.log('[EMAIL] Sending notification...', { debtorRecordId: record.id, oldStatusId, newStatusId });
         base44.functions.invoke('sendStatusChangeNotification', {
           debtorRecordId: record.id,
           oldStatusId: oldStatusId,
           newStatusId: newStatusId
         }).then(response => {
-          console.log('[EMAIL NOTIFICATION] Success:', response.data);
-          // בדיקה אם באמת נשלחו מיילים
-          if (response.data.success && response.data.results && response.data.results.length > 0) {
-            const successCount = response.data.results.filter(r => r.success).length;
+          console.log('[EMAIL] Response:', response.data);
+          
+          if (response.data.success) {
+            const successCount = response.data.results?.filter(r => r.success).length || 0;
             if (successCount > 0) {
-              toast.success(`התראת מייל נשלחה ל-${successCount} כתובות`);
+              toast.success(`✉️ נשלח מייל ל-${successCount} כתובות`);
+            } else {
+              toast.info('לא הוגדרו כתובות מייל לסטטוס זה');
             }
+          } else {
+            toast.warning('לא נשלחו מיילים');
           }
         }).catch(err => {
-          console.error('[EMAIL NOTIFICATION] Failed:', err);
+          console.error('[EMAIL] Error:', err);
+          toast.error(`שגיאה בשליחת מייל: ${err.message}`);
         });
 
         // עדכון נקודתי של cache (ללא refetch כבד)
