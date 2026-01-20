@@ -172,13 +172,22 @@ Deno.serve(async (req) => {
 
         if (managementMonthsRaw) {
             const months = managementMonthsRaw.split(/[,،\n]/).map(m => m.trim()).filter(m => m).slice(0, 10);
-            htmlContent += `<div style="background:#fefce8;border:1px solid #facc15;border-radius:10px;padding:18px;margin-bottom:25px">
+            htmlContent += `<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#fefce8;border:1px solid #facc15;border-radius:10px;padding:18px;margin-bottom:25px">
+<tr>
+<td>
 <h4 style="color:#854d0e;margin:0 0 12px;font-size:15px;font-weight:700">דמי ניהול לחודשים</h4>
-<div style="background:#fff;border-radius:6px;padding:12px;font-size:13px;color:#78716c">`;
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#fff;border-radius:6px;padding:12px">
+<tr>
+<td style="font-size:13px;color:#78716c">`;
             months.forEach(m => {
                 htmlContent += `<div style="padding:6px 0;border-bottom:1px solid #fef3c7"><span style="color:#ca8a04">•</span> ${m}</div>`;
             });
-            htmlContent += `</div></div>`;
+            htmlContent += `</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>`;
         }
 
         if (comments && comments.length > 0) {
