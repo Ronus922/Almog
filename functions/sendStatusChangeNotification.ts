@@ -189,11 +189,28 @@ Deno.serve(async (req) => {
           html: emailHtml
         });
 
-        console.log(`[SEND_EMAIL] ✓ Full Resend response:`, JSON.stringify(result, null, 2));
-        console.log(`[SEND_EMAIL] ✓ Success for ${email}. Message ID:`, result?.id || result?.data?.id || 'NO_ID');
-        emailResults.push({ email, success: true, messageId: result?.id || result?.data?.id, fullResponse: result });
+        console.log(`[SEND_EMAIL] Full Resend response:`, JSON.stringify(result, null, 2));
+        
+        // Check if Resend returned an error (even with 200 status)
+        if (result?.error) {
+          console.error(`[SEND_EMAIL] ✗ Resend error for ${email}:`, result.error);
+          emailResults.push({ 
+            email, 
+            success: false, 
+            error: result.error.message || result.error.name,
+            statusCode: result.error.statusCode,
+            fullError: result.error
+          });
+        } else {
+          console.log(`[SEND_EMAIL] ✓ Success for ${email}. Message ID:`, result?.id || result?.data?.id);
+          emailResults.push({ 
+            email, 
+            success: true, 
+            messageId: result?.id || result?.data?.id 
+          });
+        }
         } catch (emailError) {
-        console.error(`[SEND_EMAIL] ✗ Failed for ${email}:`, emailError);
+        console.error(`[SEND_EMAIL] ✗ Exception for ${email}:`, emailError);
         emailResults.push({ email, success: false, error: emailError.message, details: emailError });
         }
     }
