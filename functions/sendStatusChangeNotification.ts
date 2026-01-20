@@ -189,8 +189,9 @@ Deno.serve(async (req) => {
           html: emailHtml
         });
 
-        console.log(`[SEND_EMAIL] ✓ Success for ${email}. Message ID:`, result.id);
-        emailResults.push({ email, success: true, messageId: result.id });
+        console.log(`[SEND_EMAIL] ✓ Full Resend response:`, JSON.stringify(result, null, 2));
+        console.log(`[SEND_EMAIL] ✓ Success for ${email}. Message ID:`, result?.id || result?.data?.id || 'NO_ID');
+        emailResults.push({ email, success: true, messageId: result?.id || result?.data?.id, fullResponse: result });
         } catch (emailError) {
         console.error(`[SEND_EMAIL] ✗ Failed for ${email}:`, emailError);
         emailResults.push({ email, success: false, error: emailError.message, details: emailError });
