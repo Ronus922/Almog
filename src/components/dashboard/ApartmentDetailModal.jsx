@@ -229,22 +229,35 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           oldStatusId: oldStatusId,
           newStatusId: newStatusId
         }).then(response => {
-          console.log('[EMAIL] Full response:', response);
-          console.log('[EMAIL] Response data:', response.data);
+          console.log('[EMAIL CLIENT] ✅ Full response:', response);
+          console.log('[EMAIL CLIENT] Response.data:', response.data);
           
-          if (response.data?.success && response.data?.results) {
-            const successCount = response.data.results.filter(r => r.success).length;
-            if (successCount > 0) {
-              toast.success(`✉️ נשלח מייל ל-${successCount} כתובות`, { duration: 5000 });
+          if (response.data?.success) {
+            const summary = response.data.summary;
+            const results = response.data.results || [];
+            
+            console.log('[EMAIL CLIENT] Summary:', summary);
+            console.log('[EMAIL CLIENT] Results:', results);
+            
+            if (summary && summary.success > 0) {
+              toast.success(`✉️ נשלחו ${summary.success} מיילים בהצלחה`, { duration: 5000 });
+              
+              if (summary.failed > 0) {
+                const failedEmails = results.filter(r => !r.success).map(r => r.email).join(', ');
+                toast.warning(`${summary.failed} מיילים נכשלו: ${failedEmails}`, { duration: 7000 });
+              }
+            } else if (results.length === 0) {
+              toast.info('לא הוגדרו כתובות מייל לסטטוס זה', { duration: 4000 });
             } else {
-              toast.info('לא הוגדרו כתובות מייל');
+              toast.error('כל המיילים נכשלו', { duration: 5000 });
             }
           } else {
-            console.log('[EMAIL] No success/results in response');
+            console.log('[EMAIL CLIENT] ❌ No success in response');
+            toast.warning('לא התקבלה אישור על שליחת מיילים');
           }
         }).catch(err => {
-          console.error('[EMAIL] Error:', err);
-          toast.error(`שגיאה: ${err.message}`);
+          console.error('[EMAIL CLIENT] ❌ Error:', err);
+          toast.error(`שגיאה בשליחת מייל: ${err.message}`, { duration: 5000 });
         });
 
         // עדכון נקודתי של cache (ללא refetch כבד)
