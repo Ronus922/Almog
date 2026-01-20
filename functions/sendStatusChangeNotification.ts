@@ -192,9 +192,11 @@ Deno.serve(async (req) => {
 
         if (comments && comments.length > 0) {
             const limitedComments = comments.slice(0, 5);
-            htmlContent += `<div style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:10px;padding:18px;margin-bottom:20px">
+            htmlContent += `<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:10px;padding:18px;margin-bottom:20px">
+<tr>
+<td>
 <h4 style="color:#1e293b;margin:0 0 15px;font-size:15px;font-weight:700">הערות ותיעוד</h4>
-<table style="width:100%;border-collapse:collapse;background:#fff;border-radius:8px">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="border-collapse:collapse;background:#fff;border-radius:8px">
 <tr style="background:#1e40af">
 <th style="padding:12px;text-align:right;color:#fff;font-size:13px;width:25%">תאריך</th>
 <th style="padding:12px;text-align:right;color:#fff;font-size:13px;width:20%">מאת</th>
@@ -209,14 +211,23 @@ Deno.serve(async (req) => {
 <td style="padding:12px;color:#475569;font-size:13px">${c.content.substring(0, 100)}</td>
 </tr>`;
             });
-            htmlContent += `</table></div>`;
+            htmlContent += `</table>
+</td>
+</tr>
+</table>`;
         }
 
-        htmlContent += `</div>
-<div style="background:#e2e8f0;border-top:1px solid #cbd5e1;padding:20px;text-align:center">
+        htmlContent += `</td>
+</tr>
+<tr>
+<td style="background:#e2e8f0;border-top:1px solid #cbd5e1;padding:20px;text-align:center">
 <p style="margin:0;color:#64748b;font-size:12px">הודעה זו נשלחה אוטומטית ממערכת ניהול חובות בניין אלמוג</p>
-</div>
-</div>
+</td>
+</tr>
+</table>
+</td>
+</tr>
+</table>
 </body>
 </html>`;
 
