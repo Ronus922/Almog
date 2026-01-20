@@ -135,14 +135,19 @@ body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background: #f0
 <p style="margin:0 0 8px;font-size:13px;color:#991b1b;font-weight:600">סה"כ חוב</p>
 <p style="margin:0;font-size:36px;font-weight:800;color:#dc2626">₪${totalDebt.toLocaleString('he-IL')}</p>
 </div>
-<div style="display:inline-block;width:48%;background:#fff;border-right:4px solid #f97316;border-radius:8px;padding:15px;text-align:center">
+<table cellpadding="0" cellspacing="0" border="0" width="100%">
+<tr>
+<td width="48%" style="background:#fff;border-right:4px solid #f97316;border-radius:8px;padding:15px;text-align:center">
 <p style="margin:0 0 5px;font-size:12px;color:#9a3412;font-weight:600">דמי ניהול</p>
 <p style="margin:0;font-size:20px;font-weight:700;color:#ea580c">₪${monthlyDebt.toLocaleString('he-IL')}</p>
-</div>
-<div style="display:inline-block;width:48%;background:#fff;border-right:4px solid #a855f7;border-radius:8px;padding:15px;text-align:center;margin-right:4%">
+</td>
+<td width="4%"></td>
+<td width="48%" style="background:#fff;border-right:4px solid #a855f7;border-radius:8px;padding:15px;text-align:center">
 <p style="margin:0 0 5px;font-size:12px;color:#6b21a8;font-weight:600">מים חמים</p>
 <p style="margin:0;font-size:20px;font-weight:700;color:#9333ea">₪${specialDebt.toLocaleString('he-IL')}</p>
-</div>
+</td>
+</tr>
+</table>
 </div>`;
 
         if (managementMonthsRaw) {
