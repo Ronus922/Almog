@@ -115,14 +115,19 @@ body { margin: 0; padding: 20px; font-family: Arial, sans-serif; background: #f0
         
         htmlContent += `</div>
 <div style="margin-bottom:25px">
-<div style="display:inline-block;width:48%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:15px;text-align:center">
+<table cellpadding="0" cellspacing="0" border="0" width="100%">
+<tr>
+<td width="48%" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:15px;text-align:center">
 <p style="margin:0 0 5px;font-size:12px;color:#64748b;font-weight:600">מספר דירה</p>
 <p style="margin:0;font-size:22px;font-weight:700;color:#1e293b">${apartmentNumber}</p>
-</div>
-<div style="display:inline-block;width:48%;background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:15px;text-align:center;margin-right:4%">
+</td>
+<td width="4%"></td>
+<td width="48%" style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:15px;text-align:center">
 <p style="margin:0 0 5px;font-size:12px;color:#64748b;font-weight:600">בעל דירה</p>
 <p style="margin:0;font-size:16px;font-weight:600;color:#1e293b">${ownerName || 'לא צוין'}</p>
-</div>
+</td>
+</tr>
+</table>
 </div>
 <div style="background:#fee2e2;border:3px solid #dc2626;border-radius:12px;padding:20px;margin-bottom:25px">
 <h3 style="color:#991b1b;margin:0 0 15px;font-size:17px;text-align:center;font-weight:700">פירוט חובות</h3>
