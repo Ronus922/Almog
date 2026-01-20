@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
             </style>
           </head>
           <body style="margin: 0; padding: 20px; background: #f5f5f5;">
-            <div style="width: 600px; margin: 0 auto; background: white; padding: 0;">
+            <div style="width: 300px; margin: 0 auto; background: white; padding: 0;">
 
               <!-- Header -->
               <div style="background: #2563eb; color: white; padding: 20px 30px; border-bottom: 4px solid #1e40af;">
@@ -61,6 +61,16 @@ Deno.serve(async (req) => {
               </div>
 
               <div style="padding: 30px;">
+
+                <!-- הודעת פתיחה -->
+                <div style="margin-bottom: 20px; padding: 15px; background: #eff6ff; border-radius: 8px; border-right: 4px solid #3b82f6;">
+                  <p style="margin: 0 0 8px 0; color: #1e293b; font-size: 14px; text-align: right; line-height: 1.6;">
+                    שלום, נשלח אליך מסמך פרטי דירה בעקבות שינוי סטטוס משפטי.
+                  </p>
+                  <p style="margin: 0; color: #64748b; font-size: 12px; text-align: right;">
+                    הסטטוס עודכן ע"י: ${record.legal_status_updated_by || 'מערכת'}
+                  </p>
+                </div>
 
                 <!-- פרטים עיקריים -->
                 <div style="margin-bottom: 25px;">
