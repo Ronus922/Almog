@@ -155,7 +155,7 @@ Deno.serve(async (req) => {
 <tr>
 <td style="text-align:center">
 <p style="margin:0 0 8px;font-size:13px;color:#991b1b;font-weight:600">סה"כ חוב</p>
-<p style="margin:0;font-size:36px;font-weight:800;color:#dc2626">₪${totalDebt.toLocaleString('he-IL')}</p>
+<p style="margin:0;font-size:36px;font-weight:800;color:#dc2626" dir="ltr">${formatCurrency(totalDebt)}</p>
 </td>
 </tr>
 </table>
@@ -163,12 +163,12 @@ Deno.serve(async (req) => {
 <tr>
 <td width="48%" style="background:#fff;border-right:4px solid #f97316;border-radius:8px;padding:15px;text-align:center">
 <p style="margin:0 0 5px;font-size:12px;color:#9a3412;font-weight:600">דמי ניהול</p>
-<p style="margin:0;font-size:20px;font-weight:700;color:#ea580c">₪${monthlyDebt.toLocaleString('he-IL')}</p>
+<p style="margin:0;font-size:20px;font-weight:700;color:#ea580c" dir="ltr">${formatCurrency(monthlyDebt)}</p>
 </td>
 <td width="4%"></td>
 <td width="48%" style="background:#fff;border-right:4px solid #a855f7;border-radius:8px;padding:15px;text-align:center">
 <p style="margin:0 0 5px;font-size:12px;color:#6b21a8;font-weight:600">מים חמים</p>
-<p style="margin:0;font-size:20px;font-weight:700;color:#9333ea">₪${specialDebt.toLocaleString('he-IL')}</p>
+<p style="margin:0;font-size:20px;font-weight:700;color:#9333ea" dir="ltr">${formatCurrency(specialDebt)}</p>
 </td>
 </tr>
 </table>
