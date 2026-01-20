@@ -79,10 +79,10 @@ Deno.serve(async (req) => {
 
         const subject = `שינוי סטטוס משפטי - דירה ${apartmentNumber}`;
         
-        // Format numbers with RTL support
+        // Format numbers with RTL support - use LRM to prevent reversal
         const formatCurrency = (num) => {
             const formatted = num.toLocaleString('en-US');
-            return `₪${formatted}`;
+            return `<span style="display:inline-block;direction:ltr;unicode-bidi:embed">${formatted}₪</span>`;
         };
         
         // Build simple HTML to avoid CPU timeout
