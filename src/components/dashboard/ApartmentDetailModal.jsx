@@ -225,19 +225,19 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         // שליחת התראות מייל (non-blocking)
         base44.functions.invoke('sendStatusChangeNotification', {
           debtorRecordId: record.id,
+          oldStatusId: oldStatusId,
           newStatusId: newStatusId
         }).then(response => {
           console.log('[EMAIL NOTIFICATION] Success:', response.data);
-          // בדיקה אם באמת נשלחו מיילים (emailResults יכיל תוצאות)
-          if (response.data.success && response.data.emailResults && response.data.emailResults.length > 0) {
-            const successCount = response.data.emailResults.filter(r => r.success).length;
+          // בדיקה אם באמת נשלחו מיילים
+          if (response.data.success && response.data.results && response.data.results.length > 0) {
+            const successCount = response.data.results.filter(r => r.success).length;
             if (successCount > 0) {
-              toast.success(`התראת מייל נשלחה בהצלחה ל-${successCount} כתובות`);
+              toast.success(`התראת מייל נשלחה ל-${successCount} כתובות`);
             }
           }
         }).catch(err => {
           console.error('[EMAIL NOTIFICATION] Failed:', err);
-          toast.error('שגיאה בשליחת התראת מייל');
         });
 
         // עדכון נקודתי של cache (ללא refetch כבד)
