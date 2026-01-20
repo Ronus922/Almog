@@ -1,17 +1,8 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.6';
-import { Resend } from 'npm:resend@4.0.0';
 
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    
-    const resendApiKey = Deno.env.get('RESEND_API_KEY');
-    if (!resendApiKey) {
-      console.error('RESEND_API_KEY not configured');
-      return Response.json({ error: 'Email service not configured' }, { status: 500 });
-    }
-    
-    const resend = new Resend(resendApiKey);
 
     const { debtorRecordId, newStatusId } = await req.json();
 
@@ -180,33 +171,29 @@ Deno.serve(async (req) => {
           </html>
         `;
         
-        console.log(`[SEND_EMAIL] Calling Resend API for ${email}...`);
+        console.log(`[SEND_EMAIL] Sending via Base44 to ${email}...`);
 
-        const result = await resend.emails.send({
-          from: 'ניהול חייבים <onboarding@resend.dev>',
+        const result = await base44.asServiceRole.integrations.Core.SendEmail({
+          from_name: 'ניהול חייבים',
           to: email,
           subject: `עדכון סטטוס - דירה ${record.apartmentNumber}`,
-          html: emailHtml
+          body: emailHtml
         });
 
-        console.log(`[SEND_EMAIL] Full Resend response:`, JSON.stringify(result, null, 2));
+        console.log(`[SEND_EMAIL] Base44 response:`, JSON.stringify(result, null, 2));
         
-        // Check if Resend returned an error (even with 200 status)
-        if (result?.error) {
-          console.error(`[SEND_EMAIL] ✗ Resend error for ${email}:`, result.error);
+        if (result?.success === false || result?.error) {
+          console.error(`[SEND_EMAIL] ✗ Base44 error for ${email}:`, result.error);
           emailResults.push({ 
             email, 
             success: false, 
-            error: result.error.message || result.error.name,
-            statusCode: result.error.statusCode,
-            fullError: result.error
+            error: result.error || 'Unknown error'
           });
         } else {
-          console.log(`[SEND_EMAIL] ✓ Success for ${email}. Message ID:`, result?.id || result?.data?.id);
+          console.log(`[SEND_EMAIL] ✓ Success for ${email}`);
           emailResults.push({ 
             email, 
-            success: true, 
-            messageId: result?.id || result?.data?.id 
+            success: true
           });
         }
         } catch (emailError) {
