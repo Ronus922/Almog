@@ -33,7 +33,8 @@ Deno.serve(async (req) => {
             oldStatus = await base44.asServiceRole.entities.Status.get(oldStatusId);
         }
 
-        if (!newStatus.notification_emails || newStatus.notification_emails.trim() === '') {
+        const notificationEmails = newStatus.data?.notification_emails || newStatus.notification_emails;
+        if (!notificationEmails || notificationEmails.trim() === '') {
             return Response.json({ 
                 success: true, 
                 message: 'אין כתובות מייל מוגדרות',
@@ -41,7 +42,7 @@ Deno.serve(async (req) => {
             });
         }
 
-        const emailAddresses = newStatus.notification_emails
+        const emailAddresses = notificationEmails
             .split(/[,;\n]/)
             .map(email => email.trim())
             .filter(email => email.length > 0);
@@ -54,18 +55,18 @@ Deno.serve(async (req) => {
             });
         }
 
-        const subject = `שינוי סטטוס - דירה ${debtorRecord.apartmentNumber}`;
+        const subject = `שינוי סטטוס - דירה ${debtorRecord.data?.apartmentNumber || debtorRecord.apartmentNumber}`;
         const htmlContent = `
             <div dir="rtl" style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
                 <h2 style="color: #1e40af;">עדכון סטטוס משפטי</h2>
-                <p><strong>דירה:</strong> ${debtorRecord.apartmentNumber}</p>
-                <p><strong>שם בעלים:</strong> ${debtorRecord.ownerName || 'לא צוין'}</p>
-                <p><strong>סכום חוב:</strong> ₪${debtorRecord.totalDebt?.toLocaleString() || '0'}</p>
+                <p><strong>דירה:</strong> ${debtorRecord.data?.apartmentNumber || debtorRecord.apartmentNumber}</p>
+                <p><strong>שם בעלים:</strong> ${debtorRecord.data?.ownerName || debtorRecord.ownerName || 'לא צוין'}</p>
+                <p><strong>סכום חוב:</strong> ₪${(debtorRecord.data?.totalDebt || debtorRecord.totalDebt || 0).toLocaleString()}</p>
                 <hr style="border: 1px solid #e5e7eb; margin: 20px 0;">
                 <p><strong>שינוי סטטוס:</strong></p>
-                ${oldStatus ? `<p>מ: <span style="color: #6b7280;">${oldStatus.name}</span></p>` : ''}
-                <p>ל: <span style="color: #059669; font-weight: bold;">${newStatus.name}</span></p>
-                ${newStatus.description ? `<p><strong>תיאור:</strong> ${newStatus.description}</p>` : ''}
+                ${oldStatus ? `<p>מ: <span style="color: #6b7280;">${oldStatus.data?.name || oldStatus.name}</span></p>` : ''}
+                <p>ל: <span style="color: #059669; font-weight: bold;">${newStatus.data?.name || newStatus.name}</span></p>
+                ${(newStatus.data?.description || newStatus.description) ? `<p><strong>תיאור:</strong> ${newStatus.data?.description || newStatus.description}</p>` : ''}
                 <hr style="border: 1px solid #e5e7eb; margin: 20px 0;">
                 <p style="color: #6b7280; font-size: 12px;">הודעה זו נשלחה אוטומטית ממערכת ניהול החובות</p>
             </div>
