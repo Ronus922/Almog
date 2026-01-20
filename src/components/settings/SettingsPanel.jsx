@@ -248,63 +248,7 @@ export default function SettingsPanel() {
         </CardContent>
       </Card>
 
-      {/* חיבור MAKE */}
-      <Card className="border-0 shadow-sm">
-        <CardHeader className="pb-4">
-          <CardTitle className="text-base font-semibold flex items-center gap-2">
-            <Webhook className="w-4 h-4 text-slate-600" />
-            חיבור MAKE (Webhooks)
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex items-center justify-between">
-            <div>
-              <Label>הפעל חיבור MAKE</Label>
-              <p className="text-xs text-slate-500">שליחת התראות אוטומטיות ל-MAKE</p>
-            </div>
-            <Switch
-              checked={settings.makeEnabled || false}
-              onCheckedChange={(checked) => setSettings({...settings, makeEnabled: checked})}
-            />
-          </div>
 
-          {settings.makeEnabled && (
-            <>
-              <Separator />
-              <div>
-                <Label>URL לשינוי סטטוס</Label>
-                <Input
-                  value={settings.makeWebhookStatusChangeUrl || ''}
-                  onChange={(e) => setSettings({...settings, makeWebhookStatusChangeUrl: e.target.value})}
-                  placeholder="https://hook.make.com/..."
-                  className="mt-1"
-                  dir="ltr"
-                />
-              </div>
-              <div>
-                <Label>URL למועמד לתביעה חדש</Label>
-                <Input
-                  value={settings.makeWebhookNewLawsuitCandidateUrl || ''}
-                  onChange={(e) => setSettings({...settings, makeWebhookNewLawsuitCandidateUrl: e.target.value})}
-                  placeholder="https://hook.make.com/..."
-                  className="mt-1"
-                  dir="ltr"
-                />
-              </div>
-              <div>
-                <Label>URL לרשומה חדשה</Label>
-                <Input
-                  value={settings.makeWebhookNewRecordUrl || ''}
-                  onChange={(e) => setSettings({...settings, makeWebhookNewRecordUrl: e.target.value})}
-                  placeholder="https://hook.make.com/..."
-                  className="mt-1"
-                  dir="ltr"
-                />
-              </div>
-            </>
-          )}
-        </CardContent>
-      </Card>
 
       {/* כפתור שמירה */}
       {error && (
