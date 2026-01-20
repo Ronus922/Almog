@@ -229,21 +229,22 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           oldStatusId: oldStatusId,
           newStatusId: newStatusId
         }).then(response => {
-          console.log('[EMAIL] Response:', response.data);
+          console.log('[EMAIL] Full response:', response);
+          console.log('[EMAIL] Response data:', response.data);
           
-          if (response.data.success) {
-            const successCount = response.data.results?.filter(r => r.success).length || 0;
+          if (response.data?.success && response.data?.results) {
+            const successCount = response.data.results.filter(r => r.success).length;
             if (successCount > 0) {
-              toast.success(`✉️ נשלח מייל ל-${successCount} כתובות`);
+              toast.success(`✉️ נשלח מייל ל-${successCount} כתובות`, { duration: 5000 });
             } else {
-              toast.info('לא הוגדרו כתובות מייל לסטטוס זה');
+              toast.info('לא הוגדרו כתובות מייל');
             }
           } else {
-            toast.warning('לא נשלחו מיילים');
+            console.log('[EMAIL] No success/results in response');
           }
         }).catch(err => {
           console.error('[EMAIL] Error:', err);
-          toast.error(`שגיאה בשליחת מייל: ${err.message}`);
+          toast.error(`שגיאה: ${err.message}`);
         });
 
         // עדכון נקודתי של cache (ללא refetch כבד)
