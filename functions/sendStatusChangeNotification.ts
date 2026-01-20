@@ -79,6 +79,12 @@ Deno.serve(async (req) => {
 
         const subject = `שינוי סטטוס משפטי - דירה ${apartmentNumber}`;
         
+        // Format numbers with RTL support
+        const formatCurrency = (num) => {
+            const formatted = num.toLocaleString('en-US');
+            return `₪${formatted}`;
+        };
+        
         // Build simple HTML to avoid CPU timeout
         let htmlContent = `<!DOCTYPE html>
 <html dir="rtl">
