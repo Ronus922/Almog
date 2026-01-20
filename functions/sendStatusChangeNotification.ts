@@ -6,10 +6,18 @@ const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
-        const user = await base44.auth.me();
+        
+        // Check authentication first
+        let user;
+        try {
+            user = await base44.auth.me();
+        } catch (authError) {
+            console.error('[EMAIL] Auth error:', authError);
+            return Response.json({ error: 'Unauthorized' }, { status: 401 });
+        }
 
-        if (!user || user.role !== 'admin') {
-            return Response.json({ error: 'Forbidden: Admin access required' }, { status: 403 });
+        if (!user) {
+            return Response.json({ error: 'Unauthorized' }, { status: 401 });
         }
 
         const { debtorRecordId, oldStatusId, newStatusId } = await req.json();
