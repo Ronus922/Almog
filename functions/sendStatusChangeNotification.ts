@@ -21,12 +21,22 @@ Deno.serve(async (req) => {
 
     // טעינת נתונים
     const record = await base44.asServiceRole.entities.DebtorRecord.get(debtorRecordId);
+
+    // אם newStatusId ריק או לא הוגדר, לא שולחים מייל
+    if (!newStatusId || newStatusId === '') {
+      console.log('No status ID provided - skipping notification');
+      return Response.json({ 
+        success: true, 
+        message: 'No status selected - skipping notification' 
+      });
+    }
+
     const status = await base44.asServiceRole.entities.Status.get(newStatusId);
     const comments = await base44.asServiceRole.entities.Comment.filter({ debtor_record_id: debtorRecordId }, '-created_date');
 
     // בדיקה אם יש אימיילים להתראה
-    if (!status.notification_emails || status.notification_emails.trim() === '') {
-      console.log('No notification emails configured for status:', status.id);
+    if (!status || !status.notification_emails || status.notification_emails.trim() === '') {
+      console.log('No notification emails configured for status:', newStatusId);
       return Response.json({ 
         success: true, 
         message: 'No notification emails configured for this status' 
