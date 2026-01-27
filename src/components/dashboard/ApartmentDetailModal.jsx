@@ -302,6 +302,209 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     })();
   };
 
+  const handlePrint = async () => {
+    try {
+      // Fetch comments
+      const comments = await base44.entities.Comment.filter({ debtor_record_id: record.id }, '-created_date');
+      const currentStatus = legalStatuses.find(s => s.id === selectedLegalStatusId);
+      
+      // Create print window
+      const printWindow = window.open('', '_blank');
+      
+      const htmlContent = `
+        <!DOCTYPE html>
+        <html dir="rtl">
+        <head>
+          <meta charset="utf-8">
+          <title>פרטי דירה ${record.apartmentNumber}</title>
+          <style>
+            @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:wght@400;700;800&display=swap');
+            
+            * {
+              margin: 0;
+              padding: 0;
+              box-sizing: border-box;
+              font-family: 'Noto Sans Hebrew', Arial, sans-serif;
+            }
+            
+            body {
+              direction: rtl;
+              padding: 40px;
+              background: white;
+            }
+            
+            h1 {
+              color: #1e40af;
+              border-bottom: 3px solid #1e40af;
+              padding-bottom: 10px;
+              margin-bottom: 20px;
+              font-size: 28px;
+              font-weight: 800;
+            }
+            
+            h3 {
+              color: #334155;
+              margin: 0 0 10px 0;
+              font-size: 18px;
+              font-weight: 700;
+            }
+            
+            .section {
+              margin-bottom: 20px;
+              padding: 15px;
+              border-radius: 8px;
+            }
+            
+            .section-main {
+              background: #f8fafc;
+            }
+            
+            .section-status {
+              background: #eff6ff;
+            }
+            
+            .section-debt {
+              background: #fef2f2;
+              border: 2px solid #fca5a5;
+            }
+            
+            .grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 10px;
+            }
+            
+            .debt-total {
+              font-size: 24px;
+              font-weight: bold;
+              color: #dc2626;
+              margin-bottom: 10px;
+            }
+            
+            .comment-box {
+              background: #f8fafc;
+              border-right: 4px solid #3b82f6;
+              padding: 12px;
+              margin-bottom: 10px;
+              border-radius: 4px;
+            }
+            
+            .comment-header {
+              display: flex;
+              justify-content: space-between;
+              margin-bottom: 8px;
+              font-size: 12px;
+              color: #64748b;
+            }
+            
+            .comment-author {
+              font-weight: bold;
+              color: #1e40af;
+            }
+            
+            .footer {
+              margin-top: 30px;
+              padding-top: 20px;
+              border-top: 2px solid #e2e8f0;
+              text-align: center;
+              color: #94a3b8;
+              font-size: 12px;
+            }
+            
+            @media print {
+              body { padding: 20px; }
+              .section { page-break-inside: avoid; }
+            }
+          </style>
+        </head>
+        <body>
+          <h1>פרטי דירה ${record.apartmentNumber}</h1>
+          
+          <div class="section section-main">
+            <h3>פרטים עיקריים</h3>
+            <div class="grid">
+              <div><strong>מספר דירה:</strong> ${record.apartmentNumber}</div>
+              <div><strong>בעל דירה:</strong> ${record.ownerName || 'לא צוין'}</div>
+              <div><strong>טלפון בעלים:</strong> ${formatPhone(editedRecord?.phoneOwner || record.phoneOwner)}</div>
+              <div><strong>טלפון שוכר:</strong> ${formatPhone(editedRecord?.phoneTenant || record.phoneTenant)}</div>
+            </div>
+          </div>
+
+          ${currentStatus ? `
+            <div class="section section-status">
+              <h3>סטטוס משפטי</h3>
+              <div style="font-weight: bold; font-size: 16px; margin-bottom: 5px;">${currentStatus.name}</div>
+              ${editedRecord?.legal_status_updated_at ? `
+                <div style="font-size: 12px; color: #64748b;">
+                  עודכן: ${new Date(editedRecord.legal_status_updated_at).toLocaleString('he-IL')}
+                  ${editedRecord?.legal_status_updated_by ? ` על ידי: ${editedRecord.legal_status_updated_by}` : ''}
+                </div>
+              ` : ''}
+            </div>
+          ` : ''}
+
+          <div class="section section-debt">
+            <h3 style="color: #991b1b;">פירוט חובות</h3>
+            <div class="debt-total">
+              סה״כ חוב: ${formatCurrency(record.totalDebt)}
+            </div>
+            <div class="grid">
+              <div><strong>דמי ניהול:</strong> ${formatCurrency(record.monthlyDebt)}</div>
+              <div><strong>מים חמים:</strong> ${formatCurrency(record.specialDebt)}</div>
+            </div>
+          </div>
+
+          ${record.managementMonthsRaw ? `
+            <div class="section section-main">
+              <h3>דמי ניהול לחודשים</h3>
+              <div style="white-space: pre-wrap;">${record.managementMonthsRaw}</div>
+            </div>
+          ` : ''}
+
+          ${editedRecord?.detailsMonthly ? `
+            <div class="section section-main">
+              <h3>פרטים מהייבוא</h3>
+              <div>${editedRecord.detailsMonthly}</div>
+            </div>
+          ` : ''}
+
+          ${comments && comments.length > 0 ? `
+            <div style="margin-top: 20px;">
+              <h3 style="color: #334155; margin-bottom: 10px;">הערות ותיעוד</h3>
+              ${comments.map(comment => `
+                <div class="comment-box">
+                  <div class="comment-header">
+                    <span class="comment-author">${comment.author_name}</span>
+                    <span>${new Date(comment.created_date).toLocaleString('he-IL')}</span>
+                  </div>
+                  <div style="white-space: pre-wrap;">${comment.content}</div>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+
+          <div class="footer">
+            נוצר ב-${new Date().toLocaleString('he-IL')} • מערכת ניהול חייבים
+          </div>
+        </body>
+        </html>
+      `;
+      
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+      
+      // Wait for content to load, then print
+      printWindow.onload = () => {
+        printWindow.focus();
+        printWindow.print();
+      };
+      
+    } catch (error) {
+      console.error('Print error:', error);
+      toast.error('שגיאה בהדפסה');
+    }
+  };
+
   const handleExportPDF = async () => {
     setIsExporting(true);
     try {
@@ -464,7 +667,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           </Button>
           <Button 
             variant="outline" 
-            onClick={() => window.print()} 
+            onClick={handlePrint} 
             className="rounded-xl h-11 px-6 font-semibold"
           >
             <Printer className="w-5 h-5 ml-2" />
