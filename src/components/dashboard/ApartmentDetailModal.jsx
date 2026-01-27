@@ -530,18 +530,33 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
               <div><strong>מספר דירה:</strong> ${record.apartmentNumber}</div>
               <div><strong>בעל דירה:</strong> ${record.ownerName || 'לא צוין'}</div>
-              <div><strong>טלפון בעלים:</strong> ${formatPhone(record.phoneOwner)}</div>
-              <div><strong>טלפון שוכר:</strong> ${formatPhone(record.phoneTenant)}</div>
+              <div><strong>טלפון בעלים:</strong> ${formatPhone(editedRecord?.phoneOwner || record.phoneOwner)}</div>
+              <div><strong>טלפון שוכר:</strong> ${formatPhone(editedRecord?.phoneTenant || record.phoneTenant)}</div>
             </div>
           </div>
 
+          ${editedRecord?.detailsMonthly ? `
+            <div style="margin-bottom: 20px; background: #fef9e7; padding: 15px; border-radius: 8px;">
+              <h3 style="color: #334155; margin: 0 0 10px 0;">פרטים מהייבוא</h3>
+              <div style="color: #334155;">${editedRecord.detailsMonthly}</div>
+            </div>
+          ` : ''}
+
+          ${record.managementMonthsRaw ? `
+            <div style="margin-bottom: 20px; background: #f0f9ff; padding: 15px; border-radius: 8px;">
+              <h3 style="color: #334155; margin: 0 0 10px 0;">דמי ניהול לחודשים</h3>
+              <div style="white-space: pre-wrap; color: #334155;">${record.managementMonthsRaw}</div>
+            </div>
+          ` : ''}
+
           ${currentStatus ? `
-            <div style="margin-bottom: 20px; background: #eff6ff; padding: 15px; border-radius: 8px;">
+            <div style="margin-bottom: 20px; background: #eff6ff; padding: 15px; border-radius: 8px; border: 2px solid #bfdbfe;">
               <h3 style="color: #334155; margin: 0 0 10px 0;">סטטוס משפטי</h3>
               <div style="font-weight: bold; font-size: 16px; margin-bottom: 5px;">${currentStatus.name}</div>
               ${editedRecord?.legal_status_updated_at ? `
                 <div style="font-size: 12px; color: #64748b;">
                   עודכן: ${new Date(editedRecord.legal_status_updated_at).toLocaleString('he-IL')}
+                  ${editedRecord?.legal_status_updated_by ? ` על ידי: ${editedRecord.legal_status_updated_by}` : ''}
                 </div>
               ` : ''}
             </div>
@@ -557,13 +572,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               <div><strong>מים חמים:</strong> ${formatCurrency(record.specialDebt)}</div>
             </div>
           </div>
-
-          ${record.managementMonthsRaw ? `
-            <div style="margin-bottom: 20px; background: #f8fafc; padding: 15px; border-radius: 8px;">
-              <h3 style="color: #334155; margin: 0 0 10px 0;">דמי ניהול לחודשים</h3>
-              <div style="white-space: pre-wrap;">${record.managementMonthsRaw}</div>
-            </div>
-          ` : ''}
 
           ${comments && comments.length > 0 ? `
             <div style="margin-top: 20px;">
