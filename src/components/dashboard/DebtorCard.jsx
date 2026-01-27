@@ -74,13 +74,7 @@ export default function DebtorCard({ record, onClick, settings, isAdmin, showArc
           </div>
         </div>
 
-        {/* Legal Status */}
-        {record.legal_status_manual && (
-          <div className="pt-2 border-t border-slate-200">
-            <p className="text-xs text-slate-500">מצב משפטי:</p>
-            <p className="text-sm font-semibold text-slate-700 mt-1">{record.legal_status_manual}</p>
-          </div>
-        )}
+
 
         {/* Archive Button - Admin Only */}
         {isAdmin && onArchiveToggle && (
