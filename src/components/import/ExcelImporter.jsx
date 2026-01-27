@@ -432,7 +432,8 @@ export default function ExcelImporter({ onImportComplete }) {
       
       const { rows } = excelData;
       const allStatuses = await base44.entities.Status.list();
-      const defaultLegalStatus = allStatuses.find(s => s.type === 'LEGAL' && s.is_default === true);
+      const legalStatuses = allStatuses.filter(s => s.type === 'LEGAL');
+      const defaultLegalStatus = legalStatuses.find(s => s.is_default === true);
 
       const createsQueue = [];
       const updatesQueue = [];
@@ -528,8 +529,11 @@ export default function ExcelImporter({ onImportComplete }) {
         const hotWaterDebt = hotWaterDebtClean.value;
 
         // חישוב סטטוס אוטומטי - שימוש בפונקציה המרכזית
-        const { calculateDebtStatus } = await import('@/components/utils/debtStatusCalculator');
+        const { calculateDebtStatus, calculateLegalStatusId } = await import('@/components/utils/debtStatusCalculator');
         const debt_status_auto = calculateDebtStatus(totalDebt, settings, false);
+        
+        // חישוב המצב המשפטי המומלץ לפי סכום החוב
+        const recommendedLegalStatusId = calculateLegalStatusId(totalDebt, settings, legalStatuses);
 
         const existing = existingMap[apartmentKey];
         const isEmpty = (val) => {
@@ -577,16 +581,28 @@ export default function ExcelImporter({ onImportComplete }) {
             }
           }
 
+          // שמירת שדות קיימים
           patch.notes = existing.notes;
           patch.lastContactDate = existing.lastContactDate;
           patch.nextActionDate = existing.nextActionDate;
-          patch.legal_status_id = existing.legal_status_id;
-          patch.legal_status_overridden = existing.legal_status_overridden;
-          patch.legal_status_lock = existing.legal_status_lock;
-          patch.legal_status_updated_at = existing.legal_status_updated_at;
-          patch.legal_status_updated_by = existing.legal_status_updated_by;
-          patch.legal_status_source = existing.legal_status_source;
-          patch.legal_status_manual = existing.legal_status_manual;
+
+          // לוגיקת עדכון סטטוס משפטי:
+          // עדכן רק אם לא נעול ולא דרוס ידנית
+          if (!existing.legal_status_lock && !existing.legal_status_overridden) {
+            if (recommendedLegalStatusId) {
+              patch.legal_status_id = recommendedLegalStatusId;
+              patch.legal_status_updated_at = importTimestamp;
+              patch.legal_status_source = 'IMPORT';
+            }
+          } else {
+            // שמירת ערכים קיימים
+            patch.legal_status_id = existing.legal_status_id;
+            patch.legal_status_overridden = existing.legal_status_overridden;
+            patch.legal_status_lock = existing.legal_status_lock;
+            patch.legal_status_updated_at = existing.legal_status_updated_at;
+            patch.legal_status_updated_by = existing.legal_status_updated_by;
+            patch.legal_status_source = existing.legal_status_source;
+          }
           
           updatesQueue.push({ id: existing.id, patch, aptKey: apartmentKey });
         } else {
@@ -614,9 +630,17 @@ export default function ExcelImporter({ onImportComplete }) {
             isArchived: false
           };
 
-          if (defaultLegalStatus) {
+          // קביעת סטטוס משפטי לרשומה חדשה
+          if (recommendedLegalStatusId) {
+            newRecord.legal_status_id = recommendedLegalStatusId;
+            newRecord.legal_status_overridden = false;
+            newRecord.legal_status_updated_at = importTimestamp;
+            newRecord.legal_status_source = 'IMPORT';
+          } else if (defaultLegalStatus) {
             newRecord.legal_status_id = defaultLegalStatus.id;
             newRecord.legal_status_overridden = false;
+            newRecord.legal_status_updated_at = importTimestamp;
+            newRecord.legal_status_source = 'AUTO_DEFAULT';
           }
           
           createsQueue.push({ data: newRecord, aptKey: apartmentKey });

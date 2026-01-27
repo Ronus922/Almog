@@ -48,6 +48,7 @@ export function validateThresholds(settings) {
 
 /**
  * מחשב סטטוס חוב אוטומטי - דינמי לפי Settings
+ * מחזיר את שם הסטטוס המומלץ (לא ה-ID)
  */
 export function calculateDebtStatus(totalDebt, settings, isArchived = false) {
   // NOTE: isArchived does NOT affect status. Archive is a tab/filter only.
@@ -67,6 +68,52 @@ export function calculateDebtStatus(totalDebt, settings, isArchived = false) {
   if (td >= legalFrom) return 'חריגה מופרזת';
   if (td >= collectFrom) return 'לגבייה מיידית';
   return 'תקין';
+}
+
+/**
+ * מחזיר את ה-ID של הסטטוס המשפטי המתאים לפי סכום החוב
+ * @param {number} totalDebt - סכום החוב הכולל
+ * @param {object} settings - הגדרות הספים
+ * @param {array} legalStatuses - רשימת כל הסטטוסים המשפטיים
+ * @returns {string|null} - ID של הסטטוס המשפטי המתאים, או null אם לא נמצא
+ */
+export function calculateLegalStatusId(totalDebt, settings, legalStatuses) {
+  if (!legalStatuses || legalStatuses.length === 0) {
+    console.warn('[debtStatusCalculator] No legal statuses provided');
+    return null;
+  }
+
+  const debtStatus = calculateDebtStatus(totalDebt, settings);
+  
+  // מיפוי סטטוס חוב לשם סטטוס משפטי
+  const statusNameMap = {
+    'תקין': 'תקין',
+    'לגבייה מיידית': 'לגבייה מיידית',
+    'חריגה מופרזת': 'חריגה מופרזת'
+  };
+
+  const targetStatusName = statusNameMap[debtStatus];
+  
+  // חיפוש הסטטוס המתאים ברשימה
+  const matchingStatus = legalStatuses.find(s => 
+    s.type === 'LEGAL' && 
+    s.is_active === true && 
+    s.name === targetStatusName
+  );
+
+  if (matchingStatus) {
+    return matchingStatus.id;
+  }
+
+  // אם לא נמצא - נחפש את ברירת המחדל
+  const defaultStatus = legalStatuses.find(s => s.type === 'LEGAL' && s.is_default === true);
+  if (defaultStatus) {
+    console.warn(`[debtStatusCalculator] Status "${targetStatusName}" not found, using default: ${defaultStatus.name}`);
+    return defaultStatus.id;
+  }
+
+  console.warn('[debtStatusCalculator] No matching or default legal status found');
+  return null;
 }
 
 /**

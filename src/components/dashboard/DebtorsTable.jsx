@@ -603,25 +603,7 @@ export default function DebtorsTable({
                     מים חמים
                   </div>
                 </TableHead>
-                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('debt_status_auto')}>
-                  <div className="flex items-center gap-2 justify-end">
-                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'debt_status_auto' ? 'text-blue-600' : 'text-slate-400'}`} />
-                    סטטוס
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="text-xs text-slate-400 cursor-help">ⓘ</span>
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-xs text-xs" dir="rtl">
-                        <p>סטטוס מחושב דינמית לפי הספים בהגדרות:</p>
-                        <p className="mt-1 font-mono text-[10px]">
-                          תקין: עד {settings?.threshold_ok_max || 1000}₪<br />
-                          גבייה: {settings?.threshold_collect_from || 1500}₪+<br />
-                          משפטי: {settings?.threshold_legal_from || 5000}₪+
-                        </p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </div>
-                </TableHead>
+
                 <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('legal_status_id')}>
                   <div className="flex items-center gap-2 justify-end">
                     <ArrowUpDown className={`w-5 h-5 ${sortField === 'legal_status_id' ? 'text-blue-600' : 'text-slate-400'}`} />
@@ -686,19 +668,6 @@ export default function DebtorsTable({
                   <TableHead className="py-3 px-4"></TableHead>
                   <TableHead className="py-3 px-4"></TableHead>
                   <TableHead className="py-3 px-4">
-                    <Select value={statusFilter} onValueChange={(v) => {setStatusFilter(v);setPage(1);}}>
-                      <SelectTrigger className="h-9 rounded-lg text-sm">
-                        <SelectValue placeholder="הכל" />
-                      </SelectTrigger>
-                      <SelectContent className="rounded-lg">
-                        <SelectItem value="all">הכל</SelectItem>
-                        <SelectItem value="תקין">תקין</SelectItem>
-                        <SelectItem value="לגבייה מיידית">לגבייה מיידית</SelectItem>
-                        <SelectItem value="חריגה מופרזת">חריגה מופרזת</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </TableHead>
-                  <TableHead className="py-3 px-4">
                     {!hideStatusFilter &&
                     <Select value={legalStatusFilter} onValueChange={(v) => {setLegalStatusFilter(v);setPage(1);}}>
                         <SelectTrigger className="h-9 rounded-lg text-sm">
@@ -723,7 +692,7 @@ export default function DebtorsTable({
               {/* Filter Actions Row */}
               {showAdvancedFilters &&
                 <TableRow className="bg-blue-50/30 border-b border-blue-200">
-                  <TableHead colSpan={isAdmin ? 9 : 8} className="py-3 px-6">
+                  <TableHead colSpan={isAdmin ? 8 : 7} className="py-3 px-6">
                     <div className="flex items-center justify-end" dir="rtl">
                       <Button
                         variant="outline"
@@ -742,7 +711,7 @@ export default function DebtorsTable({
             <TableBody>
               {paginatedRecords.length === 0 ?
                 <TableRow>
-                  <TableCell colSpan={isAdmin ? 9 : 8} className="text-center py-12">
+                  <TableCell colSpan={isAdmin ? 8 : 7} className="text-center py-12">
                     <div className="flex flex-col items-center gap-3">
                       <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center">
                         <Filter className="w-8 h-8 text-slate-400" />
@@ -786,11 +755,7 @@ export default function DebtorsTable({
                     <TableCell className="py-6 px-6 align-middle text-center">
                       <span className="font-bold text-base text-purple-600">{formatCurrency(record.specialDebt)}</span>
                     </TableCell>
-                    <TableCell className="py-6 px-6 align-middle text-center">
-                      <Badge variant="outline" className={`${STATUS_COLORS[record.debt_status_auto] || STATUS_COLORS['תקין']} min-w-[96px] h-8 px-3 inline-flex items-center justify-center text-sm font-medium whitespace-nowrap transition-all duration-200 hover:opacity-80`}>
-                        {record.debt_status_auto || 'תקין'}
-                      </Badge>
-                    </TableCell>
+
                     <TableCell className="py-6 px-6 align-middle text-center">
                       {(() => {
                       const legalStatus = getLegalStatusForRecord(record);
