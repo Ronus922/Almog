@@ -15,7 +15,7 @@ const BORDER_COLORS = {
   'חריגה מופרזת': 'border-r-[#ff8080]'
 };
 
-export default function DebtorCard({ record, onClick, settings, isAdmin, showArchived, onArchiveToggle }) {
+export default function DebtorCard({ record, onClick, settings, isAdmin, showArchived, onArchiveToggle, allStatuses = [] }) {
   const formatCurrency = (num) => 
     new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num || 0);
 
@@ -26,6 +26,11 @@ export default function DebtorCard({ record, onClick, settings, isAdmin, showArc
     return phone;
   };
 
+  // Find legal status
+  const legalStatus = allStatuses.find(s => s.id === record.legal_status_id);
+  const legalStatusLabel = legalStatus?.name || 'לא הוגדר';
+  const legalStatusColor = legalStatus?.color || 'bg-slate-100 text-slate-700';
+  
   const status = record.debt_status_auto || 'תקין';
   const borderColor = BORDER_COLORS[status] || BORDER_COLORS['תקין'];
 
