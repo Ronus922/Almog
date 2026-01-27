@@ -10,7 +10,7 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Home, Phone, Wallet, Calendar, FileText, Scale, 
-  Save, X, AlertTriangle, Lock, User, Pencil, Check, MessageSquare, FileDown, Plus
+  Save, X, AlertTriangle, Lock, User, Pencil, Check, MessageSquare, FileDown, Printer
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
@@ -464,11 +464,11 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           </Button>
           <Button 
             variant="outline" 
-            onClick={() => toast.info('כפתור הוסף - ממתין להגדרה')}
+            onClick={() => window.print()} 
             className="rounded-xl h-11 px-6 font-semibold"
           >
-            <Plus className="w-5 h-5 ml-2" />
-            הוסף
+            <Printer className="w-5 h-5 ml-2" />
+            הדפס
           </Button>
           <Button 
             variant="outline" 
