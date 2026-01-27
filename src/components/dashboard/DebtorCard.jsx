@@ -52,8 +52,8 @@ export default function DebtorCard({ record, onClick, settings, isAdmin, showArc
               <p className="text-sm text-slate-600">{record.ownerName || 'לא צוין'}</p>
             </div>
           </div>
-          <Badge variant="outline" className={`${STATUS_COLORS[status]} font-semibold text-xs transition-all duration-200 hover:opacity-80`}>
-            {status}
+          <Badge variant="outline" className={`${legalStatusColor} font-semibold text-xs transition-all duration-200 hover:opacity-80 border`}>
+            {legalStatusLabel}
           </Badge>
         </div>
 
