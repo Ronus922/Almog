@@ -565,7 +565,8 @@ export default function DebtorsTable({
               settings={settings}
               isAdmin={isAdmin}
               showArchived={showArchived}
-              onArchiveToggle={(rec) => handleArchiveToggle(rec, { stopPropagation: () => {} })} />
+              onArchiveToggle={(rec) => handleArchiveToggle(rec, { stopPropagation: () => {} })}
+              allStatuses={allStatuses} />
 
             )
             }
