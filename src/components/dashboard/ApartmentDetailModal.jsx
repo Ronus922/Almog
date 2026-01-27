@@ -453,7 +453,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       title={`פרטי דירה ${record.apartmentNumber}`}
       subtitle={`${record.ownerName || 'ללא שם בעלים'} • ${displayPhone ? `טלפון: ${formatPhone(displayPhone)}` : 'ללא טלפון'}`}
       statusPill={{
-        text: currentStatusLabel,
+        text: `סטטוס משפטי: ${currentStatusLabel}`,
         color: `${currentStatusColor} border`
       }}
       footer={
