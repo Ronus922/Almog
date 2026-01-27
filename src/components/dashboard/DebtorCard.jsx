@@ -47,14 +47,9 @@ export default function DebtorCard({ record, onClick, settings, isAdmin, showArc
               <p className="text-sm text-slate-600">{record.ownerName || 'לא צוין'}</p>
             </div>
           </div>
-          <div className="flex flex-col items-end gap-1">
-            <Badge variant="outline" className={`${STATUS_COLORS[status]} font-semibold text-xs transition-all duration-200 hover:opacity-80`}>
-              {status}
-            </Badge>
-            {record.legal_status_name && (
-              <span className="text-xs text-slate-500">סטטוס משפטי</span>
-            )}
-          </div>
+          <Badge variant="outline" className={`${STATUS_COLORS[status]} font-semibold text-xs transition-all duration-200 hover:opacity-80`}>
+            {status}
+          </Badge>
         </div>
 
         {/* Phone */}
@@ -74,7 +69,13 @@ export default function DebtorCard({ record, onClick, settings, isAdmin, showArc
           </div>
         </div>
 
-
+        {/* Legal Status */}
+        {record.legal_status_manual && (
+          <div className="pt-2 border-t border-slate-200">
+            <p className="text-xs text-slate-500">מצב משפטי:</p>
+            <p className="text-sm font-semibold text-slate-700 mt-1">{record.legal_status_manual}</p>
+          </div>
+        )}
 
         {/* Archive Button - Admin Only */}
         {isAdmin && onArchiveToggle && (
