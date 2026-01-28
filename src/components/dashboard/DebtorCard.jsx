@@ -19,21 +19,38 @@ export default function DebtorCard({ record, onClick, settings, isAdmin, showArc
   const legalStatusLabel = legalStatus?.name || 'לא הוגדר';
   const legalStatusColor = legalStatus?.color || 'bg-slate-100 text-slate-700';
   
-  // Extract border color from legal status color
-  const getBorderColor = (colorClass) => {
-    if (!colorClass) return 'border-r-slate-300';
-    const match = colorClass.match(/bg-(\S+)/);
-    if (match) {
-      return `border-r-${match[1]}`;
+  // Extract border color from legal status
+  const getBorderStyle = () => {
+    if (!legalStatus?.color) return { borderRightColor: 'rgb(203 213 225)' }; // slate-300
+    
+    const colorMap = {
+      'blue-300': 'rgb(147 197 253)', 'blue-400': 'rgb(96 165 250)', 'blue-900': 'rgb(30 58 138)',
+      'purple-300': 'rgb(216 180 254)', 'purple-400': 'rgb(192 132 252)', 'purple-900': 'rgb(88 28 135)',
+      'pink-100': 'rgb(252 231 243)', 'pink-200': 'rgb(251 207 232)', 'pink-700': 'rgb(190 24 93)',
+      'sky-100': 'rgb(224 242 254)', 'sky-200': 'rgb(186 230 253)', 'sky-700': 'rgb(3 105 161)',
+      'amber-200': 'rgb(253 230 138)', 'amber-300': 'rgb(252 211 77)', 'amber-800': 'rgb(146 64 14)',
+      'green-200': 'rgb(187 247 208)', 'green-300': 'rgb(134 239 172)', 'green-800': 'rgb(22 101 52)',
+      'red-400': 'rgb(248 113 113)', 'red-500': 'rgb(239 68 68)',
+      'slate-300': 'rgb(203 213 225)',
+    };
+    
+    const borderMatch = legalStatus.color.match(/border-(\S+)/);
+    if (borderMatch && colorMap[borderMatch[1]]) {
+      return { borderRightColor: colorMap[borderMatch[1]] };
     }
-    return 'border-r-slate-300';
+    
+    const bgMatch = legalStatus.color.match(/bg-(\S+)/);
+    if (bgMatch && colorMap[bgMatch[1]]) {
+      return { borderRightColor: colorMap[bgMatch[1]] };
+    }
+    
+    return { borderRightColor: 'rgb(203 213 225)' };
   };
-  
-  const borderColor = getBorderColor(legalStatus?.color);
 
   return (
     <Card 
-      className={`p-5 hover:shadow-xl transition-all duration-300 cursor-pointer border-r-4 ${borderColor} bg-gradient-to-l from-white to-slate-50/50`}
+      className="p-5 hover:shadow-xl transition-all duration-300 cursor-pointer border-r-4 bg-gradient-to-l from-white to-slate-50/50"
+      style={getBorderStyle()}
       onClick={() => onClick(record)}
       dir="rtl"
     >
