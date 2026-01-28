@@ -1,13 +1,11 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { normalizeRole } from '../utils/roles';
-import { loadUserPermissions } from '@/components/permissions/PermissionUtils';
 
 const AuthContext = createContext(null);
 
 export function AuthProvider({ children }) {
   const [currentUser, setCurrentUser] = useState(null);
-  const [userPermissions, setUserPermissions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [authChecked, setAuthChecked] = useState(false);
 
@@ -34,7 +32,6 @@ export function AuthProvider({ children }) {
         };
         console.log('[Auth] ✓ Base44 SUPER_ADMIN authenticated:', userData);
         setCurrentUser(userData);
-        setUserPermissions([]);
         setLoading(false);
         setAuthChecked(true);
         return;
@@ -50,7 +47,6 @@ export function AuthProvider({ children }) {
     if (!sessionData) {
       console.log('[Auth] ✗ No session - UNAUTHENTICATED');
       setCurrentUser(null);
-      setUserPermissions([]);
       setLoading(false);
       setAuthChecked(true);
       return;
@@ -70,7 +66,6 @@ export function AuthProvider({ children }) {
         console.log('[Auth] ✗ Session invalid - user not found or inactive');
         localStorage.removeItem('app_session');
         setCurrentUser(null);
-        setUserPermissions([]);
         setLoading(false);
         setAuthChecked(true);
         return;
@@ -95,28 +90,17 @@ export function AuthProvider({ children }) {
         firstName: user.first_name,
         lastName: user.last_name,
         role: role,
-        role_id: user.role_id,
         isBase44Admin: false
       };
       
       console.log('[Auth] ✓ App user authenticated:', userData);
       setCurrentUser(userData);
-      
-      // טעינת הרשאות אם יש תפקיד מותאם
-      if (user.role_id) {
-        const perms = await loadUserPermissions(user.role_id);
-        setUserPermissions(perms);
-      } else {
-        setUserPermissions([]);
-      }
-      
       setLoading(false);
       setAuthChecked(true);
     } catch (err) {
       console.error('[Auth] ✗ Session validation failed:', err);
       localStorage.removeItem('app_session');
       setCurrentUser(null);
-      setUserPermissions([]);
       setLoading(false);
       setAuthChecked(true);
     }
@@ -160,20 +144,11 @@ export function AuthProvider({ children }) {
       firstName: user.first_name,
       lastName: user.last_name,
       role: role,
-      role_id: user.role_id,
       isBase44Admin: false
     };
     
     console.log('[Auth] ✓ Login successful:', userData);
     setCurrentUser(userData);
-    
-    // טעינת הרשאות אם יש תפקיד מותאם
-    if (user.role_id) {
-      const perms = await loadUserPermissions(user.role_id);
-      setUserPermissions(perms);
-    } else {
-      setUserPermissions([]);
-    }
 
     return user;
   };
@@ -188,14 +163,12 @@ export function AuthProvider({ children }) {
     
     localStorage.removeItem('app_session');
     setCurrentUser(null);
-    setUserPermissions([]);
     window.location.href = '/';
   };
 
   return (
     <AuthContext.Provider value={{ 
-      currentUser,
-      userPermissions,
+      currentUser, 
       loading,
       authChecked,
       login, 

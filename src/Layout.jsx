@@ -73,7 +73,6 @@ function LayoutContent({ children, currentPageName }) {
   const navItems = [
     { name: 'Dashboard', label: 'דשבורד', icon: LayoutDashboard, adminOnly: false },
     { name: 'UserManagement', label: 'משתמשים', icon: UsersIcon, adminOnly: true },
-    { name: 'RoleManagement', label: 'תפקידים והרשאות', icon: SlidersHorizontal, adminOnly: true },
     { name: 'StatusManagement', label: 'סטטוסים', icon: SlidersHorizontal, adminOnly: true },
     { name: 'Import', label: 'ייבוא', icon: Upload, adminOnly: true },
     { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true },
