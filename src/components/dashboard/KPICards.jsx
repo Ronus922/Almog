@@ -101,14 +101,14 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
       color: "text-purple-600",
       isClickable: false
     },
-    { 
-      title: "דירות חייבות", 
-      value: debtorCount, 
-      icon: Home, 
-      color: "text-blue-600",
-      subtext: "מתוך 298 דירות",
-      isClickable: false
-    },
+    // { 
+    //   title: "דירות חייבות", 
+    //   value: debtorCount, 
+    //   icon: Home, 
+    //   color: "text-blue-600",
+    //   subtext: "מתוך 298 דירות",
+    //   isClickable: false
+    // },
     { 
       title: "לגבייה מיידית", 
       value: statusCounts['לגבייה מיידית'], 
