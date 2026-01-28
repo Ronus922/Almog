@@ -14,6 +14,7 @@ import StatusManagement from './pages/StatusManagement';
 import StatusWorkflow from './pages/StatusWorkflow';
 import UserManagement from './pages/UserManagement';
 import app from './pages/_app';
+import RoleManagement from './pages/RoleManagement';
 import __Layout from './Layout.jsx';
 
 
@@ -34,6 +35,7 @@ export const PAGES = {
     "StatusWorkflow": StatusWorkflow,
     "UserManagement": UserManagement,
     "_app": app,
+    "RoleManagement": RoleManagement,
 }
 
 export const pagesConfig = {
