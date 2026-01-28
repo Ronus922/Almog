@@ -428,7 +428,7 @@ function DashboardContent() {
             </div>
 
         {/* כרטיסי KPI - מבוסס על כל הרשומות כולל ארכיון */}
-        <KPICards records={allRecords} settings={settings} allStatuses={allStatuses} />
+        {/* <KPICards records={allRecords} settings={settings} allStatuses={allStatuses} /> */}
 
         {/* אינדיקציית ייבוא אחרון - בין KPI לטבלה */}
         <LastImportIndicator lastImportAt={settings?.last_import_at} isAdmin={isAdmin} />
