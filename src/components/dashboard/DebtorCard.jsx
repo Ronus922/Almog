@@ -19,7 +19,17 @@ export default function DebtorCard({ record, onClick, settings, isAdmin, showArc
   const legalStatusLabel = legalStatus?.name || 'לא הוגדר';
   const legalStatusColor = legalStatus?.color || 'bg-slate-100 text-slate-700';
   
-  const borderColor = legalStatus?.color ? legalStatus.color.replace('bg-', 'border-r-') : 'border-r-slate-300';
+  // Extract border color from legal status color
+  const getBorderColor = (colorClass) => {
+    if (!colorClass) return 'border-r-slate-300';
+    const match = colorClass.match(/bg-(\S+)/);
+    if (match) {
+      return `border-r-${match[1]}`;
+    }
+    return 'border-r-slate-300';
+  };
+  
+  const borderColor = getBorderColor(legalStatus?.color);
 
   return (
     <Card 
