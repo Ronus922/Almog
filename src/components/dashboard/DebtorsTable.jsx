@@ -725,7 +725,7 @@ export default function DebtorsTable({
                 paginatedRecords.map((record, idx) =>
                 <TableRow
                   key={record.id}
-                  className={`cursor-pointer transition-all duration-200 border-b-2 border-slate-200 ${idx % 2 === 1 ? 'bg-[#f2f5f9] hover:bg-white' : 'bg-white hover:bg-[#f2f5f9]'}`}
+                  className={`hover:bg-blue-50/50 cursor-pointer transition-all duration-200 border-b-2 border-slate-200 ${idx % 2 === 1 ? 'bg-[#f2f5f9]' : 'bg-white'}`}
                   onClick={() => onRowClick(record)}>
 
                     <TableCell className="font-bold text-slate-800 text-base py-6 px-6 align-middle">
