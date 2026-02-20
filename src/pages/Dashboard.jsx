@@ -213,14 +213,15 @@ function DashboardContent() {
 
         .tabs-shell {
           display: flex;
-          gap: 10px;
-          padding: 8px;
-          background: #f3f4f6;
-          border: 1px solid #e5e7eb;
-          border-radius: 16px;
+          gap: 6px;
+          padding: 6px;
+          background: linear-gradient(145deg, #ffffff 0%, #f8fafc 100%);
+          border: 1px solid #e2e8f0;
+          border-radius: 20px;
           width: fit-content;
           max-width: 100%;
           border-bottom: none !important;
+          box-shadow: 0 4px 20px rgba(0,0,0,.05), inset 0 1px 2px rgba(255,255,255,.9);
         }
 
         .tab-pill {
@@ -228,25 +229,26 @@ function DashboardContent() {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 10px;
-          min-width: 160px;
-          height: 44px;
-          padding: 0 14px;
-          border-radius: 14px;
+          gap: 12px;
+          min-width: 170px;
+          height: 50px;
+          padding: 0 18px;
+          border-radius: 16px;
           border: 1px solid transparent;
           background: #ffffff;
           cursor: pointer;
           user-select: none;
-          transition: transform .12s ease, box-shadow .12s ease, background .12s ease, border-color .12s ease;
+          transition: all .2s cubic-bezier(0.4, 0, 0.2, 1);
           text-decoration: none !important;
           font-family: inherit;
           border-bottom: none !important;
+          box-shadow: 0 2px 8px rgba(0,0,0,.04);
         }
 
         .tab-pill:hover {
-          transform: translateY(-1px);
-          box-shadow: 0 6px 18px rgba(0,0,0,.08);
-          border-color: #e5e7eb;
+          transform: translateY(-2px);
+          box-shadow: 0 8px 24px rgba(0,0,0,.1);
+          border-color: #cbd5e1;
         }
 
         .tab-pill:active {
@@ -255,30 +257,31 @@ function DashboardContent() {
         }
 
         .tab-label {
-          font-size: 14px;
+          font-size: 15px;
           font-weight: 600;
-          color: #111827;
-          letter-spacing: 0;
+          color: #334155;
+          letter-spacing: -0.01em;
         }
 
         .tab-badge {
-          min-width: 32px;
-          height: 26px;
-          padding: 0 10px;
-          border-radius: 999px;
+          min-width: 36px;
+          height: 28px;
+          padding: 0 12px;
+          border-radius: 12px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
-          font-size: 13px;
+          font-size: 14px;
           font-weight: 800;
-          background: #e5e7eb;
-          color: #111827;
+          background: #f1f5f9;
+          color: #334155;
+          box-shadow: inset 0 1px 2px rgba(0,0,0,.06);
         }
 
         .tab-pill.is-active {
-          background: #eef2ff;
-          border-color: #c7d2fe;
-          box-shadow: 0 10px 26px rgba(37,99,235,.18);
+          background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+          border-color: #2563eb;
+          box-shadow: 0 12px 32px rgba(37,99,235,.25);
         }
 
         .tab-pill.is-active::after {
@@ -287,21 +290,24 @@ function DashboardContent() {
 
         .tab-pill.is-active .tab-label {
           font-weight: 700;
-        }
-
-        .tab-pill.is-active .tab-badge {
-          background: #2563eb;
           color: #ffffff;
         }
 
+        .tab-pill.is-active .tab-badge {
+          background: rgba(255,255,255,.25);
+          color: #ffffff;
+          box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
+        }
+
         .tab-archive:not(.is-active) {
-          background: #f8fafc;
-          border-color: #e5e7eb;
+          background: #fefce8;
+          border-color: #fde047;
         }
 
         .tabs-shell.mode-archive .tab-pill:not(.tab-archive) {
-          background: #e5e7eb;
+          background: #f1f5f9;
           border-color: #cbd5e1;
+          opacity: 0.7;
         }
 
         @media (max-width: 480px) {
