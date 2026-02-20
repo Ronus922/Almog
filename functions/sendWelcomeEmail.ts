@@ -63,10 +63,10 @@ Deno.serve(async (req) => {
 </td>
 </tr>
 </table>
-<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:32px 0">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:32px 0;direction:rtl">
 <tr>
 <td style="text-align:center">
-<a href="${loginUrl}" style="display:inline-block;background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%);color:white;padding:14px 32px;border-radius:12px;text-decoration:none;font-weight:600;font-size:16px;box-shadow:0 4px 12px rgba(37,99,235,0.3)">לאתר לחץ כאן</a>
+<a href="${loginUrl}" style="display:inline-block;background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%);color:white;padding:14px 36px;border-radius:12px;text-decoration:none;font-weight:700;font-size:16px;box-shadow:0 4px 12px rgba(37,99,235,0.3);font-family:'Noto Sans Hebrew','Segoe UI',sans-serif">לאתר לחץ כאן</a>
 </td>
 </tr>
 </table>
