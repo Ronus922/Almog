@@ -6,15 +6,16 @@ const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const { username, email, password, role } = await req.json();
+    const { username, email, password, role, first_name, last_name } = await req.json();
 
-    console.log('[WELCOME_EMAIL] Request params:', { username, email, role });
+    console.log('[WELCOME_EMAIL] Request params:', { username, email, role, first_name, last_name });
 
     if (!email || !username || !password) {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const loginUrl = `${req.headers.get('origin') || 'https://app.base44.com'}/applogin`;
+    const fullName = first_name && last_name ? `${first_name} ${last_name}` : username;
+    const loginUrl = 'https://almogbilling.base44.app';
 
     const emailSubject = 'ברוכים הבאים למערכת ניהול חייבים - בניין אלמוג';
     const emailBody = `<!DOCTYPE html>
@@ -30,7 +31,7 @@ Deno.serve(async (req) => {
 <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,0.1)">
 <tr>
 <td style="background:#1e3a8a;color:#fff;padding:25px;text-align:center">
-<h1 style="margin:0;font-size:26px;font-weight:700">שלום ${username}</h1>
+<h1 style="margin:0;font-size:26px;font-weight:700">שלום ${fullName}</h1>
 <p style="margin:8px 0 0;font-size:14px">מערכת ניהול חייבים - בניין אלמוג</p>
 </td>
 </tr>
@@ -39,7 +40,7 @@ Deno.serve(async (req) => {
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
 <tr>
 <td style="background:#eff6ff;border-right:4px solid #3b82f6;padding:15px;margin-bottom:25px;border-radius:8px">
-<p style="font-size:15px;color:#1e3a8a;margin:0">אני רוצה לשתף אותך עם מידע לגבי חייבים בבניין אלמוג.<br><br>האפליקציה תאפשר לך לעקוב אחרי חייבים, חובות וסטטוס משפטי של כל דייר.</p>
+<p style="font-size:15px;color:#1e3a8a;margin:0">חברת הניהול רוצה לשתף אותך עם מידע לגבי חייבים בבניין אלמוג.<br><br>האפליקציה/אתר תאפשר לך לעקוב אחרי חייבים, חובות וסטטוס משפטי של כל דייר.</p>
 </td>
 </tr>
 </table>
@@ -62,14 +63,7 @@ Deno.serve(async (req) => {
 <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin:32px 0">
 <tr>
 <td style="text-align:center">
-<a href="${loginUrl}" style="display:inline-block;background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%);color:white;padding:14px 32px;border-radius:12px;text-decoration:none;font-weight:600;font-size:16px;box-shadow:0 4px 12px rgba(37,99,235,0.3)">כניסה למערכת</a>
-</td>
-</tr>
-</table>
-<table cellpadding="0" cellspacing="0" border="0" width="100%">
-<tr>
-<td style="background:#fef9c3;border-right:4px solid #eab308;padding:15px;border-radius:8px">
-<p style="font-size:14px;color:#854d0e;margin:0;text-align:right"><strong>שים לב:</strong> מומלץ לשנות את הסיסמה לאחר הכניסה הראשונה למערכת.</p>
+<a href="${loginUrl}" style="display:inline-block;background:linear-gradient(135deg,#3b82f6 0%,#2563eb 100%);color:white;padding:14px 32px;border-radius:12px;text-decoration:none;font-weight:600;font-size:16px;box-shadow:0 4px 12px rgba(37,99,235,0.3)">לאתר לחץ כאן</a>
 </td>
 </tr>
 </table>
