@@ -62,11 +62,30 @@ Deno.serve(async (req) => {
       </div>
     `;
 
-    await base44.asServiceRole.integrations.Core.SendEmail({
-      to: email,
-      subject: emailSubject,
-      body: emailBody
+    // Send email using Resend API
+    const resendApiKey = Deno.env.get('RESEND_API_KEY');
+    if (!resendApiKey) {
+      return Response.json({ error: 'RESEND_API_KEY not configured' }, { status: 500 });
+    }
+
+    const resendResponse = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendApiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'מערכת בניין אלמוג <onboarding@resend.dev>',
+        to: [email],
+        subject: emailSubject,
+        html: emailBody
+      })
     });
+
+    if (!resendResponse.ok) {
+      const errorText = await resendResponse.text();
+      throw new Error(`Resend API error: ${errorText}`);
+    }
 
     return Response.json({ 
       success: true, 
