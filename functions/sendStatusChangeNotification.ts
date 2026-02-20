@@ -245,7 +245,7 @@ Deno.serve(async (req) => {
                 console.log(`[EMAIL] Sending to: ${email}...`);
                 
                 const { data, error } = await resend.emails.send({
-                    from: 'מערכת בניין אלמוג <onboarding@resend.dev>',
+                    from: 'מערכת בניין אלמוג <no-reply@mail.bios.co.il>',
                     to: [email],
                     subject: subject,
                     html: htmlContent,

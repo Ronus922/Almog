@@ -89,7 +89,7 @@ Deno.serve(async (req) => {
     console.log('[WELCOME_EMAIL] Sending email to:', email);
 
     const { data, error } = await resend.emails.send({
-      from: 'מערכת בניין אלמוג <onboarding@resend.dev>',
+      from: 'מערכת בניין אלמוג <no-reply@mail.bios.co.il>',
       to: [email],
       subject: emailSubject,
       html: emailBody
