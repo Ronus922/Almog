@@ -23,8 +23,11 @@ Deno.serve(async (req) => {
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:wght@400;600;700&display=swap');
+</style>
 </head>
-<body style="margin:0;padding:20px;font-family:Arial,sans-serif;background:#f8fafc;direction:rtl">
+<body style="margin:0;padding:20px;font-family:'Noto Sans Hebrew','Segoe UI',Tahoma,sans-serif;background:#f8fafc;direction:rtl;text-align:right;line-height:1.6">
 <table cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:600px;margin:0 auto">
 <tr>
 <td>
