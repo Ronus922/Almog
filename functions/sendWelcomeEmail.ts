@@ -28,10 +28,10 @@ Deno.serve(async (req) => {
 </style>
 </head>
 <body style="margin:0;padding:20px;font-family:'Noto Sans Hebrew','Segoe UI',Tahoma,sans-serif;background:#f8fafc;direction:rtl;text-align:right;line-height:1.6">
-<table cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:600px;margin:0 auto">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="max-width:600px;margin:0 auto;direction:rtl">
 <tr>
 <td>
-<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,0.1)">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,0.1);direction:rtl">
 <tr>
 <td style="background:#1e3a8a;color:#fff;padding:25px;text-align:center">
 <h1 style="margin:0;font-size:26px;font-weight:700">שלום ${fullName}</h1>
