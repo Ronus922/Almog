@@ -74,8 +74,11 @@ export default function UserManagement() {
             username: userData.username,
             email: userData.email,
             password: userData.password,
-            role: userData.role
+            role: userData.role,
+            first_name: userData.first_name,
+            last_name: userData.last_name
           });
+          console.log('Welcome email sent successfully');
         } catch (emailError) {
           console.error('Failed to send welcome email:', emailError);
           // Don't fail the user creation if email fails
