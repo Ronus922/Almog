@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
 <td style="text-align:right">
 <p style="margin:8px 0;font-size:15px;color:#334155"><strong>שם משתמש:</strong> ${username}</p>
 <p style="margin:8px 0;font-size:15px;color:#334155"><strong>סיסמה:</strong> ${password}</p>
-<p style="margin:8px 0;font-size:15px;color:#1e40af"><strong>תפקיד:</strong> ${role === 'ADMIN' ? 'מנהל - גישה מלאה' : 'צופה - גישה לצפייה'}</p>
+<p style="margin:8px 0;font-size:15px;color:#1e40af"><strong>תפקיד:</strong> ${role === 'admin' ? 'מנהל - גישה מלאה' : 'צופה - גישה לצפייה'}</p>
 </td>
 </tr>
 </table>
