@@ -53,10 +53,10 @@ export default function UserManagement() {
   });
 
   const createUserMutation = useMutation({
-    mutationFn: (userData) => {
+    mutationFn: async (userData) => {
       // Hash password
       const passwordHash = btoa(userData.password);
-      return base44.entities.AppUser.create({
+      const newUserRecord = await base44.entities.AppUser.create({
         first_name: userData.first_name,
         last_name: userData.last_name || '',
         username: userData.username,
@@ -66,13 +66,30 @@ export default function UserManagement() {
         is_active: true,
         base44_user_invited: false
       });
+
+      // Send welcome email with password (before encryption)
+      if (userData.email) {
+        try {
+          await base44.functions.invoke('sendWelcomeEmail', {
+            username: userData.username,
+            email: userData.email,
+            password: userData.password,
+            role: userData.role
+          });
+        } catch (emailError) {
+          console.error('Failed to send welcome email:', emailError);
+          // Don't fail the user creation if email fails
+        }
+      }
+
+      return newUserRecord;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['appUsers'] });
       setIsAddDialogOpen(false);
       setNewUser({ first_name: '', last_name: '', username: '', email: '', password: '', role: 'viewer_password' });
       setFormError('');
-      toast.success('המשתמש נוצר בהצלחה');
+      toast.success('המשתמש נוצר ומייל נשלח בהצלחה');
     },
     onError: () => {
       toast.error('שגיאה ביצירת המשתמש');
