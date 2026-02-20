@@ -42,8 +42,8 @@ Deno.serve(async (req) => {
 <td style="padding:25px">
 <table cellpadding="0" cellspacing="0" border="0" width="100%">
 <tr>
-<td style="background:#eff6ff;border-right:4px solid #3b82f6;padding:15px;margin-bottom:25px;border-radius:8px">
-<p style="font-size:15px;color:#1e3a8a;margin:0">חברת הניהול רוצה לשתף אותך עם מידע לגבי חייבים בבניין אלמוג.<br><br>האפליקציה/אתר תאפשר לך לעקוב אחרי חייבים, חובות וסטטוס משפטי של כל דייר.</p>
+<td style="background:#eff6ff;border-right:4px solid #3b82f6;padding:15px;margin-bottom:25px;border-radius:8px;text-align:right;direction:rtl">
+<p style="font-size:15px;color:#1e3a8a;margin:0;text-align:right;line-height:1.7">חברת הניהול רוצה לשתף אותך עם מידע לגבי חייבים בבניין אלמוג.<br><br>האפליקציה/אתר תאפשר לך לעקוב אחרי חייבים, חובות וסטטוס משפטי של כל דייר.</p>
 </td>
 </tr>
 </table>
