@@ -49,14 +49,14 @@ Deno.serve(async (req) => {
 </table>
 <table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-bottom:25px">
 <tr>
-<td style="background:#dcfce7;border:2px solid #16a34a;border-radius:12px;padding:20px">
-<p style="margin:0 0 12px;font-size:15px;color:#15803d;font-weight:600;text-align:right">פרטי התחברות למערכת:</p>
-<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#fff;border-radius:8px;padding:15px;margin-bottom:12px">
+<td style="background:#dcfce7;border:2px solid #16a34a;border-radius:12px;padding:20px;direction:rtl;text-align:right">
+<p style="margin:0 0 15px;font-size:16px;color:#15803d;font-weight:700;text-align:right">פרטי התחברות למערכת:</p>
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#fff;border-radius:8px;padding:15px;margin-bottom:12px;direction:rtl">
 <tr>
-<td style="text-align:right">
-<p style="margin:8px 0;font-size:15px;color:#334155"><strong>שם משתמש:</strong> ${username}</p>
-<p style="margin:8px 0;font-size:15px;color:#334155"><strong>סיסמה:</strong> ${password}</p>
-<p style="margin:8px 0;font-size:15px;color:#1e40af"><strong>תפקיד:</strong> ${role === 'admin' ? 'מנהל - גישה מלאה' : 'צופה - גישה לצפייה'}</p>
+<td style="text-align:right;padding:0">
+<p style="margin:10px 0;font-size:15px;color:#334155;text-align:right"><strong>שם משתמש:</strong> <span style="font-family:monospace;direction:ltr;display:inline-block">${username}</span></p>
+<p style="margin:10px 0;font-size:15px;color:#334155;text-align:right"><strong>סיסמה:</strong> <span style="font-family:monospace;direction:ltr;display:inline-block">${password}</span></p>
+<p style="margin:10px 0;font-size:15px;color:#1e40af;text-align:right"><strong>תפקיד:</strong> ${role === 'admin' ? 'מנהל - גישה מלאה' : 'צופה - גישה לצפייה'}</p>
 </td>
 </tr>
 </table>
