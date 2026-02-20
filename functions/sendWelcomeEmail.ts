@@ -70,10 +70,10 @@ Deno.serve(async (req) => {
 </td>
 </tr>
 </table>
-<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:32px;padding-top:24px;border-top:1px solid #e2e8f0">
+<table cellpadding="0" cellspacing="0" border="0" width="100%" style="margin-top:32px;padding-top:24px;border-top:1px solid #e2e8f0;direction:rtl">
 <tr>
-<td style="text-align:right">
-<p style="font-size:14px;color:#64748b;margin:0">בברכה,<br><strong>מערכת ניהול חייבים - בניין אלמוג</strong></p>
+<td style="text-align:right;direction:rtl">
+<p style="font-size:15px;color:#64748b;margin:0;line-height:1.8;text-align:right">בברכה,<br><strong style="font-weight:700">מערכת ניהול חייבים - בניין אלמוג</strong></p>
 </td>
 </tr>
 </table>
