@@ -33,9 +33,9 @@ Deno.serve(async (req) => {
 <td>
 <table cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 4px 6px rgba(0,0,0,0.1);direction:rtl">
 <tr>
-<td style="background:#1e3a8a;color:#fff;padding:25px;text-align:center">
-<h1 style="margin:0;font-size:26px;font-weight:700">שלום ${fullName}</h1>
-<p style="margin:8px 0 0;font-size:14px">מערכת ניהול חייבים - בניין אלמוג</p>
+<td style="background:#1e3a8a;color:#fff;padding:25px;text-align:center;direction:rtl">
+<h1 style="margin:0;font-size:28px;font-weight:700;letter-spacing:-0.5px">שלום ${fullName}</h1>
+<p style="margin:8px 0 0;font-size:15px;font-weight:500">מערכת ניהול חייבים - בניין אלמוג</p>
 </td>
 </tr>
 <tr>
