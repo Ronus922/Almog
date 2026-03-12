@@ -90,6 +90,25 @@ export default function Tasks() {
     });
   }, [myTasks, filterStatus, filterPriority, filterAssigned, filterDueDate, filterTaskType, search]);
 
+  const sorted = useMemo(() => {
+    if (!sortField) return filtered;
+    return [...filtered].sort((a, b) => {
+      let av, bv;
+      if (sortField === "task_type") { av = a.task_type || ""; bv = b.task_type || ""; }
+      else if (sortField === "assigned") { av = a.assigned_to_name || a.assigned_to || ""; bv = b.assigned_to_name || b.assigned_to || ""; }
+      else if (sortField === "due_date") { av = a.due_date || ""; bv = b.due_date || ""; }
+      else if (sortField === "status") { av = a.status || ""; bv = b.status || ""; }
+      else if (sortField === "priority") {
+        const order = { "גבוהה": 1, "בינונית": 2, "נמוכה": 3 };
+        av = order[a.priority] || 9; bv = order[b.priority] || 9;
+        return sortDir === "asc" ? av - bv : bv - av;
+      }
+      if (av < bv) return sortDir === "asc" ? -1 : 1;
+      if (av > bv) return sortDir === "asc" ? 1 : -1;
+      return 0;
+    });
+  }, [filtered, sortField, sortDir]);
+
   const openTasks = myTasks.filter(t => t.status === "פתוחה" || t.status === "בטיפול");
   const overdue = openTasks.filter(t => t.due_date && isPast(new Date(t.due_date)) && !isToday(new Date(t.due_date)));
   const dueToday = openTasks.filter(t => t.due_date && isToday(new Date(t.due_date)));
