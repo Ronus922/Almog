@@ -85,7 +85,14 @@ export default function WhatsAppDialog({ open, onClose, record }) {
     if (!phone || !message.trim()) return;
     setSending(true);
     try {
-      await base44.functions.invoke('sendWhatsApp', { phone, message });
+      let fileUrl = null;
+      let fileName = null;
+      if (attachedFile) {
+        const { file_url } = await base44.integrations.Core.UploadFile({ file: attachedFile });
+        fileUrl = file_url;
+        fileName = attachedFile.name;
+      }
+      await base44.functions.invoke('sendWhatsApp', { phone, message, fileUrl, fileName });
       toast.success('ההודעה נשלחה בהצלחה!');
       onClose();
     } catch (err) {
