@@ -10,11 +10,16 @@ import { useQuery } from '@tanstack/react-query';
 import { Link } from 'react-router-dom';
 
 export default function WhatsAppDialog({ open, onClose, record }) {
-  const [templateId, setTemplateId] = useState('reminder');
+  const [templateId, setTemplateId] = useState('');
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
   const [attachedFile, setAttachedFile] = useState(null);
   const fileInputRef = useRef(null);
+
+  const { data: templates = [] } = useQuery({
+    queryKey: ['whatsapp-templates'],
+    queryFn: () => base44.entities.WhatsAppTemplate.list(),
+  });
 
   const phone = record?.phonePrimary || record?.phoneOwner || record?.phoneTenant || '';
   const name = record?.ownerName?.split(/[\/,]/)[0]?.trim() || '';
@@ -22,25 +27,36 @@ export default function WhatsAppDialog({ open, onClose, record }) {
     ? new Intl.NumberFormat('he-IL', { maximumFractionDigits: 0 }).format(record.totalDebt)
     : '0';
 
+  const applyTemplate = (content) => {
+    return content
+      .replace(/\{\{name\}\}/g, name || 'דייר יקר')
+      .replace(/\{\{debt\}\}/g, debtFormatted);
+  };
+
   const handleTemplateChange = (id) => {
     setTemplateId(id);
-    const tpl = TEMPLATES.find((t) => t.id === id);
-    if (tpl && id !== 'custom') {
-      setMessage(tpl.text(name, debtFormatted));
-    } else {
+    if (id === 'custom') {
       setMessage('');
+      return;
     }
+    const tpl = templates.find((t) => t.id === id);
+    if (tpl) setMessage(applyTemplate(tpl.content));
   };
 
   // Initialize message when dialog opens
   React.useEffect(() => {
     if (open) {
-      const tpl = TEMPLATES.find((t) => t.id === 'reminder');
-      setTemplateId('reminder');
-      setMessage(tpl.text(name, debtFormatted));
       setAttachedFile(null);
+      if (templates.length > 0) {
+        const first = templates[0];
+        setTemplateId(first.id);
+        setMessage(applyTemplate(first.content));
+      } else {
+        setTemplateId('custom');
+        setMessage('');
+      }
     }
-  }, [open, record?.id]);
+  }, [open, record?.id, templates.length]);
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
