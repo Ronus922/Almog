@@ -27,10 +27,19 @@ export default function WhatsAppDialog({ open, onClose, record }) {
     ? new Intl.NumberFormat('he-IL', { maximumFractionDigits: 0 }).format(record.totalDebt)
     : '0';
 
+  const monthlyFormatted = record?.monthlyDebt
+    ? new Intl.NumberFormat('he-IL', { maximumFractionDigits: 0 }).format(record.monthlyDebt)
+    : '0';
+  const specialFormatted = record?.specialDebt
+    ? new Intl.NumberFormat('he-IL', { maximumFractionDigits: 0 }).format(record.specialDebt)
+    : '0';
+
   const applyTemplate = (content) => {
     return content
       .replace(/\{\{name\}\}/g, name || 'דייר יקר')
-      .replace(/\{\{debt\}\}/g, debtFormatted);
+      .replace(/\{\{debt\}\}/g, debtFormatted)
+      .replace(/\{\{monthly\}\}/g, monthlyFormatted)
+      .replace(/\{\{special\}\}/g, specialFormatted);
   };
 
   const handleTemplateChange = (id) => {
