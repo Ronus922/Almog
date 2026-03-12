@@ -76,6 +76,7 @@ function LayoutContent({ children, currentPageName }) {
     { name: 'StatusManagement', label: 'סטטוסים', icon: SlidersHorizontal, adminOnly: true },
     { name: 'Import', label: 'ייבוא', icon: Upload, adminOnly: true },
     { name: 'Tasks', label: 'משימות', icon: ClipboardList, adminOnly: false },
+    { name: 'WhatsAppTemplates', label: 'תבניות וואטסאפ', icon: MessageCircle, adminOnly: true },
     { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true },
   ];
 
