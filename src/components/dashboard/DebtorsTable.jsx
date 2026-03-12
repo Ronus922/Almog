@@ -19,8 +19,9 @@ import {
   TableHeader,
   TableRow } from
 "@/components/ui/table";
-import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X, SlidersHorizontal, Archive, Undo2, MessageCircle } from "lucide-react";
+import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X, SlidersHorizontal, Archive, Undo2, MessageCircle, FileText } from "lucide-react";
 import WhatsAppDialog from '../whatsapp/WhatsAppDialog';
+import QuickCommentDialog from './QuickCommentDialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import DebtorCard from './DebtorCard';
 import { normalizeApartmentNumber } from '../utils/apartmentNormalizer';
