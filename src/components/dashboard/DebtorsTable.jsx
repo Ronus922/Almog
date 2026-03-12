@@ -797,7 +797,7 @@ export default function DebtorsTable({
                     })()}
                     </TableCell>
                     <TableCell className="py-6 px-2 align-middle text-center" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-center gap-1">
+                      <div className="flex items-center justify-center gap-2">
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <button
@@ -820,30 +820,26 @@ export default function DebtorsTable({
                           </TooltipTrigger>
                           <TooltipContent><p>שלח וואטסאפ</p></TooltipContent>
                         </Tooltip>
+                        {isAdmin && (
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <button
+                                onClick={(e) => handleArchiveToggle(record, e)}
+                                disabled={archivingRecords.has(record.id)}
+                                className="inline-flex items-center justify-center text-slate-600 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                {showArchived ?
+                                  <Undo2 className="w-4 h-4" strokeWidth={2} /> :
+                                  <Archive className="w-4 h-4" strokeWidth={2} />
+                                }
+                              </button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>{showArchived ? 'החזר לחייבים' : 'העבר לארכיון'}</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        )}
                       </div>
                     </TableCell>
-                    {isAdmin &&
-                  <TableCell className="py-6 px-6 align-middle text-center" onClick={(e) => e.stopPropagation()}>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <button
-                          onClick={(e) => handleArchiveToggle(record, e)}
-                          disabled={archivingRecords.has(record.id)}
-                          className="inline-flex items-center justify-center text-slate-600 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
-
-                              {showArchived ?
-                          <Undo2 className="w-4 h-4" strokeWidth={2} /> :
-
-                          <Archive className="w-4 h-4" strokeWidth={2} />
-                          }
-                            </button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>{showArchived ? 'החזר לחייבים' : 'העבר לארכיון'}</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TableCell>
-                  }
                     </TableRow>
                 )
                 }
