@@ -53,9 +53,18 @@ export default function Tasks() {
     );
   }, [tasks, currentUser, isAdmin]);
 
+  const assignedOptions = useMemo(() => {
+    const names = [...new Set(myTasks.map(t => t.assigned_to_name || t.assigned_to).filter(Boolean))];
+    return names.sort();
+  }, [myTasks]);
+
   const filtered = useMemo(() => {
     return myTasks.filter(t => {
       if (filterStatus !== "הכל" && t.status !== filterStatus) return false;
+      if (filterPriority !== "הכל" && t.priority !== filterPriority) return false;
+      if (filterAssigned !== "הכל" && (t.assigned_to_name || t.assigned_to) !== filterAssigned) return false;
+      if (filterTaskType !== "הכל" && t.task_type !== filterTaskType) return false;
+      if (filterDueDate && t.due_date !== filterDueDate) return false;
       if (search) {
         const s = search.toLowerCase();
         return (
@@ -68,7 +77,7 @@ export default function Tasks() {
       }
       return true;
     });
-  }, [myTasks, filterStatus, search]);
+  }, [myTasks, filterStatus, filterPriority, filterAssigned, filterDueDate, filterTaskType, search]);
 
   const openTasks = myTasks.filter(t => t.status === "פתוחה" || t.status === "בטיפול");
   const overdue = openTasks.filter(t => t.due_date && isPast(new Date(t.due_date)) && !isToday(new Date(t.due_date)));
