@@ -62,8 +62,24 @@ export default function WhatsAppDialog({ open, onClose, record }) {
       const tpl = TEMPLATES.find((t) => t.id === 'reminder');
       setTemplateId('reminder');
       setMessage(tpl.text(name, debtFormatted));
+      setAttachedFile(null);
     }
   }, [open, record?.id]);
+
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const allowed = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+    if (!allowed.includes(file.type)) {
+      toast.error('ניתן לצרף רק תמונות (JPG, PNG, GIF) או PDF');
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('גודל הקובץ לא יכול לעלות על 10MB');
+      return;
+    }
+    setAttachedFile(file);
+  };
 
   const handleSend = async () => {
     if (!phone || !message.trim()) return;
