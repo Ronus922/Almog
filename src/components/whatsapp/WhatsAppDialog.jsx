@@ -149,6 +149,32 @@ export default function WhatsAppDialog({ open, onClose, record }) {
             <p className="text-xs text-slate-400 mt-1 text-left">{message.length} תווים</p>
           </div>
 
+          {/* File attachment */}
+          <div>
+            <label className="text-sm font-semibold text-slate-700 mb-1.5 block">צרף קובץ (אופציונלי)</label>
+            <input
+              type="file"
+              accept="image/jpeg,image/png,image/gif,application/pdf"
+              ref={fileInputRef}
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            {attachedFile ? (
+              <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-3 py-2">
+                <Paperclip className="w-4 h-4 text-green-600 flex-shrink-0" />
+                <span className="text-sm text-green-800 flex-1 truncate">{attachedFile.name}</span>
+                <button onClick={() => { setAttachedFile(null); fileInputRef.current.value = ''; }} className="text-slate-400 hover:text-red-500">
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            ) : (
+              <Button variant="outline" type="button" className="rounded-xl gap-2" onClick={() => fileInputRef.current.click()}>
+                <Paperclip className="w-4 h-4" />
+                בחר תמונה / PDF
+              </Button>
+            )}
+          </div>
+
           <div className="flex gap-2 justify-start pt-1">
             <Button
               onClick={handleSend}
