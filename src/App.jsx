@@ -10,7 +10,7 @@ import PageNotFound from './lib/PageNotFound';
 import { AuthProvider, useAuth } from '@/lib/AuthContext';
 import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 
-import Tasks from "./pages/Tasks";
+import Tasks from "./pages/Tasks.jsx";
 import WhatsAppTemplates from "./pages/WhatsAppTemplates";
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
