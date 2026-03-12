@@ -12,6 +12,25 @@ import { StatusBadge } from "@/components/tasks/TaskBadge";
 import TaskFormDialog from "@/components/tasks/TaskFormDialog";
 import { format, isPast, isToday } from "date-fns";
 
+function SortableHeader({ label, field, sortField, sortDir, onSort }) {
+  const active = sortField === field;
+  return (
+    <th
+      className="text-right px-4 py-3 font-semibold text-slate-600 cursor-pointer select-none hover:bg-slate-100 transition-colors"
+      onClick={() => onSort(field)}
+    >
+      <span className="inline-flex items-center gap-1">
+        {label}
+        {active ? (
+          sortDir === "asc" ? <ChevronUp className="w-3.5 h-3.5 text-blue-600" /> : <ChevronDown className="w-3.5 h-3.5 text-blue-600" />
+        ) : (
+          <ChevronsUpDown className="w-3.5 h-3.5 text-slate-300" />
+        )}
+      </span>
+    </th>
+  );
+}
+
 export default function Tasks() {
   const { currentUser } = useAuth();
   const isAdmin = isManagerRole(currentUser);
