@@ -92,16 +92,22 @@ Deno.serve(async (req) => {
 
     console.log('[WELCOME_EMAIL] Sending email to:', email);
 
-    const { data, error } = await resend.emails.send({
-      from: 'מערכת בניין אלמוג <no-reply@mail.bios.co.il>',
-      to: [email],
-      subject: emailSubject,
-      html: emailBody
+    const response = await fetch('https://www.googleapis.com/gmail/v1/users/me/messages/send', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        raw: btoa(`To: ${email}\r\nSubject: ${emailSubject}\r\nContent-Type: text/html; charset="UTF-8"\r\n\r\n${emailBody}`)
+      })
     });
 
-    if (error) {
-      console.error('[WELCOME_EMAIL] Resend error:', error);
-      throw new Error(`Resend API error: ${JSON.stringify(error)}`);
+    const data = await response.json();
+    
+    if (!response.ok) {
+      console.error('[WELCOME_EMAIL] Gmail API error:', data);
+      throw new Error(`Gmail API error: ${JSON.stringify(data)}`);
     }
 
     console.log('[WELCOME_EMAIL] Email sent successfully:', data);
