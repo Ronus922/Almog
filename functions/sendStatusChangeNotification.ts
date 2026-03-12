@@ -35,8 +35,12 @@ Deno.serve(async (req) => {
 
         let oldStatus = null;
         if (oldStatusId) {
-            oldStatus = await base44.asServiceRole.entities.Status.get(oldStatusId);
-            console.log('[EMAIL] Old status:', JSON.stringify(oldStatus, null, 2));
+            try {
+                oldStatus = await base44.asServiceRole.entities.Status.get(oldStatusId);
+                console.log('[EMAIL] Old status:', JSON.stringify(oldStatus, null, 2));
+            } catch (err) {
+                console.log('[EMAIL] ⚠️ Could not fetch old status (ID may be invalid):', oldStatusId);
+            }
         }
 
         // Support both data structures: {notification_emails: ...} and {data: {notification_emails: ...}}
