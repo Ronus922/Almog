@@ -86,7 +86,7 @@ Deno.serve(async (req) => {
         // RFC 2047 encode subject for Hebrew support
         const encodeSubject = (str) => {
             const encoder = new TextEncoder();
-            const bytes = encoder.encode(str);
+            const bytes = Array.from(encoder.encode(str));
             const b64 = btoa(String.fromCharCode.apply(null, bytes));
             return `=?UTF-8?B?${b64}?=`;
         };
