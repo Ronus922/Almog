@@ -26,6 +26,17 @@ export default function Tasks() {
   const [showFilters, setShowFilters] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [editTask, setEditTask] = useState(null);
+  const [sortField, setSortField] = useState(null);
+  const [sortDir, setSortDir] = useState("asc");
+
+  const handleSort = (field) => {
+    if (sortField === field) {
+      setSortDir(d => d === "asc" ? "desc" : "asc");
+    } else {
+      setSortField(field);
+      setSortDir("asc");
+    }
+  };
 
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ["tasks"],
