@@ -146,13 +146,14 @@ export default function Tasks() {
 
         {/* Filters */}
         <Card className="border-0 shadow-sm bg-white">
-          <CardContent className="p-4">
+          <CardContent className="p-4 space-y-3">
             <div className="flex flex-wrap gap-3 items-center">
-              <Button variant="outline" size="sm" className="gap-1.5">
-                <span className="text-base">⚙</span>
-              </Button>
-              <Button variant="outline" size="sm" className="gap-1.5 text-green-600 border-green-200 hover:bg-green-50">
-                <span className="text-base">📊</span>
+              <Button
+                variant="outline" size="sm"
+                className={`gap-1.5 ${showFilters ? 'bg-blue-50 border-blue-300 text-blue-700' : ''}`}
+                onClick={() => setShowFilters(v => !v)}
+              >
+                <Filter className="w-4 h-4" />
               </Button>
               <div className="relative flex-1 min-w-48">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -163,15 +164,74 @@ export default function Tasks() {
                   onChange={e => setSearch(e.target.value)}
                 />
               </div>
-              <Select value={filterStatus} onValueChange={setFilterStatus}>
-                <SelectTrigger className="w-36"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {["הכל", "פתוחה", "בטיפול", "הושלמה", "בוטלה"].map(s => (
-                    <SelectItem key={s} value={s}>{s}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Button onClick={() => { setEditTask(null); setShowDialog(true); }} className="gap-2">
+                <Plus className="w-4 h-4" />
+                צור חדש
+              </Button>
             </div>
+
+            {showFilters && (
+              <div className="flex flex-wrap gap-3 items-center pt-2 border-t border-slate-100">
+                {/* תיאור משימה */}
+                <Select value={filterTaskType} onValueChange={setFilterTaskType}>
+                  <SelectTrigger className="w-44"><SelectValue placeholder="תיאור משימה" /></SelectTrigger>
+                  <SelectContent>
+                    {["הכל", "שיחת טלפון", "שליחת מכתב התראה", "פגישה", "מעקב תשלום", "הגשת תביעה", "אחר"].map(s => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* עובד */}
+                <Select value={filterAssigned} onValueChange={setFilterAssigned}>
+                  <SelectTrigger className="w-44"><SelectValue placeholder="עובד" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="הכל">כל העובדים</SelectItem>
+                    {assignedOptions.map(name => (
+                      <SelectItem key={name} value={name}>{name}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* תאריך ביצוע */}
+                <Input
+                  type="date"
+                  className="w-44"
+                  value={filterDueDate}
+                  onChange={e => setFilterDueDate(e.target.value)}
+                />
+
+                {/* סטטוס */}
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                  <SelectTrigger className="w-36"><SelectValue placeholder="סטטוס" /></SelectTrigger>
+                  <SelectContent>
+                    {["הכל", "פתוחה", "בטיפול", "הושלמה", "בוטלה"].map(s => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* עדיפות */}
+                <Select value={filterPriority} onValueChange={setFilterPriority}>
+                  <SelectTrigger className="w-36"><SelectValue placeholder="עדיפות" /></SelectTrigger>
+                  <SelectContent>
+                    {["הכל", "גבוהה", "בינונית", "נמוכה"].map(p => (
+                      <SelectItem key={p} value={p}>{p}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                {/* נקה פילטרים */}
+                {(filterStatus !== "הכל" || filterPriority !== "הכל" || filterAssigned !== "הכל" || filterDueDate || filterTaskType !== "הכל") && (
+                  <Button variant="ghost" size="sm" className="text-slate-400 gap-1" onClick={() => {
+                    setFilterStatus("הכל"); setFilterPriority("הכל");
+                    setFilterAssigned("הכל"); setFilterDueDate(""); setFilterTaskType("הכל");
+                  }}>
+                    <X className="w-3.5 h-3.5" /> נקה
+                  </Button>
+                )}
+              </div>
+            )}
           </CardContent>
         </Card>
 
