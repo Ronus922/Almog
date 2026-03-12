@@ -708,7 +708,7 @@ export default function DebtorsTable({
                       </Select>
                     }
                     </TableHead>
-                    <TableHead className="py-3 px-4 text-center font-semibold text-sm">פעולות</TableHead>
+                    <TableHead className="py-3 px-4"></TableHead>
                      </TableRow>
                 }
               
