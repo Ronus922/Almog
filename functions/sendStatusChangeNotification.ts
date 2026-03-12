@@ -14,6 +14,11 @@ Deno.serve(async (req) => {
             return Response.json({ error: 'Missing required fields' }, { status: 400 });
         }
 
+        // Get sender email from settings
+        const settingsList = await base44.asServiceRole.entities.Settings.list();
+        const settings = settingsList[0];
+        const senderEmail = settings?.gmailSenderEmail || 'noreply@system.local';
+
         const debtorRecord = await base44.asServiceRole.entities.DebtorRecord.get(debtorRecordId);
         console.log('[EMAIL] Debtor record:', JSON.stringify(debtorRecord, null, 2));
         
