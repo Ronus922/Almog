@@ -65,6 +65,7 @@ export default function DebtorsTable({
   const [legalStatusFilter, setLegalStatusFilter] = useState('all');
   const [archivingRecords, setArchivingRecords] = useState(new Set());
   const [whatsappRecord, setWhatsappRecord] = useState(null);
+  const [commentRecord, setCommentRecord] = useState(null);
 
   const pageSize = 50;
 
