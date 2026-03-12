@@ -735,7 +735,7 @@ export default function DebtorsTable({
             <TableBody>
               {paginatedRecords.length === 0 ?
                 <TableRow>
-                  <TableCell colSpan={isAdmin ? 9 : 8} className="text-center py-12">
+                   <TableCell colSpan={8} className="text-center py-12">
                     <div className="flex flex-col items-center gap-3">
                       <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center">
                         <Filter className="w-8 h-8 text-slate-400" />
