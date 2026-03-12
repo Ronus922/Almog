@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Search, CheckCircle2, Clock, AlertTriangle, ClipboardList, Trash2, Pencil, UserPlus } from "lucide-react";
+import { Plus, Search, CheckCircle2, Clock, AlertTriangle, ClipboardList, Trash2, Pencil, UserPlus, Filter, X } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthContext";
 import { isManagerRole } from "@/components/utils/roles";
 import { StatusBadge } from "@/components/tasks/TaskBadge";
