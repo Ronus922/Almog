@@ -9,9 +9,30 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { Plus, Pencil, Trash2, MessageCircle, Info } from 'lucide-react';
 import { toast } from 'sonner';
 
+const VARIABLES = [
+  { label: 'שם הדייר', value: '{{name}}' },
+  { label: 'סכום חוב', value: '{{debt}}' },
+  { label: 'דמי ניהול', value: '{{monthly}}' },
+  { label: 'מים חמים', value: '{{special}}' },
+];
+
 function TemplateForm({ template, onSave, onCancel }) {
   const [name, setName] = useState(template?.name || '');
   const [content, setContent] = useState(template?.content || '');
+  const textareaRef = useRef(null);
+
+  const insertVariable = (variable) => {
+    const el = textareaRef.current;
+    if (!el) return;
+    const start = el.selectionStart;
+    const end = el.selectionEnd;
+    const newContent = content.substring(0, start) + variable + content.substring(end);
+    setContent(newContent);
+    setTimeout(() => {
+      el.focus();
+      el.setSelectionRange(start + variable.length, start + variable.length);
+    }, 0);
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -32,21 +53,32 @@ function TemplateForm({ template, onSave, onCancel }) {
         />
       </div>
       <div>
+        <label className="text-sm font-semibold text-slate-700 mb-1.5 block">הוסף משתנה</label>
+        <div className="flex flex-wrap gap-2">
+          {VARIABLES.map((v) => (
+            <button
+              key={v.value}
+              type="button"
+              onClick={() => insertVariable(v.value)}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold hover:bg-blue-200 transition-colors border border-blue-200"
+            >
+              <span className="text-blue-400">{'{ }'}</span>
+              {v.label}
+            </button>
+          ))}
+        </div>
+      </div>
+      <div>
         <label className="text-sm font-semibold text-slate-700 mb-1.5 block">תוכן התבנית</label>
         <Textarea
+          ref={textareaRef}
           value={content}
           onChange={(e) => setContent(e.target.value)}
-          rows={6}
+          rows={7}
           placeholder="כתוב את תוכן ההודעה..."
           className="rounded-xl text-sm resize-none"
           dir="rtl"
         />
-        <div className="mt-2 bg-blue-50 rounded-lg p-3 text-xs text-blue-700 flex gap-2 items-start">
-          <Info className="w-4 h-4 mt-0.5 flex-shrink-0" />
-          <span>
-            ניתן להשתמש במשתנים: <strong>{'{{name}}'}</strong> לשם הדייר, <strong>{'{{debt}}'}</strong> לסכום החוב
-          </span>
-        </div>
       </div>
       <div className="flex gap-2 justify-start pt-1">
         <Button type="submit" className="rounded-xl">שמור</Button>
