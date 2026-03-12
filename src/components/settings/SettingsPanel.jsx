@@ -25,7 +25,8 @@ export default function SettingsPanel() {
     makeWebhookNewLawsuitCandidateUrl: '',
     makeWebhookNewRecordUrl: '',
     buildingName: 'בניין אלמוג',
-    buildingAddress: 'דוד אלעזר 10, חיפה'
+    buildingAddress: 'דוד אלעזר 10, חיפה',
+    gmailSenderEmail: 'ronen.yeadim@gmail.com'
   });
   const [settingsId, setSettingsId] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -250,12 +251,38 @@ export default function SettingsPanel() {
 
 
 
+      {/* הגדרות Gmail / מייל */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-base font-semibold flex items-center gap-2">
+            <Settings className="w-4 h-4 text-blue-600" />
+            שליחת מיילים – Gmail
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label>כתובת מייל לשליחת הודעות מערכת</Label>
+            <Input
+              value={settings.gmailSenderEmail || ''}
+              onChange={(e) => setSettings({...settings, gmailSenderEmail: e.target.value})}
+              className="mt-1"
+              placeholder="ronen.yeadim@gmail.com"
+              dir="ltr"
+              type="email"
+            />
+            <p className="text-xs text-slate-500 mt-1">
+              כתובת זו תשמש לשליחת כל הודעות המערכת (שינויי סטטוס, מיילי ברוכים הבאים וכו׳)
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* הגדרות Resend / מייל */}
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-4">
           <CardTitle className="text-base font-semibold flex items-center gap-2">
             <Settings className="w-4 h-4 text-blue-600" />
-            שליחת מיילים – Resend
+            שליחת מיילים – Resend (Legacy)
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
