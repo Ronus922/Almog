@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { base44 } from "@/api/base44Client";
+import { useQuery } from "@tanstack/react-query";
 
 const TASK_TYPES = ["שיחת טלפון", "שליחת מכתב התראה", "פגישה", "מעקב תשלום", "הגשת תביעה", "אחר"];
 const PRIORITIES = ["גבוהה", "בינונית", "נמוכה"];
@@ -16,11 +17,19 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
   const [form, setForm] = useState({});
   const [saving, setSaving] = useState(false);
 
+  const { data: appUsers = [] } = useQuery({
+    queryKey: ["appUsers"],
+    queryFn: () => base44.entities.AppUser.list("first_name"),
+  });
+
   useEffect(() => {
     if (open) {
       if (isEdit) {
         setForm({ ...task });
       } else {
+        const assignerName = currentUser?.first_name
+          ? `${currentUser.first_name}${currentUser.last_name ? " " + currentUser.last_name : ""}`
+          : currentUser?.username || "";
         setForm({
           debtor_record_id: debtorRecord?.id || "",
           apartment_number: debtorRecord?.apartmentNumber || "",
@@ -31,6 +40,8 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
           description: "",
           due_date: "",
           assigned_to: currentUser?.username || "",
+          assigned_to_name: assignerName,
+          assigned_by: assignerName,
           completion_notes: "",
         });
       }
@@ -38,6 +49,15 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
   }, [open, task, debtorRecord]);
 
   const set = (field, val) => setForm(f => ({ ...f, [field]: val }));
+
+  const handleAssignedToChange = (username) => {
+    const user = appUsers.find(u => u.username === username);
+    const fullName = user
+      ? `${user.first_name}${user.last_name ? " " + user.last_name : ""}`
+      : username;
+    set("assigned_to", username);
+    set("assigned_to_name", fullName);
+  };
 
   const handleSave = async () => {
     if (!form.task_type || !form.due_date) return;
@@ -107,8 +127,17 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
           </div>
 
           <div className="space-y-1">
-            <Label>אחראי לטיפול</Label>
-            <Input value={form.assigned_to || ""} onChange={e => set("assigned_to", e.target.value)} placeholder="שם המשתמש" />
+            <Label>הקצה ל:</Label>
+            <Select value={form.assigned_to} onValueChange={handleAssignedToChange}>
+              <SelectTrigger><SelectValue placeholder="בחר משתמש..." /></SelectTrigger>
+              <SelectContent>
+                {appUsers.map(u => (
+                  <SelectItem key={u.id} value={u.username}>
+                    {u.first_name}{u.last_name ? " " + u.last_name : ""}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="space-y-1">
