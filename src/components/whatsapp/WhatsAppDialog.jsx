@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { MessageCircle, Send } from 'lucide-react';
+import { MessageCircle, Send, Paperclip, X } from 'lucide-react';
 
 const TEMPLATES = [
   {
