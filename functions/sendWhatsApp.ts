@@ -5,7 +5,7 @@ Deno.serve(async (req) => {
   const user = await base44.auth.me();
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
-  const { phone, message } = await req.json();
+  const { phone, message, fileUrl, fileName } = await req.json();
   if (!phone || !message) return Response.json({ error: 'Missing phone or message' }, { status: 400 });
 
   const instanceId = Deno.env.get('GREEN_API_INSTANCE_ID');
@@ -16,6 +16,19 @@ Deno.serve(async (req) => {
   if (normalized.startsWith('0')) normalized = '972' + normalized.slice(1);
   const chatId = normalized + '@c.us';
 
+  // Send file if attached
+  if (fileUrl) {
+    const fileRes = await fetch(`https://api.green-api.com/waInstance${instanceId}/sendFileByUrl/${token}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ chatId, urlFile: fileUrl, fileName: fileName || 'file', caption: message }),
+    });
+    const fileData = await fileRes.json();
+    if (!fileRes.ok) return Response.json({ error: fileData }, { status: fileRes.status });
+    return Response.json({ success: true, idMessage: fileData.idMessage });
+  }
+
+  // Send text message only
   const res = await fetch(`https://api.green-api.com/waInstance${instanceId}/sendMessage/${token}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
