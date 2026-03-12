@@ -37,6 +37,8 @@ export default function WhatsAppDialog({ open, onClose, record }) {
   const [templateId, setTemplateId] = useState('reminder');
   const [message, setMessage] = useState('');
   const [sending, setSending] = useState(false);
+  const [attachedFile, setAttachedFile] = useState(null);
+  const fileInputRef = useRef(null);
 
   const phone = record?.phonePrimary || record?.phoneOwner || record?.phoneTenant || '';
   const name = record?.ownerName?.split(/[\/,]/)[0]?.trim() || '';
