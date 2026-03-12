@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { 
   LayoutDashboard, Upload, Settings, LogOut, 
-  User, ChevronDown, Building2, Menu, X, SlidersHorizontal, Users as UsersIcon, Copy, ClipboardList
+  User, ChevronDown, Building2, Menu, X, SlidersHorizontal, Users as UsersIcon, Copy, ClipboardList, MessageCircle
 } from "lucide-react";
 
 import { Toaster } from 'sonner';
