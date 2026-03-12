@@ -250,6 +250,32 @@ export default function SettingsPanel() {
 
 
 
+      {/* הגדרות Resend / מייל */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-base font-semibold flex items-center gap-2">
+            <Settings className="w-4 h-4 text-blue-600" />
+            שליחת מיילים – Resend
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label>RESEND_API_KEY</Label>
+            <Input
+              value={settings.resendApiKey || ''}
+              onChange={(e) => setSettings({...settings, resendApiKey: e.target.value})}
+              className="mt-1 font-mono text-sm"
+              placeholder="re_..."
+              dir="ltr"
+              type="password"
+            />
+            <p className="text-xs text-slate-500 mt-1">
+              ניתן לקבל מ-<a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">resend.com/api-keys</a>
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
       {/* הגדרות Green API / WhatsApp */}
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-4">
