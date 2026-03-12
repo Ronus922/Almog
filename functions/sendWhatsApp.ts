@@ -23,7 +23,11 @@ Deno.serve(async (req) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chatId, urlFile: fileUrl, fileName: fileName || 'file', caption: message }),
     });
-    const fileData = await fileRes.json();
+    const fileRawText = await fileRes.text();
+    let fileData;
+    try { fileData = JSON.parse(fileRawText); } catch {
+      return Response.json({ error: `Green API error (${fileRes.status}): ${fileRawText.slice(0, 200)}` }, { status: 502 });
+    }
     if (!fileRes.ok) return Response.json({ error: fileData }, { status: fileRes.status });
     return Response.json({ success: true, idMessage: fileData.idMessage });
   }
