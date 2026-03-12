@@ -3,8 +3,18 @@ import { Resend } from 'npm:resend@4.0.1';
 
 Deno.serve(async (req) => {
     try {
-        const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
         const base44 = createClientFromRequest(req);
+
+        // קבל מפתח מסביבה או מ-Settings
+        let resendApiKey = Deno.env.get('RESEND_API_KEY');
+        if (!resendApiKey) {
+            const settingsList = await base44.asServiceRole.entities.Settings.list();
+            resendApiKey = settingsList?.[0]?.resendApiKey;
+        }
+        if (!resendApiKey) {
+            return Response.json({ error: 'RESEND_API_KEY לא מוגדר - הגדר בהגדרות המערכת' }, { status: 500 });
+        }
+        const resend = new Resend(resendApiKey);
         const { debtorRecordId, oldStatusId, newStatusId } = await req.json();
         console.log('[EMAIL] Request params:', { debtorRecordId, oldStatusId, newStatusId });
 
