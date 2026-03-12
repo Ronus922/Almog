@@ -1,0 +1,28 @@
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+
+Deno.serve(async (req) => {
+  const base44 = createClientFromRequest(req);
+  const user = await base44.auth.me();
+  if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
+
+  const { phone, message } = await req.json();
+  if (!phone || !message) return Response.json({ error: 'Missing phone or message' }, { status: 400 });
+
+  const instanceId = Deno.env.get('GREEN_API_INSTANCE_ID');
+  const token = Deno.env.get('GREEN_API_TOKEN');
+
+  // Normalize Israeli phone number to international format
+  let normalized = phone.replace(/\D/g, '');
+  if (normalized.startsWith('0')) normalized = '972' + normalized.slice(1);
+  const chatId = normalized + '@c.us';
+
+  const res = await fetch(`https://api.green-api.com/waInstance${instanceId}/sendMessage/${token}`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ chatId, message }),
+  });
+
+  const data = await res.json();
+  if (!res.ok) return Response.json({ error: data }, { status: res.status });
+  return Response.json({ success: true, idMessage: data.idMessage });
+});
