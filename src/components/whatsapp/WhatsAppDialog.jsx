@@ -93,6 +93,21 @@ export default function WhatsAppDialog({ open, onClose, record }) {
         fileName = attachedFile.name;
       }
       await base44.functions.invoke('sendWhatsApp', { phone, message, fileUrl, fileName });
+
+      // שמור הערה עם תאריך ונוסח ההודעה
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' });
+      const timeStr = now.toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
+      const commentContent = `📱 הודעת וואטסאפ נשלחה ב-${dateStr} ${timeStr}:\n\n${message}`;
+      const user = await base44.auth.me();
+      await base44.entities.Comment.create({
+        debtor_record_id: record.id,
+        apartment_number: record.apartmentNumber,
+        content: commentContent,
+        author_name: user?.full_name || user?.email || 'מערכת',
+        author_email: user?.email || '',
+      });
+
       toast.success('ההודעה נשלחה בהצלחה!');
       onClose();
     } catch (err) {
