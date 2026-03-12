@@ -286,7 +286,7 @@ export default function Tasks() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {filtered.map(task => (
+                    {sorted.map(task => (
                       <tr key={task.id} className="hover:bg-slate-50 transition-colors">
                         {/* Edit */}
                         <td className="px-4 py-3">
