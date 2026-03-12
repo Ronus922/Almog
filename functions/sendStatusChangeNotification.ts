@@ -1,10 +1,9 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 import { Resend } from 'npm:resend@4.0.1';
 
-const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
-
 Deno.serve(async (req) => {
     try {
+        const resend = new Resend(Deno.env.get('RESEND_API_KEY'));
         const base44 = createClientFromRequest(req);
         const { debtorRecordId, oldStatusId, newStatusId } = await req.json();
         console.log('[EMAIL] Request params:', { debtorRecordId, oldStatusId, newStatusId });
