@@ -75,6 +75,7 @@ function LayoutContent({ children, currentPageName }) {
     { name: 'UserManagement', label: 'משתמשים', icon: UsersIcon, adminOnly: true },
     { name: 'StatusManagement', label: 'סטטוסים', icon: SlidersHorizontal, adminOnly: true },
     { name: 'Import', label: 'ייבוא', icon: Upload, adminOnly: true },
+    { name: 'Tasks', label: 'משימות', icon: ClipboardList, adminOnly: false },
     { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true },
   ];
 
