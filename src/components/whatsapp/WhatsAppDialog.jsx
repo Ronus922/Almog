@@ -146,7 +146,7 @@ export default function WhatsAppDialog({ open, onClose, record }) {
               </Link>
             </div>
             <Select value={templateId} onValueChange={handleTemplateChange}>
-              <SelectTrigger className="rounded-xl">
+              <SelectTrigger className="rounded-xl text-right" dir="rtl">
                 <SelectValue placeholder="בחר תבנית..." />
               </SelectTrigger>
               <SelectContent>
