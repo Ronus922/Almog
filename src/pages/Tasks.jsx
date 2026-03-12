@@ -107,10 +107,6 @@ export default function Tasks() {
             <h1 className="text-2xl font-bold text-slate-800">משימות לטיפול</h1>
             <p className="text-sm text-slate-500 mt-1">{openTasks.length} משימות פתוחות</p>
           </div>
-          <Button onClick={() => { setEditTask(null); setShowDialog(true); }} className="gap-2">
-            <Plus className="w-4 h-4" />
-            צור חדש
-          </Button>
         </div>
 
         {/* KPI */}
