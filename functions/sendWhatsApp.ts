@@ -35,7 +35,11 @@ Deno.serve(async (req) => {
     body: JSON.stringify({ chatId, message }),
   });
 
-  const data = await res.json();
+  const rawText = await res.text();
+  let data;
+  try { data = JSON.parse(rawText); } catch { 
+    return Response.json({ error: `Green API error (${res.status}): ${rawText.slice(0, 200)}` }, { status: 502 });
+  }
   if (!res.ok) return Response.json({ error: data }, { status: res.status });
   return Response.json({ success: true, idMessage: data.idMessage });
 });
