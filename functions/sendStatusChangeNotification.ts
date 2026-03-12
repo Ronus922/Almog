@@ -83,7 +83,15 @@ Deno.serve(async (req) => {
         // Fetch comments for this debtor
         const comments = await base44.asServiceRole.entities.Comment.filter({ debtor_record_id: debtorRecordId }, '-created_date');
 
-        const subject = `שינוי סטטוס משפטי - דירה ${apartmentNumber}`;
+        // RFC 2047 encode subject for Hebrew support
+        const encodeSubject = (str) => {
+            const encoder = new TextEncoder();
+            const bytes = encoder.encode(str);
+            const b64 = btoa(String.fromCharCode.apply(null, bytes));
+            return `=?UTF-8?B?${b64}?=`;
+        };
+
+        const subject = encodeSubject(`שינוי סטטוס משפטי - דירה ${apartmentNumber}`);
         
         // Format numbers with RTL support - use LRM to prevent reversal
         const formatCurrency = (num) => {

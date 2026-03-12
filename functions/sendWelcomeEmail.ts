@@ -23,7 +23,15 @@ Deno.serve(async (req) => {
     const fullName = first_name && last_name ? `${first_name} ${last_name}` : username;
     const loginUrl = 'https://almogbilling.base44.app';
 
-    const emailSubject = 'ברוכים הבאים למערכת ניהול חייבים - בניין אלמוג';
+    // RFC 2047 encode subject for Hebrew support
+    const encodeSubject = (str) => {
+        const encoder = new TextEncoder();
+        const bytes = encoder.encode(str);
+        const b64 = btoa(String.fromCharCode.apply(null, bytes));
+        return `=?UTF-8?B?${b64}?=`;
+    };
+
+    const emailSubject = encodeSubject('ברוכים הבאים למערכת ניהול חייבים - בניין אלמוג');
     const emailBody = `<!DOCTYPE html>
 <html dir="rtl">
 <head>
