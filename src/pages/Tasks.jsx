@@ -250,6 +250,7 @@ export default function Tasks() {
                       <th className="text-right px-4 py-3 font-semibold text-slate-600">תיאור המשימה</th>
                       <th className="text-right px-4 py-3 font-semibold text-slate-600">עובד</th>
                       <th className="text-right px-4 py-3 font-semibold text-slate-600">תאריך לביצוע</th>
+                      <th className="text-right px-4 py-3 font-semibold text-slate-600">עדיפות</th>
                       <th className="text-right px-4 py-3 font-semibold text-slate-600">סטטוס</th>
                       <th className="text-right px-4 py-3 font-semibold text-slate-600">תאריך יצירה</th>
                     </tr>
