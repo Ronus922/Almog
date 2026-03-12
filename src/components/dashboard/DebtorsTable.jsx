@@ -709,9 +709,8 @@ export default function DebtorsTable({
                       </Select>
                     }
                     </TableHead>
-                    <TableHead className="py-3 px-4"></TableHead>
-                   {isAdmin && <TableHead className="py-3 px-4"></TableHead>}
-                    </TableRow>
+                    <TableHead className="py-3 px-4 text-center font-semibold text-sm">פעולות</TableHead>
+                     </TableRow>
                 }
               
               {/* Filter Actions Row */}
