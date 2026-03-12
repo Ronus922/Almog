@@ -8,8 +8,18 @@ Deno.serve(async (req) => {
   const { phone, message, fileUrl, fileName } = await req.json();
   if (!phone || !message) return Response.json({ error: 'Missing phone or message' }, { status: 400 });
 
-  const instanceId = Deno.env.get('GREEN_API_INSTANCE_ID');
-  const token = Deno.env.get('GREEN_API_TOKEN');
+  // Try to get credentials from Settings entity first, fallback to env secrets
+  let instanceId = Deno.env.get('GREEN_API_INSTANCE_ID');
+  let token = Deno.env.get('GREEN_API_TOKEN');
+  try {
+    const settingsList = await base44.asServiceRole.entities.Settings.list();
+    if (settingsList.length > 0) {
+      const s = settingsList[0];
+      if (s.greenApiInstanceId) instanceId = s.greenApiInstanceId;
+      if (s.greenApiToken) token = s.greenApiToken;
+    }
+  } catch { /* fallback to env */ }
+  if (!instanceId || !token) return Response.json({ error: 'Green API credentials not configured' }, { status: 500 });
 
   // Normalize Israeli phone number to international format
   let normalized = phone.replace(/\D/g, '');
