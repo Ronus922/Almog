@@ -245,15 +245,19 @@ Deno.serve(async (req) => {
             try {
                 console.log(`[EMAIL] Sending to: ${email}...`);
                 
+                // Encode message properly for Gmail API (support UTF-8)
+                const message = `To: ${email}\r\nSubject: ${subject}\r\nContent-Type: text/html; charset="UTF-8"\r\n\r\n${htmlContent}`;
+                const encoder = new TextEncoder();
+                const messageBytes = encoder.encode(message);
+                const raw = btoa(String.fromCharCode.apply(null, messageBytes));
+                
                 const response = await fetch('https://www.googleapis.com/gmail/v1/users/me/messages/send', {
                     method: 'POST',
                     headers: {
                         'Authorization': `Bearer ${accessToken}`,
                         'Content-Type': 'application/json',
                     },
-                    body: JSON.stringify({
-                        raw: btoa(`To: ${email}\r\nSubject: ${subject}\r\nContent-Type: text/html; charset="UTF-8"\r\n\r\n${htmlContent}`)
-                    })
+                    body: JSON.stringify({ raw })
                 });
 
                 const data = await response.json();
