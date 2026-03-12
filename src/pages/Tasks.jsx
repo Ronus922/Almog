@@ -277,11 +277,11 @@ export default function Tasks() {
                   <thead>
                     <tr className="bg-slate-50 border-b border-slate-200">
                       <th className="text-right px-4 py-3 font-semibold text-slate-600 w-10"></th>
-                      <th className="text-right px-4 py-3 font-semibold text-slate-600">תיאור המשימה</th>
-                      <th className="text-right px-4 py-3 font-semibold text-slate-600">עובד</th>
-                      <th className="text-right px-4 py-3 font-semibold text-slate-600">תאריך לביצוע</th>
-                      <th className="text-right px-4 py-3 font-semibold text-slate-600">עדיפות</th>
-                      <th className="text-right px-4 py-3 font-semibold text-slate-600">סטטוס</th>
+                      <SortableHeader label="תיאור המשימה" field="task_type" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                      <SortableHeader label="עובד" field="assigned" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                      <SortableHeader label="תאריך לביצוע" field="due_date" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                      <SortableHeader label="עדיפות" field="priority" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                      <SortableHeader label="סטטוס" field="status" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                       <th className="text-right px-4 py-3 font-semibold text-slate-600">תאריך יצירה</th>
                     </tr>
                   </thead>
