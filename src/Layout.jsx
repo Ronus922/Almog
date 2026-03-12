@@ -186,7 +186,7 @@ function LayoutContent({ children, currentPageName }) {
 
         {/* תפריט Mobile */}
         {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-slate-200 bg-white shadow-lg" dir="rtl">
+          <div className="md:hidden border-t border-blue-700/20 bg-white/95 backdrop-blur-sm shadow-lg" dir="rtl">
             <nav className="px-4 py-3 space-y-1">
               {filteredNavItems.map((item) => {
                 const isActive = currentPageName === item.name;
