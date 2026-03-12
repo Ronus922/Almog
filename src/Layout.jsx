@@ -134,14 +134,14 @@ function LayoutContent({ children, currentPageName }) {
               {currentUser && (
                 <div className="hidden md:flex items-center gap-2">
                   <NotificationBell currentUser={currentUser} />
-                  <DropdownMenu>
+                   <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="gap-2 h-9">
-                        <div className="w-7 h-7 rounded-full bg-slate-200 flex items-center justify-center">
-                          <User className="w-4 h-4 text-slate-600" />
+                      <Button variant="ghost" className="gap-2 h-9 text-white hover:bg-white/15">
+                        <div className="w-7 h-7 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center">
+                          <User className="w-4 h-4 text-white" />
                         </div>
                         <span className="text-sm font-medium">שלום, {currentUser.username}</span>
-                        <ChevronDown className="w-3 h-3 text-slate-400" />
+                        <ChevronDown className="w-3 h-3 text-white/70" />
                       </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="start" className="w-56">
