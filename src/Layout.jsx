@@ -99,11 +99,11 @@ function LayoutContent({ children, currentPageName }) {
           <div className="flex items-center justify-between h-16">
             {/* לוגו אחד בלבד - ימין */}
             <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
-              <div className="p-2.5 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl shadow-md">
+              <div className="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl shadow-lg hover:bg-white/30 transition-all duration-200">
                 <Building2 className="w-5 h-5 text-white" />
               </div>
               <div className="hidden sm:block">
-                <span className="font-bold text-lg text-slate-800">ניהול חייבים</span>
+                <span className="font-bold text-lg text-white">ניהול חייבים</span>
               </div>
             </Link>
 
