@@ -245,16 +245,22 @@ Deno.serve(async (req) => {
             try {
                 console.log(`[EMAIL] Sending to: ${email}...`);
                 
-                const { data, error } = await resend.emails.send({
-                    from: 'מערכת בניין אלמוג <no-reply@mail.bios.co.il>',
-                    to: [email],
-                    subject: subject,
-                    html: htmlContent,
+                const response = await fetch('https://www.googleapis.com/gmail/v1/users/me/messages/send', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        raw: btoa(`To: ${email}\r\nSubject: ${subject}\r\nContent-Type: text/html; charset="UTF-8"\r\n\r\n${htmlContent}`)
+                    })
                 });
 
-                if (error) {
-                    console.error(`[EMAIL] ❌ FAILED to ${email}:`, error);
-                    results.push({ email, success: false, error: error.message || JSON.stringify(error) });
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    console.error(`[EMAIL] ❌ FAILED to ${email}:`, data);
+                    results.push({ email, success: false, error: data.error?.message || JSON.stringify(data) });
                 } else {
                     console.log(`[EMAIL] ✅ SUCCESS to ${email}, messageId:`, data.id);
                     results.push({ email, success: true, messageId: data.id });
