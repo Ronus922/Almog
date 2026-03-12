@@ -716,7 +716,7 @@ export default function DebtorsTable({
               {/* Filter Actions Row */}
               {showAdvancedFilters &&
                 <TableRow className="bg-blue-50/30 border-b border-blue-200">
-                  <TableHead colSpan={isAdmin ? 9 : 8} className="py-3 px-6">
+                   <TableHead colSpan={8} className="py-3 px-6">
                     <div className="flex items-center justify-end" dir="rtl">
                       <Button
                         variant="outline"
