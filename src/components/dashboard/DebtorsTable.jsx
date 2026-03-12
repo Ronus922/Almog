@@ -782,6 +782,18 @@ export default function DebtorsTable({
 
                     })()}
                     </TableCell>
+                    <TableCell className="py-6 px-2 align-middle text-center" onClick={(e) => e.stopPropagation()}>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <button
+                            onClick={() => setWhatsappRecord(record)}
+                            className="inline-flex items-center justify-center text-green-600 hover:text-green-700 transition-colors">
+                            <MessageCircle className="w-4 h-4" strokeWidth={2} />
+                          </button>
+                        </TooltipTrigger>
+                        <TooltipContent><p>שלח וואטסאפ</p></TooltipContent>
+                      </Tooltip>
+                    </TableCell>
                     {isAdmin &&
                   <TableCell className="py-6 px-6 align-middle text-center" onClick={(e) => e.stopPropagation()}>
                         <Tooltip>
