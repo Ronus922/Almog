@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { 
   Settings, Building2, Scale, Webhook, Save, 
-  Loader2, CheckCircle2, AlertTriangle, RefreshCw
+  Loader2, CheckCircle2, AlertTriangle, RefreshCw, MessageCircle
 } from "lucide-react";
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
