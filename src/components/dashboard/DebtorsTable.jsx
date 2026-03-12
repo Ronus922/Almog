@@ -633,8 +633,7 @@ export default function DebtorsTable({
                     מצב משפטי
                   </div>
                 </TableHead>
-                <TableHead className="text-center font-bold text-slate-700 text-base py-4 px-6" style={{ width: '56px' }}></TableHead>
-                {isAdmin && <TableHead className="text-center font-bold text-slate-700 text-base py-4 px-6" style={{ width: '72px' }}>פעולות</TableHead>}
+                <TableHead className="text-center font-bold text-slate-700 text-base py-4 px-6" style={{ width: '120px' }}>פעולות</TableHead>
               </TableRow>
               
               {/* Advanced Filter Row */}
