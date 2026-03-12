@@ -118,8 +118,8 @@ function LayoutContent({ children, currentPageName }) {
                     className={`
                       flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
                       ${isActive 
-                        ? 'bg-blue-600 text-white shadow-md' 
-                        : 'text-slate-700 hover:bg-slate-100'}
+                        ? 'bg-white/25 text-white shadow-lg backdrop-blur-sm' 
+                        : 'text-white/80 hover:bg-white/15 hover:text-white'}
                     `}
                   >
                     <item.icon className="w-4 h-4" />
