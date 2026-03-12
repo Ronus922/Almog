@@ -19,6 +19,11 @@ export default function Tasks() {
 
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("הכל");
+  const [filterPriority, setFilterPriority] = useState("הכל");
+  const [filterAssigned, setFilterAssigned] = useState("הכל");
+  const [filterDueDate, setFilterDueDate] = useState("");
+  const [filterTaskType, setFilterTaskType] = useState("הכל");
+  const [showFilters, setShowFilters] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [editTask, setEditTask] = useState(null);
 
