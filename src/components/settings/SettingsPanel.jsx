@@ -250,6 +250,42 @@ export default function SettingsPanel() {
 
 
 
+      {/* הגדרות Green API / WhatsApp */}
+      <Card className="border-0 shadow-sm">
+        <CardHeader className="pb-4">
+          <CardTitle className="text-base font-semibold flex items-center gap-2">
+            <MessageCircle className="w-4 h-4 text-green-600" />
+            WhatsApp – Green API
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label>Instance ID</Label>
+            <Input
+              value={settings.greenApiInstanceId || ''}
+              onChange={(e) => setSettings({...settings, greenApiInstanceId: e.target.value})}
+              className="mt-1 font-mono text-sm"
+              placeholder="לדוגמה: 1234567890"
+              dir="ltr"
+            />
+          </div>
+          <div>
+            <Label>API Token</Label>
+            <Input
+              value={settings.greenApiToken || ''}
+              onChange={(e) => setSettings({...settings, greenApiToken: e.target.value})}
+              className="mt-1 font-mono text-sm"
+              placeholder="לדוגמה: abc123xyz..."
+              dir="ltr"
+              type="password"
+            />
+          </div>
+          <p className="text-xs text-slate-500">
+            ניתן לקבל את הפרטים מ-<a href="https://green-api.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">green-api.com</a>
+          </p>
+        </CardContent>
+      </Card>
+
       {/* כפתור שמירה */}
       {error && (
         <Alert variant="destructive">
