@@ -5,33 +5,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { base44 } from '@/api/base44Client';
 import { toast } from 'sonner';
-import { MessageCircle, Send, Paperclip, X } from 'lucide-react';
-
-const TEMPLATES = [
-  {
-    id: 'reminder',
-    label: 'תזכורת חוב כללית',
-    text: (name, debt) =>
-      `שלום ${name || 'דייר יקר'},\nאנו פונים אליך בנוגע לחוב בסך ${debt} ₪ לבניין אלמוג.\nנבקשך לסדר את התשלום בהקדם האפשרי.\nלפרטים נוספים צרו קשר עם ועד הבית.\nתודה.`,
-  },
-  {
-    id: 'urgent',
-    label: 'הודעה דחופה - חוב גבוה',
-    text: (name, debt) =>
-      `שלום ${name || 'דייר יקר'},\nחוב בסך ${debt} ₪ טרם שולם.\nנבקשך לפנות אלינו בהקדם לסידור התשלום, אחרת נאלץ להעביר את הטיפול לגורמים משפטיים.\nלתיאום: פנה/י לוועד הבית.\nתודה.`,
-  },
-  {
-    id: 'warning_letter',
-    label: 'הודעה על מכתב התראה',
-    text: (name) =>
-      `שלום ${name || 'דייר יקר'},\nברצוננו להודיעך כי נשלח לך מכתב התראה רשמי בגין חוב פתוח.\nנבקשך ליצור קשר עם ועד הבית לסידור העניין.\nתודה.`,
-  },
-  {
-    id: 'custom',
-    label: 'הודעה מותאמת אישית',
-    text: () => '',
-  },
-];
+import { MessageCircle, Send, Paperclip, X, Settings } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { Link } from 'react-router-dom';
 
 export default function WhatsAppDialog({ open, onClose, record }) {
   const [templateId, setTemplateId] = useState('reminder');
