@@ -164,6 +164,12 @@ function LayoutContent({ children, currentPageName }) {
                 </div>
               )}
 
+              {/* פעמון מובייל */}
+              {currentUser && (
+                <div className="md:hidden">
+                  <NotificationBell currentUser={currentUser} />
+                </div>
+              )}
 
               {/* כפתור תפריט מובייל */}
               <Button 
