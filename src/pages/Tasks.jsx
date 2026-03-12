@@ -299,6 +299,13 @@ export default function Tasks() {
                           {task.due_date ? formatDateTime(task.due_date + "T00:00:00") : "-"}
                         </td>
 
+                        {/* עדיפות */}
+                        <td className="px-4 py-3">
+                          {task.priority === "גבוהה" && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">גבוהה</span>}
+                          {task.priority === "בינונית" && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">בינונית</span>}
+                          {task.priority === "נמוכה" && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-fuchsia-100 text-fuchsia-700">נמוכה</span>}
+                        </td>
+
                         {/* סטטוס */}
                         <td className="px-4 py-3">
                           <StatusBadge status={task.status} />
