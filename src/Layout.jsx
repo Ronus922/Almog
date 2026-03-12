@@ -175,7 +175,7 @@ function LayoutContent({ children, currentPageName }) {
               <Button 
                 variant="ghost" 
                 size="icon"
-                className="md:hidden h-9 w-9"
+                className="md:hidden h-9 w-9 text-white hover:bg-white/15"
                 onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
               >
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
