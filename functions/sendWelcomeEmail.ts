@@ -15,6 +15,11 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
+    // Get sender email from settings
+    const settingsList = await base44.asServiceRole.entities.Settings.list();
+    const settings = settingsList[0];
+    const senderEmail = settings?.gmailSenderEmail || 'noreply@system.local';
+
     const fullName = first_name && last_name ? `${first_name} ${last_name}` : username;
     const loginUrl = 'https://almogbilling.base44.app';
 
@@ -93,7 +98,7 @@ Deno.serve(async (req) => {
     console.log('[WELCOME_EMAIL] Sending email to:', email);
 
     // Encode message properly for Gmail API (support UTF-8)
-    const message = `To: ${email}\r\nSubject: ${emailSubject}\r\nContent-Type: text/html; charset="UTF-8"\r\n\r\n${emailBody}`;
+    const message = `From: ${senderEmail}\r\nTo: ${email}\r\nSubject: ${emailSubject}\r\nContent-Type: text/html; charset="UTF-8"\r\n\r\n${emailBody}`;
     const encoder = new TextEncoder();
     const messageBytes = encoder.encode(message);
     const raw = btoa(String.fromCharCode.apply(null, messageBytes));
