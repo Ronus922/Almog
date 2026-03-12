@@ -193,13 +193,6 @@ export default function Tasks() {
         <Card className="border-0 shadow-sm bg-white">
           <CardContent className="p-4 space-y-3">
             <div className="flex flex-wrap gap-3 items-center">
-              <Button
-                variant="outline" size="sm"
-                className={`gap-1.5 ${showFilters ? 'bg-blue-50 border-blue-300 text-blue-700' : ''}`}
-                onClick={() => setShowFilters(v => !v)}
-              >
-                <Filter className="w-4 h-4" />
-              </Button>
               <div className="relative flex-1 min-w-48">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <Input
@@ -209,6 +202,13 @@ export default function Tasks() {
                   onChange={e => setSearch(e.target.value)}
                 />
               </div>
+              <Button
+                variant="outline" size="sm"
+                className={`gap-1.5 ${showFilters ? 'bg-blue-50 border-blue-300 text-blue-700' : ''}`}
+                onClick={() => setShowFilters(v => !v)}
+              >
+                <Filter className="w-4 h-4" />
+              </Button>
               <Button onClick={() => { setEditTask(null); setShowDialog(true); }} className="gap-2">
                 <Plus className="w-4 h-4" />
                 צור חדש
