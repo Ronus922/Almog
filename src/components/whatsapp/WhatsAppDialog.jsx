@@ -129,15 +129,22 @@ export default function WhatsAppDialog({ open, onClose, record }) {
 
           {/* Template selector */}
           <div>
-            <label className="text-sm font-semibold text-slate-700 mb-1.5 block">בחר תבנית</label>
+            <div className="flex items-center justify-between mb-1.5">
+              <label className="text-sm font-semibold text-slate-700">בחר תבנית</label>
+              <Link to="/WhatsAppTemplates" onClick={onClose} className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+                <Settings className="w-3 h-3" />
+                נהל תבניות
+              </Link>
+            </div>
             <Select value={templateId} onValueChange={handleTemplateChange}>
               <SelectTrigger className="rounded-xl">
-                <SelectValue />
+                <SelectValue placeholder="בחר תבנית..." />
               </SelectTrigger>
               <SelectContent>
-                {TEMPLATES.map((t) => (
-                  <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
+                {templates.map((t) => (
+                  <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
                 ))}
+                <SelectItem value="custom">✏️ הודעה מותאמת אישית</SelectItem>
               </SelectContent>
             </Select>
           </div>
