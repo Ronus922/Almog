@@ -318,6 +318,15 @@ export default function DebtorsTable({
         record={whatsappRecord}
       />
     )}
+    {commentRecord && (
+      <QuickCommentDialog
+        open={!!commentRecord}
+        onClose={() => setCommentRecord(null)}
+        record={commentRecord}
+        currentUser={currentUser}
+        isAdmin={isAdmin}
+      />
+    )}
     <TooltipProvider>
     <Card className="border-0 shadow-xl rounded-2xl overflow-hidden">
       <CardHeader className="bg-blue-50 pt-4 pb-4 p-6 flex flex-col space-y-1.5 md:pb-6 md:pt-6 from-white to-slate-50 border-b border-slate-200">
