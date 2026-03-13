@@ -10,18 +10,18 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
 
   return (
     <Dialog open={!!appointment} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-2xl" dir="rtl">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center justify-end gap-2 text-right">
+            {appointment.title}
             <div
-              className="w-4 h-4 rounded"
+              className="w-4 h-4 rounded flex-shrink-0"
               style={{ backgroundColor: appointment.event_color || '#3B82F6' }}
             />
-            {appointment.title}
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="space-y-4 py-4 text-right">
           {/* Type */}
           {appointment.appointment_type && (
             <div className="flex items-center gap-3">
