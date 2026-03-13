@@ -44,7 +44,16 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
     if (open) {
       setActiveTab("form");
       if (isEdit) {
-        setForm({ ...task });
+        setForm(prev => ({
+          ...task,
+          task_type: task.task_type || "שיחת טלפון",
+          priority: task.priority || "בינונית",
+          status: task.status || "פתוחה",
+          assigned_to: task.assigned_to || "",
+          description: task.description || "",
+          due_date: task.due_date || "",
+          completion_notes: task.completion_notes || ""
+        }));
       } else {
         const assignerDisplayName = currentUser?.first_name ?
         `${currentUser.first_name}${currentUser.last_name ? " " + currentUser.last_name : ""}` :
@@ -65,7 +74,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
         });
       }
     }
-  }, [open, task, debtorRecord]);
+  }, [open, task, debtorRecord, currentUser]);
 
   const set = (field, val) => setForm((f) => ({ ...f, [field]: val }));
 
