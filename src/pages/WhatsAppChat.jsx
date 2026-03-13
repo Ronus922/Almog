@@ -62,13 +62,16 @@ export default function WhatsAppChat() {
     const unsubscribe = base44.entities.ChatMessage.subscribe((event) => {
       console.log('[WhatsAppChat] Message event:', event.type, 'contact_id:', event.data?.contact_id, 'selected:', selectedContact.id);
       if (event.data?.contact_id === selectedContact.id) {
-        console.log('[WhatsAppChat] Invalidating query for contact:', selectedContact.id);
-        queryClient.invalidateQueries({ queryKey: ['chatMessages', selectedContact.id] });
+        console.log('[WhatsAppChat] New message received:', event.data.id);
+        // Update cache directly with new message
+        queryClient.setQueryData(['chatMessages', selectedContact.id], (old = []) => {
+          return [...old, event.data];
+        });
       }
     });
 
     return () => unsubscribe?.();
-  }, [selectedContact?.id]);
+  }, [selectedContact?.id, queryClient]);
 
   // Send message mutation
   const sendMessageMutation = useMutation({
