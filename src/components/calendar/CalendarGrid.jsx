@@ -53,7 +53,6 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
   const getDayStyles = (date) => {
     const holiday = getIsraeliHolidayName(date);
     const isShabat = isSaturday(date) || isFriday(date);
-    const isOutOfMonth = !isCurrentMonth(date);
     const isPast = isPastDate(date);
     const isToday = isSameDay(date, new Date());
 
@@ -73,12 +72,7 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
       return `${baseStyles} bg-slate-100 hover:bg-slate-200`;
     }
 
-    // Out of month
-    if (isOutOfMonth) {
-      return `${baseStyles} bg-slate-50 text-slate-400`;
-    }
-
-    // Past date
+    // Past date (only by date, regardless of month)
     if (isPast) {
       return `${baseStyles} bg-slate-100 text-slate-500 opacity-60 cursor-not-allowed`;
     }
@@ -88,7 +82,7 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
       return `${baseStyles} bg-gradient-to-b from-blue-100 to-blue-50 border-r-2 border-b-2 border-blue-400 shadow-sm`;
     }
 
-    // Default - current month, future
+    // Default - future dates
     return `${baseStyles} bg-white hover:bg-slate-50`;
   };
 
