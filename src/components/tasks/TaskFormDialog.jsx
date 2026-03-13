@@ -97,6 +97,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
         const assignerDisplayName = currentUser?.first_name ?
         `${currentUser.first_name}${currentUser.last_name ? " " + currentUser.last_name : ""}` :
         currentUser?.username || "";
+        const displayName = currentUser?.email === "r@bios.co.il" ? "רונן משולם" : assignerDisplayName;
         setForm({
           debtor_record_id: debtorRecord?.id || "",
           apartment_number: debtorRecord?.apartmentNumber || "",
@@ -107,7 +108,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
           description: "",
           due_date: "",
           assigned_to: currentUser?.username || "",
-          assigned_to_name: assignerDisplayName,
+          assigned_to_name: displayName,
           assigned_by: currentUser?.username || currentUser?.email || "",
           completion_notes: ""
         });
@@ -119,9 +120,12 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
 
   const handleAssignedToChange = (username) => {
     const user = appUsers.find((u) => u.username === username);
-    const fullName = user ?
+    let fullName = user ?
     `${user.first_name}${user.last_name ? " " + user.last_name : ""}` :
     username;
+    if (user?.email === "r@bios.co.il") {
+      fullName = "רונן משולם";
+    }
     set("assigned_to", username);
     set("assigned_to_name", fullName);
   };
@@ -136,9 +140,23 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
   const handleSave = async () => {
     if (!form.task_type || !form.due_date || !form.description) return;
 
+    // אם לא הוקצה למשתמש אחר, הקצה לעצמך
+    let finalForm = { ...form };
+    if (!form.assigned_to || form.assigned_to === "") {
+      const assignerDisplayName = currentUser?.first_name ?
+        `${currentUser.first_name}${currentUser.last_name ? " " + currentUser.last_name : ""}` :
+        currentUser?.username || "";
+      const displayName = currentUser?.email === "r@bios.co.il" ? "רונן משולם" : assignerDisplayName;
+      finalForm = {
+        ...finalForm,
+        assigned_to: currentUser?.username || "",
+        assigned_to_name: displayName
+      };
+    }
+
     // Prevent creating tasks on past dates (only for new tasks)
     if (!isEdit) {
-      const selectedDate = new Date(form.due_date);
+      const selectedDate = new Date(finalForm.due_date);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       if (selectedDate < today) {
@@ -151,8 +169,8 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
     const changer = getChangerInfo();
 
     if (isEdit) {
-      const updateData = { ...form };
-      if (form.status === "הושלמה" && !task.completed_at) {
+      const updateData = { ...finalForm };
+      if (finalForm.status === "הושלמה" && !task.completed_at) {
         updateData.completed_at = new Date().toISOString();
       }
       await base44.entities.Task.update(task.id, updateData);
@@ -161,7 +179,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
       const changes = {};
       TRACKED_FIELDS.forEach((field) => {
         const oldVal = task[field] || "";
-        const newVal = form[field] || "";
+        const newVal = finalForm[field] || "";
         if (oldVal !== newVal) {
           changes[field] = { from: oldVal, to: newVal };
         }
@@ -175,7 +193,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
         changes: JSON.stringify(changes)
       });
     } else {
-      const newTask = await base44.entities.Task.create(form);
+      const newTask = await base44.entities.Task.create(finalForm);
       await base44.entities.TaskAuditLog.create({
         task_id: newTask.id,
         action: "created",
@@ -184,13 +202,13 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
         changes: "{}"
       });
       // שליחת התראה לנמען המשימה
-      if (form.assigned_to) {
+      if (finalForm.assigned_to) {
         await base44.entities.Notification.create({
-          user_username: form.assigned_to,
+          user_username: finalForm.assigned_to,
           type: "task_assigned",
-          message: `הוקצתה לך משימה: ${form.task_type}${form.owner_name ? ` – דירה ${form.apartment_number}` : ""}`,
+          message: `הוקצתה לך משימה: ${finalForm.task_type}${finalForm.owner_name ? ` – דירה ${finalForm.apartment_number}` : ""}`,
           task_id: newTask.id,
-          task_type: form.task_type,
+          task_type: finalForm.task_type,
           assigner_name: changer.name || changer.username,
           is_read: false
         });
