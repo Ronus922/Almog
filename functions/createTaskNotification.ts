@@ -19,7 +19,18 @@ Deno.serve(async (req) => {
 
     const taskLabel = data.task_type || 'משימה';
     const ownerPart = data.owner_name ? ` – ${data.owner_name}` : '';
-    const assignerName = data.assigned_by || 'מנהל';
+
+    // Try to get assigner's display name from AppUser
+    let assignerName = data.assigned_by || 'מנהל';
+    if (data.assigned_by) {
+      try {
+        const appUsers = await base44.asServiceRole.entities.AppUser.filter({ email: data.assigned_by });
+        if (appUsers && appUsers.length > 0) {
+          const u = appUsers[0];
+          assignerName = [u.first_name, u.last_name].filter(Boolean).join(' ') || data.assigned_by;
+        }
+      } catch (_) { /* fallback to email */ }
+    }
 
     const message = isCreate
       ? `הוקצתה לך משימה חדשה על ידי ${assignerName}: ${taskLabel}${ownerPart}`
