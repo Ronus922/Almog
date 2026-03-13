@@ -138,10 +138,10 @@ export default function UserManagement() {
       queryClient.invalidateQueries({ queryKey: ['appUsers'] });
       setIsEditDialogOpen(false);
       setEditingUser(null);
-      toast.success('המשתמש עודכן בהצלחה');
+      showAlert('המשתמש עודכן בהצלחה', 'success');
     },
     onError: () => {
-      toast.error('שגיאה בעדכון המשתמש');
+      showAlert('שגיאה בעדכון המשתמש', 'error');
     }
   });
 
