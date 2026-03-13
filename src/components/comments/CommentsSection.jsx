@@ -10,6 +10,7 @@ export default function CommentsSection({ debtorRecordId, apartmentNumber, curre
   const [newComment, setNewComment] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const queryClient = useQueryClient();
+  const { showAlert } = useAlert();
 
   const { data: comments = [], isLoading } = useQuery({
     queryKey: ['comments', debtorRecordId],
