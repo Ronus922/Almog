@@ -146,11 +146,11 @@ export default function WhatsAppChat() {
   }, [messages]);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4" dir="rtl">
-      <div className="max-w-7xl mx-auto h-screen flex gap-4">
-        {/* Contacts List - Right Side (WhatsApp Web style) */}
-        <div className="w-96 bg-white rounded-lg shadow-xl flex flex-col border border-gray-200">
-          <div className="p-4 border-b border-gray-200 bg-gray-50">
+    <div className="min-h-screen bg-gray-100" dir="rtl" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Cpath d=\'M0 0h100v100H0z\' fill=\'%23ECE5DD\'/%3E%3Cpath d=\'M50 0L100 50L50 100L0 50z\' fill=\'%23E8DED2\' opacity=\'0.3\'/%3E%3C/svg%3E")', backgroundSize: '100px 100px' }}>
+      <div className="h-screen flex gap-0">
+        {/* Contacts List - Right Side */}
+        <div className="w-96 bg-white flex flex-col shadow-lg border-l border-gray-200">
+          <div className="p-4 border-b border-gray-200 bg-white">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">הודעות</h2>
             <div className="relative">
               <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
@@ -158,32 +158,36 @@ export default function WhatsAppChat() {
                 placeholder="חיפוש..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-gray-100 border-0 rounded-full"
+                className="pl-10 bg-gray-100 border-0 rounded-full text-sm"
               />
             </div>
           </div>
 
-          <div className="flex-1 overflow-y-auto divide-y divide-gray-100">
+          <div className="flex-1 overflow-y-auto divide-y divide-gray-100" style={{ scrollbarWidth: 'thin', scrollbarColor: '#ccc transparent' }}>
             {filteredContacts.length === 0 ? (
-              <div className="p-4 text-center text-gray-400">
+              <div className="p-4 text-center text-gray-400 text-sm">
                 אין אנשי קשר
               </div>
             ) : (
               filteredContacts.map((contact) => {
                 const displayName = contact.owner_name || contact.tenant_name || 'ללא שם';
+                const initials = displayName.split(' ').map(n => n[0]).join('').substring(0, 2);
                 return (
                   <button
                     key={contact.id}
                     onClick={() => setSelectedContact(contact)}
-                    className={`w-full p-3 text-right hover:bg-gray-50 transition-colors flex items-center gap-3 ${
-                      selectedContact?.id === contact.id ? 'bg-blue-50 border-r-4 border-r-blue-600' : ''
+                    className={`w-full p-3 text-right hover:bg-gray-50 transition-colors flex items-center gap-3 border-r-4 ${
+                      selectedContact?.id === contact.id ? 'bg-gray-100 border-r-blue-500' : 'border-r-transparent'
                     }`}
                   >
-                    <div className="flex-1 text-right">
-                      <div className="font-semibold text-gray-900 text-sm">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                      {initials}
+                    </div>
+                    <div className="flex-1 text-right min-w-0">
+                      <div className="font-semibold text-gray-900 text-sm truncate">
                         {displayName}
                       </div>
-                      <div className="text-xs text-gray-600 mt-0.5">
+                      <div className="text-xs text-gray-600 mt-0.5 truncate">
                         דירה {contact.apartment_number}
                       </div>
                     </div>
@@ -194,32 +198,40 @@ export default function WhatsAppChat() {
           </div>
         </div>
 
-        {/* Chat Window - Left Side (WhatsApp Web style) */}
-        <div className="flex-1 bg-white rounded-lg shadow-xl flex flex-col border border-gray-200 overflow-hidden">
+        {/* Chat Window */}
+        <div className="flex-1 bg-cover bg-center flex flex-col overflow-hidden" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Cpath d=\'M0 0h100v100H0z\' fill=\'%23ECE5DD\'/%3E%3Cpath d=\'M50 0L100 50L50 100L0 50z\' fill=\'%23E8DED2\' opacity=\'0.3\'/%3E%3C/svg%3E")', backgroundSize: '100px 100px' }}>
           {selectedContact ? (
             <>
               {/* Chat Header */}
-              <div className="p-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
+              <div className="p-4 bg-white border-b border-gray-200 flex justify-between items-center shadow-sm">
                 <div className="flex items-center gap-3">
-                  <Button variant="ghost" size="icon">
-                    <Plus className="w-5 h-5 text-gray-600" />
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Phone className="w-5 h-5 text-blue-600" />
+                  </Button>
+                  <Button variant="ghost" size="icon" className="h-8 w-8">
+                    <Info className="w-5 h-5 text-blue-600" />
                   </Button>
                 </div>
-                <div className="text-right">
-                  <h3 className="font-semibold text-gray-900">
-                    {selectedContact.owner_name || selectedContact.tenant_name}
-                  </h3>
-                  <p className="text-xs text-gray-500">
-                    דירה {selectedContact.apartment_number}
-                  </p>
+                <div className="text-right flex items-center gap-3">
+                  <div>
+                    <h3 className="font-semibold text-gray-900 text-sm">
+                      {selectedContact.owner_name || selectedContact.tenant_name}
+                    </h3>
+                    <p className="text-xs text-gray-500">
+                      דירה {selectedContact.apartment_number}
+                    </p>
+                  </div>
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm">
+                    {(selectedContact.owner_name || selectedContact.tenant_name).split(' ').map(n => n[0]).join('').substring(0, 2)}
+                  </div>
                 </div>
               </div>
 
               {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto p-4 space-y-2 bg-white">
+              <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Cpath d=\'M0 0h100v100H0z\' fill=\'%23ECE5DD\'/%3E%3Cpath d=\'M50 0L100 50L50 100L0 50z\' fill=\'%23E8DED2\' opacity=\'0.3\'/%3E%3C/svg%3E")', backgroundSize: '100px 100px', scrollbarWidth: 'thin', scrollbarColor: '#ccc transparent' }}>
                 {messages.length === 0 ? (
                   <div className="flex items-center justify-center h-full">
-                    <div className="text-center text-gray-400">
+                    <div className="text-center text-gray-500">
                       <p className="text-lg">אין הודעות עדיין</p>
                       <p className="text-sm mt-1">התחל שיחה חדשה</p>
                     </div>
@@ -235,9 +247,9 @@ export default function WhatsAppChat() {
                       return (
                         <div key={msg.id}>
                           {showDate && (
-                            <div className="flex justify-center my-3">
-                              <span className="text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                                {format(new Date(msg.timestamp), 'd בMMMM', { locale: he })}
+                            <div className="flex justify-center my-4">
+                              <span className="text-xs text-gray-600 bg-white bg-opacity-70 px-4 py-1 rounded-full shadow-sm">
+                                {format(new Date(msg.timestamp), 'd בMMMM yyyy', { locale: he })}
                               </span>
                             </div>
                           )}
@@ -251,30 +263,36 @@ export default function WhatsAppChat() {
               </div>
 
               {/* Input Area */}
-              <div className="p-4 border-t border-gray-200 bg-white flex gap-2">
+              <div className="p-4 bg-white border-t border-gray-200 flex gap-3 shadow-lg">
+                <Button variant="ghost" size="icon" className="h-10 w-10 text-gray-600 hover:bg-gray-100">
+                  <Plus className="w-5 h-5" />
+                </Button>
                 <Input
                   placeholder="הקלד הודעה..."
                   value={messageInput}
                   onChange={(e) => setMessageInput(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
                   disabled={sendMessageMutation.isPending}
-                  className="bg-gray-100 border-0 rounded-full"
+                  className="bg-gray-100 border-0 rounded-full text-sm"
                 />
                 <Button
                   onClick={handleSendMessage}
                   disabled={!messageInput.trim() || sendMessageMutation.isPending}
                   size="icon"
-                  className="bg-green-500 hover:bg-green-600 text-white rounded-full"
+                  className="bg-green-500 hover:bg-green-600 text-white rounded-full h-10 w-10"
                 >
                   <Send className="w-5 h-5" />
                 </Button>
               </div>
             </>
           ) : (
-            <div className="flex items-center justify-center h-full text-gray-400">
+            <div className="flex items-center justify-center h-full text-gray-500">
               <div className="text-center">
-                <p className="text-xl">בחר שיחה להתחלה</p>
-                <p className="text-sm mt-2">בחר איש קשר מהרשימה בצד</p>
+                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center mx-auto mb-6">
+                  <div className="text-4xl">💬</div>
+                </div>
+                <p className="text-2xl font-light">בחר שיחה להתחלה</p>
+                <p className="text-sm mt-2">בחר איש קשר מהרשימה בצד כדי להתחיל שיחה</p>
               </div>
             </div>
           )}
