@@ -11,7 +11,6 @@ import * as XLSX from "xlsx";
 export default function ContactImportDialog({ open, onClose, onImported }) {
   const [loading, setLoading] = useState(false);
   const [preview, setPreview] = useState(null);
-  const [tags, setTags] = useState("");
   const fileRef = useRef();
   const { showAlert } = useAlert();
 
@@ -37,7 +36,6 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
       const wb = XLSX.read(evt.target.result, { type: "binary" });
       const ws = wb.Sheets[wb.SheetNames[0]];
       const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
-      const tagList = tags.split(",").map(t => t.trim()).filter(Boolean);
       let imported = 0;
 
       for (const row of rows) {
@@ -56,7 +54,6 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
           address: String(row["address"] || "").trim(),
           notes: String(row["notes"] || "").trim(),
           management_fees: parseFloat(row["management_fees"] || row["H"] || 0) || 0,
-          tags: tagList,
         };
 
         try {
@@ -131,10 +128,7 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
             <Input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="mt-1" onChange={handleFile} />
           </div>
 
-          <div>
-            <Label>תגיות לכל אנשי הקשר המיובאים</Label>
-            <Input value={tags} onChange={e => setTags(e.target.value)} placeholder="לדוגמה: לקוח, ועד בית" className="mt-1" />
-          </div>
+
 
           {preview && (
             <div className="text-xs bg-slate-50 rounded p-2 overflow-auto max-h-28">
