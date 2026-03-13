@@ -369,6 +369,15 @@ export default function Calendar() {
         onDelete={handleDeleteRecurring}
         appointmentTitle={selectedAppointment?.title || ''}
       />
+
+      {/* Date Range Picker Dialog */}
+      <DateRangePickerDialog
+        isOpen={showDateRangePicker}
+        onClose={() => setShowDateRangePicker(false)}
+        onSelect={handleDateRangeSelect}
+        defaultStart={customDateRange?.start}
+        defaultEnd={customDateRange?.end}
+      />
     </div>
   );
 }
