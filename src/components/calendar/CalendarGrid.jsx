@@ -79,7 +79,7 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
 
     // Today highlight
     if (isToday) {
-      return `${baseStyles} bg-gradient-to-b from-blue-100 to-blue-50 border-blue-300 border-2 shadow-sm`;
+      return `${baseStyles} bg-gradient-to-b from-blue-100 to-blue-50 border-r-2 border-b-2 border-blue-400 shadow-sm`;
     }
 
     // Default - current month, future
