@@ -13,6 +13,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
+import { Upload } from 'lucide-react';
 
 const COLOR_PALETTE = [
   '#3B82F6', '#EF4444', '#10B981', '#F59E0B',
@@ -22,6 +23,9 @@ const COLOR_PALETTE = [
 export default function AppointmentForm({ appointment, selectedDate, onSave, onCancel, isLoading }) {
   const [users, setUsers] = useState([]);
   const [contacts, setContacts] = useState([]);
+  const [userSearch, setUserSearch] = useState('');
+  const [contactSearch, setContactSearch] = useState('');
+  const [dragActive, setDragActive] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
     appointment_type: 'פגישה',
@@ -50,7 +54,6 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       }));
     }
     
-    // Load users and contacts
     loadUsers();
     loadContacts();
   }, [appointment, selectedDate]);
@@ -80,6 +83,18 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
     }));
   };
 
+  const filteredUsers = users.filter(u =>
+    `${u.full_name || ''} ${u.email || ''}`
+      .toLowerCase()
+      .includes(userSearch.toLowerCase())
+  );
+
+  const filteredContacts = contacts.filter(c =>
+    `${c.apartment_number || ''} ${c.owner_name || ''} ${c.tenant_name || ''}`
+      .toLowerCase()
+      .includes(contactSearch.toLowerCase())
+  );
+
   const handleUserToggle = (email) => {
     setFormData(prev => ({
       ...prev,
@@ -98,19 +113,51 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
     }));
   };
 
-  const handleFileUpload = async (e) => {
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+
+    const files = Array.from(e.dataTransfer.files);
+    for (const file of files) {
+      await uploadFile(file);
+    }
+  };
+
+  const handleFileSelect = async (e) => {
     const files = Array.from(e.target.files);
     for (const file of files) {
-      try {
-        const response = await base44.integrations.Core.UploadFile({ file });
-        setFormData(prev => ({
-          ...prev,
-          attachments: [...prev.attachments, response.file_url],
-        }));
-      } catch (error) {
-        console.error('Failed to upload file:', error);
-      }
+      await uploadFile(file);
     }
+  };
+
+  const uploadFile = async (file) => {
+    try {
+      const response = await base44.integrations.Core.UploadFile({ file });
+      setFormData(prev => ({
+        ...prev,
+        attachments: [...prev.attachments, response.file_url],
+      }));
+    } catch (error) {
+      console.error('Failed to upload file:', error);
+    }
+  };
+
+  const removeAttachment = (index) => {
+    setFormData(prev => ({
+      ...prev,
+      attachments: prev.attachments.filter((_, i) => i !== index),
+    }));
   };
 
   const handleSubmit = async (e) => {
@@ -119,24 +166,25 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 p-6">
+    <form onSubmit={handleSubmit} className="space-y-6 p-6" dir="rtl">
       {/* Title */}
       <div>
-        <Label htmlFor="title">כותרת *</Label>
+        <Label htmlFor="title" className="text-right block">כותרת *</Label>
         <Input
           id="title"
           value={formData.title}
           onChange={(e) => handleChange('title', e.target.value)}
           required
           placeholder="הכנס כותרת פגישה"
+          dir="rtl"
         />
       </div>
 
       {/* Type */}
       <div>
-        <Label>סוג</Label>
+        <Label className="text-right block">סוג</Label>
         <Select value={formData.appointment_type} onValueChange={(value) => handleChange('appointment_type', value)}>
-          <SelectTrigger>
+          <SelectTrigger dir="rtl">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
@@ -150,45 +198,49 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       {/* Date and Time */}
       <div className="grid grid-cols-3 gap-4">
         <div>
-          <Label htmlFor="date">תאריך *</Label>
+          <Label htmlFor="date" className="text-right block">תאריך *</Label>
           <Input
             id="date"
             type="date"
             value={formData.date}
             onChange={(e) => handleChange('date', e.target.value)}
             required
+            dir="rtl"
           />
         </div>
         <div>
-          <Label htmlFor="start_time">שעת התחלה *</Label>
+          <Label htmlFor="start_time" className="text-right block">שעת התחלה *</Label>
           <Input
             id="start_time"
             type="time"
             value={formData.start_time}
             onChange={(e) => handleChange('start_time', e.target.value)}
             required
+            dir="rtl"
           />
         </div>
         <div>
-          <Label htmlFor="end_time">שעת סיום *</Label>
+          <Label htmlFor="end_time" className="text-right block">שעת סיום *</Label>
           <Input
             id="end_time"
             type="time"
             value={formData.end_time}
             onChange={(e) => handleChange('end_time', e.target.value)}
             required
+            dir="rtl"
           />
         </div>
       </div>
 
       {/* Location */}
       <div>
-        <Label htmlFor="location">מיקום</Label>
+        <Label htmlFor="location" className="text-right block">מיקום</Label>
         <Input
           id="location"
           value={formData.location}
           onChange={(e) => handleChange('location', e.target.value)}
           placeholder="הכנס מיקום"
+          dir="rtl"
         />
       </div>
 
@@ -200,11 +252,11 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
             checked={formData.is_recurring}
             onCheckedChange={(checked) => handleChange('is_recurring', checked)}
           />
-          <Label htmlFor="is_recurring">אירוע חוזר</Label>
+          <Label htmlFor="is_recurring" className="cursor-pointer">אירוע חוזר</Label>
         </div>
         {formData.is_recurring && (
           <Select value={formData.recurrence_pattern} onValueChange={(value) => handleChange('recurrence_pattern', value)}>
-            <SelectTrigger>
+            <SelectTrigger dir="rtl">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -218,14 +270,14 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
       {/* Event Color */}
       <div>
-        <Label>צבע אירוע</Label>
-        <div className="flex gap-2 flex-wrap">
+        <Label className="text-right block mb-2">צבע אירוע</Label>
+        <div className="flex gap-2 flex-wrap justify-end">
           {COLOR_PALETTE.map((color) => (
             <button
               key={color}
               type="button"
-              className={`w-8 h-8 rounded-full border-2 ${
-                formData.event_color === color ? 'border-slate-900' : 'border-slate-300'
+              className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${
+                formData.event_color === color ? 'border-slate-900 scale-110' : 'border-slate-300'
               }`}
               style={{ backgroundColor: color }}
               onClick={() => handleChange('event_color', color)}
@@ -237,9 +289,9 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       {/* Reminder */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label>תזכורת לפני</Label>
+          <Label className="text-right block">תזכורת לפני</Label>
           <Select value={formData.reminder_before} onValueChange={(value) => handleChange('reminder_before', value)}>
-            <SelectTrigger>
+            <SelectTrigger dir="rtl">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -251,9 +303,9 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
           </Select>
         </div>
         <div>
-          <Label>אופן התזכורת</Label>
+          <Label className="text-right block">אופן התזכורת</Label>
           <Select value={formData.reminder_method} onValueChange={(value) => handleChange('reminder_method', value)}>
-            <SelectTrigger>
+            <SelectTrigger dir="rtl">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
@@ -268,33 +320,46 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
       {/* Description */}
       <div>
-        <Label htmlFor="description">תיאור</Label>
+        <Label htmlFor="description" className="text-right block">תיאור</Label>
         <Textarea
           id="description"
           value={formData.description}
           onChange={(e) => handleChange('description', e.target.value)}
           placeholder="הכנס תיאור האירוע"
           rows={3}
+          dir="rtl"
         />
       </div>
 
       {/* Attendees - Users */}
       {users.length > 0 && (
         <div>
-          <Label className="mb-2 block">משתמשים</Label>
-          <div className="space-y-2 max-h-32 overflow-y-auto border border-slate-200 rounded p-3">
-            {users.map((user) => (
-              <div key={user.email} className="flex items-center gap-2">
-                <Checkbox
-                  id={`user-${user.email}`}
-                  checked={formData.attendees_users.includes(user.email)}
-                  onCheckedChange={() => handleUserToggle(user.email)}
-                />
-                <Label htmlFor={`user-${user.email}`} className="cursor-pointer">
-                  {user.full_name} ({user.email})
-                </Label>
-              </div>
-            ))}
+          <Label className="text-right block mb-2">משתמשים</Label>
+          <Input
+            type="text"
+            placeholder="חפש משתמש..."
+            value={userSearch}
+            onChange={(e) => setUserSearch(e.target.value)}
+            dir="rtl"
+            className="mb-3"
+          />
+          <div className="space-y-2 max-h-40 overflow-y-auto border border-slate-200 rounded p-3 bg-white">
+            {filteredUsers.length > 0 ? (
+              filteredUsers.map((user) => (
+                <div key={user.email} className="flex items-center gap-2">
+                  <Checkbox
+                    id={`user-${user.email}`}
+                    checked={formData.attendees_users.includes(user.email)}
+                    onCheckedChange={() => handleUserToggle(user.email)}
+                  />
+                  <Label htmlFor={`user-${user.email}`} className="cursor-pointer text-sm">
+                    {user.full_name}
+                  </Label>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-slate-500 text-center">אין משתמשים בתוצאות</p>
+            )}
           </div>
         </div>
       )}
@@ -302,39 +367,79 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       {/* Attendees - Contacts */}
       {contacts.length > 0 && (
         <div>
-          <Label className="mb-2 block">אנשי קשר</Label>
-          <div className="space-y-2 max-h-32 overflow-y-auto border border-slate-200 rounded p-3">
-            {contacts.map((contact) => (
-              <div key={contact.id} className="flex items-center gap-2">
-                <Checkbox
-                  id={`contact-${contact.id}`}
-                  checked={formData.attendees_contacts.includes(contact.id)}
-                  onCheckedChange={() => handleContactToggle(contact.id)}
-                />
-                <Label htmlFor={`contact-${contact.id}`} className="cursor-pointer">
-                  {contact.apartment_number} ({contact.owner_name || contact.tenant_name})
-                </Label>
-              </div>
-            ))}
+          <Label className="text-right block mb-2">אנשי קשר</Label>
+          <Input
+            type="text"
+            placeholder="חפש לפי שם או דירה..."
+            value={contactSearch}
+            onChange={(e) => setContactSearch(e.target.value)}
+            dir="rtl"
+            className="mb-3"
+          />
+          <div className="space-y-2 max-h-40 overflow-y-auto border border-slate-200 rounded p-3 bg-white">
+            {filteredContacts.length > 0 ? (
+              filteredContacts.map((contact) => (
+                <div key={contact.id} className="flex items-center gap-2">
+                  <Checkbox
+                    id={`contact-${contact.id}`}
+                    checked={formData.attendees_contacts.includes(contact.id)}
+                    onCheckedChange={() => handleContactToggle(contact.id)}
+                  />
+                  <Label htmlFor={`contact-${contact.id}`} className="cursor-pointer text-sm">
+                    דירה {contact.apartment_number} - {contact.owner_name || contact.tenant_name}
+                  </Label>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-slate-500 text-center">אין אנשי קשר בתוצאות</p>
+            )}
           </div>
         </div>
       )}
 
-      {/* File Attachments */}
+      {/* File Upload - Drag & Drop */}
       <div>
-        <Label htmlFor="attachments">קבצים מצורפים</Label>
-        <Input
-          id="attachments"
-          type="file"
-          multiple
-          onChange={handleFileUpload}
-          className="cursor-pointer"
-        />
+        <Label className="text-right block mb-2">קבצים מצורפים</Label>
+        <div
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
+            dragActive
+              ? 'border-blue-500 bg-blue-50'
+              : 'border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-blue-25'
+          }`}
+        >
+          <input
+            type="file"
+            multiple
+            onChange={handleFileSelect}
+            className="hidden"
+            id="file-input"
+          />
+          <label htmlFor="file-input" className="cursor-pointer block">
+            <Upload className="w-8 h-8 mx-auto mb-2 text-slate-500" />
+            <p className="text-sm font-medium text-slate-700">גרור קבצים לכאן או לחץ לבחירה</p>
+            <p className="text-xs text-slate-500 mt-1">תמך בכל סוגי הקבצים</p>
+          </label>
+        </div>
+
+        {/* Attachments List */}
         {formData.attachments.length > 0 && (
-          <div className="mt-2 space-y-1">
+          <div className="mt-4 space-y-2">
+            <p className="text-sm font-medium text-slate-700 text-right">קבצים מועלים:</p>
             {formData.attachments.map((url, idx) => (
-              <div key={idx} className="text-sm text-blue-600 truncate">
-                📎 {url.split('/').pop()}
+              <div key={idx} className="flex items-center justify-between bg-slate-100 p-2 rounded text-sm">
+                <button
+                  type="button"
+                  onClick={() => removeAttachment(idx)}
+                  className="text-red-600 hover:text-red-800 text-xs"
+                >
+                  הסר
+                </button>
+                <span className="text-slate-700 truncate">{url.split('/').pop()}</span>
+                <span>📎</span>
               </div>
             ))}
           </div>
@@ -346,7 +451,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         <Button type="button" variant="outline" onClick={onCancel}>
           ביטול
         </Button>
-        <Button type="submit" disabled={isLoading}>
+        <Button type="submit" disabled={isLoading} className="bg-blue-600 hover:bg-blue-700">
           {isLoading ? 'שומר...' : appointment ? 'עדכן' : 'צור'}
         </Button>
       </div>
