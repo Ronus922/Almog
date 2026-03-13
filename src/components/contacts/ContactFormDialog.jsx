@@ -8,7 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { X, Plus } from "lucide-react";
 
 const EMPTY = {
-  apartment_number: "", contact_type: "",
+  apartment_number: "", contact_type: "בעל דירה",
   owner_name: "", owner_phone: "", owner_email: "",
   tenant_name: "", tenant_phone: "", tenant_email: "",
   address: "", notes: "", tags: [],
