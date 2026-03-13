@@ -19,7 +19,11 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
   useEffect(() => {
     if (!open) {
       setSelectedFile(null);
-      if (fileRef.current) fileRef.current.value = '';
+      setProgress(0);
+      setProgressText("");
+      if (fileRef.current) {
+        fileRef.current.value = '';
+      }
     }
   }, [open]);
 
