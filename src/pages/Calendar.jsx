@@ -364,6 +364,23 @@ export default function Calendar() {
           isDeleting={deleteMutation.isPending}
         />
       )}
+
+      {/* Recurrence Edit Dialog */}
+      <RecurrenceEditDialog
+        isOpen={showEditDialog}
+        onClose={() => setShowEditDialog(false)}
+        onEdit={handleEditRecurring}
+        appointmentTitle={selectedAppointment?.title || ''}
+        isException={selectedAppointment?.is_exception}
+      />
+
+      {/* Recurrence Delete Dialog */}
+      <RecurrenceDeleteDialog
+        isOpen={showDeleteDialog}
+        onClose={() => setShowDeleteDialog(false)}
+        onDelete={handleDeleteRecurring}
+        appointmentTitle={selectedAppointment?.title || ''}
+      />
     </div>
   );
 }
