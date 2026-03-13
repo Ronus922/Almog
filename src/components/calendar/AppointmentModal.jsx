@@ -126,18 +126,18 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
 
           {/* Attendees */}
           {(appointment.attendees_users?.length > 0 || appointment.attendees_contacts?.length > 0) && (
-            <div className="bg-gradient-to-l from-blue-50 to-blue-50 rounded-lg p-5 border border-blue-100">
-              <div className="flex items-center justify-end gap-2 mb-4 pb-3 border-b border-blue-200">
-                <span className="text-sm font-bold text-blue-900">מצטרפים</span>
+            <div className="bg-gradient-to-l from-blue-50 to-blue-50 rounded-lg p-5 border border-blue-100" dir="rtl">
+              <div className="flex items-center gap-2 mb-4 pb-3 border-b border-blue-200">
                 <Users className="w-5 h-5 text-blue-600 flex-shrink-0" />
+                <span className="text-sm font-bold text-blue-900">מצטרפים</span>
               </div>
               <div className="space-y-2">
                 {appointment.attendees_users?.length > 0 && (
                   <div className="space-y-2">
                     {appointment.attendees_users.map((userId) => (
-                      <div key={userId} className="flex items-center justify-end gap-2 text-sm text-slate-800 bg-white rounded px-3 py-2 border border-blue-100">
-                        <span className="font-medium">{userNames[userId] || 'משתמש'}</span>
+                      <div key={userId} className="flex items-center gap-2 text-sm text-slate-800 bg-white rounded px-3 py-2 border border-blue-100">
                         <span className="text-blue-600 text-lg">👤</span>
+                        <span className="font-medium">{userNames[userId] || 'משתמש'}</span>
                       </div>
                     ))}
                   </div>
@@ -145,9 +145,9 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
                 {appointment.attendees_contacts?.length > 0 && (
                   <div className="space-y-2">
                     {appointment.attendees_contacts.map((contactId) => (
-                      <div key={contactId} className="flex items-center justify-end gap-2 text-sm text-slate-800 bg-white rounded px-3 py-2 border border-blue-100">
-                        <span className="font-medium">{contactNames[contactId] || 'אנשי קשר'}</span>
+                      <div key={contactId} className="flex items-center gap-2 text-sm text-slate-800 bg-white rounded px-3 py-2 border border-blue-100">
                         <span className="text-amber-600 text-lg">🏠</span>
+                        <span className="font-medium">{contactNames[contactId] || 'אנשי קשר'}</span>
                       </div>
                     ))}
                   </div>
