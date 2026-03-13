@@ -107,7 +107,13 @@ export default function NotificationBell({ currentUser }) {
               notifications.map(n => (
                 <div
                   key={n.id}
-                  onClick={() => markRead(n)}
+                  onClick={async () => {
+                    await markRead(n);
+                    if (n.task_id) {
+                      setOpen(false);
+                      navigate('/Tasks');
+                    }
+                  }}
                   className={`px-4 py-3 border-b border-slate-50 cursor-pointer hover:bg-slate-50 transition-colors ${!n.is_read ? 'bg-blue-50/60' : ''}`}
                 >
                   <div className="flex items-start gap-2">
