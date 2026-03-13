@@ -312,15 +312,31 @@ export default function Tasks() {
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100">
-                    {sorted.map(task => (
-                      <tr key={task.id} className="hover:bg-slate-50 transition-colors">
+                    {sorted.map(task => {
+                      const canDelete = task.assigned_by === currentUser?.username || task.assigned_by === currentUser?.email;
+                      return (
+                      <tr
+                        key={task.id}
+                        className="hover:bg-blue-50/40 transition-colors cursor-pointer"
+                        onClick={() => { setEditTask(task); setShowDialog(true); }}
+                      >
                         <td className="px-4 py-3">
-                          <button
-                            onClick={() => { setEditTask(task); setShowDialog(true); }}
-                            className="text-slate-400 hover:text-blue-600 transition-colors"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </button>
+                          <div className="flex items-center gap-2" onClick={e => e.stopPropagation()}>
+                            <button
+                              onClick={() => { setEditTask(task); setShowDialog(true); }}
+                              className="text-slate-400 hover:text-blue-600 transition-colors"
+                            >
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            {canDelete && (
+                              <button
+                                onClick={() => { if (window.confirm("למחוק משימה זו?")) deleteMutation.mutate(task.id); }}
+                                className="text-slate-300 hover:text-red-500 transition-colors"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
                         </td>
 
                         <td className="px-4 py-3">
