@@ -381,7 +381,8 @@ export default function Tasks() {
                           {formatDateTime(task.created_date)}
                         </td>
                       </tr>
-                    ))}
+                      );
+                    })}
                   </tbody>
                 </table>
               </div>
