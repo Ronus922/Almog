@@ -220,27 +220,27 @@ export default function Calendar() {
   return (
     <div className="w-screen h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100 p-4 md:p-8 overflow-auto" dir="rtl">
       <div className="w-full min-h-screen flex flex-col">
-        {/* Header Section */}
-        <div className="mb-6">
-          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-            {/* Title and Navigation - Right */}
-            <div className="flex-1">
-              <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">יומן פגישות</h1>
-              <p className="text-sm text-slate-600">ניהול פגישות ומשימות בקלות</p>
-            </div>
+        {/* Header Section with Gradient */}
+        <div className="bg-gradient-to-l from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg p-6 mb-6">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">יומן פגישות</h1>
+          <p className="text-blue-100 text-sm">ניהול פגישות ומשימות בקלות ובארגון</p>
+        </div>
 
-            {/* Add Button - Left */}
-            <Button
-              onClick={() => {
-                setSelectedAppointment(null);
-                setShowForm(true);
-              }}
-              className="bg-blue-600 hover:bg-blue-700 text-white gap-2 whitespace-nowrap"
-            >
-              <Plus className="w-5 h-5" />
-              פגישה חדשה
-            </Button>
-          </div>
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
+          {/* Spacing */}
+          <div className="flex-1"></div>
+
+          {/* Add Button - Left */}
+          <Button
+            onClick={() => {
+              setSelectedAppointment(null);
+              setShowForm(true);
+            }}
+            className="bg-blue-600 hover:bg-blue-700 text-white gap-2 whitespace-nowrap"
+          >
+            <Plus className="w-5 h-5" />
+            פגישה חדשה
+          </Button>
         </div>
 
         {/* Control Bar */}
