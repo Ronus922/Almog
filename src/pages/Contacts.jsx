@@ -286,18 +286,6 @@ export default function Contacts() {
                          <Button
                            variant="ghost"
                            size="sm"
-                           className="text-slate-600 hover:bg-slate-100"
-                           onClick={() => {
-                             setEditContact(contact);
-                             setFormOpen(true);
-                           }}
-                           title="עריכה"
-                         >
-                           <Edit className="w-4 h-4" />
-                         </Button>
-                         <Button
-                           variant="ghost"
-                           size="sm"
                            className="text-red-500 hover:bg-red-50"
                            onClick={() => handleDelete(contact)}
                            title="מחיקה"
