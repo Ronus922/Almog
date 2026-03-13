@@ -626,6 +626,7 @@ export default function DebtorsTable({
                     מים חמים
                   </div>
                 </TableHead>
+                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">דמי ניהול</TableHead>
 
                 <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('legal_status_id')}>
                   <div className="flex items-center gap-2 justify-end">
@@ -688,6 +689,7 @@ export default function DebtorsTable({
 
                     </div>
                   </TableHead>
+                  <TableHead className="py-3 px-4"></TableHead>
                   <TableHead className="py-3 px-4"></TableHead>
                   <TableHead className="py-3 px-4"></TableHead>
                   <TableHead className="py-3 px-4">
@@ -777,6 +779,9 @@ export default function DebtorsTable({
                     </TableCell>
                     <TableCell className="py-6 px-6 align-middle text-center">
                       <span className="font-bold text-base text-purple-600">{formatCurrency(record.specialDebt)}</span>
+                    </TableCell>
+                    <TableCell className="py-6 px-6 align-middle text-right">
+                      <span className="text-sm text-slate-600">{record.detailsMonthly || '-'}</span>
                     </TableCell>
 
                     <TableCell className="py-6 px-6 align-middle text-center">

@@ -730,7 +730,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               </h3>
               <InfoRow 
                 icon={FileText} 
-                label="פרטים מהייבוא" 
+                label="דמי ניהול" 
                 value={editedRecord?.detailsMonthly || 'אין נתונים'} 
               />
               
