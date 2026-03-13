@@ -350,35 +350,18 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
       {/* Attendees - Contacts */}
       {contacts.length > 0 && (
-        <div>
-          <Label className="text-right block mb-2">אנשי קשר</Label>
-          <Input
-            type="text"
-            placeholder="חפש לפי שם או דירה..."
-            value={contactSearch}
-            onChange={(e) => setContactSearch(e.target.value)}
-            dir="rtl"
-            className="mb-3"
-          />
-          <div className="space-y-2 max-h-40 overflow-y-auto border border-slate-200 rounded p-3 bg-white">
-            {filteredContacts.length > 0 ? (
-              filteredContacts.map((contact) => (
-                <div key={contact.id} className="flex items-center gap-2">
-                  <Checkbox
-                    id={`contact-${contact.id}`}
-                    checked={formData.attendees_contacts.includes(contact.id)}
-                    onCheckedChange={() => handleContactToggle(contact.id)}
-                  />
-                  <Label htmlFor={`contact-${contact.id}`} className="cursor-pointer text-sm">
-                    דירה {contact.apartment_number} - {contact.owner_name || contact.tenant_name}
-                  </Label>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-slate-500 text-center">אין אנשי קשר בתוצאות</p>
-            )}
-          </div>
-        </div>
+        <MultiSelectAttendees
+          label="אנשי קשר"
+          items={contacts}
+          selectedIds={formData.attendees_contacts}
+          onToggle={handleContactToggle}
+          searchPlaceholder="חפש לפי שם או דירה..."
+          formatLabel={(contact) => `דירה ${contact.apartment_number} - ${contact.owner_name || contact.tenant_name}`}
+          getAvatarColor={(contact) => {
+            const colors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6'];
+            return colors[contacts.indexOf(contact) % colors.length];
+          }}
+        />
       )}
 
       {/* File Upload - Drag & Drop */}
