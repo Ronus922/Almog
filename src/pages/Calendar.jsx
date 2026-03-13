@@ -332,24 +332,26 @@ export default function Calendar() {
 
       {/* Appointment Form Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
-          <DialogHeader className="border-b border-slate-200 pb-4 mb-4">
-            <DialogTitle className="text-2xl font-bold text-slate-900">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0" dir="rtl">
+          <div className="bg-gradient-to-l from-blue-600 to-indigo-600 px-6 py-6 text-white rounded-t-lg">
+            <h2 className="text-2xl font-bold">
               {selectedAppointment ? 'עריכת פגישה' : 'פגישה חדשה'}
-            </DialogTitle>
-            <div className="hidden">פרטי הפגישה</div>
-          </DialogHeader>
-          <AppointmentForm
-            appointment={selectedAppointment}
-            selectedDate={selectedDate}
-            onSave={handleSaveAppointment}
-            onCancel={() => {
-              setShowForm(false);
-              setSelectedAppointment(null);
-              setSelectedDate(null);
-            }}
-            isLoading={createMutation.isPending || updateMutation.isPending}
-          />
+            </h2>
+            <p className="text-sm text-blue-100 mt-1">ניהול פרטי הפגישה</p>
+          </div>
+          <div className="p-6">
+            <AppointmentForm
+              appointment={selectedAppointment}
+              selectedDate={selectedDate}
+              onSave={handleSaveAppointment}
+              onCancel={() => {
+                setShowForm(false);
+                setSelectedAppointment(null);
+                setSelectedDate(null);
+              }}
+              isLoading={createMutation.isPending || updateMutation.isPending}
+            />
+          </div>
         </DialogContent>
       </Dialog>
 
