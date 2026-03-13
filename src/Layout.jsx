@@ -26,6 +26,7 @@ function LayoutContent({ children, currentPageName }) {
   const { currentUser, logout, loading, authChecked } = useAuth();
   const { attemptNavigation, importInProgress, ConfirmDialog } = useNavigationBlock();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const isAdmin = isManagerRole(currentUser);
 
@@ -94,9 +95,43 @@ function LayoutContent({ children, currentPageName }) {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50" dir="rtl">
+      {/* Sidebar */}
+      <aside className={`fixed right-0 top-16 h-[calc(100vh-64px)] w-64 bg-white border-l border-slate-200 shadow-lg transform transition-transform duration-300 z-40 overflow-y-auto ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <nav className="p-4 space-y-2">
+          {filteredNavItems.map((item) => {
+            const isActive = currentPageName === item.name;
+            return (
+              <button
+                key={item.name}
+                onClick={() => {
+                  handleNavigation(item.name);
+                  setIsSidebarOpen(false);
+                }}
+                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-right ${
+                  isActive
+                    ? 'bg-blue-100 text-blue-700 font-semibold shadow-sm'
+                    : 'text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <item.icon className="w-5 h-5 flex-shrink-0" />
+                <span className="flex-1 text-right">{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+      </aside>
+
+      {/* Overlay */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/20 z-30 top-16"
+          onClick={() => setIsSidebarOpen(false)}
+        />
+      )}
+
       {/* Header */}
       <header className="bg-gradient-to-r from-blue-600 to-indigo-600 border-b border-blue-700/30 sticky top-0 z-50 shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* לוגו אחד בלבד - ימין */}
             
@@ -107,28 +142,15 @@ function LayoutContent({ children, currentPageName }) {
 
 
 
-
-            {/* ניווט Desktop - מרכז */}
-            <nav className="hidden md:flex items-center gap-1">
-              {filteredNavItems.map((item) => {
-                const isActive = currentPageName === item.name;
-                return (
-                  <button
-                    key={item.name}
-                    onClick={() => handleNavigation(item.name)}
-                    className={`
-                      flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
-                      ${isActive ?
-                    'bg-white/25 text-white shadow-lg backdrop-blur-sm' :
-                    'text-white/80 hover:bg-white/15 hover:text-white'}
-                    `}>
-
-                    <item.icon className="w-4 h-4" />
-                    {item.label}
-                  </button>);
-
-              })}
-            </nav>
+            {/* כפתור תפריט - שמאל */}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-9 w-9 text-white hover:bg-white/15"
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+            >
+              {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
 
             {/* תפריט משתמש - שמאל */}
             <div className="flex items-center gap-2">
@@ -165,77 +187,15 @@ function LayoutContent({ children, currentPageName }) {
                 </div>
               }
 
-              {/* פעמון מובייל */}
+              {/* פעמון */}
               {currentUser &&
-              <div className="md:hidden">
-                  <NotificationBell currentUser={currentUser} />
-                </div>
+              <NotificationBell currentUser={currentUser} />
               }
-
-              {/* כפתור תפריט מובייל */}
-              <Button
-                variant="ghost"
-                size="icon"
-                className="md:hidden h-9 w-9 text-white hover:bg-white/15"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-
-                {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-              </Button>
             </div>
           </div>
         </div>
 
-        {/* תפריט Mobile */}
-        {isMobileMenuOpen &&
-        <div className="md:hidden border-t border-blue-700/20 bg-white/95 backdrop-blur-sm shadow-lg" dir="rtl">
-            <nav className="px-4 py-3 space-y-1">
-              {filteredNavItems.map((item) => {
-              const isActive = currentPageName === item.name;
-              return (
-                <button
-                  key={item.name}
-                  onClick={() => handleNavigation(item.name)}
-                  className={`
-                      w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-right
-                      ${isActive ?
-                  'bg-blue-100 text-blue-700 font-semibold shadow-sm' :
-                  'text-slate-700 hover:bg-blue-50'}
-                    `}
-                  dir="rtl">
 
-                    <item.icon className="w-5 h-5 flex-shrink-0" />
-                    <span className="flex-1 text-right">{item.label}</span>
-                  </button>);
-
-            })}
-              {currentUser &&
-            <div className="pt-2 mt-2 border-t border-slate-200">
-                  <div className="px-4 py-2 text-right">
-                    <p className="text-xs text-slate-500 font-medium">משתמש מחובר</p>
-                    <p className="text-sm font-semibold text-slate-800 mt-1">{currentUser.username}</p>
-                    <p className="text-xs text-slate-500 mt-1">
-                      {currentUser.isBase44Admin ?
-                  'Base44 Super Admin' :
-                  currentUser.role === 'ADMIN' ? 'מנהל' :
-                  'צופה'}
-                    </p>
-                  </div>
-                  <button
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  handleLogout();
-                }}
-                className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors text-right"
-                dir="rtl">
-
-                    <LogOut className="w-4 h-4 flex-shrink-0" />
-                    <span className="flex-1 text-right">התנתק</span>
-                  </button>
-                </div>
-            }
-            </nav>
-          </div>
-        }
       </header>
 
       {/* תוכן */}
