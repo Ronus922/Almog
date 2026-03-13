@@ -189,8 +189,9 @@ export default function EditUserDialog({ user, isOpen, onClose, onSave, existing
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="admin">מנהל</SelectItem>
-                <SelectItem value="viewer_password">צפייה עם סיסמה</SelectItem>
+                <SelectItem value="SUPER_ADMIN">סופר אדמין</SelectItem>
+                <SelectItem value="ADMIN">מנהל</SelectItem>
+                <SelectItem value="VIEWER">צופה</SelectItem>
               </SelectContent>
             </Select>
           </div>
