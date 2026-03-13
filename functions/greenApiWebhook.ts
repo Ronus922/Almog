@@ -1,18 +1,6 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
-// Helper to get base44 client with service role for webhooks
-async function getBase44Client(req) {
-  try {
-    return createClientFromRequest(req);
-  } catch (e) {
-    // Webhook doesn't have auth header - use service role
-    // In production, verify the webhook comes from Green API by checking headers
-    console.log('Using service role access for webhook');
-    const appId = Deno.env.get('BASE44_APP_ID');
-    // Return a client that can access service role
-    return createClientFromRequest(req);
-  }
-}
+
 
 Deno.serve(async (req) => {
   console.log('[WEBHOOK] Received request:', req.method, req.url);
