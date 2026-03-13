@@ -717,7 +717,7 @@ export default function DebtorsTable({
               {/* Filter Actions Row */}
               {showAdvancedFilters &&
                 <TableRow className="bg-blue-50/30 border-b border-blue-200">
-                   <TableHead colSpan={8} className="py-3 px-6">
+                   <TableHead colSpan={9} className="py-3 px-6">
                     <div className="flex items-center justify-end" dir="rtl">
                       <Button
                         variant="outline"
@@ -736,7 +736,7 @@ export default function DebtorsTable({
             <TableBody>
               {paginatedRecords.length === 0 ?
                 <TableRow>
-                   <TableCell colSpan={8} className="text-center py-12">
+                   <TableCell colSpan={9} className="text-center py-12">
                     <div className="flex flex-col items-center gap-3">
                       <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center">
                         <Filter className="w-8 h-8 text-slate-400" />
