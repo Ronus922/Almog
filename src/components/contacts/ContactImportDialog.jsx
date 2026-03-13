@@ -116,11 +116,9 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
     setProgressText("קורא קובץ...");
 
     try {
-      const reader = new FileReader();
-      reader.onload = async (evt) => {
-        try {
-          // Dynamic import for XLSX
-          const XLSX = await import('https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.mini.min.js');
+       const reader = new FileReader();
+       reader.onload = async (evt) => {
+         try {
           const wb = XLSX.read(evt.target.result, { type: "binary" });
           const ws = wb.Sheets[wb.SheetNames[0]];
           const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
