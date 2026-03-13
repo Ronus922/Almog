@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
           u.email === data.assigned_by || u.username === data.assigned_by
         );
         if (match) {
-          assignerName = [match.first_name, match.last_name].filter(Boolean).join(' ') || data.assigned_by;
+          assignerName = match.first_name || [match.first_name, match.last_name].filter(Boolean).join(' ') || data.assigned_by;
         }
       } catch (_) { /* fallback to email */ }
     }
