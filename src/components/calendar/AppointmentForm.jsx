@@ -85,10 +85,6 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
     }));
   }, []);
 
-  const memoizedHandleChange = useCallback((field, value) => {
-    handleChange(field, value);
-  }, [handleChange]);
-
   const getUserAvatarColor = useCallback((user) => {
     const colors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6'];
     return colors[users.indexOf(user) % colors.length];
