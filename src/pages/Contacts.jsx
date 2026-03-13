@@ -192,7 +192,7 @@ export default function Contacts() {
 
       {/* Filters */}
       <Card>
-        <CardContent className="p-4 space-y-3">
+        <CardContent className="p-4 space-y-3" dir="rtl">
           <div className="relative">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input
@@ -200,6 +200,7 @@ export default function Contacts() {
               onChange={e => setSearch(e.target.value)}
               placeholder="חיפוש לפי דירה, שם בעל, שם שוכר, טלפון..."
               className="pr-9"
+              dir="rtl"
             />
           </div>
           {allTags.length > 0 && (
