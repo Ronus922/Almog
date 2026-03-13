@@ -175,10 +175,8 @@ export default function WhatsAppChat() {
                       <div className="font-semibold text-gray-900 text-sm">
                         {displayName}
                       </div>
-                      <div className="text-xs text-gray-600 mt-0.5 line-clamp-1">
-                        {contact.lastMessage 
-                          ? (contact.lastMessage.direction === 'sent' ? 'אתה: ' : '') + contact.lastMessage.content 
-                          : 'דירה ' + contact.apartment_number}
+                      <div className="text-xs text-gray-600 mt-0.5">
+                        דירה {contact.apartment_number}
                       </div>
                     </div>
                   </button>
