@@ -3,9 +3,10 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Send, Search } from 'lucide-react';
+import { Send, Search, Plus } from 'lucide-react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
+import ChatMessageBubble from '@/components/whatsapp/ChatMessageBubble';
 
 export default function WhatsAppChat() {
   const [selectedContact, setSelectedContact] = useState(null);
