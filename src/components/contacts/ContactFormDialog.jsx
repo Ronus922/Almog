@@ -69,10 +69,10 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
-          <DialogTitle>{contact ? "עריכת איש קשר" : "איש קשר חדש"}</DialogTitle>
+          <DialogTitle className="text-right">{contact ? "עריכת איש קשר" : "איש קשר חדש"}</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 mt-2">
+        <div className="space-y-4 mt-2 text-right">
           {/* Apartment */}
           <div className="grid grid-cols-2 gap-3">
             <div>
