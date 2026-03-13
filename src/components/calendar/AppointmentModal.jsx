@@ -132,10 +132,13 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
         {/* Actions */}
         <div className="flex gap-3 justify-end pt-4 border-t border-slate-200">
           <Button
-            variant="outline"
-            onClick={onClose}
+            variant="destructive"
+            onClick={onDelete}
+            disabled={isDeleting}
+            className="gap-2"
           >
-            סגור
+            <Trash2 className="w-4 h-4" />
+            {isDeleting ? 'מוחק...' : 'מחק'}
           </Button>
           <Button
             variant="outline"
@@ -146,13 +149,10 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
             ערוך
           </Button>
           <Button
-            variant="destructive"
-            onClick={onDelete}
-            disabled={isDeleting}
-            className="gap-2"
+            variant="outline"
+            onClick={onClose}
           >
-            <Trash2 className="w-4 h-4" />
-            {isDeleting ? 'מוחק...' : 'מחק'}
+            סגור
           </Button>
         </div>
       </DialogContent>
