@@ -38,16 +38,16 @@ export default function WhatsAppChat() {
 
   // Subscribe to new messages in real-time
   useEffect(() => {
-    if (!selectedContact) return;
+    if (!selectedContact?.id) return;
 
     const unsubscribe = base44.entities.ChatMessage.subscribe((event) => {
-      if (event.data.contact_id === selectedContact.id) {
+      if (event.data?.contact_id === selectedContact.id) {
         queryClient.invalidateQueries({ queryKey: ['chatMessages', selectedContact.id] });
       }
     });
 
-    return unsubscribe;
-  }, [selectedContact, queryClient]);
+    return () => unsubscribe?.();
+  }, [selectedContact?.id]);
 
   // Send message mutation
   const sendMessageMutation = useMutation({
