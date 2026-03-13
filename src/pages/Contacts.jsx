@@ -241,8 +241,8 @@ export default function Contacts() {
                          <span className="text-slate-400 text-sm">—</span>
                        )}
                      </TableCell>
-                     <TableCell>
-                       <div className="flex gap-1 justify-center">
+                     <TableCell className="w-min px-2">
+                       <div className="flex gap-0.5 justify-center">
                          <Button
                            variant="ghost"
                            size="sm"
