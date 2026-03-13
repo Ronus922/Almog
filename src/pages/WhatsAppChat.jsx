@@ -42,11 +42,13 @@ export default function WhatsAppChat() {
   // Get chat messages - sorted chronologically (oldest first for proper display)
   const { data: messages = [] } = useQuery({
     queryKey: ['chatMessages', selectedContact?.id],
-    queryFn: () => {
+    queryFn: async () => {
       if (!selectedContact) return [];
-      return base44.entities.ChatMessage.filter({
+      const msgs = await base44.entities.ChatMessage.filter({
         contact_id: selectedContact.id
       }, 'timestamp'); // Keep oldest first - they'll appear at top
+      console.log('[WhatsAppChat] Messages fetched:', msgs.length, 'for contact:', selectedContact.id);
+      return msgs;
     },
     enabled: !!selectedContact,
     staleTime: 1000 * 30,
