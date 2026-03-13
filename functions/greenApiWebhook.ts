@@ -27,21 +27,26 @@ Deno.serve(async (req) => {
       }
       console.log('Phone in Israeli format:', senderPhone);
       
-      // Find matching contact
+      // Find matching contact - check all possible phone fields
       const contacts = await base44.entities.Contact.filter({});
       console.log('Total contacts in DB:', contacts.length);
       
+      const senderPhoneClean = senderPhone.replace(/[^0-9]/g, '');
+      
       const contact = contacts.find(c => {
-        const ownerPhone = (c.owner_phone || '').replace(/[^0-9]/g, '');
-        const tenantPhone = (c.tenant_phone || '').replace(/[^0-9]/g, '');
-        const ownerMatch = ownerPhone === senderPhone.replace(/[^0-9]/g, '');
-        const tenantMatch = tenantPhone === senderPhone.replace(/[^0-9]/g, '');
+        const phones = [
+          c.owner_phone,
+          c.tenant_phone,
+          // Also check raw phone formats
+          c.phoneOwner,
+          c.phoneTenant,
+          c.phonePrimary
+        ].filter(p => p);
         
-        if (ownerMatch || tenantMatch) {
-          console.log(`Contact match found: ${c.apartment_number} (owner: ${ownerPhone}, tenant: ${tenantPhone})`);
-        }
-        
-        return ownerMatch || tenantMatch;
+        return phones.some(phone => {
+          const phoneClean = (phone || '').replace(/[^0-9]/g, '');
+          return phoneClean === senderPhoneClean;
+        });
       });
       
       if (contact) {
