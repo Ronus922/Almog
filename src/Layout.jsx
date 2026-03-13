@@ -253,6 +253,7 @@ function LayoutContent({ children, currentPageName }) {
 export default function Layout({ children, currentPageName }) {
   return (
     <AuthProvider>
+      <AlertProvider>
       <ImportProvider>
         <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:wght@300;400;500;600;700;800;900&display=swap');
