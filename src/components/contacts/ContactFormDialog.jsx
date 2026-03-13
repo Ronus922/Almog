@@ -140,28 +140,29 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
             <h3 className="text-sm font-semibold text-slate-700 mb-2">פרטי השוכר</h3>
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <Label>שם</Label>
+                <Label className="text-right block">שם</Label>
                 <Input
                   value={form.tenant_name}
                   onChange={e => setForm(f => ({ ...f, tenant_name: e.target.value }))}
-                  className="mt-1"
+                  className="mt-1 text-right"
+                  dir="rtl"
                 />
               </div>
               <div>
-                <Label>טלפון</Label>
+                <Label className="text-right block">טלפון</Label>
                 <Input
                   value={form.tenant_phone}
                   onChange={e => setForm(f => ({ ...f, tenant_phone: e.target.value }))}
-                  className="mt-1"
+                  className="mt-1 text-right"
                   dir="ltr"
                 />
               </div>
               <div>
-                <Label>מייל</Label>
+                <Label className="text-right block">מייל</Label>
                 <Input
                   value={form.tenant_email}
                   onChange={e => setForm(f => ({ ...f, tenant_email: e.target.value }))}
-                  className="mt-1"
+                  className="mt-1 text-right"
                   dir="ltr"
                   type="email"
                 />
