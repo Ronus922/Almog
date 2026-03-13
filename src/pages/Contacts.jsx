@@ -209,16 +209,9 @@ export default function Contacts() {
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead className="w-10 text-center">
-                    <Checkbox
-                      checked={selected.length === filtered.length && filtered.length > 0}
-                      onCheckedChange={toggleAll}
-                    />
-                  </TableHead>
-                  <TableHead>דירה</TableHead>
+                  <TableHead className="w-10 text-center">דירה</TableHead>
                   <TableHead>בעל הדירה</TableHead>
                   <TableHead className="hidden md:table-cell">השוכר</TableHead>
-                  <TableHead className="hidden lg:table-cell">כתובת</TableHead>
                   <TableHead className="text-center hidden md:table-cell">דמי ניהול</TableHead>
                   <TableHead className="text-center">פעולות</TableHead>
                 </TableRow>
