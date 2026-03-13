@@ -217,7 +217,6 @@ export default function Tasks() {
 
             {showFilters && (
               <div className="flex flex-wrap gap-3 items-center pt-2 border-t border-slate-100">
-                {/* תיאור משימה */}
                 <Select value={filterTaskType} onValueChange={setFilterTaskType}>
                   <SelectTrigger className="w-44"><SelectValue placeholder="תיאור משימה" /></SelectTrigger>
                   <SelectContent>
@@ -227,7 +226,6 @@ export default function Tasks() {
                   </SelectContent>
                 </Select>
 
-                {/* עובד */}
                 <Select value={filterAssigned} onValueChange={setFilterAssigned}>
                   <SelectTrigger className="w-44"><SelectValue placeholder="עובד" /></SelectTrigger>
                   <SelectContent>
@@ -238,7 +236,6 @@ export default function Tasks() {
                   </SelectContent>
                 </Select>
 
-                {/* תאריך ביצוע */}
                 <Input
                   type="date"
                   className="w-44"
@@ -246,7 +243,6 @@ export default function Tasks() {
                   onChange={e => setFilterDueDate(e.target.value)}
                 />
 
-                {/* סטטוס */}
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
                   <SelectTrigger className="w-36"><SelectValue placeholder="סטטוס" /></SelectTrigger>
                   <SelectContent>
@@ -256,7 +252,6 @@ export default function Tasks() {
                   </SelectContent>
                 </Select>
 
-                {/* עדיפות */}
                 <Select value={filterPriority} onValueChange={setFilterPriority}>
                   <SelectTrigger className="w-36"><SelectValue placeholder="עדיפות" /></SelectTrigger>
                   <SelectContent>
@@ -266,7 +261,6 @@ export default function Tasks() {
                   </SelectContent>
                 </Select>
 
-                {/* נקה פילטרים */}
                 {(filterStatus !== "הכל" || filterPriority !== "הכל" || filterAssigned !== "הכל" || filterDueDate || filterTaskType !== "הכל") && (
                   <Button variant="ghost" size="sm" className="text-slate-400 gap-1" onClick={() => {
                     setFilterStatus("הכל"); setFilterPriority("הכל");
@@ -285,7 +279,7 @@ export default function Tasks() {
           <CardContent className="p-0">
             {isLoading ? (
               <div className="py-16 text-center text-slate-400">טוען משימות...</div>
-            ) : filtered.length === 0 ? (
+            ) : sorted.length === 0 ? (
               <div className="py-16 text-center text-slate-400">
                 <ClipboardList className="w-10 h-10 mx-auto mb-3 opacity-30" />
                 <p>אין משימות להצגה</p>
@@ -307,7 +301,6 @@ export default function Tasks() {
                   <tbody className="divide-y divide-slate-100">
                     {sorted.map(task => (
                       <tr key={task.id} className="hover:bg-slate-50 transition-colors">
-                        {/* Edit */}
                         <td className="px-4 py-3">
                           <button
                             onClick={() => { setEditTask(task); setShowDialog(true); }}
@@ -317,7 +310,6 @@ export default function Tasks() {
                           </button>
                         </td>
 
-                        {/* תיאור */}
                         <td className="px-4 py-3">
                           <div className="font-medium text-slate-800">{task.task_type}</div>
                           {task.owner_name && (
@@ -330,7 +322,6 @@ export default function Tasks() {
                           )}
                         </td>
 
-                        {/* עובד - מי שהוקצה + מי הקצה */}
                         <td className="px-4 py-3">
                           <div className="text-slate-700">
                             {task.assigned_to_name || task.assigned_to || "-"}
@@ -343,24 +334,20 @@ export default function Tasks() {
                           )}
                         </td>
 
-                        {/* תאריך לביצוע */}
                         <td className={`px-4 py-3 ${getDueDateStyle(task)}`}>
                           {task.due_date ? formatDateTime(task.due_date + "T00:00:00") : "-"}
                         </td>
 
-                        {/* עדיפות */}
                         <td className="px-4 py-3">
                           {task.priority === "גבוהה" && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">גבוהה</span>}
                           {task.priority === "בינונית" && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">בינונית</span>}
                           {task.priority === "נמוכה" && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-fuchsia-100 text-fuchsia-700">נמוכה</span>}
                         </td>
 
-                        {/* סטטוס */}
                         <td className="px-4 py-3">
                           <StatusBadge status={task.status} />
                         </td>
 
-                        {/* תאריך יצירה */}
                         <td className="px-4 py-3 text-slate-500">
                           {formatDateTime(task.created_date)}
                         </td>
