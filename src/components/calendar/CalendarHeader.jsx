@@ -71,18 +71,18 @@ export default function CalendarHeader({
             className="inline-block px-4 py-2 rounded-lg bg-blue-50 hover:bg-blue-100 transition-colors cursor-pointer border border-blue-200"
           >
             <p className="text-sm font-semibold text-slate-900">{getDisplayRange()}</p>
-            <p className="text-xs text-slate-500 mt-1">{getMonthLabel()}</p>
+            <p className="text-xs text-slate-600 mt-2 font-medium">{getMonthLabel()}</p>
           </button>
         </div>
 
         {/* Left: Navigation Arrows */}
-        <div className="flex items-center gap-2 flex-shrink-0">
+        <div className="flex items-center gap-1 flex-shrink-0">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => onNavigate('prev')}
-            className="h-9 w-9 text-slate-600 hover:text-slate-900"
-            title="אחורה"
+            className="h-9 w-9 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            title="חודש קודם"
           >
             <ChevronLeft className="w-5 h-5" />
           </Button>
@@ -90,8 +90,8 @@ export default function CalendarHeader({
             variant="ghost"
             size="icon"
             onClick={() => onNavigate('next')}
-            className="h-9 w-9 text-slate-600 hover:text-slate-900"
-            title="קדימה"
+            className="h-9 w-9 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            title="חודש הבא"
           >
             <ChevronRight className="w-5 h-5" />
           </Button>
