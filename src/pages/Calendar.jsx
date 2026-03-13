@@ -187,16 +187,18 @@ export default function Calendar() {
               <Button 
                 variant="ghost" 
                 size="icon" 
-                onClick={handlePrevMonth}
+                onClick={handleNextMonth}
                 className="h-9 w-9 text-slate-600 hover:text-slate-900"
+                title="חודש הבא"
               >
                 <ChevronRight className="w-5 h-5" />
               </Button>
               <Button 
                 variant="ghost" 
                 size="icon" 
-                onClick={handleNextMonth}
+                onClick={handlePrevMonth}
                 className="h-9 w-9 text-slate-600 hover:text-slate-900"
+                title="חודש קודם"
               >
                 <ChevronLeft className="w-5 h-5" />
               </Button>
