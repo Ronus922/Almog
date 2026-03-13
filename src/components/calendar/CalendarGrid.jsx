@@ -52,7 +52,7 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
     const isToday = isSameDay(date, new Date());
 
     // Base styles
-    const baseStyles = 'p-3 min-h-32 border-r border-b border-slate-200 transition-all cursor-pointer hover:shadow-md';
+    const baseStyles = 'p-4 min-h-40 border-r border-b border-slate-200 transition-all cursor-pointer hover:shadow-sm';
     
     // Holiday type styles (highest priority)
     if (holiday?.type === 'yom_tov') {
