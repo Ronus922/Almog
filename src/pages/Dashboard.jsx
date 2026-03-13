@@ -9,7 +9,7 @@ import AppButton from "@/components/ui/app-button";
 import { Loader2, Building2, RefreshCw, X, Users, Archive, Printer } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { isManagerRole } from '@/components/utils/roles';
-import { useAlert } from '@/components/notifications/AlertSystem';
+import { toast } from 'sonner';
 
 import KPICards from '../components/dashboard/KPICards';
 import DebtorsTable from '../components/dashboard/DebtorsTable';
@@ -29,7 +29,6 @@ function DashboardContent() {
   const [filteredDataset, setFilteredDataset] = useState([]);
   const [activeTab, setActiveTab] = useState('debtors');
   const queryClient = useQueryClient();
-  const showAlert = useAlert();
 
   // CRITICAL: Require authentication
   if (authChecked && !currentUser) {
@@ -85,7 +84,7 @@ function DashboardContent() {
           await queryClient.invalidateQueries({ queryKey: ['settings'] });
           setRefreshKey(Date.now());
           
-          showAlert('✅ הנתונים עודכנו מהייבוא', 'success');
+          toast.success('✅ הנתונים עודכנו מהייבוא');
         }
         
         // Always remove after checking

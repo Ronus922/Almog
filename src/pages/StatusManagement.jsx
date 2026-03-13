@@ -49,11 +49,10 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Plus, Edit, Trash2, Shield, Loader2, Save, X, ArrowRight, SlidersHorizontal, Wrench, Palette } from "lucide-react";
-
+import { toast } from "sonner";
 import { isManagerRole, getUserRoleDisplay } from '@/components/utils/roles';
 import ColorPicker from '../components/status/ColorPicker';
 import ColorBulkEditor from '../components/status/ColorBulkEditor';
-import { useAlert } from '@/components/notifications/AlertSystem';
 
 const COLOR_OPTIONS = [
   { value: 'bg-green-100 text-green-700 border-green-200', label: 'ירוק', preview: 'bg-green-100 border-green-200' },
@@ -97,7 +96,6 @@ export default function StatusManagement() {
 
   const queryClient = useQueryClient();
   const navigate = useNavigate();
-  const showAlert = useAlert();
 
 
 
@@ -131,7 +129,7 @@ export default function StatusManagement() {
       queryClient.invalidateQueries({ queryKey: ['statuses'] });
       setIsAddDialogOpen(false);
       resetForm();
-      showAlert('סטטוס נוסף בהצלחה', 'success');
+      toast.success('סטטוס נוסף בהצלחה');
     },
   });
 
@@ -141,7 +139,7 @@ export default function StatusManagement() {
       queryClient.invalidateQueries({ queryKey: ['statuses'] });
       setIsEditDialogOpen(false);
       setEditingStatus(null);
-      showAlert('סטטוס עודכן בהצלחה', 'success');
+      toast.success('סטטוס עודכן בהצלחה');
     },
   });
 
@@ -152,7 +150,7 @@ export default function StatusManagement() {
       queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
       setDeleteConfirm(null);
       setReassignTargetId('');
-      showAlert('הסטטוס נמחק בהצלחה', 'success');
+      toast.success('הסטטוס נמחק בהצלחה');
     },
   });
 
@@ -194,10 +192,10 @@ export default function StatusManagement() {
       }
 
       setFixResult(result);
-      showAlert(`סריקה הושלמה: ${result.alreadyValid} תקינות, ${result.fixed} ללא סטטוס, ${result.locked} נעולות (ידני)`, 'success');
+      toast.success(`סריקה הושלמה: ${result.alreadyValid} תקינות, ${result.fixed} ללא סטטוס, ${result.locked} נעולות (ידני)`);
     } catch (error) {
       console.error('Error scanning statuses:', error);
-      showAlert('שגיאה בסריקה', 'error');
+      toast.error('שגיאה בסריקה');
     } finally {
       setIsFixing(false);
     }
@@ -215,7 +213,7 @@ export default function StatusManagement() {
       queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
       queryClient.invalidateQueries({ queryKey: ['statuses'] });
       const targetStatus = statuses.find(s => s.id === variables.targetId);
-      showAlert(`בוצעה העברה בהצלחה: ${data.count} רשומות עודכנו לסטטוס '${targetStatus?.name}'`, 'success');
+      toast.success(`בוצעה העברה בהצלחה: ${data.count} רשומות עודכנו לסטטוס '${targetStatus?.name}'`);
       setReassignTargetId('');
       // רענון מונה הקשרים
       setDeleteConfirm({
@@ -224,7 +222,7 @@ export default function StatusManagement() {
       });
     },
     onError: () => {
-      showAlert('כשל בביצוע ההעברה. לא בוצעו שינויים.', 'error');
+      toast.error('כשל בביצוע ההעברה. לא בוצעו שינויים.');
     }
   });
 
@@ -263,7 +261,7 @@ export default function StatusManagement() {
 
   const handleDelete = (status) => {
     if (status.is_default) {
-      showAlert('לא ניתן למחוק סטטוס ברירת מחדל', 'error');
+      toast.error('לא ניתן למחוק סטטוס ברירת מחדל');
       return;
     }
     const usageCount = debtorRecords.filter(r => r.legal_status_id === status.id).length;
@@ -291,26 +289,26 @@ export default function StatusManagement() {
       await base44.entities.DebtorRecord.update(updatedRecord.id, updatedRecord);
       queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
       setIsDetailModalOpen(false);
-      showAlert('הרשומה עודכנה בהצלחה', 'success');
+      toast.success('הרשומה עודכנה בהצלחה');
     } catch (err) {
-      showAlert('שמירה נכשלה', 'error');
+      toast.error('שמירה נכשלה');
     }
   };
 
   const handleReassign = () => {
     if (!reassignTargetId) {
-      showAlert('יש לבחור סטטוס חלופי כדי להמשיך', 'error');
+      toast.error('יש לבחור סטטוס חלופי כדי להמשיך');
       return;
     }
 
     if (reassignTargetId === deleteConfirm.status.id) {
-      showAlert('לא ניתן לבחור את אותו הסטטוס כחלופי. בחר סטטוס אחר', 'error');
+      toast.error('לא ניתן לבחור את אותו הסטטוס כחלופי. בחר סטטוס אחר');
       return;
     }
 
     const targetStatus = statuses.find(s => s.id === reassignTargetId);
     if (!targetStatus || !targetStatus.is_active) {
-      showAlert('לא ניתן להעביר לסטטוס לא פעיל. בחר סטטוס פעיל', 'error');
+      toast.error('לא ניתן להעביר לסטטוס לא פעיל. בחר סטטוס פעיל');
       return;
     }
 
@@ -325,7 +323,7 @@ export default function StatusManagement() {
 
   const handleSubmit = () => {
     if (!formData.name.trim()) {
-      showAlert('שם הסטטוס חובה', 'error');
+      toast.error('שם הסטטוס חובה');
       return;
     }
 
@@ -333,14 +331,14 @@ export default function StatusManagement() {
     if (formData.is_default) {
       const otherDefault = statuses.find(s => s.is_default && s.id !== editingStatus?.id);
       if (otherDefault) {
-        showAlert('כבר קיים סטטוס ברירת מחדל. ניתן להגדיר רק אחד.', 'error');
+        toast.error('כבר קיים סטטוס ברירת מחדל. ניתן להגדיר רק אחד.');
         return;
       }
     }
 
     // אם זה סטטוס default, לא לאפשר השבתה
     if (editingStatus?.is_default && !formData.is_active) {
-      showAlert('לא ניתן להשבית סטטוס ברירת מחדל', 'error');
+      toast.error('לא ניתן להשבית סטטוס ברירת מחדל');
       return;
     }
 

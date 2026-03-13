@@ -26,20 +26,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel,
-  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
-  AlertDialogHeader, AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
 import { Users, Plus, Trash2, Power, PowerOff, AlertCircle, Shield, Eye, Pencil, Loader2 } from "lucide-react";
-
+import { toast } from 'sonner';
 import EditUserDialog from '@/components/users/EditUserDialog';
-import { useAlert } from '@/components/notifications/AlertSystem';
 
 export default function UserManagement() {
   const { currentUser, loading } = useAuth();
   const queryClient = useQueryClient();
-  const showAlert = useAlert();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
@@ -53,7 +46,6 @@ export default function UserManagement() {
   });
   const [formError, setFormError] = useState('');
   const [shareToken, setShareToken] = useState('');
-  const [confirmDeleteUser, setConfirmDeleteUser] = useState(null);
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['appUsers'],
@@ -100,10 +92,10 @@ export default function UserManagement() {
       setIsAddDialogOpen(false);
       setNewUser({ first_name: '', last_name: '', username: '', email: '', password: '', role: 'VIEWER' });
       setFormError('');
-      showAlert('המשתמש נוצר ומייל נשלח בהצלחה', 'success');
+      toast.success('המשתמש נוצר ומייל נשלח בהצלחה');
     },
     onError: () => {
-      showAlert('שגיאה ביצירת המשתמש', 'error');
+      toast.error('שגיאה ביצירת המשתמש');
     }
   });
 
@@ -111,7 +103,7 @@ export default function UserManagement() {
     mutationFn: ({ id, is_active }) => base44.entities.AppUser.update(id, { is_active }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['appUsers'] });
-      showAlert('הסטטוס עודכן', 'success');
+      toast.success('הסטטוס עודכן');
     }
   });
 
@@ -119,7 +111,7 @@ export default function UserManagement() {
     mutationFn: (id) => base44.entities.AppUser.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['appUsers'] });
-      showAlert('המשתמש נמחק', 'success');
+      toast.success('המשתמש נמחק');
     }
   });
 
@@ -145,10 +137,10 @@ export default function UserManagement() {
       queryClient.invalidateQueries({ queryKey: ['appUsers'] });
       setIsEditDialogOpen(false);
       setEditingUser(null);
-      showAlert('המשתמש עודכן בהצלחה', 'success');
+      toast.success('המשתמש עודכן בהצלחה');
     },
     onError: () => {
-      showAlert('שגיאה בעדכון המשתמש', 'error');
+      toast.error('שגיאה בעדכון המשתמש');
     }
   });
 
@@ -328,12 +320,16 @@ export default function UserManagement() {
                           )}
                         </Button>
                         <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={() => setConfirmDeleteUser(user)}
-                        className="rounded-lg text-red-600 hover:bg-red-50"
-                        disabled={user.username === currentUser?.username}
-                        title="מחק"
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            if (confirm(`האם למחוק את המשתמש ${user.username}?`)) {
+                              deleteUserMutation.mutate(user.id);
+                            }
+                          }}
+                          className="rounded-lg text-red-600 hover:bg-red-50"
+                          disabled={user.username === currentUser?.username}
+                          title="מחק"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>

@@ -14,9 +14,8 @@ import {
 } from "lucide-react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
-
+import { toast } from 'sonner';
 import { useAuth } from '@/components/auth/AuthContext';
-import { useAlert } from '@/components/notifications/AlertSystem';
 import InlineEditableField from './InlineEditableField';
 import DebtSeverityBadge from './DebtSeverityBadge';
 import { calculateDebtStatusDebug } from '../utils/debtStatusCalculator';
@@ -24,7 +23,6 @@ import CommentsSection from '../comments/CommentsSection';
 
 export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin, settings }) {
   const { currentUser } = useAuth();
-  const showAlert = useAlert();
   const [isExporting, setIsExporting] = useState(false);
   const { data: allStatuses = [] } = useQuery({
     queryKey: ['statuses'],
@@ -150,7 +148,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     // Server update
     await base44.entities.DebtorRecord.update(record.id, updatePayload);
     
-    showAlert(`${fieldName === 'phoneOwner' ? 'טלפון בעלים' : fieldName === 'phoneTenant' ? 'טלפון שוכר' : fieldName === 'phonePrimary' ? 'טלפון להצגה' : 'שדה'} עודכן בהצלחה`, 'success');
+    toast.success(`${fieldName === 'phoneOwner' ? 'טלפון בעלים' : fieldName === 'phoneTenant' ? 'טלפון שוכר' : fieldName === 'phonePrimary' ? 'טלפון להצגה' : 'שדה'} עודכן בהצלחה`);
   };
 
   const handleLegalStatusChange = async (newStatusId) => {
@@ -242,24 +240,24 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             console.log('[EMAIL CLIENT] Results:', results);
             
             if (summary && summary.success > 0) {
-              showAlert(`✉️ נשלחו ${summary.success} מיילים בהצלחה`, 'success');
+              toast.success(`✉️ נשלחו ${summary.success} מיילים בהצלחה`, { duration: 5000 });
               
               if (summary.failed > 0) {
                 const failedEmails = results.filter(r => !r.success).map(r => r.email).join(', ');
-                showAlert(`${summary.failed} מיילים נכשלו: ${failedEmails}`, 'warning');
+                toast.warning(`${summary.failed} מיילים נכשלו: ${failedEmails}`, { duration: 7000 });
               }
             } else if (results.length === 0) {
-              showAlert('לא הוגדרו כתובות מייל לסטטוס זה', 'info');
+              toast.info('לא הוגדרו כתובות מייל לסטטוס זה', { duration: 4000 });
             } else {
-              showAlert('כל המיילים נכשלו', 'error');
+              toast.error('כל המיילים נכשלו', { duration: 5000 });
             }
           } else {
             console.log('[EMAIL CLIENT] ❌ No success in response');
-            showAlert('לא התקבלה אישור על שליחת מיילים', 'warning');
+            toast.warning('לא התקבלה אישור על שליחת מיילים');
           }
         }).catch(err => {
           console.error('[EMAIL CLIENT] ❌ Error:', err);
-          showAlert(`שגיאה בשליחת מייל: ${err.message}`, 'error');
+          toast.error(`שגיאה בשליחת מייל: ${err.message}`, { duration: 5000 });
         });
 
         // עדכון נקודתי של cache (ללא refetch כבד)
@@ -503,7 +501,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       
     } catch (error) {
       console.error('Print error:', error);
-      showAlert('שגיאה בהדפסה', 'error');
+      toast.error('שגיאה בהדפסה');
     }
   };
 
@@ -633,10 +631,10 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       document.body.removeChild(printContent);
       
       pdf.save(`דירה_${record.apartmentNumber}_${new Date().toISOString().split('T')[0]}.pdf`);
-      showAlert('PDF הורד בהצלחה', 'success');
+      toast.success('PDF הורד בהצלחה');
     } catch (error) {
       console.error('PDF export error:', error);
-      showAlert('שגיאה בייצוא PDF', 'error');
+      toast.error('שגיאה בייצוא PDF');
     } finally {
       setIsExporting(false);
     }

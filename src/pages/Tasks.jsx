@@ -1,5 +1,4 @@
 import React, { useState, useMemo } from "react";
-import { useAlert } from "@/components/notifications/AlertSystem";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
@@ -7,11 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Search, CheckCircle2, Clock, AlertTriangle, ClipboardList, Trash2, Pencil, UserPlus, Filter, X, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel,
-  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
-  AlertDialogHeader, AlertDialogTitle
-} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/components/auth/AuthContext";
 import { isManagerRole } from "@/components/utils/roles";
 import { StatusBadge } from "@/components/tasks/TaskBadge";
@@ -83,15 +77,9 @@ export default function Tasks() {
     return map;
   }, [appUsers]);
 
-  const showAlert = useAlert();
-  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
-
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Task.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["tasks"] });
-      showAlert('המשימה נמחקה', 'success');
-    },
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
   });
 
   const quickComplete = useMutation({
@@ -340,7 +328,7 @@ export default function Tasks() {
                             </button>
                             {(task.assigned_by === currentUser?.username || task.assigned_by === currentUser?.email) && (
                               <button
-                                onClick={() => setConfirmDeleteId(task.id)}
+                                onClick={() => { if (window.confirm("למחוק משימה זו?")) deleteMutation.mutate(task.id); }}
                                 className="text-slate-300 hover:text-red-500 transition-colors"
                               >
                                 <Trash2 className="w-4 h-4" />
@@ -399,19 +387,6 @@ export default function Tasks() {
           </CardContent>
         </Card>
       </div>
-
-      <AlertDialog open={!!confirmDeleteId} onOpenChange={() => setConfirmDeleteId(null)}>
-        <AlertDialogContent dir="rtl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>מחיקת משימה</AlertDialogTitle>
-            <AlertDialogDescription>האם אתה בטוח שברצונך למחוק משימה זו? פעולה זו אינה הפיכה.</AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel>ביטול</AlertDialogCancel>
-            <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={() => { deleteMutation.mutate(confirmDeleteId); setConfirmDeleteId(null); }}>מחק</AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
 
       <TaskFormDialog
         open={showDialog}

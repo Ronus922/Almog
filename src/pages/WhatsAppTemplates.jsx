@@ -7,8 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Pencil, Trash2, MessageCircle } from 'lucide-react';
-import { useAlert } from '@/components/notifications/AlertSystem';
-
+import { toast } from 'sonner';
 
 const VARIABLES = [
   { label: 'שם הדייר', value: '{{name}}' },
@@ -91,7 +90,6 @@ function TemplateForm({ template, onSave, onCancel }) {
 
 export default function WhatsAppTemplates() {
   const queryClient = useQueryClient();
-  const showAlert = useAlert();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState(null);
 
@@ -104,7 +102,7 @@ export default function WhatsAppTemplates() {
     mutationFn: (data) => base44.entities.WhatsAppTemplate.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['whatsapp-templates'] });
-      showAlert('התבנית נשמרה', 'success');
+      toast.success('התבנית נשמרה');
       setDialogOpen(false);
     },
   });
@@ -113,7 +111,7 @@ export default function WhatsAppTemplates() {
     mutationFn: ({ id, data }) => base44.entities.WhatsAppTemplate.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['whatsapp-templates'] });
-      showAlert('התבנית עודכנה', 'success');
+      toast.success('התבנית עודכנה');
       setDialogOpen(false);
       setEditing(null);
     },
@@ -123,7 +121,7 @@ export default function WhatsAppTemplates() {
     mutationFn: (id) => base44.entities.WhatsAppTemplate.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['whatsapp-templates'] });
-      showAlert('התבנית נמחקה', 'success');
+      toast.success('התבנית נמחקה');
     },
   });
 

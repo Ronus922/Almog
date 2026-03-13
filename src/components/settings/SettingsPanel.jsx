@@ -11,9 +11,9 @@ import {
   Loader2, CheckCircle2, AlertTriangle, RefreshCw, MessageCircle
 } from "lucide-react";
 import { base44 } from '@/api/base44Client';
+import { toast } from 'sonner';
 import { calculateDebtStatus, validateThresholds } from '../utils/debtStatusCalculator';
 import { useQuery } from '@tanstack/react-query';
-import { useAlert } from '@/components/notifications/AlertSystem';
 
 export default function SettingsPanel() {
   const [settings, setSettings] = useState({
@@ -36,7 +36,6 @@ export default function SettingsPanel() {
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [recalcSuccess, setRecalcSuccess] = useState(false);
   const [recalcMessage, setRecalcMessage] = useState('');
-  const showAlert = useAlert();
 
 
 
@@ -63,7 +62,7 @@ export default function SettingsPanel() {
     // Validate thresholds before recalculation
     const validation = validateThresholds(settings);
     if (!validation.valid) {
-      showAlert(validation.error, 'error');
+      toast.error(validation.error);
       return;
     }
 
@@ -101,14 +100,14 @@ export default function SettingsPanel() {
       
       setRecalcSuccess(true);
       setRecalcMessage(`${updated} רשומות עודכנו מתוך ${allRecords.length}`);
-      showAlert(`${updated} רשומות עודכנו בהצלחה`, 'success');
+      toast.success(`${updated} רשומות עודכנו בהצלחה`);
       setTimeout(() => {
         setRecalcSuccess(false);
         setRecalcMessage('');
       }, 5000);
     } catch (err) {
       setError('שגיאה בחישוב מחדש של הסטטוסים: ' + err.message);
-      showAlert('שגיאה בחישוב מחדש', 'error');
+      toast.error('שגיאה בחישוב מחדש');
     } finally {
       setIsRecalculating(false);
     }
@@ -123,7 +122,7 @@ export default function SettingsPanel() {
     const validation = validateThresholds(settings);
     if (!validation.valid) {
       setError(validation.error);
-      showAlert(validation.error, 'error');
+      toast.error(validation.error);
       setIsSaving(false);
       return;
     }
@@ -139,7 +138,7 @@ export default function SettingsPanel() {
       }
       
       setSaveSuccess(true);
-      showAlert('ההגדרות נשמרו בהצלחה', 'success');
+      toast.success('ההגדרות נשמרו בהצלחה');
       
       // בדוק אם הספים השתנו
       const thresholdsChanged = oldSettings && (
@@ -150,7 +149,7 @@ export default function SettingsPanel() {
       
       if (thresholdsChanged) {
         // הפעל ריענון אוטומטי
-        showAlert('הספים השתנו - מעדכן סטטוסים אוטומטית...', 'info');
+        toast.info('הספים השתנו - מעדכן סטטוסים אוטומטית...');
         setTimeout(() => {
           recalculateAllStatuses();
         }, 500);
@@ -159,7 +158,7 @@ export default function SettingsPanel() {
       }
     } catch (err) {
       setError(err.message || 'שגיאה בשמירת ההגדרות');
-      showAlert('שגיאה בשמירת ההגדרות', 'error');
+      toast.error('שגיאה בשמירת ההגדרות');
     } finally {
       setIsSaving(false);
     }

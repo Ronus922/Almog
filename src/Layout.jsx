@@ -18,7 +18,6 @@ import {
   User, ChevronDown, Building2, Menu, X, SlidersHorizontal, Users as UsersIcon, Copy, ClipboardList, MessageCircle } from
 "lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
-import { AlertProvider } from "@/components/notifications/AlertSystem";
 
 import { Toaster } from 'sonner';
 
@@ -255,7 +254,6 @@ export default function Layout({ children, currentPageName }) {
   return (
     <AuthProvider>
       <ImportProvider>
-        <AlertProvider>
         <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:wght@300;400;500;600;700;800;900&display=swap');
 
@@ -281,7 +279,6 @@ export default function Layout({ children, currentPageName }) {
         }
         `}</style>
         <LayoutContent children={children} currentPageName={currentPageName} />
-        </AlertProvider>
       </ImportProvider>
       </AuthProvider>);
 
