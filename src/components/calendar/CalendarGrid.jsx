@@ -120,8 +120,6 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
                 <div className={`text-sm font-bold ${
                   isToday 
                     ? 'text-white bg-blue-600 rounded-lg w-8 h-8 flex items-center justify-center' 
-                    : isOutOfMonth 
-                    ? 'text-slate-400' 
                     : isPast 
                     ? 'text-slate-500' 
                     : 'text-slate-900'
