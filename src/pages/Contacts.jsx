@@ -171,70 +171,59 @@ export default function Contacts() {
             </div>
           ) : (
             <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="w-10 text-center">
-                  <Checkbox
-                    checked={selected.length === filtered.length && filtered.length > 0}
-                    onCheckedChange={toggleAll}
-                  />
-                </TableHead>
-                <TableHead className="hidden md:table-cell">דירה</TableHead>
-                <TableHead>שם</TableHead>
-                <TableHead>טלפון</TableHead>
-                <TableHead className="hidden lg:table-cell">סטטוס</TableHead>
-                <TableHead>תגיות</TableHead>
-                <TableHead className="hidden lg:table-cell">שליחה אחרונה</TableHead>
-                <TableHead className="text-center">פעולות</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filtered.map(contact => (
-                <TableRow key={contact.id}>
-                  <TableCell className="text-center">
-                    <Checkbox checked={selected.includes(contact.id)} onCheckedChange={() => toggleSelect(contact.id)} />
-                  </TableCell>
-                  <TableCell className="hidden md:table-cell text-slate-500 font-mono">{contact.apartment_number || "—"}</TableCell>
-                  <TableCell>
-                    <div className="font-medium">{contact.name}</div>
-                    {contact.address && <div className="text-xs text-slate-400">{contact.address}</div>}
-                  </TableCell>
-                  <TableCell dir="ltr" className="text-right">{contact.phone}</TableCell>
-                  <TableCell className="hidden lg:table-cell">
-                    {contact.contact_type && (
-                      <Badge variant="outline" className={contact.contact_type === "שוכר" ? "border-purple-300 text-purple-700" : "border-blue-300 text-blue-700"}>
-                        {contact.contact_type}
-                      </Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {(contact.tags || []).map(tag => (
-                        <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
-                      ))}
-                    </div>
-                  </TableCell>
-                  <TableCell className="hidden lg:table-cell text-slate-400 text-sm">
-                    {contact.last_whatsapp_sent_at
-                      ? format(new Date(contact.last_whatsapp_sent_at), "dd/MM/yy HH:mm")
-                      : "—"}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1 justify-center">
-                      <Button variant="ghost" size="sm" className="text-green-600 hover:bg-green-50 gap-1"
-                        onClick={() => { setSelected([contact.id]); setSendOpen(true); }}>
-                        <Send className="w-4 h-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => { setEditContact(contact); setFormOpen(true); }}>
-                        עריכה
-                      </Button>
-                      <Button variant="ghost" size="sm" className="text-red-500 hover:bg-red-50" onClick={() => handleDelete(contact)}>
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </TableCell>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-10 text-center">
+                    <Checkbox
+                      checked={selected.length === filtered.length && filtered.length > 0}
+                      onCheckedChange={toggleAll}
+                    />
+                  </TableHead>
+                  <TableHead>שם</TableHead>
+                  <TableHead>טלפון</TableHead>
+                  <TableHead className="hidden md:table-cell">מייל</TableHead>
+                  <TableHead>תגיות</TableHead>
+                  <TableHead className="hidden lg:table-cell">שליחה אחרונה</TableHead>
+                  <TableHead className="text-center">פעולות</TableHead>
                 </TableRow>
-              ))}
+              </TableHeader>
+              <TableBody>
+                {filtered.map(contact => (
+                  <TableRow key={contact.id}>
+                    <TableCell className="text-center">
+                      <Checkbox checked={selected.includes(contact.id)} onCheckedChange={() => toggleSelect(contact.id)} />
+                    </TableCell>
+                    <TableCell className="font-medium">{contact.name}</TableCell>
+                    <TableCell dir="ltr" className="text-right">{contact.phone}</TableCell>
+                    <TableCell className="hidden md:table-cell text-slate-500">{contact.email || "—"}</TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {(contact.tags || []).map(tag => (
+                          <Badge key={tag} variant="secondary" className="text-xs">{tag}</Badge>
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell className="hidden lg:table-cell text-slate-400 text-sm">
+                      {contact.last_whatsapp_sent_at
+                        ? format(new Date(contact.last_whatsapp_sent_at), "dd/MM/yy HH:mm")
+                        : "—"}
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-1 justify-center">
+                        <Button variant="ghost" size="sm" className="text-green-600 hover:bg-green-50 gap-1"
+                          onClick={() => { setSelected([contact.id]); setSendOpen(true); }}>
+                          <Send className="w-4 h-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => { setEditContact(contact); setFormOpen(true); }}>
+                          עריכה
+                        </Button>
+                        <Button variant="ghost" size="sm" className="text-red-500 hover:bg-red-50" onClick={() => handleDelete(contact)}>
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
               </TableBody>
             </Table>
           )}
