@@ -95,12 +95,12 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
     loadContacts();
   }, []);
 
-  const handleChange = useCallback((field, value) => {
+  const handleChange = (field, value) => {
     setFormData(prev => ({
       ...prev,
       [field]: value,
     }));
-  }, []);
+  };
 
   const getUserAvatarColor = useCallback((user) => {
     const colors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6'];
