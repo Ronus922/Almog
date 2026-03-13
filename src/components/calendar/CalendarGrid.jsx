@@ -28,9 +28,14 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
   };
 
   const isPastDate = (date) => {
+    // השוואה לפי תאריך בלבד, בלי שעה וללא תלות בtimezone
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    return date < today;
+    
+    const compareDate = new Date(date);
+    compareDate.setHours(0, 0, 0, 0);
+    
+    return compareDate < today;
   };
 
   const getIsraeliHolidayName = (date) => {
@@ -49,7 +54,7 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
     const holiday = getIsraeliHolidayName(date);
     const isShabat = isSaturday(date) || isFriday(date);
     const isOutOfMonth = !isCurrentMonth(date);
-    const isPast = isPastDate(date) && isCurrentMonth(date);
+    const isPast = isPastDate(date);
     const isToday = isSameDay(date, new Date());
 
     // Base styles
@@ -101,11 +106,11 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
       {/* Calendar grid */}
       <div className="grid grid-cols-7 gap-0 flex-1 overflow-y-auto" dir="rtl">
         {days.map((date, idx) => {
-          const dayAppointments = getAppointmentsForDay(date);
-          const holiday = getIsraeliHolidayName(date);
-          const isToday = isSameDay(date, new Date());
-          const isOutOfMonth = !isCurrentMonth(date);
-          const isPast = isPastDate(date) && isCurrentMonth(date);
+           const dayAppointments = getAppointmentsForDay(date);
+           const holiday = getIsraeliHolidayName(date);
+           const isToday = isSameDay(date, new Date());
+           const isOutOfMonth = !isCurrentMonth(date);
+           const isPast = isPastDate(date);
 
           return (
             <div
