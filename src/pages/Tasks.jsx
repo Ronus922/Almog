@@ -62,6 +62,21 @@ export default function Tasks() {
     queryFn: () => base44.entities.Task.list("-created_date"),
   });
 
+  const { data: appUsers = [] } = useQuery({
+    queryKey: ["appUsers"],
+    queryFn: () => base44.entities.AppUser.list(),
+  });
+
+  const userNameMap = useMemo(() => {
+    const map = {};
+    appUsers.forEach(u => {
+      const fullName = [u.first_name, u.last_name].filter(Boolean).join(" ");
+      if (u.username) map[u.username] = fullName;
+      if (u.email) map[u.email] = fullName;
+    });
+    return map;
+  }, [appUsers]);
+
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Task.delete(id),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
@@ -324,10 +339,10 @@ export default function Tasks() {
                           <div className="text-slate-700">
                             {task.assigned_to_name || task.assigned_to || "-"}
                           </div>
-                          {task.assigned_by && task.assigned_by !== task.assigned_to_name && (
+                          {task.assigned_by && (
                             <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
                               <UserPlus className="w-3 h-3" />
-                              {task.assigned_by}
+                              {userNameMap[task.assigned_by] || task.assigned_by}
                             </div>
                           )}
                         </td>
