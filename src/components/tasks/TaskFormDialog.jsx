@@ -173,9 +173,14 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
                   </Select>
                 </div>
                 <div className="space-y-1">
-                  <Label>תאריך יעד *</Label>
-                  <Input type="date" value={form.due_date || ""} onChange={(e) => set("due_date", e.target.value)} />
-                </div>
+                   <Label>תאריך יעד *</Label>
+                   <Input 
+                     type="date" 
+                     value={form.due_date || ""} 
+                     onChange={(e) => set("due_date", e.target.value)}
+                     min={!isEdit ? format(new Date(), 'yyyy-MM-dd') : undefined}
+                   />
+                 </div>
               </div>
 
               <div className="grid grid-cols-2 gap-3">
