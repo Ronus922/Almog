@@ -218,9 +218,12 @@ export default function WhatsAppChat() {
                     <Info className="w-5 h-5 text-blue-600" />
                   </Button>
                 </div>
-                <div className="text-right flex items-center gap-3">
+                <div className="text-right flex-1">
+                   <h3 className="font-semibold text-gray-900">{selectedContact.owner_name || selectedContact.tenant_name}</h3>
                    <LinkedContactInfo contact={selectedContact} />
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm overflow-hidden">
+                </div>
+                <div className="flex items-center gap-3">
+                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm overflow-hidden">
                     {selectedContact.whatsapp_profile_image ? (
                       <img src={selectedContact.whatsapp_profile_image} alt={selectedContact.owner_name || selectedContact.tenant_name} className="w-full h-full object-cover" />
                     ) : (
