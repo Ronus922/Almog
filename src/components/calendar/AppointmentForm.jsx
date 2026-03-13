@@ -217,7 +217,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
             value={formData.appointment_type} 
             onChange={(e) => handleChange('appointment_type', e.target.value)}
             dir="rtl"
-            className="w-full h-10 border border-slate-200 rounded-lg px-3 text-right bg-white text-slate-900 font-medium"
+            className="w-full h-10 border border-slate-200 rounded-lg px-3 py-2 text-right bg-white text-slate-900 font-medium"
           >
             <option value="פגישה">פגישה</option>
             <option value="משימה">משימה</option>
@@ -307,7 +307,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
             value={formData.recurrence_pattern} 
             onChange={(e) => handleChange('recurrence_pattern', e.target.value)}
             dir="rtl"
-            className="w-full h-10 border border-slate-200 rounded-lg px-3 text-right bg-white text-slate-900"
+            className="w-full h-10 border border-slate-200 rounded-lg px-3 py-2 text-right bg-white text-slate-900 font-medium"
           >
             <option value="weekly">שבועי</option>
             <option value="monthly">חודשי</option>
@@ -342,7 +342,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
             value={formData.reminder_before} 
             onChange={(e) => handleChange('reminder_before', e.target.value)}
             dir="rtl"
-            className="w-full h-10 border border-slate-200 rounded-lg px-3 text-right bg-white text-slate-900 font-medium"
+            className="w-full h-10 border border-slate-200 rounded-lg px-3 py-2 text-right bg-white text-slate-900 font-medium"
           >
             <option value="15m">15 דקות</option>
             <option value="30m">30 דקות</option>
@@ -356,7 +356,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
             value={formData.reminder_method} 
             onChange={(e) => handleChange('reminder_method', e.target.value)}
             dir="rtl"
-            className="w-full h-10 border border-slate-200 rounded-lg px-3 text-right bg-white text-slate-900 font-medium"
+            className="w-full h-10 border border-slate-200 rounded-lg px-3 py-2 text-right bg-white text-slate-900 font-medium"
           >
             <option value="email">אימייל</option>
             <option value="sms">SMS</option>
