@@ -11,12 +11,12 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { 
-  LayoutDashboard, Upload, Settings, LogOut, 
-  User, ChevronDown, Building2, Menu, X, SlidersHorizontal, Users as UsersIcon, Copy, ClipboardList, MessageCircle
-} from "lucide-react";
+  DropdownMenuTrigger } from
+"@/components/ui/dropdown-menu";
+import {
+  LayoutDashboard, Upload, Settings, LogOut,
+  User, ChevronDown, Building2, Menu, X, SlidersHorizontal, Users as UsersIcon, Copy, ClipboardList, MessageCircle } from
+"lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
 
 import { Toaster } from 'sonner';
@@ -47,8 +47,8 @@ function LayoutContent({ children, currentPageName }) {
           </div>
           <p className="text-lg font-semibold text-slate-700">טוען...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   // CRITICAL: If not authenticated and not on login page, redirect
@@ -63,26 +63,26 @@ function LayoutContent({ children, currentPageName }) {
     return null;
   }
 
-  console.log('[Layout] User check:', { 
-    user: currentUser?.username || currentUser?.email, 
-    role: currentUser?.role, 
+  console.log('[Layout] User check:', {
+    user: currentUser?.username || currentUser?.email,
+    role: currentUser?.role,
     isBase44Admin: currentUser?.isBase44Admin,
     isAdmin,
     authChecked
   });
 
   const navItems = [
-    { name: 'Dashboard', label: 'דשבורד', icon: LayoutDashboard, adminOnly: false },
-    { name: 'UserManagement', label: 'משתמשים', icon: UsersIcon, adminOnly: true },
-    { name: 'StatusManagement', label: 'סטטוסים', icon: SlidersHorizontal, adminOnly: true },
-    { name: 'Import', label: 'ייבוא', icon: Upload, adminOnly: true },
-    { name: 'Tasks', label: 'משימות', icon: ClipboardList, adminOnly: false },
-    { name: 'WhatsAppTemplates', label: 'תבניות וואטסאפ', icon: MessageCircle, adminOnly: true },
-    { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true },
-  ];
+  { name: 'Dashboard', label: 'דשבורד', icon: LayoutDashboard, adminOnly: false },
+  { name: 'UserManagement', label: 'משתמשים', icon: UsersIcon, adminOnly: true },
+  { name: 'StatusManagement', label: 'סטטוסים', icon: SlidersHorizontal, adminOnly: true },
+  { name: 'Import', label: 'ייבוא', icon: Upload, adminOnly: true },
+  { name: 'Tasks', label: 'משימות', icon: ClipboardList, adminOnly: false },
+  { name: 'WhatsAppTemplates', label: 'תבניות וואטסאפ', icon: MessageCircle, adminOnly: true },
+  { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true }];
+
 
   // הצגת פריטים רק למי שיש לו הרשאה
-  const filteredNavItems = navItems.filter(item => {
+  const filteredNavItems = navItems.filter((item) => {
     if (!item.adminOnly) return true; // פריטים כלליים תמיד מוצגים
     return isAdmin; // פריטים של admin רק למנהלים
   });
@@ -98,14 +98,14 @@ function LayoutContent({ children, currentPageName }) {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             {/* לוגו אחד בלבד - ימין */}
-            <Link to={createPageUrl('Dashboard')} className="flex items-center gap-3">
-              <div className="p-2.5 bg-white/20 backdrop-blur-sm rounded-xl shadow-lg hover:bg-white/30 transition-all duration-200">
-                <Building2 className="w-5 h-5 text-white" />
-              </div>
-              <div className="hidden sm:block">
-                <span className="font-bold text-lg text-white">ניהול חייבים</span>
-              </div>
-            </Link>
+            
+
+
+
+
+
+
+
 
             {/* ניווט Desktop - מרכז */}
             <nav className="hidden md:flex items-center gap-1">
@@ -117,22 +117,22 @@ function LayoutContent({ children, currentPageName }) {
                     onClick={() => handleNavigation(item.name)}
                     className={`
                       flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200
-                      ${isActive 
-                        ? 'bg-white/25 text-white shadow-lg backdrop-blur-sm' 
-                        : 'text-white/80 hover:bg-white/15 hover:text-white'}
-                    `}
-                  >
+                      ${isActive ?
+                    'bg-white/25 text-white shadow-lg backdrop-blur-sm' :
+                    'text-white/80 hover:bg-white/15 hover:text-white'}
+                    `}>
+
                     <item.icon className="w-4 h-4" />
                     {item.label}
-                  </button>
-                );
+                  </button>);
+
               })}
             </nav>
 
             {/* תפריט משתמש - שמאל */}
             <div className="flex items-center gap-2">
-              {currentUser && (
-                <div className="hidden md:flex items-center gap-2">
+              {currentUser &&
+              <div className="hidden md:flex items-center gap-2">
                   <NotificationBell currentUser={currentUser} />
                    <DropdownMenu>
                     <DropdownMenuTrigger asChild>
@@ -148,10 +148,10 @@ function LayoutContent({ children, currentPageName }) {
                       <div className="px-3 py-3">
                         <p className="text-sm font-semibold text-slate-800">{currentUser.username}</p>
                         <p className="text-xs text-slate-500 mt-0.5">
-                          {currentUser.isBase44Admin 
-                            ? 'Base44 Super Admin' 
-                            : currentUser.role === 'ADMIN' ? 'מנהל'
-                            : 'צופה'}
+                          {currentUser.isBase44Admin ?
+                        'Base44 Super Admin' :
+                        currentUser.role === 'ADMIN' ? 'מנהל' :
+                        'צופה'}
                         </p>
                       </div>
                       <DropdownMenuSeparator />
@@ -162,22 +162,22 @@ function LayoutContent({ children, currentPageName }) {
                     </DropdownMenuContent>
                   </DropdownMenu>
                 </div>
-              )}
+              }
 
               {/* פעמון מובייל */}
-              {currentUser && (
-                <div className="md:hidden">
+              {currentUser &&
+              <div className="md:hidden">
                   <NotificationBell currentUser={currentUser} />
                 </div>
-              )}
+              }
 
               {/* כפתור תפריט מובייל */}
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="icon"
                 className="md:hidden h-9 w-9 text-white hover:bg-white/15"
-                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              >
+                onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+
                 {isMobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
               </Button>
             </div>
@@ -185,56 +185,56 @@ function LayoutContent({ children, currentPageName }) {
         </div>
 
         {/* תפריט Mobile */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden border-t border-blue-700/20 bg-white/95 backdrop-blur-sm shadow-lg" dir="rtl">
+        {isMobileMenuOpen &&
+        <div className="md:hidden border-t border-blue-700/20 bg-white/95 backdrop-blur-sm shadow-lg" dir="rtl">
             <nav className="px-4 py-3 space-y-1">
               {filteredNavItems.map((item) => {
-                const isActive = currentPageName === item.name;
-                return (
-                  <button
-                    key={item.name}
-                    onClick={() => handleNavigation(item.name)}
-                    className={`
+              const isActive = currentPageName === item.name;
+              return (
+                <button
+                  key={item.name}
+                  onClick={() => handleNavigation(item.name)}
+                  className={`
                       w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-right
-                      ${isActive 
-                        ? 'bg-blue-100 text-blue-700 font-semibold shadow-sm' 
-                        : 'text-slate-700 hover:bg-blue-50'}
+                      ${isActive ?
+                  'bg-blue-100 text-blue-700 font-semibold shadow-sm' :
+                  'text-slate-700 hover:bg-blue-50'}
                     `}
-                    dir="rtl"
-                  >
+                  dir="rtl">
+
                     <item.icon className="w-5 h-5 flex-shrink-0" />
                     <span className="flex-1 text-right">{item.label}</span>
-                  </button>
-                );
-              })}
-              {currentUser && (
-                <div className="pt-2 mt-2 border-t border-slate-200">
+                  </button>);
+
+            })}
+              {currentUser &&
+            <div className="pt-2 mt-2 border-t border-slate-200">
                   <div className="px-4 py-2 text-right">
                     <p className="text-xs text-slate-500 font-medium">משתמש מחובר</p>
                     <p className="text-sm font-semibold text-slate-800 mt-1">{currentUser.username}</p>
                     <p className="text-xs text-slate-500 mt-1">
-                      {currentUser.isBase44Admin 
-                        ? 'Base44 Super Admin'
-                        : currentUser.role === 'ADMIN' ? 'מנהל'
-                        : 'צופה'}
+                      {currentUser.isBase44Admin ?
+                  'Base44 Super Admin' :
+                  currentUser.role === 'ADMIN' ? 'מנהל' :
+                  'צופה'}
                     </p>
                   </div>
                   <button
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      handleLogout();
-                    }}
-                    className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors text-right"
-                    dir="rtl"
-                  >
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 text-red-600 hover:bg-red-50 rounded-lg text-sm font-medium transition-colors text-right"
+                dir="rtl">
+
                     <LogOut className="w-4 h-4 flex-shrink-0" />
                     <span className="flex-1 text-right">התנתק</span>
                   </button>
                 </div>
-              )}
+            }
             </nav>
           </div>
-        )}
+        }
       </header>
 
       {/* תוכן */}
@@ -246,13 +246,13 @@ function LayoutContent({ children, currentPageName }) {
 
       <ConfirmDialog />
       <Toaster position="top-center" dir="rtl" richColors />
-      </div>
-      );
-      }
+      </div>);
 
-      export default function Layout({ children, currentPageName }) {
-      return (
-      <AuthProvider>
+}
+
+export default function Layout({ children, currentPageName }) {
+  return (
+    <AuthProvider>
       <ImportProvider>
         <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Hebrew:wght@300;400;500;600;700;800;900&display=swap');
@@ -280,6 +280,6 @@ function LayoutContent({ children, currentPageName }) {
         `}</style>
         <LayoutContent children={children} currentPageName={currentPageName} />
       </ImportProvider>
-      </AuthProvider>
-      );
-      }
+      </AuthProvider>);
+
+}
