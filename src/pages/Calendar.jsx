@@ -220,9 +220,9 @@ export default function Calendar() {
                   variant={viewMode === item.mode ? 'default' : 'ghost'}
                   size="sm"
                   onClick={() => setViewMode(item.mode)}
-                  className={`text-xs font-medium px-3 py-1.5 h-auto ${
+                  className={`text-xs font-bold px-4 py-2 h-auto rounded-md transition-all ${
                     viewMode === item.mode 
-                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      ? 'bg-blue-600 text-white shadow-md' 
                       : 'text-slate-700 hover:bg-slate-200'
                   }`}
                 >
