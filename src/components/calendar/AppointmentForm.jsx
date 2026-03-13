@@ -283,8 +283,8 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         </div>
         {formData.is_recurring && (
           <Select value={formData.recurrence_pattern || 'weekly'} onValueChange={(value) => handleChange('recurrence_pattern', value)}>
-            <SelectTrigger dir="rtl">
-              <SelectValue />
+            <SelectTrigger dir="rtl" className="w-full">
+              <SelectValue placeholder="בחר תבנית" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="weekly">שבועי</SelectItem>
