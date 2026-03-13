@@ -85,12 +85,12 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
 
 
-  const handleUserToggle = (email) => {
+  const handleUserToggle = (userId) => {
     setFormData(prev => ({
       ...prev,
-      attendees_users: prev.attendees_users.includes(email)
-        ? prev.attendees_users.filter(u => u !== email)
-        : [...prev.attendees_users, email],
+      attendees_users: prev.attendees_users.includes(userId)
+        ? prev.attendees_users.filter(u => u !== userId)
+        : [...prev.attendees_users, userId],
     }));
   };
 
