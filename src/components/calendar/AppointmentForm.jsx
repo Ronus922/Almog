@@ -368,7 +368,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         selectedIds={formData.attendees_users}
         onToggle={handleUserToggle}
         searchPlaceholder="חפש משתמש..."
-        formatLabel={(user) => user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : user.username}
+        formatLabel={formatUserLabel}
         getAvatarColor={getUserAvatarColor}
       />
 
@@ -380,7 +380,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
           selectedIds={formData.attendees_contacts}
           onToggle={handleContactToggle}
           searchPlaceholder="חפש לפי שם או דירה..."
-          formatLabel={(contact) => `דירה ${contact.apartment_number} - ${contact.owner_name || contact.tenant_name}`}
+          formatLabel={formatContactLabel}
           getAvatarColor={getContactAvatarColor}
         />
       )}
