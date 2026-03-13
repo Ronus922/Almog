@@ -149,7 +149,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     // Server update
     await base44.entities.DebtorRecord.update(record.id, updatePayload);
     
-    toast.success(`${fieldName === 'phoneOwner' ? 'טלפון בעלים' : fieldName === 'phoneTenant' ? 'טלפון שוכר' : fieldName === 'phonePrimary' ? 'טלפון להצגה' : 'שדה'} עודכן בהצלחה`);
+    showAlert(`${fieldName === 'phoneOwner' ? 'טלפון בעלים' : fieldName === 'phoneTenant' ? 'טלפון שוכר' : fieldName === 'phonePrimary' ? 'טלפון להצגה' : 'שדה'} עודכן בהצלחה`, 'success');
   };
 
   const handleLegalStatusChange = async (newStatusId) => {
