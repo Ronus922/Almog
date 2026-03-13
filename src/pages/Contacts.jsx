@@ -217,7 +217,9 @@ export default function Contacts() {
                 <TableRow className="bg-blue-50">
                   <TableHead className="text-right font-bold text-slate-700">דירה</TableHead>
                   <TableHead className="text-right font-bold text-slate-700">בעל הדירה</TableHead>
+                  <TableHead className="text-right font-bold text-slate-700">טלפון בעל</TableHead>
                   <TableHead className="hidden md:table-cell text-right font-bold text-slate-700">השוכר</TableHead>
+                  <TableHead className="hidden md:table-cell text-right font-bold text-slate-700">טלפון שוכר</TableHead>
                   <TableHead className="text-center hidden md:table-cell font-bold text-slate-700">דמי ניהול</TableHead>
                   <TableHead className="text-center font-bold text-slate-700">פעולות</TableHead>
                 </TableRow>
