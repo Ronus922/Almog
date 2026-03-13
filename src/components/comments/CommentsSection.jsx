@@ -27,11 +27,11 @@ export default function CommentsSection({ debtorRecordId, apartmentNumber, curre
       queryClient.invalidateQueries({ queryKey: ['comments', debtorRecordId] });
       setNewComment('');
       setIsSubmitting(false);
-      toast.success('הערה נוספה בהצלחה');
+      showAlert('הערה נוספה בהצלחה', 'success');
     },
     onError: () => {
       setIsSubmitting(false);
-      toast.error('שגיאה בהוספת הערה');
+      showAlert('שגיאה בהוספת הערה', 'error');
     },
   });
 
