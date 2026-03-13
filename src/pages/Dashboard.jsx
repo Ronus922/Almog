@@ -6,7 +6,7 @@ import { createPageUrl } from '@/utils';
 import { useAuth } from '@/components/auth/AuthContext';
 import { Button } from "@/components/ui/button";
 import AppButton from "@/components/ui/app-button";
-import { Loader2, Building2, RefreshCw, X, Users, Archive, Printer } from "lucide-react";
+import { Loader2, Building2, RefreshCw, X, Users, Archive, Download } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { isManagerRole } from '@/components/utils/roles';
 import { toast } from 'sonner';
@@ -416,15 +416,15 @@ function DashboardContent() {
             <>
                 <ExcelExporter records={filteredDataset.length > 0 ? filteredDataset : records} statuses={allStatuses} />
                 <PDFExporter records={filteredDataset.length > 0 ? filteredDataset : records} statuses={allStatuses} settings={settings} />
-                <AppButton 
+                <Button 
                   variant="outline" 
-                  size="md" 
-                  icon={Printer} 
+                  size="sm"
                   onClick={() => window.print()}
-                  className="hover:text-slate-900"
+                  className="gap-2 h-9 px-3"
                 >
+                  <Download className="w-4 h-4" />
                   הדפס
-                </AppButton>
+                </Button>
               </>
             }
             <AppButton variant="outline" size="md" icon={RefreshCw} onClick={handleRefresh} className="hover:text-slate-900">
