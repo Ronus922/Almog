@@ -22,6 +22,8 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
   const [showContactSearch, setShowContactSearch] = useState(false);
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [contactSearchTerm, setContactSearchTerm] = useState('');
+  const userDropdownRef = useCallback(() => null, []);
+  const contactDropdownRef = useCallback(() => null, []);
 
   const [formData, setFormData] = useState({
     title: '',
