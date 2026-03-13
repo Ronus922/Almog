@@ -11,6 +11,8 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
   const [loading, setLoading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [progress, setProgress] = useState(0);
+  const [progressText, setProgressText] = useState("");
   const fileRef = useRef();
   const { showAlert } = useAlert();
 
@@ -40,14 +42,33 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
     }
   };
 
+  const mapHebrewColumns = (row) => {
+    return {
+      apartment_number: String(row["דירה"] || row["apartment_number"] || row["A"] || "").trim(),
+      owner_name: String(row["שם בעלים"] || row["owner_name"] || row["B"] || "").trim(),
+      owner_phone: String(row["טלפון בעלים"] || row["owner_phone"] || row["C"] || "").trim(),
+      owner_email: String(row["אימייל בעלים"] || row["owner_email"] || row["D"] || "").trim(),
+      tenant_name: String(row["שם שוכר"] || row["tenant_name"] || row["E"] || "").trim(),
+      tenant_phone: String(row["טלפון שוכר"] || row["tenant_phone"] || row["F"] || "").trim(),
+      tenant_email: String(row["אימייל שוכר"] || row["tenant_email"] || row["G"] || "").trim(),
+      contact_type: String(row["contact_type"] || row["type"] || "owner").trim(),
+      address: String(row["address"] || "").trim(),
+      notes: String(row["notes"] || "").trim(),
+      management_fees: parseFloat(row["תשלום חודשי"] || row["management_fees"] || row["H"] || 0) || 0,
+    };
+  };
+
   const handleImport = async () => {
     const file = selectedFile;
     if (!file) {
       showAlert("בחר קובץ Excel לייבוא", "error");
       return;
     }
-    
+
     setLoading(true);
+    setProgress(0);
+    setProgressText("קורא קובץ...");
+
     try {
       const reader = new FileReader();
       reader.onload = async (evt) => {
@@ -55,7 +76,7 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
           const wb = XLSX.read(evt.target.result, { type: "binary" });
           const ws = wb.Sheets[wb.SheetNames[0]];
           const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
-          
+
           if (!rows || rows.length === 0) {
             showAlert("הקובץ ריק או לא קריא", "error");
             setLoading(false);
@@ -64,45 +85,46 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
 
           let imported = 0;
           let failed = 0;
+          const validRows = rows.filter((row) => {
+            const apt = String(row["דירה"] || row["apartment_number"] || "").trim();
+            return apt.length > 0;
+          });
 
-          console.log("Total rows:", rows.length);
-          console.log("First row:", rows[0]);
+          setProgressText(`מייבא 0 מתוך ${validRows.length}...`);
 
-          for (const row of rows) {
-            const apartmentNumber = String(row["apartment_number"] || row["apartment"] || row["A"] || "").trim();
-            if (!apartmentNumber) continue;
+          for (let i = 0; i < validRows.length; i++) {
+            const row = validRows[i];
+            const contact = mapHebrewColumns(row);
 
-            const contact = {
-              apartment_number: apartmentNumber,
-              owner_name: String(row["owner_name"] || row["B"] || "").trim(),
-              owner_phone: String(row["owner_phone"] || row["C"] || "").trim(),
-              owner_email: String(row["owner_email"] || row["D"] || "").trim(),
-              tenant_name: String(row["tenant_name"] || row["E"] || "").trim(),
-              tenant_phone: String(row["tenant_phone"] || row["F"] || "").trim(),
-              tenant_email: String(row["tenant_email"] || row["G"] || "").trim(),
-              contact_type: String(row["contact_type"] || row["type"] || "owner").trim(),
-              address: String(row["address"] || "").trim(),
-              notes: String(row["notes"] || "").trim(),
-              management_fees: parseFloat(row["management_fees"] || row["H"] || 0) || 0,
-            };
+            if (!contact.apartment_number) continue;
 
             try {
-              console.log("Creating contact:", contact);
               await base44.entities.Contact.create(contact);
               imported++;
             } catch (error) {
-              console.error(`Error creating contact ${apartmentNumber}:`, error.message);
+              console.error(`Error creating contact ${contact.apartment_number}:`, error.message);
               failed++;
             }
+
+            const currentProgress = Math.round(((i + 1) / validRows.length) * 100);
+            setProgress(currentProgress);
+            setProgressText(`מייבא ${imported + failed} מתוך ${validRows.length}...`);
           }
 
           setLoading(false);
-          const message = failed > 0 
-            ? `יובאו ${imported} אנשי קשר (${failed} נכשלו)`
-            : `יובאו בהצלחה ${imported} אנשי קשר`;
+          const message =
+            failed > 0
+              ? `יובאו ${imported} אנשי קשר (${failed} נכשלו)`
+              : `יובאו בהצלחה ${imported} אנשי קשר`;
           showAlert(message, failed > 0 ? "error" : "success");
           onImported();
-          onClose();
+          
+          setTimeout(() => {
+            onClose();
+            setProgress(0);
+            setProgressText("");
+            setSelectedFile(null);
+          }, 1000);
         } catch (error) {
           setLoading(false);
           showAlert("שגיאה בקריאת הקובץ: " + error.message, "error");
@@ -115,8 +137,6 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
     }
   };
 
-
-
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl" dir="rtl">
@@ -127,61 +147,70 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="flex flex-col items-center justify-center py-12 px-6">
-          <div className="mb-6">
-            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
-              <Upload className="w-8 h-8 text-slate-400" />
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-12 px-6">
+            <div className="mb-6">
+              <Loader2 className="w-12 h-12 text-blue-600 animate-spin" />
             </div>
+            <p className="text-lg font-semibold text-slate-900 mb-4">{progressText}</p>
+            <div className="w-full bg-slate-200 rounded-full h-2">
+              <div
+                className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                style={{ width: `${progress}%` }}
+              ></div>
+            </div>
+            <p className="text-sm text-slate-600 mt-3">{progress}%</p>
           </div>
+        ) : (
+          <>
+            <div className="flex flex-col items-center justify-center py-12 px-6">
+              <div className="mb-6">
+                <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+                  <Upload className="w-8 h-8 text-slate-400" />
+                </div>
+              </div>
 
-          <h3 className="text-lg font-semibold text-slate-900 mb-2">השלחות קובץ אקסל</h3>
-          <p className="text-sm text-slate-600 text-center mb-6">בחר קובץ XLSX או XLS עם דוחות החייבים</p>
+              <h3 className="text-lg font-semibold text-slate-900 mb-2">השלחות קובץ אקסל</h3>
+              <p className="text-sm text-slate-600 text-center mb-6">בחר קובץ XLSX או XLS עם דוחות החייבים</p>
 
-          <input
-            ref={fileRef}
-            type="file"
-            accept=".xlsx,.xls,.csv"
-            className="hidden"
-            onChange={handleFileSelect}
-          />
+              <input
+                ref={fileRef}
+                type="file"
+                accept=".xlsx,.xls,.csv"
+                className="hidden"
+                onChange={handleFileSelect}
+              />
 
-          <div
-            onDragEnter={handleDrag}
-            onDragLeave={handleDrag}
-            onDragOver={handleDrag}
-            onDrop={handleDrop}
-            className={`w-full border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${
-              dragActive
-                ? "border-blue-500 bg-blue-50"
-                : "border-slate-300 hover:border-slate-400"
-            }`}
-            onClick={() => fileRef.current?.click()}
-          >
-            <p className="text-slate-700 font-medium">
-              {selectedFile?.name || "גרור קובץ או לחץ לבחירה"}
-            </p>
-          </div>
+              <div
+                onDragEnter={handleDrag}
+                onDragLeave={handleDrag}
+                onDragOver={handleDrag}
+                onDrop={handleDrop}
+                className={`w-full border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${
+                  dragActive
+                    ? "border-blue-500 bg-blue-50"
+                    : "border-slate-300 hover:border-slate-400"
+                }`}
+                onClick={() => fileRef.current?.click()}
+              >
+                <p className="text-slate-700 font-medium">
+                  {selectedFile?.name || "גרור קובץ או לחץ לבחירה"}
+                </p>
+              </div>
 
-          <p className="text-xs text-slate-500 mt-3">.xlsx, .xls, .csv קבלות</p>
+              <p className="text-xs text-slate-500 mt-3">.xlsx, .xls, .csv קבלות</p>
 
-          <Button
-            onClick={handleImport}
-            disabled={loading || !selectedFile}
-            className="mt-8 bg-blue-600 hover:bg-blue-700 text-white gap-2 px-8"
-          >
-            {loading ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                מייבא...
-              </>
-            ) : (
-              <>
+              <Button
+                onClick={handleImport}
+                disabled={!selectedFile}
+                className="mt-8 bg-blue-600 hover:bg-blue-700 text-white gap-2 px-8"
+              >
                 <Upload className="w-4 h-4" />
                 בחר קובץ Excel
-              </>
-            )}
-          </Button>
-        </div>
+              </Button>
+            </div>
+          </>
+        )}
       </DialogContent>
     </Dialog>
   );
