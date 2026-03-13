@@ -73,7 +73,7 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
             <div
               key={idx}
               className={getDayStyles(date)}
-              onClick={() => isCurrentMonth(date) && onDateClick(date)}
+              onClick={() => isCurrentMonth(date) && !isPastDate(date) && onDateClick(date)}
             >
               <div className={`text-sm font-bold mb-2 ${isToday ? 'text-blue-600 text-lg bg-blue-100 rounded-full w-6 h-6 flex items-center justify-center' : ''}`}>
                 {format(date, 'd')}
