@@ -3,13 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
@@ -207,19 +201,19 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       </div>
 
       {/* Type */}
-      <div>
-        <Label className="text-right block">סוג</Label>
-        <Select value={formData.appointment_type || 'פגישה'} onValueChange={(value) => handleChange('appointment_type', value)}>
-          <SelectTrigger dir="rtl" className="w-full">
-            <SelectValue placeholder="בחר סוג" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="פגישה">פגישה</SelectItem>
-            <SelectItem value="משימה">משימה</SelectItem>
-            <SelectItem value="אחר">אחר</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+       <div>
+         <Label className="text-right block">סוג</Label>
+         <select 
+           value={formData.appointment_type} 
+           onChange={(e) => handleChange('appointment_type', e.target.value)}
+           dir="rtl"
+           className="w-full border border-slate-200 rounded-lg p-3 text-right bg-white text-slate-900"
+         >
+           <option value="פגישה">פגישה</option>
+           <option value="משימה">משימה</option>
+           <option value="אחר">אחר</option>
+         </select>
+       </div>
 
       {/* Date and Time */}
       <div className="grid grid-cols-3 gap-4">
@@ -282,16 +276,16 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
           <Label htmlFor="is_recurring" className="cursor-pointer">אירוע חוזר</Label>
         </div>
         {formData.is_recurring && (
-          <Select value={formData.recurrence_pattern || 'weekly'} onValueChange={(value) => handleChange('recurrence_pattern', value)}>
-            <SelectTrigger dir="rtl" className="w-full">
-              <SelectValue placeholder="בחר תבנית" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="weekly">שבועי</SelectItem>
-              <SelectItem value="monthly">חודשי</SelectItem>
-              <SelectItem value="yearly">שנתי</SelectItem>
-            </SelectContent>
-          </Select>
+          <select 
+            value={formData.recurrence_pattern} 
+            onChange={(e) => handleChange('recurrence_pattern', e.target.value)}
+            dir="rtl"
+            className="w-full border border-slate-200 rounded-lg p-3 text-right bg-white text-slate-900"
+          >
+            <option value="weekly">שבועי</option>
+            <option value="monthly">חודשי</option>
+            <option value="yearly">שנתי</option>
+          </select>
         )}
       </div>
 
@@ -317,31 +311,31 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label className="text-right block">תזכורת לפני</Label>
-          <Select value={formData.reminder_before || '15m'} onValueChange={(value) => handleChange('reminder_before', value)}>
-            <SelectTrigger dir="rtl" className="w-full">
-              <SelectValue placeholder="בחר זמן" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="15m">15 דקות</SelectItem>
-              <SelectItem value="30m">30 דקות</SelectItem>
-              <SelectItem value="1h">שעה אחת</SelectItem>
-              <SelectItem value="1d">יום אחד</SelectItem>
-            </SelectContent>
-          </Select>
+          <select 
+            value={formData.reminder_before} 
+            onChange={(e) => handleChange('reminder_before', e.target.value)}
+            dir="rtl"
+            className="w-full border border-slate-200 rounded-lg p-3 text-right bg-white text-slate-900"
+          >
+            <option value="15m">15 דקות</option>
+            <option value="30m">30 דקות</option>
+            <option value="1h">שעה אחת</option>
+            <option value="1d">יום אחד</option>
+          </select>
         </div>
         <div>
           <Label className="text-right block">אופן התזכורת</Label>
-          <Select value={formData.reminder_method || 'email'} onValueChange={(value) => handleChange('reminder_method', value)}>
-            <SelectTrigger dir="rtl" className="w-full">
-              <SelectValue placeholder="בחר אופן" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="email">אימייל</SelectItem>
-              <SelectItem value="sms">SMS</SelectItem>
-              <SelectItem value="whatsapp">WhatsApp</SelectItem>
-              <SelectItem value="none">ללא</SelectItem>
-            </SelectContent>
-          </Select>
+          <select 
+            value={formData.reminder_method} 
+            onChange={(e) => handleChange('reminder_method', e.target.value)}
+            dir="rtl"
+            className="w-full border border-slate-200 rounded-lg p-3 text-right bg-white text-slate-900"
+          >
+            <option value="email">אימייל</option>
+            <option value="sms">SMS</option>
+            <option value="whatsapp">WhatsApp</option>
+            <option value="none">ללא</option>
+          </select>
         </div>
       </div>
 
