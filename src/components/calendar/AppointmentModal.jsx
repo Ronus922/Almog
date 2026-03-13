@@ -1,11 +1,51 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Calendar, Clock, MapPin, Users, FileText, Trash2, Edit } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 
 export default function AppointmentModal({ appointment, onClose, onEdit, onDelete, isDeleting }) {
+  const [userNames, setUserNames] = useState({});
+  const [contactNames, setContactNames] = useState({});
+
+  useEffect(() => {
+    if (!appointment) return;
+
+    const loadAttendeeNames = async () => {
+      try {
+        if (appointment.attendees_users?.length > 0) {
+          const users = await base44.entities.AppUser.list();
+          const names = {};
+          appointment.attendees_users.forEach(userId => {
+            const user = users.find(u => u.id === userId);
+            names[userId] = user?.first_name && user?.last_name 
+              ? `${user.first_name} ${user.last_name}` 
+              : user?.username || userId;
+          });
+          setUserNames(names);
+        }
+
+        if (appointment.attendees_contacts?.length > 0) {
+          const contacts = await base44.entities.Contact.list();
+          const names = {};
+          appointment.attendees_contacts.forEach(contactId => {
+            const contact = contacts.find(c => c.id === contactId);
+            names[contactId] = contact 
+              ? `דירה ${contact.apartment_number} - ${contact.owner_name || contact.tenant_name}`
+              : `דירה ${contactId}`;
+          });
+          setContactNames(names);
+        }
+      } catch (error) {
+        console.error('Failed to load attendee names:', error);
+      }
+    };
+
+    loadAttendeeNames();
+  }, [appointment]);
+
   if (!appointment) return null;
 
   return (
@@ -82,18 +122,32 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
 
           {/* Attendees */}
           {(appointment.attendees_users?.length > 0 || appointment.attendees_contacts?.length > 0) && (
-            <div>
-              <div className="flex items-center justify-end gap-3 mb-2">
-                <span className="text-sm font-semibold text-slate-600">מצטרפים:</span>
-                <Users className="w-5 h-5 text-slate-500 flex-shrink-0" />
+            <div className="bg-slate-50 rounded-lg p-4">
+              <div className="flex items-center justify-end gap-3 mb-3">
+                <span className="text-sm font-semibold text-slate-700">מצטרפים</span>
+                <Users className="w-5 h-5 text-blue-600 flex-shrink-0" />
               </div>
-              <div className="text-sm space-y-1 text-right">
-                {appointment.attendees_users?.map((user) => (
-                  <p key={user} className="text-slate-700">👤 {user}</p>
-                ))}
-                {appointment.attendees_contacts?.map((contact) => (
-                  <p key={contact} className="text-slate-700">🏠 דיר #{contact}</p>
-                ))}
+              <div className="space-y-2">
+                {appointment.attendees_users?.length > 0 && (
+                  <div className="space-y-1">
+                    {appointment.attendees_users.map((userId) => (
+                      <p key={userId} className="text-sm text-slate-700 flex items-center justify-end gap-2">
+                        <span>{userNames[userId] || 'משתמש'}</span>
+                        <span className="text-blue-600">👤</span>
+                      </p>
+                    ))}
+                  </div>
+                )}
+                {appointment.attendees_contacts?.length > 0 && (
+                  <div className="space-y-1">
+                    {appointment.attendees_contacts.map((contactId) => (
+                      <p key={contactId} className="text-sm text-slate-700 flex items-center justify-end gap-2">
+                        <span>{contactNames[contactId] || 'אנשי קשר'}</span>
+                        <span className="text-amber-600">🏠</span>
+                      </p>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           )}
