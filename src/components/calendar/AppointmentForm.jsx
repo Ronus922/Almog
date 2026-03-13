@@ -361,43 +361,46 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
               </select>
             </div>
 
-            {/* Interval Selection */}
-            <div>
-              <Label htmlFor="recurrence_interval" className="block mb-2 font-bold text-slate-900 text-sm">כל כמה יחידות *</Label>
-              <div className="flex items-center gap-2">
+            {/* Interval & Count Selection - Side by Side */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Interval Selection */}
+              <div>
+                <Label htmlFor="recurrence_interval" className="block mb-2 font-bold text-slate-900 text-sm">כל כמה יחידות *</Label>
+                <div className="flex items-center gap-2">
+                  <input
+                    id="recurrence_interval"
+                    type="number"
+                    min="1"
+                    value={formData.recurrence_interval || 1}
+                    onChange={(e) => handleChange('recurrence_interval', Math.max(1, parseInt(e.target.value) || 1))}
+                    dir="rtl"
+                    className="w-20 h-10 border border-slate-200 rounded-lg px-3 text-center bg-white text-slate-900 font-medium"
+                  />
+                  <span className="text-slate-700 font-medium text-sm">
+                    {formData.recurrence_pattern === 'יומי' ? 'ימים' : 
+                     formData.recurrence_pattern === 'שבועי' ? 'שבועות' :
+                     formData.recurrence_pattern === 'חודשי' ? 'חודשים' :
+                     'שנים'}
+                  </span>
+                </div>
+              </div>
+
+              {/* Recurrence Count */}
+              <div>
+                <Label htmlFor="recurrence_count" className="block mb-2 font-bold text-slate-900 text-sm">מספר חזרות *</Label>
                 <input
-                  id="recurrence_interval"
+                  id="recurrence_count"
                   type="number"
                   min="1"
-                  value={formData.recurrence_interval || 1}
-                  onChange={(e) => handleChange('recurrence_interval', Math.max(1, parseInt(e.target.value) || 1))}
+                  value={formData.recurrence_count || ''}
+                  onChange={(e) => handleChange('recurrence_count', Math.max(1, parseInt(e.target.value) || 0))}
+                  placeholder="מספר החזרות הכולל"
                   dir="rtl"
-                  className="w-20 h-10 border border-slate-200 rounded-lg px-3 text-center bg-white text-slate-900 font-medium"
+                  className="w-full h-10 border border-slate-200 rounded-lg px-3 py-2 text-right bg-white text-slate-900 font-medium placeholder-slate-400"
                 />
-                <span className="text-slate-700 font-medium text-sm">
-                  {formData.recurrence_pattern === 'יומי' ? 'ימים' : 
-                   formData.recurrence_pattern === 'שבועי' ? 'שבועות' :
-                   formData.recurrence_pattern === 'חודשי' ? 'חודשים' :
-                   'שנים'}
-                </span>
               </div>
             </div>
-
-            {/* Recurrence Count */}
-            <div>
-              <Label htmlFor="recurrence_count" className="block mb-2 font-bold text-slate-900 text-sm">מספר חזרות *</Label>
-              <input
-                id="recurrence_count"
-                type="number"
-                min="1"
-                value={formData.recurrence_count || ''}
-                onChange={(e) => handleChange('recurrence_count', Math.max(1, parseInt(e.target.value) || 0))}
-                placeholder="מספר החזרות הכולל"
-                dir="rtl"
-                className="w-full h-10 border border-slate-200 rounded-lg px-3 py-2 text-right bg-white text-slate-900 font-medium placeholder-slate-400"
-              />
-              <p className="text-xs text-slate-500 mt-1.5">לדוגמה: 6 חזרות</p>
-            </div>
+            {formData.recurrence_count && <p className="text-xs text-slate-500 mt-1.5">לדוגמה: 6 חזרות</p>}
 
             {/* Preview */}
             {formData.recurrence_pattern && formData.recurrence_count && (
