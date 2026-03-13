@@ -74,7 +74,7 @@ export default function Contacts() {
 
   // Filtered contacts
   const filtered = useMemo(() => {
-    return contacts.filter(c => {
+    const result = contacts.filter(c => {
       const matchSearch =
         !search ||
         c.apartment_number.includes(search) ||
@@ -84,6 +84,12 @@ export default function Contacts() {
         c.tenant_phone.includes(search);
       const matchTags = selectedTags.length === 0 || selectedTags.every(t => (c.tags || []).includes(t));
       return matchSearch && matchTags;
+    });
+    // Sort by apartment number (numeric)
+    return result.sort((a, b) => {
+      const numA = parseInt(a.apartment_number) || 0;
+      const numB = parseInt(b.apartment_number) || 0;
+      return numA - numB;
     });
   }, [contacts, search, selectedTags]);
 
