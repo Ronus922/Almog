@@ -4,11 +4,13 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSaturday, isFriday, addMonths, subMonths } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSaturday, isFriday, addMonths, subMonths, addDays, subDays, addWeeks, subWeeks } from 'date-fns';
 import { he } from 'date-fns/locale';
 import AppointmentForm from '@/components/calendar/AppointmentForm';
 import AppointmentModal from '@/components/calendar/AppointmentModal';
 import CalendarGrid from '@/components/calendar/CalendarGrid';
+import WeekView from '@/components/calendar/WeekView';
+import DayView from '@/components/calendar/DayView';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const HEBREW_HOLIDAYS = [
