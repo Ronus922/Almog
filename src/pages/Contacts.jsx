@@ -245,9 +245,9 @@ export default function Contacts() {
                 <TableRow className="bg-blue-50">
                   <TableHead className="text-right font-bold text-slate-700">דירה</TableHead>
                   <TableHead className="text-right font-bold text-slate-700">בעל הדירה</TableHead>
-                  <TableHead className="text-right font-bold text-slate-700 max-w-[90px]">טלפון בעל</TableHead>
+                  <TableHead className="text-right font-bold text-slate-700 w-32">טלפון בעל</TableHead>
                   <TableHead className="hidden md:table-cell text-right font-bold text-slate-700">השוכר</TableHead>
-                  <TableHead className="hidden md:table-cell text-right font-bold text-slate-700 max-w-[90px]">טלפון שוכר</TableHead>
+                  <TableHead className="hidden md:table-cell text-right font-bold text-slate-700 w-32">טלפון שוכר</TableHead>
                   <TableHead className="text-right hidden md:table-cell font-bold text-slate-700">דמי ניהול</TableHead>
                   <TableHead className="text-center font-bold text-slate-700">פעולות</TableHead>
                 </TableRow>
@@ -257,9 +257,9 @@ export default function Contacts() {
                    <TableRow key={contact.id} className="group cursor-pointer">
                      <TableCell className="font-bold text-blue-600 group-hover:bg-blue-100" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.apartment_number}</TableCell>
                      <TableCell className="text-sm group-hover:bg-blue-100" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.owner_name || "—"}</TableCell>
-                     <TableCell className="text-sm text-right max-w-[90px] truncate group-hover:bg-blue-100" dir="ltr" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.owner_phone || "—"}</TableCell>
+                     <TableCell className="text-sm text-right w-32 group-hover:bg-blue-100" dir="ltr" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.owner_phone || "—"}</TableCell>
                      <TableCell className="hidden md:table-cell text-sm group-hover:bg-blue-100" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.tenant_name || "—"}</TableCell>
-                     <TableCell className="hidden md:table-cell text-sm text-right max-w-[90px] truncate group-hover:bg-blue-100" dir="ltr" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.tenant_phone || "—"}</TableCell>
+                     <TableCell className="hidden md:table-cell text-sm text-right w-32 group-hover:bg-blue-100" dir="ltr" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.tenant_phone || "—"}</TableCell>
                      <TableCell className="hidden md:table-cell text-right group-hover:bg-blue-100" onClick={() => {setEditContact(contact); setFormOpen(true);}}>
                        {contact.management_fees ? (
                          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
