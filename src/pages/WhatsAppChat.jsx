@@ -142,6 +142,47 @@ export default function WhatsAppChat() {
     }
   };
 
+  const handleFileSelect = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedContact) return;
+
+    try {
+      const phone = selectedContact.owner_phone || selectedContact.tenant_phone;
+      if (!phone) throw new Error('אין מספר טלפון זמין');
+
+      // Upload file
+      const { file_url } = await base44.integrations.Core.UploadFile({ file });
+
+      // Create chat message with file
+      await base44.entities.ChatMessage.create({
+        contact_id: selectedContact.id,
+        contact_phone: phone,
+        direction: 'sent',
+        message_type: file.type.startsWith('image/') ? 'image' : 'document',
+        content: file_url,
+        timestamp: new Date().toISOString()
+      });
+
+      // Send via Green API
+      try {
+        await base44.functions.invoke('sendWhatsApp', {
+          phone,
+          file_url,
+          file_name: file.name
+        });
+      } catch (error) {
+        console.error('Failed to send file via Green API:', error);
+      }
+
+      // Reset file input
+      if (fileInput) fileInput.value = '';
+      queryClient.invalidateQueries({ queryKey: ['chatMessages', selectedContact.id] });
+      queryClient.invalidateQueries({ queryKey: ['contacts'] });
+    } catch (error) {
+      console.error('File upload error:', error);
+    }
+  };
+
   // Auto-scroll to latest message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
