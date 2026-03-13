@@ -24,6 +24,7 @@ Deno.serve(async (req) => {
   // Normalize Israeli phone number to international format
   let normalized = phone.replace(/\D/g, '');
   if (normalized.startsWith('0')) normalized = '972' + normalized.slice(1);
+  if (!normalized.startsWith('972')) normalized = '972' + normalized;
   const chatId = normalized + '@c.us';
 
   // Send file if attached
@@ -52,8 +53,12 @@ Deno.serve(async (req) => {
   const rawText = await res.text();
   let data;
   try { data = JSON.parse(rawText); } catch { 
+    console.error('Green API parse error:', rawText);
     return Response.json({ error: `Green API error (${res.status}): ${rawText.slice(0, 200)}` }, { status: 502 });
   }
-  if (!res.ok) return Response.json({ error: data }, { status: res.status });
+  if (!res.ok) {
+    console.error('Green API error response:', data, 'Status:', res.status);
+    return Response.json({ error: data, chatId, message }, { status: res.status });
+  }
   return Response.json({ success: true, idMessage: data.idMessage });
 });
