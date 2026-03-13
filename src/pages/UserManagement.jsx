@@ -93,10 +93,10 @@ export default function UserManagement() {
       setIsAddDialogOpen(false);
       setNewUser({ first_name: '', last_name: '', username: '', email: '', password: '', role: 'VIEWER' });
       setFormError('');
-      toast.success('המשתמש נוצר ומייל נשלח בהצלחה');
+      showAlert('המשתמש נוצר ומייל נשלח בהצלחה', 'success');
     },
     onError: () => {
-      toast.error('שגיאה ביצירת המשתמש');
+      showAlert('שגיאה ביצירת המשתמש', 'error');
     }
   });
 
