@@ -3,12 +3,10 @@ import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
-import { Upload } from 'lucide-react';
-import MultiSelectAttendees from './MultiSelectAttendees';
+import { Upload, X, Search } from 'lucide-react';
 
 const COLOR_PALETTE = [
   '#3B82F6', '#EF4444', '#10B981', '#F59E0B',
@@ -19,6 +17,11 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
   const [users, setUsers] = useState([]);
   const [contacts, setContacts] = useState([]);
   const [dragActive, setDragActive] = useState(false);
+  const [showUserSearch, setShowUserSearch] = useState(false);
+  const [showContactSearch, setShowContactSearch] = useState(false);
+  const [userSearchTerm, setUserSearchTerm] = useState('');
+  const [contactSearchTerm, setContactSearchTerm] = useState('');
+
   const [formData, setFormData] = useState({
     title: '',
     appointment_type: 'פגישה',
@@ -93,16 +96,6 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       ...prev,
       [field]: value,
     }));
-  }, []);
-
-  const getUserAvatarColor = useCallback((user) => {
-    const colors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6'];
-    return colors[Math.abs(user.id?.charCodeAt(0) || 0) % colors.length];
-  }, []);
-
-  const getContactAvatarColor = useCallback((contact) => {
-    const colors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6'];
-    return colors[Math.abs(contact.id?.charCodeAt(0) || 0) % colors.length];
   }, []);
 
   const formatUserLabel = useCallback((user) => 
@@ -185,11 +178,26 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
     await onSave(formData);
   }, [formData, onSave]);
 
+  // Filter users and contacts
+  const filteredUsers = userSearchTerm.trim() === '' 
+    ? users 
+    : users.filter(u => {
+        const label = formatUserLabel(u).toLowerCase();
+        return label.includes(userSearchTerm.toLowerCase());
+      });
+
+  const filteredContacts = contactSearchTerm.trim() === '' 
+    ? contacts 
+    : contacts.filter(c => {
+        const label = formatContactLabel(c).toLowerCase();
+        return label.includes(contactSearchTerm.toLowerCase());
+      });
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6 p-6" dir="rtl">
       {/* Title */}
       <div>
-        <Label htmlFor="title" className="text-right block">כותרת *</Label>
+        <Label htmlFor="title" className="block mb-2 font-semibold text-slate-900">כותרת *</Label>
         <Input
           id="title"
           value={formData.title}
@@ -197,28 +205,42 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
           required
           placeholder="הכנס כותרת פגישה"
           dir="rtl"
+          className="h-10"
         />
       </div>
 
-      {/* Type */}
-       <div>
-         <Label className="text-right block">סוג</Label>
-         <select 
-           value={formData.appointment_type} 
-           onChange={(e) => handleChange('appointment_type', e.target.value)}
-           dir="rtl"
-           className="w-full border border-slate-200 rounded-lg p-3 text-right bg-white text-slate-900"
-         >
-           <option value="פגישה">פגישה</option>
-           <option value="משימה">משימה</option>
-           <option value="אחר">אחר</option>
-         </select>
-       </div>
+      {/* Type and Location */}
+      <div className="grid grid-cols-2 gap-4">
+        <div>
+          <Label className="block mb-2 font-semibold text-slate-900">סוג</Label>
+          <select 
+            value={formData.appointment_type} 
+            onChange={(e) => handleChange('appointment_type', e.target.value)}
+            dir="rtl"
+            className="w-full h-10 border border-slate-200 rounded-lg px-3 text-right bg-white text-slate-900 font-medium"
+          >
+            <option value="פגישה">פגישה</option>
+            <option value="משימה">משימה</option>
+            <option value="אחר">אחר</option>
+          </select>
+        </div>
+        <div>
+          <Label htmlFor="location" className="block mb-2 font-semibold text-slate-900">מיקום</Label>
+          <Input
+            id="location"
+            value={formData.location}
+            onChange={(e) => handleChange('location', e.target.value)}
+            placeholder="הכנס מיקום"
+            dir="rtl"
+            className="h-10"
+          />
+        </div>
+      </div>
 
       {/* Date and Time */}
       <div className="grid grid-cols-3 gap-4">
         <div>
-          <Label htmlFor="date" className="text-right block">תאריך *</Label>
+          <Label htmlFor="date" className="block mb-2 font-semibold text-slate-900">תאריך *</Label>
           <Input
             id="date"
             type="date"
@@ -226,11 +248,12 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
             onChange={(e) => handleChange('date', e.target.value)}
             required
             dir="rtl"
+            className="h-10"
             min={format(new Date(), 'yyyy-MM-dd')}
           />
         </div>
         <div>
-          <Label htmlFor="start_time" className="text-right block">שעת התחלה *</Label>
+          <Label htmlFor="start_time" className="block mb-2 font-semibold text-slate-900">שעת התחלה *</Label>
           <Input
             id="start_time"
             type="time"
@@ -238,10 +261,11 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
             onChange={(e) => handleChange('start_time', e.target.value)}
             required
             dir="rtl"
+            className="h-10"
           />
         </div>
         <div>
-          <Label htmlFor="end_time" className="text-right block">שעת סיום *</Label>
+          <Label htmlFor="end_time" className="block mb-2 font-semibold text-slate-900">שעת סיום *</Label>
           <Input
             id="end_time"
             type="time"
@@ -249,38 +273,41 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
             onChange={(e) => handleChange('end_time', e.target.value)}
             required
             dir="rtl"
+            className="h-10"
           />
         </div>
       </div>
 
-      {/* Location */}
+      {/* Description */}
       <div>
-        <Label htmlFor="location" className="text-right block">מיקום</Label>
-        <Input
-          id="location"
-          value={formData.location}
-          onChange={(e) => handleChange('location', e.target.value)}
-          placeholder="הכנס מיקום"
+        <Label htmlFor="description" className="block mb-2 font-semibold text-slate-900">תיאור</Label>
+        <Textarea
+          id="description"
+          value={formData.description}
+          onChange={(e) => handleChange('description', e.target.value)}
+          placeholder="הכנס תיאור האירוע"
+          rows={3}
           dir="rtl"
+          className="resize-none"
         />
       </div>
 
       {/* Recurring */}
-      <div>
-        <div className="flex items-center gap-2 mb-2">
+      <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
+        <div className="flex items-center gap-3 mb-3">
           <Checkbox
             id="is_recurring"
             checked={formData.is_recurring}
             onCheckedChange={(checked) => handleChange('is_recurring', checked)}
           />
-          <Label htmlFor="is_recurring" className="cursor-pointer">אירוע חוזר</Label>
+          <Label htmlFor="is_recurring" className="cursor-pointer font-semibold text-slate-900">אירוע חוזר</Label>
         </div>
         {formData.is_recurring && (
           <select 
             value={formData.recurrence_pattern} 
             onChange={(e) => handleChange('recurrence_pattern', e.target.value)}
             dir="rtl"
-            className="w-full border border-slate-200 rounded-lg p-3 text-right bg-white text-slate-900"
+            className="w-full h-10 border border-slate-200 rounded-lg px-3 text-right bg-white text-slate-900"
           >
             <option value="weekly">שבועי</option>
             <option value="monthly">חודשי</option>
@@ -291,14 +318,14 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
       {/* Event Color */}
       <div>
-        <Label className="text-right block mb-2">צבע אירוע</Label>
+        <Label className="block mb-3 font-semibold text-slate-900">צבע אירוע</Label>
         <div className="flex gap-2 flex-wrap justify-end">
           {COLOR_PALETTE.map((color) => (
             <button
               key={color}
               type="button"
-              className={`w-8 h-8 rounded-full border-2 transition-transform hover:scale-110 ${
-                formData.event_color === color ? 'border-slate-900 scale-110' : 'border-slate-300'
+              className={`w-9 h-9 rounded-full border-2 transition-all hover:scale-110 ${
+                formData.event_color === color ? 'border-slate-900 scale-110 shadow-lg' : 'border-slate-300'
               }`}
               style={{ backgroundColor: color }}
               onClick={() => handleChange('event_color', color)}
@@ -310,12 +337,12 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       {/* Reminder */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label className="text-right block">תזכורת לפני</Label>
+          <Label className="block mb-2 font-semibold text-slate-900">תזכורת לפני</Label>
           <select 
             value={formData.reminder_before} 
             onChange={(e) => handleChange('reminder_before', e.target.value)}
             dir="rtl"
-            className="w-full border border-slate-200 rounded-lg p-3 text-right bg-white text-slate-900"
+            className="w-full h-10 border border-slate-200 rounded-lg px-3 text-right bg-white text-slate-900 font-medium"
           >
             <option value="15m">15 דקות</option>
             <option value="30m">30 דקות</option>
@@ -324,12 +351,12 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
           </select>
         </div>
         <div>
-          <Label className="text-right block">אופן התזכורת</Label>
+          <Label className="block mb-2 font-semibold text-slate-900">אופן התזכורת</Label>
           <select 
             value={formData.reminder_method} 
             onChange={(e) => handleChange('reminder_method', e.target.value)}
             dir="rtl"
-            className="w-full border border-slate-200 rounded-lg p-3 text-right bg-white text-slate-900"
+            className="w-full h-10 border border-slate-200 rounded-lg px-3 text-right bg-white text-slate-900 font-medium"
           >
             <option value="email">אימייל</option>
             <option value="sms">SMS</option>
@@ -339,55 +366,136 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         </div>
       </div>
 
-      {/* Description */}
-      <div>
-        <Label htmlFor="description" className="text-right block">תיאור</Label>
-        <Textarea
-          id="description"
-          value={formData.description}
-          onChange={(e) => handleChange('description', e.target.value)}
-          placeholder="הכנס תיאור האירוע"
-          rows={3}
-          dir="rtl"
-        />
+      {/* Users - Multi Select */}
+      <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+        <Label className="block mb-3 font-semibold text-slate-900">משתמשים</Label>
+        <div className="relative mb-3">
+          <Search className="absolute right-3 top-3 w-4 h-4 text-slate-400" />
+          <Input
+            type="text"
+            placeholder="חפש משתמש..."
+            value={userSearchTerm}
+            onChange={(e) => setUserSearchTerm(e.target.value)}
+            onFocus={() => setShowUserSearch(true)}
+            dir="rtl"
+            className="pl-10 h-9 text-sm"
+          />
+        </div>
+
+        {showUserSearch && (
+          <div className="bg-white rounded-lg border border-slate-200 max-h-40 overflow-y-auto mb-3 p-2">
+            {filteredUsers.length > 0 ? (
+              filteredUsers.map((user) => (
+                <div key={user.id} className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded cursor-pointer" dir="rtl">
+                  <Checkbox
+                    checked={formData.attendees_users.includes(user.id)}
+                    onCheckedChange={() => {
+                      handleUserToggle(user.id);
+                    }}
+                  />
+                  <span className="text-sm text-slate-700 flex-1">{formatUserLabel(user)}</span>
+                </div>
+              ))
+            ) : (
+              <p className="text-sm text-slate-500 text-center py-2">לא נמצאו משתמשים</p>
+            )}
+          </div>
+        )}
+
+        {/* Selected Users */}
+        {formData.attendees_users.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {formData.attendees_users.map((userId) => {
+              const user = users.find(u => u.id === userId);
+              return user ? (
+                <div key={userId} className="flex items-center gap-1 bg-blue-200 text-blue-900 px-2 py-1 rounded-full text-xs font-medium">
+                  <span>{formatUserLabel(user)}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleUserToggle(userId)}
+                    className="hover:text-blue-700"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ) : null;
+            })}
+          </div>
+        )}
       </div>
 
-      {/* Attendees - Users */}
-      <MultiSelectAttendees
-        label="משתמשים"
-        items={users}
-        selectedIds={formData.attendees_users}
-        onToggle={handleUserToggle}
-        searchPlaceholder="חפש משתמש..."
-        formatLabel={formatUserLabel}
-        getAvatarColor={getUserAvatarColor}
-      />
-
-      {/* Attendees - Contacts */}
+      {/* Contacts - Multi Select */}
       {contacts.length > 0 && (
-        <MultiSelectAttendees
-          label="אנשי קשר"
-          items={contacts}
-          selectedIds={formData.attendees_contacts}
-          onToggle={handleContactToggle}
-          searchPlaceholder="חפש לפי שם או דירה..."
-          formatLabel={formatContactLabel}
-          getAvatarColor={getContactAvatarColor}
-        />
+        <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
+          <Label className="block mb-3 font-semibold text-slate-900">אנשי קשר</Label>
+          <div className="relative mb-3">
+            <Search className="absolute right-3 top-3 w-4 h-4 text-slate-400" />
+            <Input
+              type="text"
+              placeholder="חפש לפי שם או דירה..."
+              value={contactSearchTerm}
+              onChange={(e) => setContactSearchTerm(e.target.value)}
+              onFocus={() => setShowContactSearch(true)}
+              dir="rtl"
+              className="pl-10 h-9 text-sm"
+            />
+          </div>
+
+          {showContactSearch && (
+            <div className="bg-white rounded-lg border border-slate-200 max-h-40 overflow-y-auto mb-3 p-2">
+              {filteredContacts.length > 0 ? (
+                filteredContacts.map((contact) => (
+                  <div key={contact.id} className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded cursor-pointer" dir="rtl">
+                    <Checkbox
+                      checked={formData.attendees_contacts.includes(contact.id)}
+                      onCheckedChange={() => {
+                        handleContactToggle(contact.id);
+                      }}
+                    />
+                    <span className="text-sm text-slate-700 flex-1">{formatContactLabel(contact)}</span>
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-slate-500 text-center py-2">לא נמצאו אנשי קשר</p>
+              )}
+            </div>
+          )}
+
+          {/* Selected Contacts */}
+          {formData.attendees_contacts.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {formData.attendees_contacts.map((contactId) => {
+                const contact = contacts.find(c => c.id === contactId);
+                return contact ? (
+                  <div key={contactId} className="flex items-center gap-1 bg-amber-200 text-amber-900 px-2 py-1 rounded-full text-xs font-medium">
+                    <span>{formatContactLabel(contact)}</span>
+                    <button
+                      type="button"
+                      onClick={() => handleContactToggle(contactId)}
+                      className="hover:text-amber-700"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : null;
+              })}
+            </div>
+          )}
+        </div>
       )}
 
       {/* File Upload - Drag & Drop */}
       <div>
-        <Label className="text-right block mb-2">קבצים מצורפים</Label>
+        <Label className="block mb-3 font-semibold text-slate-900">קבצים מצורפים</Label>
         <div
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
           onDragOver={handleDrag}
           onDrop={handleDrop}
-          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors cursor-pointer ${
+          className={`border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${
             dragActive
               ? 'border-blue-500 bg-blue-50'
-              : 'border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-blue-25'
+              : 'border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-blue-50'
           }`}
         >
           <input
@@ -398,8 +506,8 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
             id="file-input"
           />
           <label htmlFor="file-input" className="cursor-pointer block">
-            <Upload className="w-8 h-8 mx-auto mb-2 text-slate-500" />
-            <p className="text-sm font-medium text-slate-700">גרור קבצים לכאן או לחץ לבחירה</p>
+            <Upload className="w-10 h-10 mx-auto mb-2 text-slate-400" />
+            <p className="text-sm font-semibold text-slate-700">גרור קבצים לכאן או לחץ לבחירה</p>
             <p className="text-xs text-slate-500 mt-1">תמך בכל סוגי הקבצים</p>
           </label>
         </div>
@@ -407,18 +515,20 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         {/* Attachments List */}
         {formData.attachments.length > 0 && (
           <div className="mt-4 space-y-2">
-            <p className="text-sm font-medium text-slate-700 text-right">קבצים מועלים:</p>
+            <p className="text-sm font-semibold text-slate-700">קבצים מועלים:</p>
             {formData.attachments.map((url, idx) => (
-              <div key={idx} className="flex items-center justify-between bg-slate-100 p-2 rounded text-sm">
+              <div key={idx} className="flex items-center justify-between bg-slate-100 p-3 rounded-lg text-sm border border-slate-200" dir="rtl">
+                <div className="flex items-center gap-2 flex-1">
+                  <span>📎</span>
+                  <span className="text-slate-700 truncate flex-1">{url.split('/').pop()}</span>
+                </div>
                 <button
                   type="button"
                   onClick={() => removeAttachment(idx)}
-                  className="text-red-600 hover:text-red-800 text-xs"
+                  className="text-red-600 hover:text-red-800 text-xs font-semibold"
                 >
                   הסר
                 </button>
-                <span className="text-slate-700 truncate">{url.split('/').pop()}</span>
-                <span>📎</span>
               </div>
             ))}
           </div>
@@ -426,11 +536,11 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       </div>
 
       {/* Actions */}
-      <div className="flex gap-3 justify-end pt-4 border-t border-slate-200">
-        <Button type="button" variant="outline" onClick={onCancel}>
+      <div className="flex gap-3 justify-end pt-6 border-t border-slate-200">
+        <Button type="button" variant="outline" onClick={onCancel} className="h-10 px-6">
           ביטול
         </Button>
-        <Button type="submit" disabled={isLoading} className="bg-blue-600 hover:bg-blue-700">
+        <Button type="submit" disabled={isLoading} className="bg-blue-600 hover:bg-blue-700 text-white h-10 px-6">
           {isLoading ? 'שומר...' : appointment ? 'עדכן' : 'צור'}
         </Button>
       </div>
