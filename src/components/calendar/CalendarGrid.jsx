@@ -89,9 +89,9 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
   return (
     <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200 w-full h-full flex flex-col" dir="rtl">
       {/* Header with weekday names */}
-      <div className="grid grid-cols-7 gap-0 bg-gradient-to-r from-slate-100 to-slate-50 border-b border-slate-200">
-        {weekDays.map((day) => (
-          <div key={day} className="p-4 text-center text-sm font-semibold text-slate-700 border-r border-slate-200 last:border-r-0">
+      <div className="grid grid-cols-7 gap-0 bg-gradient-to-r from-slate-100 via-slate-50 to-slate-100 border-b border-slate-200">
+        {weekDays.map((day, idx) => (
+          <div key={day} className={`p-4 text-center text-sm font-semibold text-slate-700 ${idx < 6 ? 'border-l border-slate-200' : ''}`}>
             {day}
           </div>
         ))}
