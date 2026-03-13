@@ -15,47 +15,72 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
 
   const handleImport = async () => {
     const file = fileRef.current?.files[0];
-    if (!file) return;
+    if (!file) {
+      showAlert("בחר קובץ Excel לייבוא", "error");
+      return;
+    }
+    
     setLoading(true);
-    const reader = new FileReader();
-    reader.onload = async (evt) => {
-      const wb = XLSX.read(evt.target.result, { type: "binary" });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
-      let imported = 0;
-
-      for (const row of rows) {
-        const apartmentNumber = String(row["apartment_number"] || row["apartment"] || row["A"] || "").trim();
-        if (!apartmentNumber) continue;
-
-        const contact = {
-          apartment_number: apartmentNumber,
-          owner_name: String(row["owner_name"] || row["B"] || "").trim(),
-          owner_phone: String(row["owner_phone"] || row["C"] || "").trim(),
-          owner_email: String(row["owner_email"] || row["D"] || "").trim(),
-          tenant_name: String(row["tenant_name"] || row["E"] || "").trim(),
-          tenant_phone: String(row["tenant_phone"] || row["F"] || "").trim(),
-          tenant_email: String(row["tenant_email"] || row["G"] || "").trim(),
-          contact_type: String(row["contact_type"] || row["type"] || "owner").trim(),
-          address: String(row["address"] || "").trim(),
-          notes: String(row["notes"] || "").trim(),
-          management_fees: parseFloat(row["management_fees"] || row["H"] || 0) || 0,
-        };
-
+    try {
+      const reader = new FileReader();
+      reader.onload = async (evt) => {
         try {
-          await base44.entities.Contact.create(contact);
-          imported++;
-        } catch (error) {
-          console.error(`שגיאה בייבוא דירה ${apartmentNumber}:`, error);
-        }
-      }
+          const wb = XLSX.read(evt.target.result, { type: "binary" });
+          const ws = wb.Sheets[wb.SheetNames[0]];
+          const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
+          
+          if (!rows || rows.length === 0) {
+            showAlert("הקובץ ריק או לא קריא", "error");
+            setLoading(false);
+            return;
+          }
 
+          let imported = 0;
+          let failed = 0;
+
+          for (const row of rows) {
+            const apartmentNumber = String(row["apartment_number"] || row["apartment"] || row["A"] || "").trim();
+            if (!apartmentNumber) continue;
+
+            const contact = {
+              apartment_number: apartmentNumber,
+              owner_name: String(row["owner_name"] || row["B"] || "").trim(),
+              owner_phone: String(row["owner_phone"] || row["C"] || "").trim(),
+              owner_email: String(row["owner_email"] || row["D"] || "").trim(),
+              tenant_name: String(row["tenant_name"] || row["E"] || "").trim(),
+              tenant_phone: String(row["tenant_phone"] || row["F"] || "").trim(),
+              tenant_email: String(row["tenant_email"] || row["G"] || "").trim(),
+              contact_type: String(row["contact_type"] || row["type"] || "owner").trim(),
+              address: String(row["address"] || "").trim(),
+              notes: String(row["notes"] || "").trim(),
+              management_fees: parseFloat(row["management_fees"] || row["H"] || 0) || 0,
+            };
+
+            try {
+              await base44.entities.Contact.create(contact);
+              imported++;
+            } catch (error) {
+              failed++;
+            }
+          }
+
+          setLoading(false);
+          const message = failed > 0 
+            ? `יובאו ${imported} אנשי קשר (${failed} נכשלו)`
+            : `יובאו בהצלחה ${imported} אנשי קשר`;
+          showAlert(message, failed > 0 ? "error" : "success");
+          onImported();
+          onClose();
+        } catch (error) {
+          setLoading(false);
+          showAlert("שגיאה בקריאת הקובץ: " + error.message, "error");
+        }
+      };
+      reader.readAsBinaryString(file);
+    } catch (error) {
       setLoading(false);
-      showAlert(`יובאו ${imported} אנשי קשר`, "success");
-      onImported();
-      onClose();
-    };
-    reader.readAsBinaryString(file);
+      showAlert("שגיאה: " + error.message, "error");
+    }
   };
 
   const downloadTemplate = () => {
