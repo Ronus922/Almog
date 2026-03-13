@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Upload, Send, Trash2, Search, X, Filter } from "lucide-react";
+import { Plus, Upload, Send, Trash2, Search, X, Filter, Edit } from "lucide-react";
 import ContactFormDialog from "@/components/contacts/ContactFormDialog";
 import SendWhatsAppBulkDialog from "@/components/contacts/SendWhatsAppBulkDialog";
 import ContactImportDialog from "@/components/contacts/ContactImportDialog";
