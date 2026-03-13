@@ -268,9 +268,9 @@ export default function Calendar() {
 
       {/* Appointment Form Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" dir="rtl">
-          <DialogHeader>
-            <DialogTitle className="text-right text-2xl font-bold text-slate-900">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
+          <DialogHeader className="border-b border-slate-200 pb-4 mb-4">
+            <DialogTitle className="text-2xl font-bold text-slate-900">
               {selectedAppointment ? 'עריכת פגישה' : 'פגישה חדשה'}
             </DialogTitle>
             <div className="hidden">פרטי הפגישה</div>
