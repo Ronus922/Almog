@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Send, Search } from 'lucide-react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { useState, useRef, useEffect } from 'react';
 
 export default function WhatsAppChat() {
   const [selectedContact, setSelectedContact] = useState(null);
