@@ -16,8 +16,7 @@ export function normalizeRole(role) {
   
   const normalized = role.toUpperCase().trim();
   
-  // Map legacy/variant roles
-  if (normalized === 'SUPER_ADMIN') return 'ADMIN';
+  if (normalized === 'SUPER_ADMIN') return 'SUPER_ADMIN';
   if (normalized === 'ADMIN') return 'ADMIN';
   if (normalized === 'VIEWER') return 'VIEWER';
   if (normalized === 'VIEWER_PASSWORD') return 'VIEWER';
@@ -37,9 +36,7 @@ export function isManagerRole(user) {
   }
   
   const normalizedRole = normalizeRole(user.role);
-  const isManager = normalizedRole === 'ADMIN';
-  
-  return isManager;
+  return normalizedRole === 'ADMIN' || normalizedRole === 'SUPER_ADMIN';
 }
 
 /**
@@ -69,6 +66,7 @@ export function getUserRoleDisplayName(user) {
   const normalizedRole = normalizeRole(user.role);
   
   switch (normalizedRole) {
+    case 'SUPER_ADMIN': return 'סופר אדמין';
     case 'ADMIN': return 'מנהל';
     case 'VIEWER': return 'צופה';
     default: return user.role || '';
