@@ -271,6 +271,7 @@ export default function Calendar() {
             <DialogTitle className="text-right text-2xl font-bold text-slate-900">
               {selectedAppointment ? 'עריכת פגישה' : 'פגישה חדשה'}
             </DialogTitle>
+            <div className="hidden">פרטי הפגישה</div>
           </DialogHeader>
           <AppointmentForm
             appointment={selectedAppointment}
