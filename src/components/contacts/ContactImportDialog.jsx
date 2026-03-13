@@ -181,7 +181,10 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
               setProgress(0);
               setProgressText("");
               setSelectedFile(null);
+              if (fileRef.current) fileRef.current.value = '';
             }, 1000);
+          } else {
+            setLoading(false);
           }
         } catch (error) {
           setLoading(false);
