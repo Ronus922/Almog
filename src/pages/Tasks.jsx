@@ -98,13 +98,13 @@ export default function Tasks() {
   });
 
   // סינון לפי המשתמש המחובר - רואה רק משימות שיצר או שהוקצו אליו
-  const myTasks = useMemo(() => {
-    const isSuperAdmin = currentUser?.role === "SUPER_ADMIN";
-    if (isSuperAdmin) return tasks; // סופר אדמין רואה הכל
-    const username = currentUser?.username;
-    if (!username) return [];
-    return tasks.filter((t) => t.assigned_to === username);
-  }, [tasks, currentUser]);
+   const myTasks = useMemo(() => {
+     const isSuperAdmin = currentUser?.role === "SUPER_ADMIN";
+     if (isSuperAdmin) return tasks; // סופר אדמין רואה הכל
+     const username = currentUser?.username;
+     if (!username) return [];
+     return tasks.filter((t) => t.assigned_to === username || t.assigned_by === username);
+   }, [tasks, currentUser]);
 
   const assignedOptions = useMemo(() => {
     const names = [...new Set(myTasks.map((t) => t.assigned_to_name || t.assigned_to).filter(Boolean))];
