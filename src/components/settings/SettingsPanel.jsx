@@ -101,14 +101,14 @@ export default function SettingsPanel() {
       
       setRecalcSuccess(true);
       setRecalcMessage(`${updated} רשומות עודכנו מתוך ${allRecords.length}`);
-      toast.success(`${updated} רשומות עודכנו בהצלחה`);
+      showAlert(`${updated} רשומות עודכנו בהצלחה`, 'success');
       setTimeout(() => {
         setRecalcSuccess(false);
         setRecalcMessage('');
       }, 5000);
     } catch (err) {
       setError('שגיאה בחישוב מחדש של הסטטוסים: ' + err.message);
-      toast.error('שגיאה בחישוב מחדש');
+      showAlert('שגיאה בחישוב מחדש', 'error');
     } finally {
       setIsRecalculating(false);
     }
@@ -123,7 +123,7 @@ export default function SettingsPanel() {
     const validation = validateThresholds(settings);
     if (!validation.valid) {
       setError(validation.error);
-      toast.error(validation.error);
+      showAlert(validation.error, 'error');
       setIsSaving(false);
       return;
     }
@@ -139,7 +139,7 @@ export default function SettingsPanel() {
       }
       
       setSaveSuccess(true);
-      toast.success('ההגדרות נשמרו בהצלחה');
+      showAlert('ההגדרות נשמרו בהצלחה', 'success');
       
       // בדוק אם הספים השתנו
       const thresholdsChanged = oldSettings && (
@@ -150,7 +150,7 @@ export default function SettingsPanel() {
       
       if (thresholdsChanged) {
         // הפעל ריענון אוטומטי
-        toast.info('הספים השתנו - מעדכן סטטוסים אוטומטית...');
+        showAlert('הספים השתנו - מעדכן סטטוסים אוטומטית...', 'info');
         setTimeout(() => {
           recalculateAllStatuses();
         }, 500);
@@ -159,7 +159,7 @@ export default function SettingsPanel() {
       }
     } catch (err) {
       setError(err.message || 'שגיאה בשמירת ההגדרות');
-      toast.error('שגיאה בשמירת ההגדרות');
+      showAlert('שגיאה בשמירת ההגדרות', 'error');
     } finally {
       setIsSaving(false);
     }
