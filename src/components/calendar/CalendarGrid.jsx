@@ -56,15 +56,15 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
     
     // Holiday type styles (highest priority)
     if (holiday?.type === 'yom_tov') {
-      return `${baseStyles} bg-gradient-to-b from-amber-50 to-amber-25 hover:from-amber-100 hover:to-amber-50`;
+      return `${baseStyles} bg-gradient-to-b from-yellow-50 to-yellow-25 hover:from-yellow-100 hover:to-yellow-50`;
     }
     if (holiday?.type === 'chol_hamoed') {
-      return `${baseStyles} bg-gradient-to-b from-emerald-50 to-emerald-25 hover:from-emerald-100 hover:to-emerald-50`;
+      return `${baseStyles} bg-gradient-to-b from-green-50 to-green-25 hover:from-green-100 hover:to-green-50`;
     }
 
     // Shabbat style (priority after holidays)
     if (isShabat && !holiday) {
-      return `${baseStyles} bg-gradient-to-b from-blue-50 to-blue-25 hover:from-blue-100 hover:to-blue-50`;
+      return `${baseStyles} bg-gradient-to-b from-indigo-50 to-indigo-25 hover:from-indigo-100 hover:to-indigo-50`;
     }
 
     // Out of month
@@ -135,8 +135,8 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
               {holiday && (
                 <div className={`text-xs font-semibold rounded px-2 py-1 mb-2 truncate ${
                   holiday.type === 'yom_tov'
-                    ? 'bg-amber-200 text-amber-900'
-                    : 'bg-emerald-200 text-emerald-900'
+                    ? 'bg-yellow-200 text-yellow-900'
+                    : 'bg-green-200 text-green-900'
                 }`}>
                   {holiday.name}
                 </div>
