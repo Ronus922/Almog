@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
-import { Upload, X, Search } from 'lucide-react';
+import { Upload, X, Search, ChevronDown } from 'lucide-react';
 
 const COLOR_PALETTE = [
   '#3B82F6', '#EF4444', '#10B981', '#F59E0B',
@@ -441,53 +441,75 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       </div>
 
       {/* Users - Multi Select */}
-      <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+      <div>
         <Label className="block mb-3 font-bold text-slate-900 text-sm">משתמשים</Label>
-        <div className="relative mb-3">
-          <Search className="absolute right-3 top-3 w-4 h-4 text-slate-400" />
-          <Input
-            type="text"
-            placeholder="חפש משתמש..."
-            value={userSearchTerm}
-            onChange={(e) => setUserSearchTerm(e.target.value)}
-            onFocus={() => setShowUserSearch(true)}
-            dir="rtl"
-            className="pl-10 h-9 text-sm"
-          />
+        <div className="relative">
+          <button
+            type="button"
+            onClick={() => setShowUserSearch(!showUserSearch)}
+            onKeyDown={(e) => e.key === 'Escape' && setShowUserSearch(false)}
+            className="w-full h-10 border border-slate-200 rounded-lg px-3 flex items-center justify-between hover:border-slate-300 bg-white text-right transition-all"
+          >
+            <ChevronDown className={`w-4 h-4 text-slate-600 transition-transform ${showUserSearch ? 'rotate-180' : ''}`} />
+            <span className="text-sm text-slate-700 flex-1 text-right">
+              {formData.attendees_users.length > 0 
+                ? `${formData.attendees_users.length} משתמשים נבחרו`
+                : 'בחר משתמשים...'}
+            </span>
+          </button>
+
+          {showUserSearch && (
+            <div className="absolute top-full right-0 left-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-50">
+              <div className="p-3 border-b border-slate-200">
+                <div className="relative">
+                  <Search className="absolute right-3 top-2.5 w-4 h-4 text-slate-400" />
+                  <Input
+                    type="text"
+                    placeholder="חפש משתמש..."
+                    value={userSearchTerm}
+                    onChange={(e) => setUserSearchTerm(e.target.value)}
+                    dir="rtl"
+                    className="pl-10 h-9 text-sm"
+                    autoFocus
+                  />
+                </div>
+              </div>
+
+              <div className="max-h-56 overflow-y-auto p-2">
+                {filteredUsers.length > 0 ? (
+                  filteredUsers.map((user) => (
+                    <div 
+                      key={user.id} 
+                      className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer transition-colors" 
+                      dir="rtl"
+                    >
+                      <Checkbox
+                        checked={formData.attendees_users.includes(user.id)}
+                        onCheckedChange={() => handleUserToggle(user.id)}
+                      />
+                      <span className="text-sm text-slate-700">{formatUserLabel(user)}</span>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-slate-500 text-center py-3">לא נמצאו משתמשים</p>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
-        {showUserSearch && (
-          <div className="bg-white rounded-lg border border-slate-200 max-h-40 overflow-y-auto mb-3 p-2">
-            {filteredUsers.length > 0 ? (
-              filteredUsers.map((user) => (
-                <div key={user.id} className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded cursor-pointer" dir="rtl">
-                  <Checkbox
-                    checked={formData.attendees_users.includes(user.id)}
-                    onCheckedChange={() => {
-                      handleUserToggle(user.id);
-                    }}
-                  />
-                  <span className="text-sm text-slate-700 flex-1">{formatUserLabel(user)}</span>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-slate-500 text-center py-2">לא נמצאו משתמשים</p>
-            )}
-          </div>
-        )}
-
-        {/* Selected Users */}
+        {/* Selected Users Tags */}
         {formData.attendees_users.length > 0 && (
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mt-2 justify-end">
             {formData.attendees_users.map((userId) => {
               const user = users.find(u => u.id === userId);
               return user ? (
-                <div key={userId} className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full text-xs font-semibold">
+                <div key={userId} className="flex items-center gap-1.5 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200">
                   <span>{formatUserLabel(user)}</span>
                   <button
                     type="button"
                     onClick={() => handleUserToggle(userId)}
-                    className="hover:text-blue-700"
+                    className="text-slate-500 hover:text-slate-700"
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -500,53 +522,75 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
       {/* Contacts - Multi Select */}
       {contacts.length > 0 && (
-        <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
+        <div>
           <Label className="block mb-3 font-bold text-slate-900 text-sm">אנשי קשר</Label>
-          <div className="relative mb-3">
-            <Search className="absolute right-3 top-3 w-4 h-4 text-slate-400" />
-            <Input
-              type="text"
-              placeholder="חפש לפי שם או דירה..."
-              value={contactSearchTerm}
-              onChange={(e) => setContactSearchTerm(e.target.value)}
-              onFocus={() => setShowContactSearch(true)}
-              dir="rtl"
-              className="pl-10 h-9 text-sm"
-            />
+          <div className="relative">
+            <button
+              type="button"
+              onClick={() => setShowContactSearch(!showContactSearch)}
+              onKeyDown={(e) => e.key === 'Escape' && setShowContactSearch(false)}
+              className="w-full h-10 border border-slate-200 rounded-lg px-3 flex items-center justify-between hover:border-slate-300 bg-white text-right transition-all"
+            >
+              <ChevronDown className={`w-4 h-4 text-slate-600 transition-transform ${showContactSearch ? 'rotate-180' : ''}`} />
+              <span className="text-sm text-slate-700 flex-1 text-right">
+                {formData.attendees_contacts.length > 0 
+                  ? `${formData.attendees_contacts.length} אנשי קשר נבחרו`
+                  : 'בחר אנשי קשר...'}
+              </span>
+            </button>
+
+            {showContactSearch && (
+              <div className="absolute top-full right-0 left-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-50">
+                <div className="p-3 border-b border-slate-200">
+                  <div className="relative">
+                    <Search className="absolute right-3 top-2.5 w-4 h-4 text-slate-400" />
+                    <Input
+                      type="text"
+                      placeholder="חפש לפי שם או דירה..."
+                      value={contactSearchTerm}
+                      onChange={(e) => setContactSearchTerm(e.target.value)}
+                      dir="rtl"
+                      className="pl-10 h-9 text-sm"
+                      autoFocus
+                    />
+                  </div>
+                </div>
+
+                <div className="max-h-56 overflow-y-auto p-2">
+                  {filteredContacts.length > 0 ? (
+                    filteredContacts.map((contact) => (
+                      <div 
+                        key={contact.id} 
+                        className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer transition-colors" 
+                        dir="rtl"
+                      >
+                        <Checkbox
+                          checked={formData.attendees_contacts.includes(contact.id)}
+                          onCheckedChange={() => handleContactToggle(contact.id)}
+                        />
+                        <span className="text-sm text-slate-700">{formatContactLabel(contact)}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-sm text-slate-500 text-center py-3">לא נמצאו אנשי קשר</p>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
-          {showContactSearch && (
-            <div className="bg-white rounded-lg border border-slate-200 max-h-40 overflow-y-auto mb-3 p-2">
-              {filteredContacts.length > 0 ? (
-                filteredContacts.map((contact) => (
-                  <div key={contact.id} className="flex items-center gap-2 p-2 hover:bg-slate-50 rounded cursor-pointer" dir="rtl">
-                    <Checkbox
-                      checked={formData.attendees_contacts.includes(contact.id)}
-                      onCheckedChange={() => {
-                        handleContactToggle(contact.id);
-                      }}
-                    />
-                    <span className="text-sm text-slate-700 flex-1">{formatContactLabel(contact)}</span>
-                  </div>
-                ))
-              ) : (
-                <p className="text-sm text-slate-500 text-center py-2">לא נמצאו אנשי קשר</p>
-              )}
-            </div>
-          )}
-
-          {/* Selected Contacts */}
+          {/* Selected Contacts Tags */}
           {formData.attendees_contacts.length > 0 && (
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-2 mt-2 justify-end">
               {formData.attendees_contacts.map((contactId) => {
                 const contact = contacts.find(c => c.id === contactId);
                 return contact ? (
-                  <div key={contactId} className="flex items-center gap-1 bg-amber-100 text-amber-700 px-3 py-1.5 rounded-full text-xs font-semibold">
+                  <div key={contactId} className="flex items-center gap-1.5 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200">
                     <span>{formatContactLabel(contact)}</span>
                     <button
                       type="button"
                       onClick={() => handleContactToggle(contactId)}
-                      className="hover:text-amber-700"
+                      className="text-slate-500 hover:text-slate-700"
                     >
                       <X className="w-3 h-3" />
                     </button>
