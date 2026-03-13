@@ -196,6 +196,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
             onChange={(e) => handleChange('date', e.target.value)}
             required
             dir="rtl"
+            min={format(new Date(), 'yyyy-MM-dd')}
           />
         </div>
         <div>
