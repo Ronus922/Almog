@@ -1,6 +1,7 @@
 import React from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSaturday, isFriday, getDay } from 'date-fns';
 import { he } from 'date-fns/locale';
+import { Repeat2 } from 'lucide-react';
 
 export default function CalendarGrid({ currentMonth, appointments, onDateClick, onAppointmentClick, isHoliday, getHolidayName }) {
   const monthStart = startOfMonth(currentMonth);
@@ -145,24 +146,25 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
               {/* Appointments */}
               <div className="space-y-1">
                 {dayAppointments.slice(0, 2).map((apt) => (
-                  <div
-                    key={apt.id}
-                    className="text-xs p-2 rounded text-white truncate cursor-pointer hover:shadow-lg transition-shadow font-medium border border-opacity-20 border-white"
-                    style={{ 
-                      backgroundColor: apt.event_color || '#3B82F6',
-                      opacity: isPast ? 0.6 : 1
-                    }}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      if (!isPast) {
-                        onAppointmentClick(apt);
-                      }
-                    }}
-                    title={apt.title}
-                  >
-                    {apt.title}
-                  </div>
-                ))}
+                    <div
+                      key={apt.id}
+                      className="text-xs p-2 rounded text-white truncate cursor-pointer hover:shadow-lg transition-shadow font-medium border border-opacity-20 border-white flex items-center gap-1"
+                      style={{ 
+                        backgroundColor: apt.event_color || '#3B82F6',
+                        opacity: isPast ? 0.6 : 1
+                      }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!isPast) {
+                          onAppointmentClick(apt);
+                        }
+                      }}
+                      title={apt.is_recurring ? `${apt.title} (אירוע מחזורי)` : apt.title}
+                    >
+                      {apt.is_recurring && <Repeat2 className="w-3 h-3 flex-shrink-0" />}
+                      <span className="truncate">{apt.title}</span>
+                    </div>
+                  ))}
                 {dayAppointments.length > 2 && (
                   <div className="text-xs text-blue-600 px-2 font-semibold">
                     +{dayAppointments.length - 2} עוד
