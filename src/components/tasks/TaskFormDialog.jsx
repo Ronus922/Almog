@@ -256,18 +256,18 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
 
         <>
             <div className="space-y-4 mt-2 max-h-[60vh] overflow-y-auto px-6 pt-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                  <Label>סוג משימה *</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-slate-700">סוג משימה *</Label>
                   <Select value={form.task_type} onValueChange={(v) => set("task_type", v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectTrigger className="h-10 border-slate-200"><SelectValue placeholder="בחר סוג..." /></SelectTrigger>
                     <SelectContent>
                       {TASK_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-1">
-                   <Label>תאריך יעד *</Label>
+                <div className="space-y-2">
+                   <Label className="text-sm font-semibold text-slate-700">תאריך יעד *</Label>
                    <Popover open={openDatePicker} onOpenChange={setOpenDatePicker}>
                      <PopoverTrigger asChild>
                        <Button variant="outline" className="w-full justify-start text-left font-normal h-10 bg-white hover:bg-slate-50 border-slate-200">
@@ -296,15 +296,15 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
                  </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-3">
-                <div className="space-y-1">
-                    <Label>עדיפות</Label>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                    <Label className="text-sm font-semibold text-slate-700">עדיפות</Label>
                     <Select value={form.priority} onValueChange={(v) => set("priority", v)}>
-                      <SelectTrigger className={`${
+                      <SelectTrigger className={`h-10 ${
                         form.priority === "גבוהה" ? "bg-red-100 text-red-700 border-red-300" :
                         form.priority === "בינונית" ? "bg-yellow-100 text-yellow-700 border-yellow-300" :
                         "bg-green-100 text-green-700 border-green-300"
-                      } font-semibold`}><SelectValue /></SelectTrigger>
+                      } font-semibold`}><SelectValue placeholder="בחר..." /></SelectTrigger>
                       <SelectContent>
                         {PRIORITIES.map((p) => <SelectItem key={p} value={p}>
                           <span className={`${
@@ -316,15 +316,15 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
                       </SelectContent>
                     </Select>
                   </div>
-                  <div className="space-y-1">
-                    <Label>סטטוס</Label>
+                  <div className="space-y-2">
+                    <Label className="text-sm font-semibold text-slate-700">סטטוס</Label>
                     <Select value={form.status} onValueChange={(v) => set("status", v)}>
-                      <SelectTrigger className={`${
+                      <SelectTrigger className={`h-10 ${
                         form.status === "פתוחה" ? "bg-blue-100 text-blue-700 border-blue-300" :
                         form.status === "בטיפול" ? "bg-orange-100 text-orange-700 border-orange-300" :
                         form.status === "הושלמה" ? "bg-green-100 text-green-700 border-green-300" :
                         "bg-slate-100 text-slate-700 border-slate-300"
-                      } font-semibold`}><SelectValue /></SelectTrigger>
+                      } font-semibold`}><SelectValue placeholder="בחר..." /></SelectTrigger>
                       <SelectContent>
                         {STATUSES.map((s) => <SelectItem key={s} value={s}>
                           <span className={`${
@@ -340,7 +340,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
               </div>
 
               <div className="space-y-2">
-                <Label>הקצה ל:</Label>
+                <Label className="text-sm font-semibold text-slate-700">הקצה ל:</Label>
                 <div className="relative" ref={userDropdownRef}>
                   <button
                     type="button"
@@ -398,17 +398,17 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
                 </div>
               </div>
 
-              <div className="space-y-1">
-                <Label>תיאור *</Label>
-                <Textarea value={form.description || ""} onChange={(e) => set("description", e.target.value)} placeholder="פרטים נוספים על המשימה..." rows={3} />
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-slate-700">תיאור *</Label>
+                <Textarea value={form.description || ""} onChange={(e) => set("description", e.target.value)} placeholder="פרטים נוספים על המשימה..." rows={4} className="border-slate-200 rounded-lg resize-none" />
               </div>
 
               {(form.status === "הושלמה" || form.status === "בוטלה") &&
-            <div className="space-y-1">
-                  <Label>הערות סגירה</Label>
-                  <Textarea value={form.completion_notes || ""} onChange={(e) => set("completion_notes", e.target.value)} placeholder="מה בוצע / למה בוטל..." rows={2} />
+              <div className="space-y-2">
+                  <Label className="text-sm font-semibold text-slate-700">הערות סגירה</Label>
+                  <Textarea value={form.completion_notes || ""} onChange={(e) => set("completion_notes", e.target.value)} placeholder="מה בוצע / למה בוטל..." rows={3} className="border-slate-200 rounded-lg resize-none" />
                 </div>
-            }
+              }
             </div>
 
             <div className="flex justify-end gap-2 mt-4 px-6 pb-4">
