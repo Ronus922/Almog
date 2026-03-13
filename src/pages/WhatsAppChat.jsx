@@ -51,7 +51,8 @@ export default function WhatsAppChat() {
       return msgs;
     },
     enabled: !!selectedContact,
-    staleTime: 1000 * 3,
+    staleTime: 0,
+    refetchInterval: 1000,
     gcTime: 1000 * 60
   });
 
