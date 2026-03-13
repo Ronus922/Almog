@@ -79,9 +79,10 @@ Deno.serve(async (req) => {
     }
     
     // Always return 200 to prevent retries from Green API
+    console.log('[Webhook] Returning success');
     return Response.json({ status: 'ok' }, { status: 200 });
   } catch (error) {
-    console.error('Webhook error:', error.message);
+    console.error('[Webhook] Error:', error.message, error.stack);
     return Response.json({ status: 'ok' }, { status: 200 });
   }
 });
