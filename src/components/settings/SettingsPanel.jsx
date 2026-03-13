@@ -6,10 +6,10 @@ import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
-  Settings, Building2, Scale, Webhook, Save, 
-  Loader2, CheckCircle2, AlertTriangle, RefreshCw, MessageCircle
-} from "lucide-react";
+import {
+  Settings, Building2, Scale, Webhook, Save,
+  Loader2, CheckCircle2, AlertTriangle, RefreshCw, MessageCircle } from
+"lucide-react";
 import { base44 } from '@/api/base44Client';
 import { useAlert } from '@/components/notifications/AlertContext';
 import { calculateDebtStatus, validateThresholds } from '../utils/debtStatusCalculator';
@@ -70,20 +70,20 @@ export default function SettingsPanel() {
     setIsRecalculating(true);
     setRecalcSuccess(false);
     setRecalcMessage('');
-    
+
     try {
       const allRecords = await base44.entities.DebtorRecord.list();
-      
+
       let updated = 0;
       const batchSize = 10;
-      
+
       for (let i = 0; i < allRecords.length; i += batchSize) {
         const batch = allRecords.slice(i, i + batchSize);
-        
+
         await Promise.all(
           batch.map(async (record) => {
             const newStatus = calculateDebtStatus(record.totalDebt, settings);
-            
+
             if (record.debt_status_auto !== newStatus) {
               await base44.entities.DebtorRecord.update(record.id, {
                 debt_status_auto: newStatus
@@ -92,13 +92,13 @@ export default function SettingsPanel() {
             }
           })
         );
-        
+
         // Throttle to avoid rate limits
         if (i + batchSize < allRecords.length) {
-          await new Promise(resolve => setTimeout(resolve, 100));
+          await new Promise((resolve) => setTimeout(resolve, 100));
         }
       }
-      
+
       setRecalcSuccess(true);
       setRecalcMessage(`${updated} רשומות עודכנו מתוך ${allRecords.length}`);
       toast.success(`${updated} רשומות עודכנו בהצלחה`);
@@ -129,25 +129,25 @@ export default function SettingsPanel() {
     }
 
     try {
-      const oldSettings = settingsId ? await base44.entities.Settings.list().then(l => l[0]) : {};
-      
+      const oldSettings = settingsId ? await base44.entities.Settings.list().then((l) => l[0]) : {};
+
       if (settingsId) {
         await base44.entities.Settings.update(settingsId, settings);
       } else {
         const created = await base44.entities.Settings.create(settings);
         setSettingsId(created.id);
       }
-      
+
       setSaveSuccess(true);
       toast.success('ההגדרות נשמרו בהצלחה');
-      
+
       // בדוק אם הספים השתנו
       const thresholdsChanged = oldSettings && (
-        oldSettings.threshold_ok_max !== settings.threshold_ok_max ||
-        oldSettings.threshold_collect_from !== settings.threshold_collect_from ||
-        oldSettings.threshold_legal_from !== settings.threshold_legal_from
-      );
-      
+      oldSettings.threshold_ok_max !== settings.threshold_ok_max ||
+      oldSettings.threshold_collect_from !== settings.threshold_collect_from ||
+      oldSettings.threshold_legal_from !== settings.threshold_legal_from);
+
+
       if (thresholdsChanged) {
         // הפעל ריענון אוטומטי
         toast.info('הספים השתנו - מעדכן סטטוסים אוטומטית...');
@@ -169,8 +169,8 @@ export default function SettingsPanel() {
     return (
       <div className="flex items-center justify-center p-10">
         <Loader2 className="w-6 h-6 animate-spin text-slate-400" />
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -188,17 +188,17 @@ export default function SettingsPanel() {
             <Label>שם הבניין</Label>
             <Input
               value={settings.buildingName || ''}
-              onChange={(e) => setSettings({...settings, buildingName: e.target.value})}
-              className="mt-1"
-            />
+              onChange={(e) => setSettings({ ...settings, buildingName: e.target.value })}
+              className="mt-1" />
+
           </div>
           <div>
             <Label>כתובת</Label>
             <Input
               value={settings.buildingAddress || ''}
-              onChange={(e) => setSettings({...settings, buildingAddress: e.target.value})}
-              className="mt-1"
-            />
+              onChange={(e) => setSettings({ ...settings, buildingAddress: e.target.value })}
+              className="mt-1" />
+
           </div>
         </CardContent>
       </Card>
@@ -218,10 +218,10 @@ export default function SettingsPanel() {
               <Input
                 type="number"
                 value={settings.threshold_ok_max || 0}
-                onChange={(e) => setSettings({...settings, threshold_ok_max: parseFloat(e.target.value) || 0})}
+                onChange={(e) => setSettings({ ...settings, threshold_ok_max: parseFloat(e.target.value) || 0 })}
                 className="mt-1"
-                dir="rtl"
-              />
+                dir="rtl" />
+
               <p className="text-xs text-slate-500 mt-1">עד סכום זה הסטטוס: תקין (ירוק)</p>
             </div>
             <div>
@@ -229,10 +229,10 @@ export default function SettingsPanel() {
               <Input
                 type="number"
                 value={settings.threshold_collect_from || 0}
-                onChange={(e) => setSettings({...settings, threshold_collect_from: parseFloat(e.target.value) || 0})}
+                onChange={(e) => setSettings({ ...settings, threshold_collect_from: parseFloat(e.target.value) || 0 })}
                 className="mt-1"
-                dir="rtl"
-              />
+                dir="rtl" />
+
               <p className="text-xs text-slate-500 mt-1">מעל סכום זה הסטטוס: לגבייה מיידית (כתום)</p>
             </div>
             <div>
@@ -240,10 +240,10 @@ export default function SettingsPanel() {
               <Input
                 type="number"
                 value={settings.threshold_legal_from || 0}
-                onChange={(e) => setSettings({...settings, threshold_legal_from: parseFloat(e.target.value) || 0})}
+                onChange={(e) => setSettings({ ...settings, threshold_legal_from: parseFloat(e.target.value) || 0 })}
                 className="mt-1"
-                dir="rtl"
-              />
+                dir="rtl" />
+
               <p className="text-xs text-slate-500 mt-1">מעל סכום זה הסטטוס: לטיפול משפטי (אדום)</p>
             </div>
           </div>
@@ -265,12 +265,12 @@ export default function SettingsPanel() {
             <Label>כתובת מייל לשליחת הודעות מערכת</Label>
             <Input
               value={settings.gmailSenderEmail || ''}
-              onChange={(e) => setSettings({...settings, gmailSenderEmail: e.target.value})}
+              onChange={(e) => setSettings({ ...settings, gmailSenderEmail: e.target.value })}
               className="mt-1"
               placeholder="ronen.yeadim@gmail.com"
               dir="ltr"
-              type="email"
-            />
+              type="email" />
+
             <p className="text-xs text-slate-500 mt-1">
               כתובת זו תשמש לשליחת כל הודעות המערכת (שינויי סטטוס, מיילי ברוכים הבאים וכו׳)
             </p>
@@ -291,12 +291,12 @@ export default function SettingsPanel() {
             <Label>RESEND_API_KEY</Label>
             <Input
               value={settings.resendApiKey || ''}
-              onChange={(e) => setSettings({...settings, resendApiKey: e.target.value})}
+              onChange={(e) => setSettings({ ...settings, resendApiKey: e.target.value })}
               className="mt-1 font-mono text-sm"
               placeholder="re_..."
               dir="ltr"
-              type="password"
-            />
+              type="password" />
+
             <p className="text-xs text-slate-500 mt-1">
               ניתן לקבל מ-<a href="https://resend.com/api-keys" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">resend.com/api-keys</a>
             </p>
@@ -317,22 +317,22 @@ export default function SettingsPanel() {
             <Label>Instance ID</Label>
             <Input
               value={settings.greenApiInstanceId || ''}
-              onChange={(e) => setSettings({...settings, greenApiInstanceId: e.target.value})}
+              onChange={(e) => setSettings({ ...settings, greenApiInstanceId: e.target.value })}
               className="mt-1 font-mono text-sm"
               placeholder="לדוגמה: 1234567890"
-              dir="ltr"
-            />
+              dir="ltr" />
+
           </div>
           <div>
             <Label>API Token</Label>
             <Input
               value={settings.greenApiToken || ''}
-              onChange={(e) => setSettings({...settings, greenApiToken: e.target.value})}
+              onChange={(e) => setSettings({ ...settings, greenApiToken: e.target.value })}
               className="mt-1 font-mono text-sm"
               placeholder="לדוגמה: abc123xyz..."
               dir="ltr"
-              type="password"
-            />
+              type="password" />
+
           </div>
           <p className="text-xs text-slate-500">
             ניתן לקבל את הפרטים מ-<a href="https://green-api.com" target="_blank" rel="noopener noreferrer" className="text-blue-600 underline">green-api.com</a>
@@ -341,64 +341,64 @@ export default function SettingsPanel() {
       </Card>
 
       {/* כפתור שמירה */}
-      {error && (
-        <Alert variant="destructive">
+      {error &&
+      <Alert variant="destructive">
           <AlertTriangle className="w-4 h-4" />
           <AlertDescription>{error}</AlertDescription>
         </Alert>
-      )}
+      }
 
-      {saveSuccess && (
-        <Alert className="bg-green-50 border-green-200">
+      {saveSuccess &&
+      <Alert className="bg-green-50 border-green-200">
           <CheckCircle2 className="w-4 h-4 text-green-600" />
           <AlertDescription className="text-green-700">
             ההגדרות נשמרו בהצלחה
             {isRecalculating && ' • הסטטוסים מתרעננים...'}
           </AlertDescription>
         </Alert>
-      )}
+      }
 
-      {recalcSuccess && (
-        <Alert className="bg-blue-50 border-blue-200">
+      {recalcSuccess &&
+      <Alert className="bg-blue-50 border-blue-200">
           <CheckCircle2 className="w-4 h-4 text-blue-600" />
           <AlertDescription className="text-blue-700">{recalcMessage}</AlertDescription>
         </Alert>
-      )}
+      }
 
       <div className="flex gap-3">
-        <Button onClick={handleSave} disabled={isSaving || isRecalculating} className="flex-1">
-          {isSaving ? (
-            <>
+        <Button onClick={handleSave} disabled={isSaving || isRecalculating} className="bg-[#3563d0] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 flex-1">
+          {isSaving ?
+          <>
               <Loader2 className="w-4 h-4 ml-2 animate-spin" />
               שומר...
-            </>
-          ) : (
-            <>
+            </> :
+
+          <>
               <Save className="w-4 h-4 ml-2" />
               שמור הגדרות
             </>
-          )}
+          }
         </Button>
         
-        <Button 
-          onClick={recalculateAllStatuses} 
+        <Button
+          onClick={recalculateAllStatuses}
           disabled={isSaving || isRecalculating}
           variant="outline"
-          className="flex-1"
-        >
-          {isRecalculating ? (
-            <>
+          className="flex-1">
+
+          {isRecalculating ?
+          <>
               <Loader2 className="w-4 h-4 ml-2 animate-spin" />
               מעדכן...
-            </>
-          ) : (
-            <>
+            </> :
+
+          <>
               <RefreshCw className="w-4 h-4 ml-2" />
               רענן סטטוסים
             </>
-          )}
+          }
         </Button>
       </div>
-    </div>
-  );
+    </div>);
+
 }
