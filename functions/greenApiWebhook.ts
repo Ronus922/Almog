@@ -5,16 +5,6 @@ Deno.serve(async (req) => {
     const payload = await req.json();
     
     console.log('=== WEBHOOK RECEIVED ===');
-    
-    // Create Base44 client with service role since webhook has no auth header
-    const base44 = {};
-    try {
-      base44 = createClientFromRequest(req);
-    } catch (authError) {
-      // Webhook doesn't have Bearer token, use service role instead
-      const { createClientFromServiceRole } = await import('npm:@base44/sdk@0.8.20');
-      // Note: webhooks from external services don't have auth, so we'll proceed with basic processing
-    }
     console.log('Event type:', payload.event);
     console.log('Full payload:', JSON.stringify(payload, null, 2));
     
