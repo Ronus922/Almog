@@ -213,7 +213,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
               </div>
 
               <div className="space-y-1">
-                <Label>תיאור</Label>
+                <Label>תיאור *</Label>
                 <Textarea value={form.description || ""} onChange={e => set("description", e.target.value)} placeholder="פרטים נוספים על המשימה..." rows={3} />
               </div>
 
