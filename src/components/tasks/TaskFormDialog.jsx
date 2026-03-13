@@ -74,6 +74,18 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
 
   const handleSave = async () => {
     if (!form.task_type || !form.due_date || !form.description) return;
+
+    // Prevent creating tasks on past dates (only for new tasks)
+    if (!isEdit) {
+      const selectedDate = new Date(form.due_date);
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      if (selectedDate < today) {
+        alert('לא ניתן ליצור משימה בתאריך שעבר');
+        return;
+      }
+    }
+
     setSaving(true);
     const changer = getChangerInfo();
 
