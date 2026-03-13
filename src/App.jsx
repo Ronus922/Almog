@@ -69,6 +69,7 @@ const AuthenticatedApp = () => {
       <Route path="/WhatsAppTemplates" element={<LayoutWrapper currentPageName="WhatsAppTemplates"><WhatsAppTemplates /></LayoutWrapper>} />
       <Route path="/Contacts" element={<LayoutWrapper currentPageName="Contacts"><Contacts /></LayoutWrapper>} />
       <Route path="/WhatsAppChat" element={<LayoutWrapper currentPageName="WhatsAppChat"><WhatsAppChat /></LayoutWrapper>} />
+      <Route path="/Calendar" element={<LayoutWrapper currentPageName="Calendar"><Calendar /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
