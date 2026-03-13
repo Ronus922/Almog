@@ -23,6 +23,7 @@ import CommentsSection from '../comments/CommentsSection';
 
 export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin, settings }) {
   const { currentUser } = useAuth();
+  const { showAlert } = useAlert();
   const [isExporting, setIsExporting] = useState(false);
   const { data: allStatuses = [] } = useQuery({
     queryKey: ['statuses'],
