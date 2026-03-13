@@ -8,6 +8,17 @@ Deno.serve(async (req) => {
     console.log('Event type:', payload.event);
     console.log('Full payload:', JSON.stringify(payload, null, 2));
     
+    // Initialize base44 with or without auth (webhooks may not have Bearer token)
+    let base44;
+    try {
+      base44 = createClientFromRequest(req);
+    } catch (error) {
+      console.log('Note: Webhook auth failed, proceeding with request context');
+      // For webhooks without auth, we still need base44 for entity access
+      // The platform should handle this automatically
+      base44 = createClientFromRequest(req);
+    }
+    
     // Green API sends 'incomingMessageReceived' event
     if (payload.event === 'incomingMessageReceived') {
       const message = payload.data;
