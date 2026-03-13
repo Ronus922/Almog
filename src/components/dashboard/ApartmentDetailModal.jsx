@@ -632,10 +632,10 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       document.body.removeChild(printContent);
       
       pdf.save(`דירה_${record.apartmentNumber}_${new Date().toISOString().split('T')[0]}.pdf`);
-      toast.success('PDF הורד בהצלחה');
+      showAlert('PDF הורד בהצלחה', 'success');
     } catch (error) {
       console.error('PDF export error:', error);
-      toast.error('שגיאה בייצוא PDF');
+      showAlert('שגיאה בייצוא PDF', 'error');
     } finally {
       setIsExporting(false);
     }
