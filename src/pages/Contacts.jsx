@@ -232,7 +232,7 @@ export default function Contacts() {
                      <TableCell className="text-sm" dir="ltr">{contact.owner_phone || "—"}</TableCell>
                      <TableCell className="hidden md:table-cell text-sm">{contact.tenant_name || "—"}</TableCell>
                      <TableCell className="hidden md:table-cell text-sm" dir="ltr">{contact.tenant_phone || "—"}</TableCell>
-                     <TableCell className="text-center hidden md:table-cell">
+                     <TableCell className="hidden md:table-cell text-right">
                        {contact.management_fees ? (
                          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
                            ₪{contact.management_fees}
