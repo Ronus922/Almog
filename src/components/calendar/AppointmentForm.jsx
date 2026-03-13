@@ -294,7 +294,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
       {/* Recurring */}
       <div className="bg-slate-50 rounded-lg p-4 border border-slate-200">
-        <div className="flex items-center gap-3 mb-3">
+        <div className="flex items-center gap-3 mb-4">
           <Checkbox
             id="is_recurring"
             checked={formData.is_recurring}
@@ -303,16 +303,76 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
           <Label htmlFor="is_recurring" className="cursor-pointer font-bold text-slate-900 text-sm">אירוע חוזר</Label>
         </div>
         {formData.is_recurring && (
-          <select 
-            value={formData.recurrence_pattern} 
-            onChange={(e) => handleChange('recurrence_pattern', e.target.value)}
-            dir="rtl"
-            className="w-full h-10 border border-slate-200 rounded-lg px-3 py-2 text-right bg-white text-slate-900 font-medium"
-          >
-            <option value="weekly">שבועי</option>
-            <option value="monthly">חודשי</option>
-            <option value="yearly">שנתי</option>
-          </select>
+          <div className="space-y-4">
+            {/* Pattern Selection */}
+            <div>
+              <Label className="block mb-2 font-bold text-slate-900 text-sm">תדירות חזרה *</Label>
+              <select 
+                value={formData.recurrence_pattern} 
+                onChange={(e) => handleChange('recurrence_pattern', e.target.value)}
+                dir="rtl"
+                className="w-full h-10 border border-slate-200 rounded-lg px-3 py-2 text-right bg-white text-slate-900 font-medium"
+              >
+                <option value="">בחר תדירות</option>
+                <option value="יומי">יומי</option>
+                <option value="שבועי">שבועי</option>
+                <option value="חודשי">חודשי</option>
+                <option value="שנתי">שנתי</option>
+              </select>
+            </div>
+
+            {/* Interval Selection */}
+            <div>
+              <Label htmlFor="recurrence_interval" className="block mb-2 font-bold text-slate-900 text-sm">כל כמה יחידות *</Label>
+              <div className="flex items-center gap-2">
+                <input
+                  id="recurrence_interval"
+                  type="number"
+                  min="1"
+                  value={formData.recurrence_interval || 1}
+                  onChange={(e) => handleChange('recurrence_interval', Math.max(1, parseInt(e.target.value) || 1))}
+                  dir="rtl"
+                  className="w-20 h-10 border border-slate-200 rounded-lg px-3 text-center bg-white text-slate-900 font-medium"
+                />
+                <span className="text-slate-700 font-medium text-sm">
+                  {formData.recurrence_pattern === 'יומי' ? 'ימים' : 
+                   formData.recurrence_pattern === 'שבועי' ? 'שבועות' :
+                   formData.recurrence_pattern === 'חודשי' ? 'חודשים' :
+                   'שנים'}
+                </span>
+              </div>
+            </div>
+
+            {/* Recurrence Count */}
+            <div>
+              <Label htmlFor="recurrence_count" className="block mb-2 font-bold text-slate-900 text-sm">מספר חזרות *</Label>
+              <input
+                id="recurrence_count"
+                type="number"
+                min="1"
+                value={formData.recurrence_count || ''}
+                onChange={(e) => handleChange('recurrence_count', Math.max(1, parseInt(e.target.value) || 0))}
+                placeholder="מספר החזרות הכולל"
+                dir="rtl"
+                className="w-full h-10 border border-slate-200 rounded-lg px-3 py-2 text-right bg-white text-slate-900 font-medium placeholder-slate-400"
+              />
+              <p className="text-xs text-slate-500 mt-1.5">לדוגמה: 6 חזרות</p>
+            </div>
+
+            {/* Preview */}
+            {formData.recurrence_pattern && formData.recurrence_count && (
+              <div className="bg-blue-100 border border-blue-300 rounded-lg p-3 mt-3">
+                <p className="text-sm text-blue-900 font-medium text-right">
+                  האירוע ייווצר {formData.recurrence_count} פעמים,{' '}
+                  {formData.recurrence_interval > 1 ? `כל ${formData.recurrence_interval} ` : 'כל '}
+                  {formData.recurrence_pattern === 'יומי' ? 'ימים' : 
+                   formData.recurrence_pattern === 'שבועי' ? 'שבועות' :
+                   formData.recurrence_pattern === 'חודשי' ? 'חודשים' :
+                   'שנים'}
+                </p>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
