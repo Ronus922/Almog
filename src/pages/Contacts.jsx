@@ -121,6 +121,31 @@ export default function Contacts() {
     }
   };
 
+  const handleExportCSV = () => {
+    const headers = ["דירה", "בעל הדירה", "טלפון בעל", "השוכר", "טלפון שוכר", "דמי ניהול", "הערות"];
+    const rows = filtered.map(c => [
+      c.apartment_number,
+      c.owner_name || "",
+      c.owner_phone || "",
+      c.tenant_name || "",
+      c.tenant_phone || "",
+      c.management_fees || "",
+      c.notes || ""
+    ]);
+    
+    const csvContent = [
+      headers.map(h => `"${h}"`).join(","),
+      ...rows.map(r => r.map(v => `"${v}"`).join(","))
+    ].join("\n");
+    
+    const blob = new Blob(["\ufeff" + csvContent], { type: "text/csv;charset=utf-8;" });
+    const link = document.createElement("a");
+    const url = URL.createObjectURL(blob);
+    link.setAttribute("href", url);
+    link.setAttribute("download", `contacts_${new Date().toISOString().split('T')[0]}.csv`);
+    link.click();
+  };
+
   return (
     <div className="max-w-7xl mx-auto px-4 py-6 space-y-6" dir="rtl">
       {/* Header */}
