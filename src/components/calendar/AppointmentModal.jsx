@@ -82,11 +82,11 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
           {/* Attendees */}
           {(appointment.attendees_users?.length > 0 || appointment.attendees_contacts?.length > 0) && (
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <Users className="w-5 h-5 text-slate-500" />
+              <div className="flex items-center justify-end gap-3 mb-2">
                 <span className="text-sm font-semibold text-slate-600">מצטרפים:</span>
+                <Users className="w-5 h-5 text-slate-500 flex-shrink-0" />
               </div>
-              <div className="text-sm space-y-1 mr-8">
+              <div className="text-sm space-y-1 text-right">
                 {appointment.attendees_users?.map((user) => (
                   <p key={user} className="text-slate-700">👤 {user}</p>
                 ))}
@@ -100,11 +100,11 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
           {/* Description */}
           {appointment.description && (
             <div>
-              <div className="flex items-center gap-3 mb-2">
-                <FileText className="w-5 h-5 text-slate-500" />
+              <div className="flex items-center justify-end gap-3 mb-2">
                 <span className="text-sm font-semibold text-slate-600">תיאור:</span>
+                <FileText className="w-5 h-5 text-slate-500 flex-shrink-0" />
               </div>
-              <p className="text-sm text-slate-700 mr-8">{appointment.description}</p>
+              <p className="text-sm text-slate-700 text-right">{appointment.description}</p>
             </div>
           )}
 
