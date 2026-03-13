@@ -29,6 +29,7 @@ function DashboardContent() {
   const [filteredDataset, setFilteredDataset] = useState([]);
   const [activeTab, setActiveTab] = useState('debtors');
   const queryClient = useQueryClient();
+  const showAlert = useAlert();
 
   // CRITICAL: Require authentication
   if (authChecked && !currentUser) {
