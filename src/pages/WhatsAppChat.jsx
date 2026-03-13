@@ -98,6 +98,7 @@ export default function WhatsAppChat() {
     onSuccess: () => {
       setMessageInput('');
       queryClient.invalidateQueries({ queryKey: ['chatMessages', selectedContact.id] });
+      queryClient.invalidateQueries({ queryKey: ['contacts'] }); // Update contacts list order
     },
     onError: (error) => {
       console.error('Message send error:', error);
