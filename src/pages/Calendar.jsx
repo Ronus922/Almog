@@ -106,42 +106,101 @@ export default function Calendar() {
 
   const handleSaveAppointment = async (data) => {
     if (selectedAppointment) {
-      await updateMutation.mutateAsync({ id: selectedAppointment.id, data });
+      if (selectedAppointment.series_id) {
+        setEditMode(null);
+        setShowEditDialog(true);
+      } else {
+        await updateMutation.mutateAsync({ id: selectedAppointment.id, data });
+      }
     } else {
-      if (data.is_recurring) {
+      if (data.is_recurring && data.recurrence_count) {
+        const seriesId = `series_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const startDate = new Date(data.date);
         const instances = [];
         
-        for (let i = 0; i < 12; i++) {
+        for (let i = 0; i < data.recurrence_count; i++) {
           let nextDate = startDate;
+          const interval = data.recurrence_interval || 1;
           
-          if (data.recurrence_pattern === 'weekly') {
-            nextDate = addWeeks(startDate, i);
-          } else if (data.recurrence_pattern === 'monthly') {
-            nextDate = addMonths(startDate, i);
-          } else if (data.recurrence_pattern === 'yearly') {
-            nextDate = addMonths(startDate, i * 12);
+          if (data.recurrence_pattern === 'יומי') {
+            nextDate = addDays(startDate, i * interval);
+          } else if (data.recurrence_pattern === 'שבועי') {
+            nextDate = addWeeks(startDate, i * interval);
+          } else if (data.recurrence_pattern === 'חודשי') {
+            nextDate = addMonths(startDate, i * interval);
+          } else if (data.recurrence_pattern === 'שנתי') {
+            nextDate = addMonths(startDate, i * interval * 12);
           }
           
           instances.push({
             ...data,
             date: format(nextDate, 'yyyy-MM-dd'),
+            series_id: seriesId,
+            series_occurrence_number: i + 1,
+            is_recurring: true,
           });
         }
         
         for (const instance of instances) {
           await createMutation.mutateAsync(instance);
         }
-      } else {
+      } else if (!data.is_recurring) {
         await createMutation.mutateAsync(data);
       }
     }
   };
 
+  const handleEditRecurring = async (mode) => {
+    setEditMode(mode);
+    setShowEditDialog(false);
+    
+    if (mode === 'single') {
+      // Mark as exception and open form
+      setSelectedAppointment({
+        ...selectedAppointment,
+        is_exception: true,
+      });
+      setShowForm(true);
+    } else if (mode === 'following') {
+      // Create new series for following events
+      const newSeriesId = `series_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      const followingAppointments = appointments.filter(
+        a => a.series_id === selectedAppointment.series_id && 
+        a.series_occurrence_number > selectedAppointment.series_occurrence_number
+      );
+      
+      for (const apt of followingAppointments) {
+        await updateMutation.mutateAsync({
+          id: apt.id,
+          data: { series_id: newSeriesId },
+        });
+      }
+      setShowForm(true);
+    } else if (mode === 'all') {
+      setShowForm(true);
+    }
+  };
+
   const handleDeleteAppointment = async () => {
-    if (selectedAppointment) {
+    if (selectedAppointment && selectedAppointment.series_id) {
+      setShowDeleteDialog(true);
+    } else if (selectedAppointment) {
       await deleteMutation.mutateAsync(selectedAppointment.id);
     }
+  };
+
+  const handleDeleteRecurring = async (mode) => {
+    if (mode === 'single') {
+      await deleteMutation.mutateAsync(selectedAppointment.id);
+    } else if (mode === 'all') {
+      const seriesAppointments = appointments.filter(
+        a => a.series_id === selectedAppointment.series_id
+      );
+      for (const apt of seriesAppointments) {
+        await deleteMutation.mutateAsync(apt.id);
+      }
+    }
+    setShowDeleteDialog(false);
   };
 
   const isHoliday = (date) => {
