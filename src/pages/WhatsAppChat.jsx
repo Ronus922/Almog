@@ -216,9 +216,6 @@ export default function WhatsAppChat() {
               {/* Chat Header */}
               <div className="p-4 bg-white border-b border-gray-200 flex justify-between items-center shadow-sm">
                 <div className="flex items-center gap-3">
-                  
-
-
                   <Button variant="ghost" size="icon" className="h-8 w-8">
                     <Info className="w-5 h-5 text-blue-600" />
                   </Button>
