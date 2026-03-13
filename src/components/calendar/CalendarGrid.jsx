@@ -70,7 +70,7 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
 
     // Shabbat style (priority after holidays)
     if (isShabat && !holiday) {
-      return `${baseStyles} bg-gradient-to-b from-indigo-50 to-indigo-25 hover:from-indigo-100 hover:to-indigo-50`;
+      return `${baseStyles} bg-slate-100 hover:bg-slate-200`;
     }
 
     // Out of month
