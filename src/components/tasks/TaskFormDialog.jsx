@@ -218,6 +218,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
             {saving ? "שומר..." : isEdit ? "שמור שינויים" : "צור משימה"}
           </Button>
         </div>
+        )}
       </DialogContent>
     </Dialog>
   );
