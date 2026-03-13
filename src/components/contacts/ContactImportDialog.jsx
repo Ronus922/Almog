@@ -120,46 +120,56 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
 
           let imported = 0;
           let failed = 0;
-          const validRows = rows.filter((row) => {
-            const apt = String(row["דירה"] || row["apartment_number"] || "").trim();
-            return apt.length > 0;
-          });
+          let skipped = 0;
+          const totalRows = rows.length;
 
-          setProgressText(`מייבא 0 מתוך ${validRows.length}...`);
+          setProgressText(`מייבא 0 מתוך ${totalRows}...`);
 
-          for (let i = 0; i < validRows.length; i++) {
-            const row = validRows[i];
-            const contact = mapHebrewColumns(row);
-
-            if (!contact.apartment_number) continue;
-
+          for (let i = 0; i < totalRows; i++) {
+            const row = rows[i];
+            
             try {
+              const contact = mapHebrewColumns(row);
+
+              // דלג על שורות ללא מספר דירה
+              if (!contact.apartment_number) {
+                skipped++;
+                const currentProgress = Math.round(((i + 1) / totalRows) * 100);
+                setProgress(currentProgress);
+                setProgressText(`מייבא ${imported + failed} מתוך ${totalRows}... (דלג על ${skipped})`);
+                continue;
+              }
+
+              // כל שדה שלא תקין - פשוט תדלג עליו, המשך עם השאר
               await base44.entities.Contact.create(contact);
               imported++;
             } catch (error) {
-              console.error(`Error creating contact ${contact.apartment_number}:`, error.message);
+              console.error(`Error processing row ${i + 1}:`, error.message);
               failed++;
             }
 
-            const currentProgress = Math.round(((i + 1) / validRows.length) * 100);
+            const currentProgress = Math.round(((i + 1) / totalRows) * 100);
             setProgress(currentProgress);
-            setProgressText(`מייבא ${imported + failed} מתוך ${validRows.length}...`);
+            setProgressText(`מייבא ${imported + failed} מתוך ${totalRows}... (דלג על ${skipped})`);
           }
 
           setLoading(false);
-          const message =
-            failed > 0
-              ? `יובאו ${imported} אנשי קשר (${failed} נכשלו)`
-              : `יובאו בהצלחה ${imported} אנשי קשר`;
-          showAlert(message, failed > 0 ? "error" : "success");
-          onImported();
           
-          setTimeout(() => {
-            onClose();
-            setProgress(0);
-            setProgressText("");
-            setSelectedFile(null);
-          }, 1000);
+          let message = `יובאו ${imported} אנשי קשר`;
+          if (failed > 0) message += ` (${failed} שגיאות)`;
+          if (skipped > 0) message += ` (דלג על ${skipped})`;
+          
+          showAlert(message, imported > 0 ? "success" : "error");
+          
+          if (imported > 0) {
+            onImported();
+            setTimeout(() => {
+              onClose();
+              setProgress(0);
+              setProgressText("");
+              setSelectedFile(null);
+            }, 1000);
+          }
         } catch (error) {
           setLoading(false);
           showAlert("שגיאה בקריאת הקובץ: " + error.message, "error");
