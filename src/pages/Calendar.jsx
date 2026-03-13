@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import React, { useState } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
@@ -10,6 +11,8 @@ import AppointmentModal from '@/components/calendar/AppointmentModal';
 import CalendarGrid from '@/components/calendar/CalendarGrid';
 import WeekView from '@/components/calendar/WeekView';
 import DayView from '@/components/calendar/DayView';
+import RecurrenceDeleteDialog from '@/components/calendar/RecurrenceDeleteDialog';
+import RecurrenceEditDialog from '@/components/calendar/RecurrenceEditDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const HEBREW_HOLIDAYS = [
@@ -48,6 +51,9 @@ export default function Calendar() {
   const [selectedDate, setSelectedDate] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editMode, setEditMode] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: appointments = [] } = useQuery({
