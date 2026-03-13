@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { base44 } from "@/api/base44Client";
-import { Loader2, Upload, Download } from "lucide-react";
+import { Loader2, Upload } from "lucide-react";
 import { useAlert } from "@/components/notifications/AlertContext";
 import * as XLSX from "xlsx";
 
@@ -83,39 +83,7 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
     }
   };
 
-  const downloadTemplate = () => {
-    const ws = XLSX.utils.aoa_to_sheet([
-      [
-        "apartment_number",
-        "owner_name",
-        "owner_phone",
-        "owner_email",
-        "tenant_name",
-        "tenant_phone",
-        "tenant_email",
-        "contact_type",
-        "address",
-        "notes",
-        "management_fees",
-      ],
-      [
-        "1",
-        "דוד כהן",
-        "972501234567",
-        "david@example.com",
-        "אברהם לוי",
-        "972502345678",
-        "abraham@example.com",
-        "owner",
-        "רחוב ראשי 10",
-        "דירה בקומה ראשונה",
-        "500",
-      ],
-    ]);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "אנשי קשר");
-    XLSX.writeFile(wb, "contacts_template.xlsx");
-  };
+
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -124,16 +92,6 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
           <DialogTitle>ייבוא אנשי קשר מ-Excel</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 mt-2">
-          <div className="bg-blue-50 border border-blue-200 rounded p-3 text-xs text-blue-700">
-            <p className="font-medium mb-1">תבנית קובץ:</p>
-            <p>A: מספר דירה | B: שם בעל דירה | C: טלפון | D: מייל |</p>
-            <p>E: שם שוכר | F: טלפון | G: מייל | H: דמי ניהול</p>
-          </div>
-
-          <Button variant="outline" size="sm" className="gap-2 w-full" onClick={downloadTemplate}>
-            <Download className="w-4 h-4" /> הורד תבנית Excel
-          </Button>
-
           <div>
             <Label>קובץ Excel</Label>
             <Input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="mt-1" required />
