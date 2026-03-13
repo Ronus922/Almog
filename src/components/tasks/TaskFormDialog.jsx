@@ -127,6 +127,26 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
           )}
         </DialogHeader>
 
+        {isEdit && (
+          <div className="flex border-b border-slate-200 mb-2">
+            <button
+              onClick={() => setActiveTab("form")}
+              className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === "form" ? "border-b-2 border-blue-600 text-blue-600" : "text-slate-500 hover:text-slate-700"}`}
+            >
+              פרטי משימה
+            </button>
+            <button
+              onClick={() => setActiveTab("audit")}
+              className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === "audit" ? "border-b-2 border-blue-600 text-blue-600" : "text-slate-500 hover:text-slate-700"}`}
+            >
+              היסטוריית שינויים
+            </button>
+          </div>
+        )}
+
+        {activeTab === "audit" && isEdit ? (
+          <TaskAuditLogTab taskId={task?.id} />
+        ) : (
         <div className="space-y-4 mt-2">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
