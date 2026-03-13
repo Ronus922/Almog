@@ -4,8 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Badge } from "@/components/ui/badge";
-import { X, Plus } from "lucide-react";
+import { X } from "lucide-react";
 
 const EMPTY = {
   apartment_number: "", contact_type: "בעל דירה",
@@ -17,12 +16,9 @@ const EMPTY = {
 
 export default function ContactFormDialog({ open, onClose, contact, onSave }) {
   const [form, setForm] = useState(EMPTY);
-  const [tagInput, setTagInput] = useState("");
-
   useEffect(() => {
     if (open) {
       setForm(contact ? { ...EMPTY, ...contact, tags: contact.tags || [] } : EMPTY);
-      setTagInput("");
     }
   }, [open, contact]);
 
@@ -130,28 +126,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
             <Input value={form.address} onChange={e => set("address", e.target.value)} className="mt-1" />
           </div>
 
-          {/* Tags */}
-          <div>
-            <Label>תגיות</Label>
-            <div className="flex gap-2 mt-1">
-              <Input
-                value={tagInput}
-                onChange={e => setTagInput(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addTag())}
-                placeholder="הוסף תגית..."
-              />
-              <Button variant="outline" size="icon" onClick={addTag}><Plus className="w-4 h-4" /></Button>
-            </div>
-            {form.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1 mt-2">
-                {form.tags.map(tag => (
-                  <Badge key={tag} variant="secondary" className="gap-1 cursor-pointer" onClick={() => removeTag(tag)}>
-                    {tag} <X className="w-3 h-3" />
-                  </Badge>
-                ))}
-              </div>
-            )}
-          </div>
+
 
           {/* Notes */}
           <div>
