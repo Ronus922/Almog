@@ -225,8 +225,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
           </div>
         </div>
 
-        <div className="flex justify-end gap-2 mt-4 border-t pt-4">
-          <Button variant="outline" onClick={onClose}>ביטול</Button>
+        <div className="flex justify-end gap-2 mt-4 border-t pt-4 flex-row-reverse">
           <Button
             onClick={handleSave}
             disabled={!form.apartment_number}
@@ -234,6 +233,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
           >
             {contact ? "שמור שינויים" : "הוסף איש קשר"}
           </Button>
+          <Button variant="outline" onClick={onClose}>ביטול</Button>
         </div>
       </DialogContent>
     </Dialog>
