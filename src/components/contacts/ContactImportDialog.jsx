@@ -1,17 +1,36 @@
 import React, { useState, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { base44 } from "@/api/base44Client";
-import { Loader2, Upload } from "lucide-react";
+import { Loader2, Upload, FileUp } from "lucide-react";
 import { useAlert } from "@/components/notifications/AlertContext";
 import * as XLSX from "xlsx";
 
 export default function ContactImportDialog({ open, onClose, onImported }) {
   const [loading, setLoading] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
   const fileRef = useRef();
   const { showAlert } = useAlert();
+
+  const handleDrag = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      fileRef.current.files = e.dataTransfer.files;
+    }
+  };
 
   const handleImport = async () => {
     const file = fileRef.current?.files[0];
@@ -92,25 +111,67 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md" dir="rtl">
-        <DialogHeader>
-          <DialogTitle>ייבוא אנשי קשר מ-Excel</DialogTitle>
+      <DialogContent className="max-w-2xl" dir="rtl">
+        <DialogHeader className="border-b pb-4">
+          <DialogTitle className="flex items-center gap-2 text-xl">
+            <FileUp className="w-5 h-5 text-blue-600" />
+            יובאו דוחות חייבים מאקסל
+          </DialogTitle>
         </DialogHeader>
-        <div className="space-y-4 mt-2">
-          <div>
-            <Label>קובץ Excel</Label>
-            <Input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="mt-1" required />
-          </div>
-        </div>
 
-        <div className="flex justify-end gap-2 mt-4">
-          <Button variant="outline" onClick={onClose}>ביטול</Button>
+        <div className="flex flex-col items-center justify-center py-12 px-6">
+          <div className="mb-6">
+            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center">
+              <Upload className="w-8 h-8 text-slate-400" />
+            </div>
+          </div>
+
+          <h3 className="text-lg font-semibold text-slate-900 mb-2">השלחות קובץ אקסל</h3>
+          <p className="text-sm text-slate-600 text-center mb-6">בחר קובץ XLSX או XLS עם דוחות החייבים</p>
+
+          <input
+            ref={fileRef}
+            type="file"
+            accept=".xlsx,.xls,.csv"
+            className="hidden"
+            onChange={() => {}}
+          />
+
+          <div
+            onDragEnter={handleDrag}
+            onDragLeave={handleDrag}
+            onDragOver={handleDrag}
+            onDrop={handleDrop}
+            className={`w-full border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${
+              dragActive
+                ? "border-blue-500 bg-blue-50"
+                : "border-slate-300 hover:border-slate-400"
+            }`}
+            onClick={() => fileRef.current?.click()}
+          >
+            <p className="text-slate-700 font-medium">
+              {fileRef.current?.files?.[0]?.name || "גרור קובץ או לחץ לבחירה"}
+            </p>
+          </div>
+
+          <p className="text-xs text-slate-500 mt-3">.xlsx, .xls, .csv קבלות</p>
+
           <Button
             onClick={handleImport}
-            disabled={loading}
-            className="bg-[#3563d0] hover:bg-[#2a50b0] text-white gap-2"
+            disabled={loading || !fileRef.current?.files?.[0]}
+            className="mt-8 bg-blue-600 hover:bg-blue-700 text-white gap-2 px-8"
           >
-            {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> מייבא...</> : <><Upload className="w-4 h-4" /> ייבא</>}
+            {loading ? (
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" />
+                מייבא...
+              </>
+            ) : (
+              <>
+                <Upload className="w-4 h-4" />
+                בחר קובץ Excel
+              </>
+            )}
           </Button>
         </div>
       </DialogContent>
