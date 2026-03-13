@@ -281,8 +281,7 @@ export default function Layout({ children, currentPageName }) {
         }
         `}</style>
         <LayoutContent children={children} currentPageName={currentPageName} />
-      </ImportProvider>
-      </AlertProvider>
+        </AlertProvider>
       </ImportProvider>
       </AuthProvider>);
 
