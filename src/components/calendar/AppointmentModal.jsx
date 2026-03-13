@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { Calendar, Clock, MapPin, Users, FileText, Trash2, Edit } from 'lucide-react';
+import { Calendar, Clock, MapPin, Users, FileText, Trash2, Edit, Repeat2 } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 
 export default function AppointmentModal({ appointment, onClose, onEdit, onDelete, isDeleting }) {
