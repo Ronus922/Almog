@@ -150,7 +150,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     // Server update
     await base44.entities.DebtorRecord.update(record.id, updatePayload);
     
-    toast.success(`${fieldName === 'phoneOwner' ? 'טלפון בעלים' : fieldName === 'phoneTenant' ? 'טלפון שוכר' : fieldName === 'phonePrimary' ? 'טלפון להצגה' : 'שדה'} עודכן בהצלחה`);
+    showAlert(`${fieldName === 'phoneOwner' ? 'טלפון בעלים' : fieldName === 'phoneTenant' ? 'טלפון שוכר' : fieldName === 'phonePrimary' ? 'טלפון להצגה' : 'שדה'} עודכן בהצלחה`, 'success');
   };
 
   const handleLegalStatusChange = async (newStatusId) => {
@@ -242,24 +242,24 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             console.log('[EMAIL CLIENT] Results:', results);
             
             if (summary && summary.success > 0) {
-              toast.success(`✉️ נשלחו ${summary.success} מיילים בהצלחה`, { duration: 5000 });
+              showAlert(`✉️ נשלחו ${summary.success} מיילים בהצלחה`, 'success');
               
               if (summary.failed > 0) {
                 const failedEmails = results.filter(r => !r.success).map(r => r.email).join(', ');
-                toast.warning(`${summary.failed} מיילים נכשלו: ${failedEmails}`, { duration: 7000 });
+                showAlert(`${summary.failed} מיילים נכשלו: ${failedEmails}`, 'warning');
               }
             } else if (results.length === 0) {
-              toast.info('לא הוגדרו כתובות מייל לסטטוס זה', { duration: 4000 });
+              showAlert('לא הוגדרו כתובות מייל לסטטוס זה', 'info');
             } else {
-              toast.error('כל המיילים נכשלו', { duration: 5000 });
+              showAlert('כל המיילים נכשלו', 'error');
             }
           } else {
             console.log('[EMAIL CLIENT] ❌ No success in response');
-            toast.warning('לא התקבלה אישור על שליחת מיילים');
+            showAlert('לא התקבלה אישור על שליחת מיילים', 'warning');
           }
         }).catch(err => {
           console.error('[EMAIL CLIENT] ❌ Error:', err);
-          toast.error(`שגיאה בשליחת מייל: ${err.message}`, { duration: 5000 });
+          showAlert(`שגיאה בשליחת מייל: ${err.message}`, 'error');
         });
 
         // עדכון נקודתי של cache (ללא refetch כבד)
@@ -503,7 +503,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       
     } catch (error) {
       console.error('Print error:', error);
-      toast.error('שגיאה בהדפסה');
+      showAlert('שגיאה בהדפסה', 'error');
     }
   };
 
@@ -633,10 +633,10 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       document.body.removeChild(printContent);
       
       pdf.save(`דירה_${record.apartmentNumber}_${new Date().toISOString().split('T')[0]}.pdf`);
-      toast.success('PDF הורד בהצלחה');
+      showAlert('PDF הורד בהצלחה', 'success');
     } catch (error) {
       console.error('PDF export error:', error);
-      toast.error('שגיאה בייצוא PDF');
+      showAlert('שגיאה בייצוא PDF', 'error');
     } finally {
       setIsExporting(false);
     }
