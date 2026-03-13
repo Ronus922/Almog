@@ -64,17 +64,51 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
     set("assigned_to_name", fullName);
   };
 
+  const getChangerInfo = () => {
+    const fullName = currentUser?.first_name
+      ? `${currentUser.first_name}${currentUser.last_name ? " " + currentUser.last_name : ""}`
+      : currentUser?.username || "";
+    return { username: currentUser?.username || "", name: fullName };
+  };
+
   const handleSave = async () => {
     if (!form.task_type || !form.due_date) return;
     setSaving(true);
+    const changer = getChangerInfo();
+
     if (isEdit) {
       const updateData = { ...form };
       if (form.status === "הושלמה" && !task.completed_at) {
         updateData.completed_at = new Date().toISOString();
       }
       await base44.entities.Task.update(task.id, updateData);
+
+      // Build changes diff
+      const changes = {};
+      TRACKED_FIELDS.forEach(field => {
+        const oldVal = task[field] || "";
+        const newVal = form[field] || "";
+        if (oldVal !== newVal) {
+          changes[field] = { from: oldVal, to: newVal };
+        }
+      });
+
+      await base44.entities.TaskAuditLog.create({
+        task_id: task.id,
+        action: "updated",
+        changed_by_username: changer.username,
+        changed_by_name: changer.name,
+        changes: JSON.stringify(changes),
+      });
     } else {
-      await base44.entities.Task.create(form);
+      const newTask = await base44.entities.Task.create(form);
+      await base44.entities.TaskAuditLog.create({
+        task_id: newTask.id,
+        action: "created",
+        changed_by_username: changer.username,
+        changed_by_name: changer.name,
+        changes: "{}",
+      });
     }
     setSaving(false);
     onSaved();
