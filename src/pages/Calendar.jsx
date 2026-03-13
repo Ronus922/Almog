@@ -190,12 +190,21 @@ export default function Calendar() {
 
   const handleDeleteRecurring = async (mode) => {
     if (mode === 'single') {
+      // מחק רק את המופע הספציפי
       await deleteMutation.mutateAsync(selectedAppointment.id);
-    } else if (mode === 'all') {
+    } else if (mode === 'following') {
+      // מחק את האירוע הנוכחי וכל האירועים העתידיים באותה סדרה
       const seriesAppointments = appointments.filter(
         a => a.series_id === selectedAppointment.series_id
       );
-      for (const apt of seriesAppointments) {
+      
+      // מיין לפי תאריך כדי למצוא כל המופעים שבתאריך שווה או גדול יותר
+      const selectedDate = new Date(selectedAppointment.date);
+      const toDelete = seriesAppointments.filter(
+        a => new Date(a.date) >= selectedDate
+      );
+      
+      for (const apt of toDelete) {
         await deleteMutation.mutateAsync(apt.id);
       }
     }
