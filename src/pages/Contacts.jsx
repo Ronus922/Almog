@@ -218,77 +218,72 @@ export default function Contacts() {
               </TableHeader>
               <TableBody>
                 {filtered.map(contact => (
-                  <TableRow key={contact.id}>
-                    <TableCell className="text-center">
-                      <Checkbox
-                        checked={selected.includes(contact.id)}
-                        onCheckedChange={() => toggleSelect(contact.id)}
-                      />
-                    </TableCell>
-                    <TableCell className="font-bold text-blue-600">{contact.apartment_number}</TableCell>
-                    <TableCell>
-                      <div className="text-sm">
-                        <p className="font-medium">{contact.owner_name || "—"}</p>
-                        <p dir="ltr" className="text-xs text-slate-500">
-                          {contact.owner_phone || "—"}
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden md:table-cell">
-                      <div className="text-sm">
-                        <p className="font-medium">{contact.tenant_name || "—"}</p>
-                        <p dir="ltr" className="text-xs text-slate-500">
-                          {contact.tenant_phone || "—"}
-                        </p>
-                      </div>
-                    </TableCell>
-                    <TableCell className="hidden lg:table-cell text-sm text-slate-600">
-                      {contact.address || "—"}
-                    </TableCell>
-                    <TableCell className="text-center hidden md:table-cell">
-                      {contact.management_fees ? (
-                        <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                          ₪{contact.management_fees}
-                        </Badge>
-                      ) : (
-                        <span className="text-slate-400 text-sm">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex gap-1 justify-center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-green-600 hover:bg-green-50 gap-1"
-                          onClick={() => {
-                            setSelected([contact.id]);
-                            setSendOpen(true);
-                          }}
-                        >
-                          <Send className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => {
-                            setEditContact(contact);
-                            setFormOpen(true);
-                          }}
-                        >
-                          עריכה
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-500 hover:bg-red-50"
-                          onClick={() => handleDelete(contact)}
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                   <TableRow key={contact.id}>
+                     <TableCell className="font-bold text-blue-600">{contact.apartment_number}</TableCell>
+                     <TableCell>
+                       <div className="text-sm">
+                         <p className="font-medium">{contact.owner_name || "—"}</p>
+                         <p dir="ltr" className="text-xs text-slate-500">
+                           {contact.owner_phone || "—"}
+                         </p>
+                       </div>
+                     </TableCell>
+                     <TableCell className="hidden md:table-cell">
+                       <div className="text-sm">
+                         <p className="font-medium">{contact.tenant_name || "—"}</p>
+                         <p dir="ltr" className="text-xs text-slate-500">
+                           {contact.tenant_phone || "—"}
+                         </p>
+                       </div>
+                     </TableCell>
+                     <TableCell className="text-center hidden md:table-cell">
+                       {contact.management_fees ? (
+                         <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                           ₪{contact.management_fees}
+                         </Badge>
+                       ) : (
+                         <span className="text-slate-400 text-sm">—</span>
+                       )}
+                     </TableCell>
+                     <TableCell>
+                       <div className="flex gap-1 justify-center">
+                         <Button
+                           variant="ghost"
+                           size="sm"
+                           className="text-green-600 hover:bg-green-50"
+                           onClick={() => {
+                             setSelected([contact.id]);
+                             setSendOpen(true);
+                           }}
+                           title="שלח וואטסאפ"
+                         >
+                           <Send className="w-4 h-4" />
+                         </Button>
+                         <Button
+                           variant="ghost"
+                           size="sm"
+                           className="text-slate-600 hover:bg-slate-100"
+                           onClick={() => {
+                             setEditContact(contact);
+                             setFormOpen(true);
+                           }}
+                           title="עריכה"
+                         >
+                           <Edit className="w-4 h-4" />
+                         </Button>
+                         <Button
+                           variant="ghost"
+                           size="sm"
+                           className="text-red-500 hover:bg-red-50"
+                           onClick={() => handleDelete(contact)}
+                           title="מחיקה"
+                         >
+                           <Trash2 className="w-4 h-4" />
+                         </Button>
+                       </div>
+                     </TableCell>
+                   </TableRow>
+                 ))}
               </TableBody>
             </Table>
           )}
