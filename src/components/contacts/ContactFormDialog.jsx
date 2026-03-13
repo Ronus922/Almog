@@ -61,24 +61,11 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
 
         <div className="space-y-4 mt-2">
           {/* Basic */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label>מספר דירה</Label>
-              <Input value={form.apartment_number} onChange={e => set("apartment_number", e.target.value)} className="mt-1" />
-            </div>
-            <div>
-              <Label>סטטוס</Label>
-              <Select value={form.contact_type} onValueChange={v => set("contact_type", v)}>
-                <SelectTrigger className="mt-1">
-                  <SelectValue placeholder="בחר..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="בעל דירה">בעל דירה</SelectItem>
-                  <SelectItem value="שוכר">שוכר</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div>
+            <Label>מספר דירה</Label>
+            <Input value={form.apartment_number} onChange={e => set("apartment_number", e.target.value)} className="mt-1" />
           </div>
+          <p className="text-xs text-slate-500">סמן ✓ ליד בעל הדירה או השוכר שישמש כ<strong>איש קשר ראשי</strong> לשליחת וואטסאפ:</p>
 
           {/* Owner */}
           <div className={`border rounded-lg p-3 space-y-2 cursor-pointer transition-colors ${form.contact_type === "בעל דירה" ? "border-blue-400 bg-blue-50" : "border-slate-200"}`}>
@@ -132,26 +119,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
             </div>
           </div>
 
-          {/* Primary contact override */}
-          <div className="border border-blue-100 bg-blue-50 rounded-lg p-3 space-y-2">
-            <p className="text-xs font-semibold text-blue-600 uppercase tracking-wide">איש קשר ראשי (לשליחת וואטסאפ) *</p>
-            <div className="grid grid-cols-1 gap-2">
-              <div>
-                <Label>שם *</Label>
-                <Input value={form.name} onChange={e => set("name", e.target.value)} className="mt-1" />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <Label>טלפון *</Label>
-                  <Input value={form.phone} onChange={e => set("phone", e.target.value)} className="mt-1" dir="ltr" placeholder="972501234567" />
-                </div>
-                <div>
-                  <Label>אימייל</Label>
-                  <Input value={form.email} onChange={e => set("email", e.target.value)} className="mt-1" dir="ltr" type="email" />
-                </div>
-              </div>
-            </div>
-          </div>
+
 
           {/* Address */}
           <div>
