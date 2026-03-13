@@ -27,24 +27,15 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
     }
   }, [open, contact]);
 
-  // Auto-derive primary name/phone/email from contact_type
-  useEffect(() => {
-    if (form.contact_type === "בעל דירה") {
-      setForm(f => ({
-        ...f,
-        name:  f.owner_name  || f.name,
-        phone: f.owner_phone || f.phone,
-        email: f.owner_email || f.email,
-      }));
-    } else if (form.contact_type === "שוכר") {
-      setForm(f => ({
-        ...f,
-        name:  f.tenant_name  || f.name,
-        phone: f.tenant_phone || f.phone,
-        email: f.tenant_email || f.email,
-      }));
-    }
-  }, [form.contact_type]);
+  const selectPrimary = (type) => {
+    setForm(f => ({
+      ...f,
+      contact_type: type,
+      name:  type === "בעל דירה" ? f.owner_name  : f.tenant_name,
+      phone: type === "בעל דירה" ? f.owner_phone : f.tenant_phone,
+      email: type === "בעל דירה" ? f.owner_email : f.tenant_email,
+    }));
+  };
 
   const set = (key, val) => setForm(f => ({ ...f, [key]: val }));
 
