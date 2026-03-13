@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -34,6 +34,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
   });
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("form");
+  const dateInputRef = useRef(null);
 
   const { data: appUsers = [] } = useQuery({
     queryKey: ["appUsers"],
@@ -211,13 +212,19 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
                 </div>
                 <div className="space-y-1">
                    <Label>תאריך יעד *</Label>
-                   <Input 
-                     type="date" 
-                     value={form.due_date || ""} 
-                     onChange={(e) => set("due_date", e.target.value)}
-                     min={!isEdit ? format(new Date(), 'yyyy-MM-dd') : undefined}
-                     className="cursor-pointer"
-                   />
+                   <div 
+                     className="border border-slate-200 rounded-md h-10 flex items-center px-3 bg-white hover:border-slate-300 transition-colors cursor-pointer"
+                     onClick={() => dateInputRef.current?.click()}
+                   >
+                     <Input 
+                       ref={dateInputRef}
+                       type="date" 
+                       value={form.due_date || ""} 
+                       onChange={(e) => set("due_date", e.target.value)}
+                       min={!isEdit ? format(new Date(), 'yyyy-MM-dd') : undefined}
+                       className="border-0 p-0 h-full cursor-pointer focus:outline-none focus:ring-0"
+                     />
+                   </div>
                  </div>
               </div>
 
