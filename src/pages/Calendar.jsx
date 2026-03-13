@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSaturday, isFriday, addMonths, subMonths, addDays, subDays, addWeeks, subWeeks, getDay } from 'date-fns';
 import { he } from 'date-fns/locale';
 import AppointmentForm from '@/components/calendar/AppointmentForm';
@@ -12,6 +12,8 @@ import WeekView from '@/components/calendar/WeekView';
 import DayView from '@/components/calendar/DayView';
 import RecurrenceDeleteDialog from '@/components/calendar/RecurrenceDeleteDialog';
 import RecurrenceEditDialog from '@/components/calendar/RecurrenceEditDialog';
+import CalendarHeader from '@/components/calendar/CalendarHeader';
+import DateRangePickerDialog from '@/components/calendar/DateRangePickerDialog';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const HEBREW_HOLIDAYS = [
@@ -53,6 +55,8 @@ export default function Calendar() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [editMode, setEditMode] = useState(null);
+  const [showDateRangePicker, setShowDateRangePicker] = useState(false);
+  const [customDateRange, setCustomDateRange] = useState(null);
   const queryClient = useQueryClient();
 
   const { data: appointments = [] } = useQuery({
@@ -85,14 +89,37 @@ export default function Calendar() {
     },
   });
 
-  const handlePrevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
-  const handleNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
-  
-  const handlePrevDay = () => setCurrentMonth(subDays(currentMonth, 1));
-  const handleNextDay = () => setCurrentMonth(addDays(currentMonth, 1));
-  
-  const handlePrevWeek = () => setCurrentMonth(subWeeks(currentMonth, 1));
-  const handleNextWeek = () => setCurrentMonth(addWeeks(currentMonth, 1));
+  const handleNavigate = (direction) => {
+    if (viewMode === 'month') {
+      if (direction === 'next') {
+        setCurrentMonth(addMonths(currentMonth, 1));
+      } else {
+        setCurrentMonth(subMonths(currentMonth, 1));
+      }
+    } else if (viewMode === 'week') {
+      if (direction === 'next') {
+        setCurrentMonth(addWeeks(currentMonth, 1));
+      } else {
+        setCurrentMonth(subWeeks(currentMonth, 1));
+      }
+    } else if (viewMode === 'day') {
+      if (direction === 'next') {
+        setCurrentMonth(addDays(currentMonth, 1));
+      } else {
+        setCurrentMonth(subDays(currentMonth, 1));
+      }
+    }
+  };
+
+  const handleDateRangeSelect = (startDate, endDate) => {
+    if (startDate && endDate) {
+      setCustomDateRange({ start: startDate, end: endDate });
+      setCurrentMonth(startDate);
+    } else {
+      setCustomDateRange(null);
+      setCurrentMonth(new Date());
+    }
+  };
 
   const handleDateClick = (date) => {
     setSelectedDate(date);
@@ -235,11 +262,8 @@ export default function Calendar() {
           <p className="text-blue-100 text-sm">ניהול פגישות ומשימות בקלות ובארגון</p>
         </div>
 
-        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-6">
-          {/* Spacing */}
-          <div className="flex-1"></div>
-
-          {/* Add Button - Left */}
+        <div className="flex items-center justify-between gap-4 mb-6">
+          {/* Add Button */}
           <Button
             onClick={() => {
               setSelectedAppointment(null);
@@ -252,61 +276,15 @@ export default function Calendar() {
           </Button>
         </div>
 
-        {/* Control Bar */}
-        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6">
-          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-            {/* Navigation Arrows - Right */}
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={handleNextMonth}
-                className="h-9 w-9 text-slate-600 hover:text-slate-900"
-                title="חודש הבא"
-              >
-                <ChevronRight className="w-5 h-5" />
-              </Button>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={handlePrevMonth}
-                className="h-9 w-9 text-slate-600 hover:text-slate-900"
-                title="חודש קודם"
-              >
-                <ChevronLeft className="w-5 h-5" />
-              </Button>
-            </div>
-
-            {/* Date Range - Center */}
-            <div className="text-center">
-              <p className="text-sm font-semibold text-slate-900">{monthRangeStr}</p>
-              <p className="text-xs text-slate-500">{format(currentMonth, 'MMMM yyyy', { locale: he })}</p>
-            </div>
-
-            {/* View Mode Selector - Left */}
-            <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-1">
-              {[
-                { mode: 'day', label: 'יום' },
-                { mode: 'week', label: 'שבוע' },
-                { mode: 'month', label: 'חודש' },
-              ].map((item) => (
-                <Button
-                  key={item.mode}
-                  variant={viewMode === item.mode ? 'default' : 'ghost'}
-                  size="sm"
-                  onClick={() => setViewMode(item.mode)}
-                  className={`text-xs font-bold px-4 py-2 h-auto rounded-md transition-all ${
-                    viewMode === item.mode 
-                      ? 'bg-blue-600 text-white shadow-md' 
-                      : 'text-slate-700 hover:bg-slate-200'
-                  }`}
-                >
-                  {item.label}
-                </Button>
-              ))}
-            </div>
-          </div>
-        </div>
+        {/* Calendar Header */}
+        <CalendarHeader
+          currentDate={currentMonth}
+          viewMode={viewMode}
+          onViewModeChange={setViewMode}
+          onNavigate={handleNavigate}
+          customDateRange={customDateRange}
+          onOpenDateRangePicker={() => setShowDateRangePicker(true)}
+        />
 
         {/* Calendar View Container */}
         <div className="flex-1 overflow-auto">
