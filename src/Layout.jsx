@@ -80,6 +80,7 @@ function LayoutContent({ children, currentPageName }) {
   { name: 'Tasks', label: 'משימות', icon: ClipboardList, adminOnly: false },
   { name: 'Contacts', label: 'אנשי קשר', icon: ContactRound, adminOnly: false },
   { name: 'WhatsAppTemplates', label: 'תבניות וואטסאפ', icon: MessageCircle, adminOnly: true },
+  { name: 'WhatsAppChat', label: 'צ\'אט וואטסאפ', icon: MessageCircle, adminOnly: false },
   { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true }];
 
 

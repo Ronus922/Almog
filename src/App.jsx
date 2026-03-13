@@ -13,6 +13,7 @@ import UserNotRegisteredError from '@/components/UserNotRegisteredError';
 import Tasks from "./pages/Tasks.jsx";
 import WhatsAppTemplates from "./pages/WhatsAppTemplates";
 import Contacts from "./pages/Contacts.jsx";
+import WhatsAppChat from "./pages/WhatsAppChat.jsx";
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
 const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
@@ -66,6 +67,7 @@ const AuthenticatedApp = () => {
       <Route path="/Tasks" element={<LayoutWrapper currentPageName="Tasks"><Tasks /></LayoutWrapper>} />
       <Route path="/WhatsAppTemplates" element={<LayoutWrapper currentPageName="WhatsAppTemplates"><WhatsAppTemplates /></LayoutWrapper>} />
       <Route path="/Contacts" element={<LayoutWrapper currentPageName="Contacts"><Contacts /></LayoutWrapper>} />
+      <Route path="/WhatsAppChat" element={<LayoutWrapper currentPageName="WhatsAppChat"><WhatsAppChat /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
