@@ -48,6 +48,7 @@ export default function UserManagement() {
   });
   const [formError, setFormError] = useState('');
   const [shareToken, setShareToken] = useState('');
+  const [confirmDeleteUser, setConfirmDeleteUser] = useState(null);
 
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['appUsers'],
@@ -322,16 +323,12 @@ export default function UserManagement() {
                           )}
                         </Button>
                         <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => {
-                            if (confirm(`האם למחוק את המשתמש ${user.username}?`)) {
-                              deleteUserMutation.mutate(user.id);
-                            }
-                          }}
-                          className="rounded-lg text-red-600 hover:bg-red-50"
-                          disabled={user.username === currentUser?.username}
-                          title="מחק"
+                        size="sm"
+                        variant="outline"
+                        onClick={() => setConfirmDeleteUser(user)}
+                        className="rounded-lg text-red-600 hover:bg-red-50"
+                        disabled={user.username === currentUser?.username}
+                        title="מחק"
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
