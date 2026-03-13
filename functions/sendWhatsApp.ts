@@ -6,7 +6,7 @@ Deno.serve(async (req) => {
   if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { phone, message, fileUrl, fileName } = await req.json();
-  if (!phone || !message) return Response.json({ error: 'Missing phone or message' }, { status: 400 });
+  if (!phone || (!message && !fileUrl)) return Response.json({ error: 'Missing phone, message, or fileUrl' }, { status: 400 });
 
   // Try to get credentials from Settings entity first, fallback to env secrets
   let instanceId = Deno.env.get('GREEN_API_INSTANCE_ID');
