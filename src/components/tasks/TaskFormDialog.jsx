@@ -38,6 +38,8 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
   const [activeTab, setActiveTab] = useState("form");
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [selectedAssignees, setSelectedAssignees] = useState([]);
+  const [selectedHour, setSelectedHour] = useState(16);
+  const [selectedMinute, setSelectedMinute] = useState(50);
 
   const { data: appUsers = [] } = useQuery({
     queryKey: ["appUsers"],
@@ -49,6 +51,8 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
       setActiveTab("form");
       setShowDatePicker(false);
       setSelectedAssignees([]);
+      setSelectedHour(16);
+      setSelectedMinute(50);
       if (isEdit) {
         setForm(prev => ({
           ...task,
@@ -111,8 +115,17 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
   };
 
   const handleDateSelect = (date) => {
-    set("due_date", format(date, 'yyyy-MM-dd'));
+    const timeStr = `T${String(selectedHour).padStart(2, '0')}:${String(selectedMinute).padStart(2, '0')}:00`;
+    set("due_date", format(date, 'yyyy-MM-dd') + timeStr);
     setShowDatePicker(false);
+  };
+
+  const handleTimeChange = () => {
+    if (form.due_date) {
+      const dateStr = form.due_date.split('T')[0];
+      const timeStr = `T${String(selectedHour).padStart(2, '0')}:${String(selectedMinute).padStart(2, '0')}:00`;
+      set("due_date", dateStr + timeStr);
+    }
   };
 
   const getChangerInfo = () => {
@@ -242,49 +255,98 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
                   </Select>
                 </div>
                 <div className="space-y-1 relative">
-                   <Label>תאריך יעד *</Label>
+                   <Label>תאריך ושעה יעד *</Label>
                    <button
                      type="button"
                      onClick={() => setShowDatePicker(!showDatePicker)}
-                     className="w-full px-3 py-2 border border-slate-200 rounded-md text-right text-sm bg-white hover:bg-slate-50 transition-colors"
+                     className="w-full px-3 py-2 border border-slate-200 rounded-md text-right text-sm bg-white hover:bg-slate-50 transition-colors font-medium"
                    >
-                     {form.due_date ? format(new Date(form.due_date), 'dd-MM-yyyy') : 'בחר תאריך'}
+                     {form.due_date ? `${format(new Date(form.due_date), 'HH:mm')} ${format(new Date(form.due_date), 'dd-MM-yyyy')}` : 'בחר תאריך ושעה'}
                    </button>
                    {showDatePicker && (
-                     <div className="absolute top-full mt-2 left-0 bg-white border border-slate-200 rounded-lg shadow-lg p-4 z-50 w-80">
-                       <div className="grid grid-cols-7 gap-2 mb-4">
-                         {['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'].map((day) => (
-                           <div key={day} className="text-center text-xs font-semibold text-slate-600">{day}</div>
-                         ))}
+                     <div className="absolute top-full mt-2 left-0 bg-white border border-slate-200 rounded-lg shadow-lg p-4 z-50 w-96">
+                       <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-200">
+                         <div className="text-center text-sm font-semibold text-blue-600">
+                           {form.due_date ? `${String(selectedHour).padStart(2, '0')}:${String(selectedMinute).padStart(2, '0')} ${format(new Date(form.due_date), 'dd-MM-yyyy')}` : 'בחר זמן ותאריך'}
+                         </div>
                        </div>
-                       <div className="grid grid-cols-7 gap-2 mb-4">
-                         {generateDates().map((date, idx) => {
-                           const isSelected = form.due_date === format(date, 'yyyy-MM-dd');
-                           const isToday = format(date, 'yyyy-MM-dd') === format(new Date(), 'yyyy-MM-dd');
-                           return (
-                             <button
-                               key={idx}
-                               onClick={() => handleDateSelect(date)}
-                               className={`h-8 rounded text-sm font-medium transition-colors ${
-                                 isSelected ? 'bg-blue-600 text-white' :
-                                 isToday ? 'bg-blue-100 text-blue-700' :
-                                 'hover:bg-slate-100'
-                               }`}
-                             >
-                               {format(date, 'd')}
-                             </button>
-                           );
-                         })}
+                       
+                       <div className="grid grid-cols-2 gap-4 mb-4">
+                         {/* שעות */}
+                         <div className="space-y-2">
+                           <div className="text-xs font-semibold text-slate-600 text-center">שעה</div>
+                           <div className="border border-slate-200 rounded-md h-40 overflow-y-auto space-y-1 p-2">
+                             {Array.from({ length: 24 }, (_, i) => i).map((hour) => (
+                               <button
+                                 key={hour}
+                                 onClick={() => setSelectedHour(hour)}
+                                 className={`w-full py-1.5 rounded text-sm font-medium transition-colors ${
+                                   selectedHour === hour ? 'bg-blue-600 text-white' : 'hover:bg-slate-100'
+                                 }`}
+                               >
+                                 {String(hour).padStart(2, '0')}
+                               </button>
+                             ))}
+                           </div>
+                         </div>
+
+                         {/* דקות */}
+                         <div className="space-y-2">
+                           <div className="text-xs font-semibold text-slate-600 text-center">דקה</div>
+                           <div className="border border-slate-200 rounded-md h-40 overflow-y-auto space-y-1 p-2">
+                             {Array.from({ length: 60 }, (_, i) => i).map((minute) => (
+                               <button
+                                 key={minute}
+                                 onClick={() => setSelectedMinute(minute)}
+                                 className={`w-full py-1.5 rounded text-sm font-medium transition-colors ${
+                                   selectedMinute === minute ? 'bg-blue-600 text-white' : 'hover:bg-slate-100'
+                                 }`}
+                               >
+                                 {String(minute).padStart(2, '0')}
+                               </button>
+                             ))}
+                           </div>
+                         </div>
                        </div>
-                       <div className="text-right text-xs text-slate-500 mb-3">
-                         {form.due_date ? format(new Date(form.due_date), 'dd-MM-yyyy') : 'בחר תאריך'}
+
+                       <div className="space-y-2 mb-3 pb-3 border-b border-slate-200">
+                         <div className="text-xs font-semibold text-slate-600">בחר תאריך</div>
+                         <div className="grid grid-cols-7 gap-2 mb-2">
+                           {['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'].map((day) => (
+                             <div key={day} className="text-center text-xs font-semibold text-slate-600">{day}</div>
+                           ))}
+                         </div>
+                         <div className="grid grid-cols-7 gap-2 max-h-48 overflow-y-auto">
+                           {generateDates().map((date, idx) => {
+                             const dateStr = format(date, 'yyyy-MM-dd');
+                             const formDateStr = form.due_date?.split('T')[0];
+                             const isSelected = dateStr === formDateStr;
+                             const isToday = dateStr === format(new Date(), 'yyyy-MM-dd');
+                             return (
+                               <button
+                                 key={idx}
+                                 onClick={() => {
+                                   set("due_date", `${dateStr}T${String(selectedHour).padStart(2, '0')}:${String(selectedMinute).padStart(2, '0')}:00`);
+                                 }}
+                                 className={`h-7 rounded text-xs font-medium transition-colors ${
+                                   isSelected ? 'bg-blue-600 text-white' :
+                                   isToday ? 'bg-blue-100 text-blue-700' :
+                                   'hover:bg-slate-100'
+                                 }`}
+                               >
+                                 {format(date, 'd')}
+                               </button>
+                             );
+                           })}
+                         </div>
                        </div>
+
                        <button
                          type="button"
                          onClick={() => setShowDatePicker(false)}
-                         className="w-full px-3 py-2 text-sm font-medium bg-slate-100 hover:bg-slate-200 rounded text-slate-700 transition-colors"
+                         className="w-full px-3 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 rounded text-white transition-colors"
                        >
-                         סגור
+                         אישור
                        </button>
                      </div>
                    )}
