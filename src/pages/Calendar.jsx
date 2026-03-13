@@ -154,8 +154,8 @@ export default function Calendar() {
   const monthRangeStr = `${format(monthStart, 'dd/MM/yyyy')} - ${format(monthEnd, 'dd/MM/yyyy')}`;
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100 p-4 md:p-8" dir="rtl">
-      <div className="w-full h-full flex flex-col">
+    <div className="w-screen h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100 p-4 md:p-8 overflow-auto" dir="rtl">
+      <div className="w-full min-h-screen flex flex-col">
         {/* Header Section */}
         <div className="mb-6">
           <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
