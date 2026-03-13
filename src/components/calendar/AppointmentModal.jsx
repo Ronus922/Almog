@@ -57,8 +57,7 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
 
           {/* Recurring */}
           {appointment.is_recurring && (
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-semibold text-slate-600">חזרה:</span>
+            <div className="flex items-center justify-end gap-3">
               <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">
                 {appointment.recurrence_pattern === 'weekly'
                   ? 'שבועי'
@@ -66,16 +65,17 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
                   ? 'חודשי'
                   : 'שנתי'}
               </span>
+              <span className="text-sm font-semibold text-slate-600">חזרה:</span>
             </div>
           )}
 
           {/* Reminder */}
           {appointment.reminder_method !== 'none' && (
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-semibold text-slate-600">תזכורת:</span>
+            <div className="flex items-center justify-end gap-3">
               <span className="text-sm">
-                {appointment.reminder_before} לפני ב-{appointment.reminder_method}
+                ב-{appointment.reminder_method} {appointment.reminder_before} לפני
               </span>
+              <span className="text-sm font-semibold text-slate-600">תזכורת:</span>
             </div>
           )}
 
