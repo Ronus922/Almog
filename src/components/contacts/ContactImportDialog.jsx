@@ -248,10 +248,14 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
                     ? "border-blue-500 bg-blue-50"
                     : "border-slate-300 hover:border-slate-400"
                 }`}
-                onClick={() => fileRef.current?.click()}
+                onClick={() => {
+                  fileRef.current.value = '';
+                  setSelectedFile(null);
+                  fileRef.current?.click();
+                }}
               >
                 <p className="text-slate-700 font-medium">
-                  {selectedFile?.name || "גרור קובץ או לחץ לבחירה"}
+                  {"גרור קובץ או לחץ לבחירה"}
                 </p>
               </div>
 
