@@ -98,7 +98,7 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-0 flex-1 overflow-hidden">
+      <div className="grid grid-cols-7 gap-0 flex-1 overflow-y-auto" dir="rtl">
         {days.map((date, idx) => {
           const dayAppointments = getAppointmentsForDay(date);
           const holiday = getIsraeliHolidayName(date);
@@ -109,7 +109,7 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
           return (
             <div
               key={idx}
-              className={getDayStyles(date)}
+              className={`${getDayStyles(date)} ${idx % 7 !== 6 ? 'border-l border-slate-200' : ''}`}
               onClick={() => {
                 if (!isOutOfMonth && !isPast) {
                   onDateClick(date);
