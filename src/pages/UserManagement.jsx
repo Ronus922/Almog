@@ -26,6 +26,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Users, Plus, Trash2, Power, PowerOff, AlertCircle, Shield, Eye, Pencil, Loader2 } from "lucide-react";
 
 import EditUserDialog from '@/components/users/EditUserDialog';
