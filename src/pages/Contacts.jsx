@@ -260,7 +260,7 @@ export default function Contacts() {
                      <TableCell className="text-sm text-right max-w-[90px] truncate group-hover:bg-blue-100" dir="ltr" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.owner_phone || "—"}</TableCell>
                      <TableCell className="hidden md:table-cell text-sm group-hover:bg-blue-100" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.tenant_name || "—"}</TableCell>
                      <TableCell className="hidden md:table-cell text-sm text-right max-w-[90px] truncate group-hover:bg-blue-100" dir="ltr" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.tenant_phone || "—"}</TableCell>
-                     <TableCell className="hidden md:table-cell text-right group-hover:bg-blue-100">
+                     <TableCell className="hidden md:table-cell text-right group-hover:bg-blue-100" onClick={() => {setEditContact(contact); setFormOpen(true);}}>
                        {contact.management_fees ? (
                          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
                            ₪{contact.management_fees}
