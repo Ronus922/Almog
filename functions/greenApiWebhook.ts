@@ -72,7 +72,7 @@ Deno.serve(async (req) => {
         console.log('✓ Contact found:', contact.id, contact.apartment_number);
         const textContent = message.messageData?.textMessageData?.textMessage || '';
         
-        const savedMsg = await base44.entities.ChatMessage.create({
+        const savedMsg = await base44.asServiceRole.entities.ChatMessage.create({
           contact_id: contact.id,
           contact_phone: senderPhone,
           direction: 'received',
