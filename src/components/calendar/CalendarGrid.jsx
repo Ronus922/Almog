@@ -27,9 +27,18 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
     return date.getMonth() === currentMonth.getMonth();
   };
 
+  const isPastDate = (date) => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return date < today;
+  };
+
   const getDayStyles = (date) => {
     const baseStyles = 'p-2 min-h-24 border border-slate-200 text-right cursor-pointer transition-colors';
     
+    if (isPastDate(date) && isCurrentMonth(date)) {
+      return `${baseStyles} bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed`;
+    }
     if (isHoliday(date)) {
       return `${baseStyles} bg-amber-50 hover:bg-amber-100`;
     }
