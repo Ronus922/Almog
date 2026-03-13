@@ -52,7 +52,7 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
     const isToday = isSameDay(date, new Date());
 
     // Base styles
-    const baseStyles = 'p-3 min-h-32 border border-slate-200 transition-all cursor-pointer hover:shadow-md';
+    const baseStyles = 'p-3 min-h-32 border-r border-b border-slate-200 transition-all cursor-pointer hover:shadow-md';
     
     // Holiday type styles (highest priority)
     if (holiday?.type === 'yom_tov') {
@@ -109,7 +109,7 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
           return (
             <div
               key={idx}
-              className={`${getDayStyles(date)} ${idx % 7 !== 6 ? 'border-l border-slate-200' : ''}`}
+              className={getDayStyles(date)}
               onClick={() => {
                 if (!isOutOfMonth && !isPast) {
                   onDateClick(date);
