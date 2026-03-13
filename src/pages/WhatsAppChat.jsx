@@ -177,8 +177,9 @@ export default function WhatsAppChat() {
                     key={contact.id}
                     onClick={() => setSelectedContact(contact)}
                     className={`w-full p-3 text-right hover:bg-gray-50 transition-colors flex items-center gap-3 border-r-4 ${
-                      selectedContact?.id === contact.id ? 'bg-gray-100 border-r-blue-500' : 'border-r-transparent'
+                      selectedContact?.id === contact.id ? 'border-r-blue-500' : 'border-r-transparent'
                     }`}
+                    style={selectedContact?.id === contact.id ? { backgroundColor: '#f9fff5' } : {}}
                   >
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                       {initials}
