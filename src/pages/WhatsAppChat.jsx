@@ -60,7 +60,9 @@ export default function WhatsAppChat() {
     if (!selectedContact?.id) return;
 
     const unsubscribe = base44.entities.ChatMessage.subscribe((event) => {
+      console.log('[WhatsAppChat] Message event:', event.type, 'contact_id:', event.data?.contact_id, 'selected:', selectedContact.id);
       if (event.data?.contact_id === selectedContact.id) {
+        console.log('[WhatsAppChat] Invalidating query for contact:', selectedContact.id);
         queryClient.invalidateQueries({ queryKey: ['chatMessages', selectedContact.id] });
       }
     });
