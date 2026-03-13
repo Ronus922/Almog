@@ -23,14 +23,14 @@ export default function RecurrenceDeleteDialog({ isOpen, onClose, onDelete, appo
             variant="outline"
             className="w-full justify-center h-10 font-semibold text-slate-900 hover:bg-slate-50"
           >
-            רק אירוע זה
+            רק את האירוע הזה
           </Button>
           <Button
-            onClick={() => onDelete('all')}
+            onClick={() => onDelete('following')}
             variant="destructive"
             className="w-full justify-center h-10 font-semibold"
           >
-            את כל הסדרה
+            את כל האירועים העתידיים
           </Button>
           <Button
             onClick={onClose}
