@@ -9,6 +9,7 @@ export default function NotificationBell({ currentUser }) {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
   const username = currentUser?.username;
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (!username) return;
