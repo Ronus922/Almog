@@ -255,11 +255,11 @@ export default function Contacts() {
               <TableBody>
                 {filtered.map(contact => (
                    <TableRow key={contact.id}>
-                     <TableCell className="font-bold text-blue-600">{contact.apartment_number}</TableCell>
-                     <TableCell className="text-sm">{contact.owner_name || "—"}</TableCell>
-                     <TableCell className="text-sm text-right max-w-[90px] truncate" dir="ltr">{contact.owner_phone || "—"}</TableCell>
-                     <TableCell className="hidden md:table-cell text-sm">{contact.tenant_name || "—"}</TableCell>
-                     <TableCell className="hidden md:table-cell text-sm text-right max-w-[90px] truncate" dir="ltr">{contact.tenant_phone || "—"}</TableCell>
+                     <TableCell className="font-bold text-blue-600 cursor-pointer hover:bg-blue-100" onDoubleClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.apartment_number}</TableCell>
+                     <TableCell className="text-sm cursor-pointer hover:bg-blue-100" onDoubleClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.owner_name || "—"}</TableCell>
+                     <TableCell className="text-sm text-right max-w-[90px] truncate cursor-pointer hover:bg-blue-100" dir="ltr" onDoubleClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.owner_phone || "—"}</TableCell>
+                     <TableCell className="hidden md:table-cell text-sm cursor-pointer hover:bg-blue-100" onDoubleClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.tenant_name || "—"}</TableCell>
+                     <TableCell className="hidden md:table-cell text-sm text-right max-w-[90px] truncate cursor-pointer hover:bg-blue-100" dir="ltr" onDoubleClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.tenant_phone || "—"}</TableCell>
                      <TableCell className="hidden md:table-cell text-right">
                        {contact.management_fees ? (
                          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
