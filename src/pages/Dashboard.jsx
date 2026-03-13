@@ -412,11 +412,10 @@ function DashboardContent() {
                 צפייה בלבד
               </div>
             }
-            <AppButton variant="outline" size="md" icon={RefreshCw} onClick={handleRefresh} className="hover:text-slate-900">
-              רענן נתונים
-            </AppButton>
             {isAdmin &&
             <>
+                <ExcelExporter records={filteredDataset.length > 0 ? filteredDataset : records} statuses={allStatuses} />
+                <PDFExporter records={filteredDataset.length > 0 ? filteredDataset : records} statuses={allStatuses} settings={settings} />
                 <AppButton 
                   variant="outline" 
                   size="md" 
@@ -426,10 +425,11 @@ function DashboardContent() {
                 >
                   הדפס
                 </AppButton>
-                <ExcelExporter records={filteredDataset.length > 0 ? filteredDataset : records} statuses={allStatuses} />
-                <PDFExporter records={filteredDataset.length > 0 ? filteredDataset : records} statuses={allStatuses} settings={settings} />
               </>
             }
+            <AppButton variant="outline" size="md" icon={RefreshCw} onClick={handleRefresh} className="hover:text-slate-900">
+              רענן נתונים
+            </AppButton>
             </div>
             </div>
 

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import AppButton from "@/components/ui/app-button";
-import { FileText } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
 import { toast } from 'sonner';
 import html2pdf from 'html2pdf.js';
 
@@ -177,16 +177,15 @@ export default function PDFExporter({ records, statuses, settings }) {
   };
 
   return (
-    <AppButton
-      variant="secondary"
-      size="md"
-      icon={FileText}
+    <Button
+      variant="outline"
+      size="sm"
       onClick={handleExport}
-      loading={isExporting}
-      disabled={!records || records.length === 0}
-      className="hover:text-slate-900"
+      disabled={isExporting || !records || records.length === 0}
+      className="gap-2 h-9 px-3"
     >
-      ייצוא ל-PDF
-    </AppButton>);
+      <Download className="w-4 h-4" />
+      ייצוא PDF
+    </Button>);
 
 }
