@@ -70,7 +70,7 @@ export default function Tasks() {
   const userNameMap = useMemo(() => {
     const map = {};
     appUsers.forEach((u) => {
-      const fullName = [u.first_name, u.last_name].filter(Boolean).join(" ");
+      const fullName = u.email === "r@bios.co.il" ? "רונן משולם" : [u.first_name, u.last_name].filter(Boolean).join(" ");
       if (u.username) map[u.username] = fullName;
       if (u.email) map[u.email] = fullName;
     });
@@ -400,9 +400,9 @@ export default function Tasks() {
                         </td>
 
                         <td className="px-4 py-3">
-                          <div className="text-slate-700">
-                            {task.assigned_to_name || task.assigned_to || "-"}
-                          </div>
+                           <div className="text-slate-700">
+                             {task.assigned_to_name === "רונן משולם" ? "רונן משולם" : task.assigned_to_name || task.assigned_to || "-"}
+                           </div>
                           {task.assigned_by &&
                       <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
                               <UserPlus className="w-3 h-3" />
