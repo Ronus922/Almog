@@ -376,12 +376,14 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
                     dir="rtl"
                     className="w-20 h-10 border border-slate-200 rounded-lg px-3 text-center bg-white text-slate-900 font-medium"
                   />
-                  <span className="text-slate-700 font-medium text-sm">
-                    {formData.recurrence_pattern === 'יומי' ? 'ימים' : 
-                     formData.recurrence_pattern === 'שבועי' ? 'שבועות' :
-                     formData.recurrence_pattern === 'חודשי' ? 'חודשים' :
-                     'שנים'}
-                  </span>
+                  {formData.recurrence_pattern && (
+                    <span className="text-slate-700 font-medium text-sm">
+                      {formData.recurrence_pattern === 'יומי' ? 'ימים' : 
+                       formData.recurrence_pattern === 'שבועי' ? 'שבועות' :
+                       formData.recurrence_pattern === 'חודשי' ? 'חודשים' :
+                       'שנים'}
+                    </span>
+                  )}
                 </div>
               </div>
 
