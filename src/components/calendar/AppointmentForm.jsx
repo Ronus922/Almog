@@ -317,9 +317,9 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label className="text-right block">תזכורת לפני</Label>
-          <Select value={formData.reminder_before} onValueChange={(value) => handleChange('reminder_before', value)}>
+          <Select value={formData.reminder_before || '15m'} onValueChange={(value) => handleChange('reminder_before', value)}>
             <SelectTrigger dir="rtl">
-              <SelectValue placeholder="בחר זמן" />
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="15m">15 דקות</SelectItem>
@@ -331,9 +331,9 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         </div>
         <div>
           <Label className="text-right block">אופן התזכורת</Label>
-          <Select value={formData.reminder_method} onValueChange={(value) => handleChange('reminder_method', value)}>
+          <Select value={formData.reminder_method || 'email'} onValueChange={(value) => handleChange('reminder_method', value)}>
             <SelectTrigger dir="rtl">
-              <SelectValue placeholder="בחר אופן" />
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="email">אימייל</SelectItem>
