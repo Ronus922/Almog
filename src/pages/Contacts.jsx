@@ -77,11 +77,11 @@ export default function Contacts() {
     const result = contacts.filter(c => {
       const matchSearch =
         !search ||
-        c.apartment_number.includes(search) ||
-        c.owner_name.includes(search) ||
-        c.owner_phone.includes(search) ||
-        c.tenant_name.includes(search) ||
-        c.tenant_phone.includes(search);
+        (c.apartment_number || "").includes(search) ||
+        (c.owner_name || "").includes(search) ||
+        (c.owner_phone || "").includes(search) ||
+        (c.tenant_name || "").includes(search) ||
+        (c.tenant_phone || "").includes(search);
       const matchTags = selectedTags.length === 0 || selectedTags.every(t => (c.tags || []).includes(t));
       return matchSearch && matchTags;
     });
