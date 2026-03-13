@@ -87,6 +87,12 @@ export default function Calendar() {
 
   const handlePrevMonth = () => setCurrentMonth(subMonths(currentMonth, 1));
   const handleNextMonth = () => setCurrentMonth(addMonths(currentMonth, 1));
+  
+  const handlePrevDay = () => setCurrentMonth(subDays(currentMonth, 1));
+  const handleNextDay = () => setCurrentMonth(addDays(currentMonth, 1));
+  
+  const handlePrevWeek = () => setCurrentMonth(subWeeks(currentMonth, 1));
+  const handleNextWeek = () => setCurrentMonth(addWeeks(currentMonth, 1));
 
   const handleDateClick = (date) => {
     setSelectedDate(date);
