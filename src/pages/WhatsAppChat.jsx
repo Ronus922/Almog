@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Send, Search, Plus, Phone, Info, Paperclip, Image as ImageIcon } from 'lucide-react';
+import { Send, Search, Plus, Phone, Info, Paperclip } from 'lucide-react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import ChatMessageBubble from '@/components/whatsapp/ChatMessageBubble';
