@@ -15,7 +15,7 @@ import {
 "@/components/ui/dropdown-menu";
 import {
   LayoutDashboard, Upload, Settings, LogOut,
-  User, ChevronDown, Building2, Menu, X, SlidersHorizontal, Users as UsersIcon, Copy, ClipboardList, MessageCircle } from
+  User, ChevronDown, Building2, Menu, X, SlidersHorizontal, Users as UsersIcon, Copy, ClipboardList, MessageCircle, ContactRound } from
 "lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import { AlertProvider } from "@/components/notifications/AlertContext";
@@ -77,6 +77,7 @@ function LayoutContent({ children, currentPageName }) {
   { name: 'StatusManagement', label: 'סטטוסים', icon: SlidersHorizontal, adminOnly: true },
   { name: 'Import', label: 'ייבוא', icon: Upload, adminOnly: true },
   { name: 'Tasks', label: 'משימות', icon: ClipboardList, adminOnly: false },
+  { name: 'Contacts', label: 'אנשי קשר', icon: ContactRound, adminOnly: false },
   { name: 'WhatsAppTemplates', label: 'תבניות וואטסאפ', icon: MessageCircle, adminOnly: true },
   { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true }];
 
