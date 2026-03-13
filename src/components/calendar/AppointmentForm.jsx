@@ -321,22 +321,6 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         />
       </div>
 
-      {/* Attendees - Users */}
-      {users.length > 0 && (
-        <MultiSelectAttendees
-          label="משתמשים"
-          items={users}
-          selectedIds={formData.attendees_users}
-          onToggle={handleUserToggle}
-          searchPlaceholder="חפש משתמש..."
-          formatLabel={(user) => user.full_name || user.email}
-          getAvatarColor={(user) => {
-            const colors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6'];
-            return colors[users.indexOf(user) % colors.length];
-          }}
-        />
-      )}
-
       {/* Attendees - Contacts */}
       {contacts.length > 0 && (
         <MultiSelectAttendees
@@ -349,6 +333,22 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
           getAvatarColor={(contact) => {
             const colors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6'];
             return colors[contacts.indexOf(contact) % colors.length];
+          }}
+        />
+      )}
+
+      {/* Attendees - Users */}
+      {users.length > 0 && (
+        <MultiSelectAttendees
+          label="משתמשים"
+          items={users}
+          selectedIds={formData.attendees_users}
+          onToggle={handleUserToggle}
+          searchPlaceholder="חפש משתמש..."
+          formatLabel={(user) => user.full_name || user.email}
+          getAvatarColor={(user) => {
+            const colors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6'];
+            return colors[users.indexOf(user) % colors.length];
           }}
         />
       )}
