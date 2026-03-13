@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -22,8 +22,8 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
   const [showContactSearch, setShowContactSearch] = useState(false);
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [contactSearchTerm, setContactSearchTerm] = useState('');
-  const userDropdownRef = useCallback(() => null, []);
-  const contactDropdownRef = useCallback(() => null, []);
+  const userDropdownRef = useRef(null);
+  const contactDropdownRef = useRef(null);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -50,8 +50,22 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         setShowContactSearch(false);
       }
     };
+    
+    const handleClickOutside = (e) => {
+      if (userDropdownRef.current && !userDropdownRef.current.contains(e.target)) {
+        setShowUserSearch(false);
+      }
+      if (contactDropdownRef.current && !contactDropdownRef.current.contains(e.target)) {
+        setShowContactSearch(false);
+      }
+    };
+    
     document.addEventListener('keydown', handleEscape);
-    return () => document.removeEventListener('keydown', handleEscape);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
   }, []);
 
   useEffect(() => {
