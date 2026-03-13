@@ -324,9 +324,7 @@ export default function UserManagement() {
                           size="sm"
                           variant="outline"
                           onClick={() => {
-                            if (confirm(`האם למחוק את המשתמש ${user.username}?`)) {
-                              deleteUserMutation.mutate(user.id);
-                            }
+                            showConfirm(`האם למחוק את המשתמש ${user.username}?`, () => deleteUserMutation.mutate(user.id));
                           }}
                           className="rounded-lg text-red-600 hover:bg-red-50"
                           disabled={user.username === currentUser?.username}
