@@ -147,7 +147,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
         {activeTab === "audit" && isEdit ? (
           <TaskAuditLogTab taskId={task?.id} />
         ) : (
-        <div className="space-y-4 mt-2">
+        <div className="space-y-4 mt-2 max-h-[60vh] overflow-y-auto">
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">
               <Label>סוג משימה *</Label>
@@ -212,11 +212,12 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
           )}
         </div>
 
-        <div className="flex justify-end gap-2 mt-4">
-          <Button variant="outline" onClick={onClose}>ביטול</Button>
-          <Button onClick={handleSave} disabled={saving || !form.task_type || !form.due_date}>
-            {saving ? "שומר..." : isEdit ? "שמור שינויים" : "צור משימה"}
-          </Button>
+          <div className="flex justify-end gap-2 mt-4">
+            <Button variant="outline" onClick={onClose}>ביטול</Button>
+            <Button onClick={handleSave} disabled={saving || !form.task_type || !form.due_date}>
+              {saving ? "שומר..." : isEdit ? "שמור שינויים" : "צור משימה"}
+            </Button>
+          </div>
         </div>
         )}
       </DialogContent>
