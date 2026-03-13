@@ -49,7 +49,7 @@ import {
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Plus, Edit, Trash2, Shield, Loader2, Save, X, ArrowRight, SlidersHorizontal, Wrench, Palette } from "lucide-react";
-import { toast } from "sonner";
+
 import { isManagerRole, getUserRoleDisplay } from '@/components/utils/roles';
 import ColorPicker from '../components/status/ColorPicker';
 import ColorBulkEditor from '../components/status/ColorBulkEditor';

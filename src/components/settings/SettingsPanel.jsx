@@ -11,7 +11,6 @@ import {
   Loader2, CheckCircle2, AlertTriangle, RefreshCw, MessageCircle
 } from "lucide-react";
 import { base44 } from '@/api/base44Client';
-import { toast } from 'sonner';
 import { calculateDebtStatus, validateThresholds } from '../utils/debtStatusCalculator';
 import { useQuery } from '@tanstack/react-query';
 

@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Plus, Pencil, Trash2, MessageCircle } from 'lucide-react';
-import { toast } from 'sonner';
+
 
 const VARIABLES = [
   { label: 'שם הדייר', value: '{{name}}' },

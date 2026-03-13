@@ -27,7 +27,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Users, Plus, Trash2, Power, PowerOff, AlertCircle, Shield, Eye, Pencil, Loader2 } from "lucide-react";
-import { toast } from 'sonner';
+
 import EditUserDialog from '@/components/users/EditUserDialog';
 
 export default function UserManagement() {
