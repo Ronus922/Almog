@@ -91,6 +91,7 @@ function TemplateForm({ template, onSave, onCancel }) {
 
 export default function WhatsAppTemplates() {
   const queryClient = useQueryClient();
+  const showAlert = useAlert();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editing, setEditing] = useState(null);
 

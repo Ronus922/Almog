@@ -34,6 +34,7 @@ import { useAlert } from '@/components/notifications/AlertSystem';
 export default function UserManagement() {
   const { currentUser, loading } = useAuth();
   const queryClient = useQueryClient();
+  const showAlert = useAlert();
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
