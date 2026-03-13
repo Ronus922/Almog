@@ -37,12 +37,12 @@ export default function CommentsSection({ debtorRecordId, apartmentNumber, curre
 
   const handleSubmit = async () => {
     if (!newComment.trim()) {
-      toast.error('נא להזין תוכן להערה');
+      showAlert('נא להזין תוכן להערה', 'error');
       return;
     }
 
     if (!currentUser) {
-      toast.error('משתמש לא מחובר');
+      showAlert('משתמש לא מחובר', 'error');
       return;
     }
 
