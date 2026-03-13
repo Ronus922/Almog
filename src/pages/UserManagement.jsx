@@ -112,7 +112,7 @@ export default function UserManagement() {
     mutationFn: (id) => base44.entities.AppUser.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['appUsers'] });
-      toast.success('המשתמש נמחק');
+      showAlert('המשתמש נמחק', 'success');
     }
   });
 
