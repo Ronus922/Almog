@@ -18,8 +18,8 @@ import {
   User, ChevronDown, Building2, Menu, X, SlidersHorizontal, Users as UsersIcon, Copy, ClipboardList, MessageCircle } from
 "lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
-
-import { Toaster } from 'sonner';
+import { AlertProvider } from "@/components/notifications/AlertContext";
+import GlobalAlert from "@/components/notifications/GlobalAlert";
 
 function LayoutContent({ children, currentPageName }) {
   const navigate = useNavigate();
