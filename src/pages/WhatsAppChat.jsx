@@ -23,18 +23,18 @@ export default function WhatsAppChat() {
     gcTime: 1000 * 60 * 10 // 10 minutes
   });
 
-  // Get chat messages
+  // Get chat messages - sorted chronologically (oldest first for proper display)
   const { data: messages = [] } = useQuery({
     queryKey: ['chatMessages', selectedContact?.id],
     queryFn: () => {
       if (!selectedContact) return [];
       return base44.entities.ChatMessage.filter({
         contact_id: selectedContact.id
-      }, '-timestamp');
+      }, 'timestamp').then(msgs => msgs.reverse()); // Reverse to show newest at bottom
     },
     enabled: !!selectedContact,
-    staleTime: 1000 * 30, // 30 seconds
-    gcTime: 1000 * 60 // 1 minute
+    staleTime: 1000 * 30,
+    gcTime: 1000 * 60
   });
 
   // Subscribe to new messages in real-time
