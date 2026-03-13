@@ -167,8 +167,8 @@ export default function WhatsAppChat() {
       try {
         await base44.functions.invoke('sendWhatsApp', {
           phone,
-          file_url,
-          file_name: file.name
+          fileUrl: file_url,
+          fileName: file.name
         });
       } catch (error) {
         console.error('Failed to send file via Green API:', error);
