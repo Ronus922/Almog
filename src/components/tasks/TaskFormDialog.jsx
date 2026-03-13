@@ -147,78 +147,79 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
         {activeTab === "audit" && isEdit ? (
           <TaskAuditLogTab taskId={task?.id} />
         ) : (
-        <div className="space-y-4 mt-2 max-h-[60vh] overflow-y-auto">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label>סוג משימה *</Label>
-              <Select value={form.task_type} onValueChange={v => set("task_type", v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {TASK_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-1">
-              <Label>תאריך יעד *</Label>
-              <Input type="date" value={form.due_date || ""} onChange={e => set("due_date", e.target.value)} />
-            </div>
-          </div>
+          <>
+            <div className="space-y-4 mt-2 max-h-[60vh] overflow-y-auto">
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label>סוג משימה *</Label>
+                  <Select value={form.task_type} onValueChange={v => set("task_type", v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {TASK_TYPES.map(t => <SelectItem key={t} value={t}>{t}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label>תאריך יעד *</Label>
+                  <Input type="date" value={form.due_date || ""} onChange={e => set("due_date", e.target.value)} />
+                </div>
+              </div>
 
-          <div className="grid grid-cols-2 gap-3">
-            <div className="space-y-1">
-              <Label>עדיפות</Label>
-              <Select value={form.priority} onValueChange={v => set("priority", v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {PRIORITIES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <Label>עדיפות</Label>
+                  <Select value={form.priority} onValueChange={v => set("priority", v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {PRIORITIES.map(p => <SelectItem key={p} value={p}>{p}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-1">
+                  <Label>סטטוס</Label>
+                  <Select value={form.status} onValueChange={v => set("status", v)}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      {STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <Label>הקצה ל:</Label>
+                <Select value={form.assigned_to} onValueChange={handleAssignedToChange}>
+                  <SelectTrigger><SelectValue placeholder="בחר משתמש..." /></SelectTrigger>
+                  <SelectContent>
+                    {appUsers.map(u => (
+                      <SelectItem key={u.id} value={u.username}>
+                        {u.first_name}{u.last_name ? " " + u.last_name : ""}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="space-y-1">
+                <Label>תיאור</Label>
+                <Textarea value={form.description || ""} onChange={e => set("description", e.target.value)} placeholder="פרטים נוספים על המשימה..." rows={3} />
+              </div>
+
+              {(form.status === "הושלמה" || form.status === "בוטלה") && (
+                <div className="space-y-1">
+                  <Label>הערות סגירה</Label>
+                  <Textarea value={form.completion_notes || ""} onChange={e => set("completion_notes", e.target.value)} placeholder="מה בוצע / למה בוטל..." rows={2} />
+                </div>
+              )}
             </div>
-            <div className="space-y-1">
-              <Label>סטטוס</Label>
-              <Select value={form.status} onValueChange={v => set("status", v)}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {STATUSES.map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                </SelectContent>
-              </Select>
+
+            <div className="flex justify-end gap-2 mt-4">
+              <Button variant="outline" onClick={onClose}>ביטול</Button>
+              <Button onClick={handleSave} disabled={saving || !form.task_type || !form.due_date}>
+                {saving ? "שומר..." : isEdit ? "שמור שינויים" : "צור משימה"}
+              </Button>
             </div>
-          </div>
-
-          <div className="space-y-1">
-            <Label>הקצה ל:</Label>
-            <Select value={form.assigned_to} onValueChange={handleAssignedToChange}>
-              <SelectTrigger><SelectValue placeholder="בחר משתמש..." /></SelectTrigger>
-              <SelectContent>
-                {appUsers.map(u => (
-                  <SelectItem key={u.id} value={u.username}>
-                    {u.first_name}{u.last_name ? " " + u.last_name : ""}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-1">
-            <Label>תיאור</Label>
-            <Textarea value={form.description || ""} onChange={e => set("description", e.target.value)} placeholder="פרטים נוספים על המשימה..." rows={3} />
-          </div>
-
-          {(form.status === "הושלמה" || form.status === "בוטלה") && (
-            <div className="space-y-1">
-              <Label>הערות סגירה</Label>
-              <Textarea value={form.completion_notes || ""} onChange={e => set("completion_notes", e.target.value)} placeholder="מה בוצע / למה בוטל..." rows={2} />
-            </div>
-          )}
-        </div>
-
-          <div className="flex justify-end gap-2 mt-4">
-            <Button variant="outline" onClick={onClose}>ביטול</Button>
-            <Button onClick={handleSave} disabled={saving || !form.task_type || !form.due_date}>
-              {saving ? "שומר..." : isEdit ? "שמור שינויים" : "צור משימה"}
-            </Button>
-          </div>
-        </div>
+          </>
         )}
       </DialogContent>
     </Dialog>
