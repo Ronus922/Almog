@@ -80,17 +80,17 @@ export default function CalendarHeader({
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => onNavigate('next')}
+            onClick={() => onNavigate('prev')}
             className="h-9 w-9 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
-            title="חודש הבא"
+            title="חודש קודם"
           >
             <ChevronRight className="w-5 h-5" />
           </Button>
           <Button
             size="icon"
-            onClick={() => onNavigate('prev')}
+            onClick={() => onNavigate('next')}
             className="h-10 w-10 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg hover:scale-105 transition-all rounded-lg"
-            title="חודש קודם"
+            title="חודש הבא"
           >
             <ChevronLeft className="w-5 h-5" />
           </Button>
