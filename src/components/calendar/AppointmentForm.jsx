@@ -60,7 +60,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
   const loadUsers = async () => {
     try {
-      const usersList = await base44.asServiceRole.entities.AppUser.list();
+      const usersList = await base44.entities.AppUser.list();
       setUsers(usersList);
     } catch (error) {
       console.error('Failed to load users:', error);
