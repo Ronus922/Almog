@@ -23,7 +23,7 @@ export default function MultiSelectAttendees({
         formatLabel(item).toLowerCase().includes(searchTerm.toLowerCase())
       )
     );
-  }, [searchTerm, items]);
+  }, [searchTerm, items, formatLabel]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
