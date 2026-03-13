@@ -140,12 +140,12 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
 
           for (let i = 0; i < totalRows; i++) {
             const row = rows[i];
-            
+
             try {
-              const contact = mapHebrewColumns(row);
+              const apartmentNum = String(row["דירה"] || row["apartment_number"] || row["A"] || "").trim();
 
               // דלג על שורות ללא מספר דירה
-              if (!contact.apartment_number) {
+              if (!apartmentNum) {
                 skipped++;
                 const currentProgress = Math.round(((i + 1) / totalRows) * 100);
                 setProgress(currentProgress);
@@ -153,8 +153,34 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
                 continue;
               }
 
-              // כל שדה שלא תקין - פשוט תדלג עליו, המשך עם השאר
-              await base44.entities.Contact.create(contact);
+              // בדוק אם הרשומה קיימת
+              const existing = await base44.entities.Contact.filter({ apartment_number: apartmentNum });
+              const existingContact = existing.length > 0 ? existing[0] : null;
+
+              // מיפוי הנתונים מהקובץ
+              const importedData = mapHebrewColumns(row);
+
+              if (existingContact) {
+                // עדכון: שמור את השדות המוגנים מהרשומה הקיימת
+                const updateData = { ...importedData };
+
+                // שמור את השדות המוגנים
+                updateData.contact_type = existingContact.contact_type;
+                updateData.address = existingContact.address;
+                updateData.notes = existingContact.notes;
+
+                // שמור מספרי טלפון קיימים אם הקובץ אינו מכיל נתונים
+                if (!importedData.owner_phone) updateData.owner_phone = existingContact.owner_phone;
+                if (!importedData.tenant_phone) updateData.tenant_phone = existingContact.tenant_phone;
+                if (!importedData.owner_email) updateData.owner_email = existingContact.owner_email;
+                if (!importedData.tenant_email) updateData.tenant_email = existingContact.tenant_email;
+
+                await base44.entities.Contact.update(existingContact.id, updateData);
+              } else {
+                // יצירה חדשה
+                await base44.entities.Contact.create(importedData);
+              }
+
               imported++;
             } catch (error) {
               console.error(`Error processing row ${i + 1}:`, error.message);
