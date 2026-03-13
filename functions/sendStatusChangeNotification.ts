@@ -258,65 +258,33 @@ Deno.serve(async (req) => {
         const results = [];
         console.log(`[EMAIL] 📧 Starting to send ${emailAddresses.length} emails...`);
         
-        const resendApiKey = Deno.env.get('RESEND_API_KEY');
-        const useResend = !accessToken && resendApiKey;
-        
         for (const email of emailAddresses) {
             try {
                 console.log(`[EMAIL] Sending to: ${email}...`);
                 
-                if (useResend) {
-                    // Use Resend API
-                    const response = await fetch('https://api.resend.com/emails', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${resendApiKey}`,
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            from: senderEmail,
-                            to: email,
-                            subject: subject.replace(/=\?UTF-8\?B\?|\?=/g, ''), // Remove RFC 2047 encoding for Resend
-                            html: htmlContent
-                        })
-                    });
-                    
-                    const data = await response.json();
-                    if (!response.ok) {
-                        console.error(`[EMAIL] ❌ FAILED to ${email}:`, data);
-                        results.push({ email, success: false, error: data.error?.message || JSON.stringify(data) });
-                    } else {
-                        console.log(`[EMAIL] ✅ SUCCESS to ${email}, id:`, data.id);
-                        results.push({ email, success: true, messageId: data.id });
-                    }
-                } else if (accessToken) {
-                    // Use Gmail API
-                    const message = `From: ${senderEmail}\r\nTo: ${email}\r\nSubject: ${subject}\r\nContent-Type: text/html; charset="UTF-8"\r\n\r\n${htmlContent}`;
-                    const encoder = new TextEncoder();
-                    const messageBytes = encoder.encode(message);
-                    const raw = btoa(String.fromCharCode.apply(null, messageBytes));
-                    
-                    const response = await fetch('https://www.googleapis.com/gmail/v1/users/me/messages/send', {
-                        method: 'POST',
-                        headers: {
-                            'Authorization': `Bearer ${accessToken}`,
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({ raw })
-                    });
+                // Encode message properly for Gmail API (support UTF-8)
+                const message = `From: ${senderEmail}\r\nTo: ${email}\r\nSubject: ${subject}\r\nContent-Type: text/html; charset="UTF-8"\r\n\r\n${htmlContent}`;
+                const encoder = new TextEncoder();
+                const messageBytes = encoder.encode(message);
+                const raw = btoa(String.fromCharCode.apply(null, messageBytes));
+                
+                const response = await fetch('https://www.googleapis.com/gmail/v1/users/me/messages/send', {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Bearer ${accessToken}`,
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ raw })
+                });
 
-                    const data = await response.json();
-                    
-                    if (!response.ok) {
-                        console.error(`[EMAIL] ❌ FAILED to ${email}:`, data);
-                        results.push({ email, success: false, error: data.error?.message || JSON.stringify(data) });
-                    } else {
-                        console.log(`[EMAIL] ✅ SUCCESS to ${email}, messageId:`, data.id);
-                        results.push({ email, success: true, messageId: data.id });
-                    }
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    console.error(`[EMAIL] ❌ FAILED to ${email}:`, data);
+                    results.push({ email, success: false, error: data.error?.message || JSON.stringify(data) });
                 } else {
-                    console.error(`[EMAIL] ❌ No email service available`);
-                    results.push({ email, success: false, error: 'No email service configured' });
+                    console.log(`[EMAIL] ✅ SUCCESS to ${email}, messageId:`, data.id);
+                    results.push({ email, success: true, messageId: data.id });
                 }
             } catch (err) {
                 console.error(`[EMAIL] ❌ EXCEPTION for ${email}:`, err);
