@@ -24,7 +24,6 @@ const COLOR_PALETTE = [
 export default function AppointmentForm({ appointment, selectedDate, onSave, onCancel, isLoading }) {
   const [users, setUsers] = useState([]);
   const [contacts, setContacts] = useState([]);
-
   const [dragActive, setDragActive] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
@@ -95,12 +94,12 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
     loadContacts();
   }, []);
 
-  const handleChange = (field, value) => {
+  const handleChange = useCallback((field, value) => {
     setFormData(prev => ({
       ...prev,
       [field]: value,
     }));
-  };
+  }, []);
 
   const getUserAvatarColor = useCallback((user) => {
     const colors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6'];
@@ -122,25 +121,25 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
     []
   );
 
-  const handleUserToggle = (userId) => {
+  const handleUserToggle = useCallback((userId) => {
     setFormData(prev => ({
       ...prev,
       attendees_users: prev.attendees_users.includes(userId)
         ? prev.attendees_users.filter(u => u !== userId)
         : [...prev.attendees_users, userId],
     }));
-  };
+  }, []);
 
-  const handleContactToggle = (contactId) => {
+  const handleContactToggle = useCallback((contactId) => {
     setFormData(prev => ({
       ...prev,
       attendees_contacts: prev.attendees_contacts.includes(contactId)
         ? prev.attendees_contacts.filter(c => c !== contactId)
         : [...prev.attendees_contacts, contactId],
     }));
-  };
+  }, []);
 
-  const handleDrag = (e) => {
+  const handleDrag = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
     if (e.type === 'dragenter' || e.type === 'dragover') {
@@ -148,9 +147,9 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
     } else if (e.type === 'dragleave') {
       setDragActive(false);
     }
-  };
+  }, []);
 
-  const handleDrop = async (e) => {
+  const handleDrop = useCallback(async (e) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
@@ -159,14 +158,14 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
     for (const file of files) {
       await uploadFile(file);
     }
-  };
+  }, []);
 
-  const handleFileSelect = async (e) => {
+  const handleFileSelect = useCallback(async (e) => {
     const files = Array.from(e.target.files);
     for (const file of files) {
       await uploadFile(file);
     }
-  };
+  }, []);
 
   const uploadFile = async (file) => {
     try {
@@ -180,17 +179,17 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
     }
   };
 
-  const removeAttachment = (index) => {
+  const removeAttachment = useCallback((index) => {
     setFormData(prev => ({
       ...prev,
       attachments: prev.attachments.filter((_, i) => i !== index),
     }));
-  };
+  }, []);
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
     await onSave(formData);
-  };
+  }, [formData, onSave]);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6 p-6" dir="rtl">
@@ -212,7 +211,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         <Label className="text-right block">סוג</Label>
         <Select value={formData.appointment_type} onValueChange={(value) => handleChange('appointment_type', value)}>
           <SelectTrigger dir="rtl">
-            <SelectValue />
+            <SelectValue placeholder="בחר סוג" />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="פגישה">פגישה</SelectItem>
@@ -285,7 +284,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         {formData.is_recurring && (
           <Select value={formData.recurrence_pattern} onValueChange={(value) => handleChange('recurrence_pattern', value)}>
             <SelectTrigger dir="rtl">
-              <SelectValue />
+              <SelectValue placeholder="בחר תבנית" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="weekly">שבועי</SelectItem>
@@ -320,7 +319,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
           <Label className="text-right block">תזכורת לפני</Label>
           <Select value={formData.reminder_before} onValueChange={(value) => handleChange('reminder_before', value)}>
             <SelectTrigger dir="rtl">
-              <SelectValue />
+              <SelectValue placeholder="בחר זמן" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="15m">15 דקות</SelectItem>
@@ -334,7 +333,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
           <Label className="text-right block">אופן התזכורת</Label>
           <Select value={formData.reminder_method} onValueChange={(value) => handleChange('reminder_method', value)}>
             <SelectTrigger dir="rtl">
-              <SelectValue />
+              <SelectValue placeholder="בחר אופן" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="email">אימייל</SelectItem>
