@@ -19,23 +19,23 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+  DialogFooter } from
+"@/components/ui/dialog";
 import {
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+  TableRow } from
+"@/components/ui/table";
 import { AlertCircle } from "lucide-react";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+  TooltipTrigger } from
+"@/components/ui/tooltip";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,8 +44,8 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog";
+  AlertDialogTitle } from
+"@/components/ui/alert-dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Plus, Edit, Trash2, Shield, Loader2, Save, X, ArrowRight, SlidersHorizontal, Wrench, Palette } from "lucide-react";
@@ -55,19 +55,19 @@ import ColorPicker from '../components/status/ColorPicker';
 import ColorBulkEditor from '../components/status/ColorBulkEditor';
 
 const COLOR_OPTIONS = [
-  { value: 'bg-green-100 text-green-700 border-green-200', label: 'ירוק', preview: 'bg-green-100 border-green-200' },
-  { value: 'bg-yellow-100 text-yellow-700 border-yellow-200', label: 'צהוב', preview: 'bg-yellow-100 border-yellow-200' },
-  { value: 'bg-orange-100 text-orange-700 border-orange-200', label: 'כתום', preview: 'bg-orange-100 border-orange-200' },
-  { value: 'bg-red-100 text-red-700 border-red-200', label: 'אדום', preview: 'bg-red-100 border-red-200' },
-  { value: 'bg-blue-100 text-blue-700 border-blue-200', label: 'כחול', preview: 'bg-blue-100 border-blue-200' },
-  { value: 'bg-purple-100 text-purple-700 border-purple-200', label: 'סגול', preview: 'bg-purple-100 border-purple-200' },
-  { value: 'bg-pink-100 text-pink-700 border-pink-200', label: 'ורוד', preview: 'bg-pink-100 border-pink-200' },
-  { value: 'bg-indigo-100 text-indigo-700 border-indigo-200', label: 'אינדיגו', preview: 'bg-indigo-100 border-indigo-200' },
-  { value: 'bg-teal-100 text-teal-700 border-teal-200', label: 'טורקיז', preview: 'bg-teal-100 border-teal-200' },
-  { value: 'bg-slate-100 text-slate-700 border-slate-200', label: 'אפור', preview: 'bg-slate-100 border-slate-200' },
-  { value: 'bg-emerald-100 text-emerald-700 border-emerald-200', label: 'ירוק כהה', preview: 'bg-emerald-100 border-emerald-200' },
-  { value: 'bg-cyan-100 text-cyan-700 border-cyan-200', label: 'תכלת', preview: 'bg-cyan-100 border-cyan-200' },
-];
+{ value: 'bg-green-100 text-green-700 border-green-200', label: 'ירוק', preview: 'bg-green-100 border-green-200' },
+{ value: 'bg-yellow-100 text-yellow-700 border-yellow-200', label: 'צהוב', preview: 'bg-yellow-100 border-yellow-200' },
+{ value: 'bg-orange-100 text-orange-700 border-orange-200', label: 'כתום', preview: 'bg-orange-100 border-orange-200' },
+{ value: 'bg-red-100 text-red-700 border-red-200', label: 'אדום', preview: 'bg-red-100 border-red-200' },
+{ value: 'bg-blue-100 text-blue-700 border-blue-200', label: 'כחול', preview: 'bg-blue-100 border-blue-200' },
+{ value: 'bg-purple-100 text-purple-700 border-purple-200', label: 'סגול', preview: 'bg-purple-100 border-purple-200' },
+{ value: 'bg-pink-100 text-pink-700 border-pink-200', label: 'ורוד', preview: 'bg-pink-100 border-pink-200' },
+{ value: 'bg-indigo-100 text-indigo-700 border-indigo-200', label: 'אינדיגו', preview: 'bg-indigo-100 border-indigo-200' },
+{ value: 'bg-teal-100 text-teal-700 border-teal-200', label: 'טורקיז', preview: 'bg-teal-100 border-teal-200' },
+{ value: 'bg-slate-100 text-slate-700 border-slate-200', label: 'אפור', preview: 'bg-slate-100 border-slate-200' },
+{ value: 'bg-emerald-100 text-emerald-700 border-emerald-200', label: 'ירוק כהה', preview: 'bg-emerald-100 border-emerald-200' },
+{ value: 'bg-cyan-100 text-cyan-700 border-cyan-200', label: 'תכלת', preview: 'bg-cyan-100 border-cyan-200' }];
+
 
 export default function StatusManagement() {
   const { currentUser, loading: authLoading } = useAuth();
@@ -103,22 +103,22 @@ export default function StatusManagement() {
     queryKey: ['statuses'],
     queryFn: () => base44.entities.Status.list('order'),
     retry: 2,
-    retryDelay: 1000,
+    retryDelay: 1000
   });
 
-  const statuses = allStatuses
-    .filter(s => s.type === 'LEGAL')
-    .sort((a, b) => {
-      // סטטוס default תמיד ראשון
-      if (a.is_default && !b.is_default) return -1;
-      if (!a.is_default && b.is_default) return 1;
-      // שאר הסטטוסים לפי שם (א-ב)
-      return (a.name || '').localeCompare(b.name || '');
-    });
+  const statuses = allStatuses.
+  filter((s) => s.type === 'LEGAL').
+  sort((a, b) => {
+    // סטטוס default תמיד ראשון
+    if (a.is_default && !b.is_default) return -1;
+    if (!a.is_default && b.is_default) return 1;
+    // שאר הסטטוסים לפי שם (א-ב)
+    return (a.name || '').localeCompare(b.name || '');
+  });
 
   const { data: debtorRecords = [] } = useQuery({
     queryKey: ['debtorRecords'],
-    queryFn: () => base44.entities.DebtorRecord.list(),
+    queryFn: () => base44.entities.DebtorRecord.list()
   });
 
 
@@ -130,7 +130,7 @@ export default function StatusManagement() {
       setIsAddDialogOpen(false);
       resetForm();
       toast.success('סטטוס נוסף בהצלחה');
-    },
+    }
   });
 
   const updateMutation = useMutation({
@@ -140,7 +140,7 @@ export default function StatusManagement() {
       setIsEditDialogOpen(false);
       setEditingStatus(null);
       toast.success('סטטוס עודכן בהצלחה');
-    },
+    }
   });
 
   const deleteMutation = useMutation({
@@ -151,7 +151,7 @@ export default function StatusManagement() {
       setDeleteConfirm(null);
       setReassignTargetId('');
       toast.success('הסטטוס נמחק בהצלחה');
-    },
+    }
   });
 
   const handleFixAll = async () => {
@@ -166,9 +166,9 @@ export default function StatusManagement() {
         locked: 0
       };
 
-      const validLegalStatusIds = statuses
-        .filter(s => s.type === 'LEGAL' && s.is_active)
-        .map(s => s.id);
+      const validLegalStatusIds = statuses.
+      filter((s) => s.type === 'LEGAL' && s.is_active).
+      map((s) => s.id);
 
       console.log('[SCAN] Starting scan, valid status IDs:', validLegalStatusIds);
 
@@ -212,7 +212,7 @@ export default function StatusManagement() {
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
       queryClient.invalidateQueries({ queryKey: ['statuses'] });
-      const targetStatus = statuses.find(s => s.id === variables.targetId);
+      const targetStatus = statuses.find((s) => s.id === variables.targetId);
       toast.success(`בוצעה העברה בהצלחה: ${data.count} רשומות עודכנו לסטטוס '${targetStatus?.name}'`);
       setReassignTargetId('');
       // רענון מונה הקשרים
@@ -264,7 +264,7 @@ export default function StatusManagement() {
       toast.error('לא ניתן למחוק סטטוס ברירת מחדל');
       return;
     }
-    const usageCount = debtorRecords.filter(r => r.legal_status_id === status.id).length;
+    const usageCount = debtorRecords.filter((r) => r.legal_status_id === status.id).length;
     setDeleteConfirm({ status, usageCount });
   };
 
@@ -306,14 +306,14 @@ export default function StatusManagement() {
       return;
     }
 
-    const targetStatus = statuses.find(s => s.id === reassignTargetId);
+    const targetStatus = statuses.find((s) => s.id === reassignTargetId);
     if (!targetStatus || !targetStatus.is_active) {
       toast.error('לא ניתן להעביר לסטטוס לא פעיל. בחר סטטוס פעיל');
       return;
     }
 
-    const recordsToUpdate = debtorRecords.filter(r => r.legal_status_id === deleteConfirm.status.id);
-    
+    const recordsToUpdate = debtorRecords.filter((r) => r.legal_status_id === deleteConfirm.status.id);
+
     reassignMutation.mutate({
       sourceId: deleteConfirm.status.id,
       targetId: reassignTargetId,
@@ -329,7 +329,7 @@ export default function StatusManagement() {
 
     // אם מגדירים כ-default, צריך לוודא שרק אחד כזה
     if (formData.is_default) {
-      const otherDefault = statuses.find(s => s.is_default && s.id !== editingStatus?.id);
+      const otherDefault = statuses.find((s) => s.is_default && s.id !== editingStatus?.id);
       if (otherDefault) {
         toast.error('כבר קיים סטטוס ברירת מחדל. ניתן להגדיר רק אחד.');
         return;
@@ -353,8 +353,8 @@ export default function StatusManagement() {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-      </div>
-    );
+      </div>);
+
   }
 
   if (!currentUser) {
@@ -383,8 +383,8 @@ export default function StatusManagement() {
             </div>
           </CardContent>
         </Card>
-      </div>
-    );
+      </div>);
+
   }
 
   const isAdmin = isManagerRole(currentUser);
@@ -405,16 +405,16 @@ export default function StatusManagement() {
             </div>
           </CardContent>
         </Card>
-      </div>
-    );
+      </div>);
+
   }
 
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -429,13 +429,13 @@ export default function StatusManagement() {
             <Button
               variant="outline"
               onClick={() => setIsBulkColorEditorOpen(true)}
-              className="gap-2 bg-purple-50 hover:bg-purple-100 border-purple-300 text-purple-700"
-            >
+              className="gap-2 bg-purple-50 hover:bg-purple-100 border-purple-300 text-purple-700">
+
               <Palette className="w-5 h-5" />
               ערוך צבעים
             </Button>
 
-            <Button onClick={handleAdd} className="gap-2">
+            <Button onClick={handleAdd} className="bg-[#3563d0] text-primary-foreground px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90 h-9 gap-2">
               <Plus className="w-5 h-5" />
               הוסף סטטוס
             </Button>
@@ -462,7 +462,7 @@ export default function StatusManagement() {
               </TableHeader>
               <TableBody>
                 {statuses.map((status) => {
-                  const usageCount = debtorRecords.filter(r => r.legal_status_id === status.id).length;
+                  const usageCount = debtorRecords.filter((r) => r.legal_status_id === status.id).length;
                   return (
                     <TableRow key={status.id}>
                       <TableCell className="font-semibold">{status.name}</TableCell>
@@ -478,8 +478,8 @@ export default function StatusManagement() {
                                 onClick={() => {
                                   navigate(createPageUrl('LinkedRecords') + `?statusId=${status.id}&statusName=${encodeURIComponent(status.name)}`);
                                 }}
-                                className="font-bold underline decoration-2 transition-all text-lg text-blue-600 hover:text-blue-800 hover:decoration-blue-800"
-                              >
+                                className="font-bold underline decoration-2 transition-all text-lg text-blue-600 hover:text-blue-800 hover:decoration-blue-800">
+
                                 {usageCount}
                               </button>
                               </TooltipTrigger>
@@ -492,43 +492,43 @@ export default function StatusManagement() {
                               </TooltipProvider>
                               </TableCell>
                       <TableCell className="text-center">
-                        {status.is_active ? (
-                          <Badge className="bg-green-100 text-green-700">פעיל</Badge>
-                        ) : (
-                          <Badge className="bg-slate-100 text-slate-500">לא פעיל</Badge>
-                        )}
+                        {status.is_active ?
+                        <Badge className="bg-green-100 text-green-700">פעיל</Badge> :
+
+                        <Badge className="bg-slate-100 text-slate-500">לא פעיל</Badge>
+                        }
                       </TableCell>
                       <TableCell className="text-center">
                         <div className="flex gap-2 justify-center">
                           <Button variant="outline" size="sm" onClick={() => handleEdit(status)}>
                             <Edit className="w-4 h-4" />
                           </Button>
-                          {!status.is_default ? (
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              onClick={() => handleDelete(status)}
-                              disabled={usageCount > 0}
-                              className="text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
-                              title={usageCount > 0 ? 'לא ניתן למחוק סטטוס מקושר לרשומות' : ''}
-                            >
+                          {!status.is_default ?
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => handleDelete(status)}
+                            disabled={usageCount > 0}
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                            title={usageCount > 0 ? 'לא ניתן למחוק סטטוס מקושר לרשומות' : ''}>
+
+                              <Trash2 className="w-4 h-4" />
+                            </Button> :
+
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            disabled
+                            className="opacity-30 cursor-not-allowed"
+                            title="זהו סטטוס ברירת מחדל במערכת ולא ניתן למחיקה">
+
                               <Trash2 className="w-4 h-4" />
                             </Button>
-                          ) : (
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              disabled
-                              className="opacity-30 cursor-not-allowed"
-                              title="זהו סטטוס ברירת מחדל במערכת ולא ניתן למחיקה"
-                            >
-                              <Trash2 className="w-4 h-4" />
-                            </Button>
-                          )}
+                          }
                         </div>
                       </TableCell>
-                    </TableRow>
-                  );
+                    </TableRow>);
+
                 })}
               </TableBody>
             </Table>
@@ -553,22 +553,22 @@ export default function StatusManagement() {
               <Label>שם הסטטוס *</Label>
               <Input
                 value={formData.name}
-                onChange={(e) => setFormData({...formData, name: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                 placeholder="הזן שם סטטוס..."
                 className="text-right"
-                dir="rtl"
-              />
+                dir="rtl" />
+
             </div>
             <div>
               <Label>תיאור</Label>
               <Textarea
                 value={formData.description}
-                onChange={(e) => setFormData({...formData, description: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                 placeholder="הזן תיאור..."
                 className="text-right"
                 dir="rtl"
-                rows={3}
-              />
+                rows={3} />
+
             </div>
             <div>
               <Label>צבע תג</Label>
@@ -580,8 +580,8 @@ export default function StatusManagement() {
                   type="button"
                   variant="outline"
                   onClick={() => setIsColorPickerOpen(true)}
-                  className="gap-2"
-                >
+                  className="gap-2">
+
                   <Palette className="w-4 h-4" />
                   בחר צבע
                 </Button>
@@ -591,9 +591,9 @@ export default function StatusManagement() {
               <Label>סטטוס פעיל</Label>
               <Switch
                 checked={formData.is_active}
-                onCheckedChange={(checked) => setFormData({...formData, is_active: checked})}
-                disabled={editingStatus?.is_default}
-              />
+                onCheckedChange={(checked) => setFormData({ ...formData, is_active: checked })}
+                disabled={editingStatus?.is_default} />
+
             </div>
             <div className="flex items-center justify-between">
               <div>
@@ -602,18 +602,18 @@ export default function StatusManagement() {
               </div>
               <Switch
                 checked={formData.is_default}
-                onCheckedChange={(checked) => setFormData({...formData, is_default: checked})}
-              />
+                onCheckedChange={(checked) => setFormData({ ...formData, is_default: checked })} />
+
             </div>
             <div>
               <Label>אימיילים לשליחת התראות</Label>
               <Input
                 value={formData.notification_emails}
-                onChange={(e) => setFormData({...formData, notification_emails: e.target.value})}
+                onChange={(e) => setFormData({ ...formData, notification_emails: e.target.value })}
                 placeholder="email1@example.com, email2@example.com"
                 className="text-right"
-                dir="rtl"
-              />
+                dir="rtl" />
+
               <p className="text-xs text-slate-500 mt-1">הזן כתובות מייל מופרדות בפסיקים - יישלח PDF עם פרטי הדירה בכל שינוי סטטוס</p>
             </div>
           </div>
@@ -643,8 +643,8 @@ export default function StatusManagement() {
           <AlertDialogHeader>
             <AlertDialogTitle>מחיקת סטטוס משפטי</AlertDialogTitle>
             <AlertDialogDescription className="text-right space-y-4">
-              {deleteConfirm?.usageCount > 0 ? (
-                <>
+              {deleteConfirm?.usageCount > 0 ?
+              <>
                   <div className="space-y-2">
                     <p className="text-red-600 font-semibold text-base">
                       לא ניתן למחוק סטטוס שמקושר ל-{deleteConfirm?.usageCount} רשומות.
@@ -661,26 +661,26 @@ export default function StatusManagement() {
                         <SelectValue placeholder="בחר סטטוס…" />
                       </SelectTrigger>
                       <SelectContent dir="rtl">
-                        {statuses
-                          .filter(s => s.id !== deleteConfirm?.status.id && s.is_active)
-                          .map((status) => (
-                            <SelectItem key={status.id} value={status.id}>
+                        {statuses.
+                      filter((s) => s.id !== deleteConfirm?.status.id && s.is_active).
+                      map((status) =>
+                      <SelectItem key={status.id} value={status.id}>
                               <div className="flex items-center gap-2">
                                 <Badge className={`${status.color} border text-xs transition-all duration-200 hover:opacity-80`}>
                                   {status.name}
                                 </Badge>
                               </div>
                             </SelectItem>
-                          ))}
+                      )}
                       </SelectContent>
                     </Select>
                     <p className="text-xs text-slate-500">
                       הפעולה תעדכן את כל הרשומות המקושרות ותעביר אותן לסטטוס שבחרת.
                     </p>
                   </div>
-                </>
-              ) : (
-                <div className="space-y-2">
+                </> :
+
+              <div className="space-y-2">
                   <p className="text-slate-700">
                     הסטטוס הזה אינו מקושר לאף דירה/חייב. ניתן למחוק אותו לצמיתות.
                   </p>
@@ -688,35 +688,35 @@ export default function StatusManagement() {
                     מחיקה היא פעולה בלתי הפיכה.
                   </p>
                 </div>
-              )}
+              }
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="gap-2">
             <AlertDialogCancel disabled={reassignMutation.isPending}>ביטול</AlertDialogCancel>
-            {deleteConfirm?.usageCount === 0 ? (
-              <AlertDialogAction 
-                onClick={confirmDelete} 
-                className="bg-red-600 hover:bg-red-700"
-                disabled={deleteMutation.isPending}
-              >
+            {deleteConfirm?.usageCount === 0 ?
+            <AlertDialogAction
+              onClick={confirmDelete}
+              className="bg-red-600 hover:bg-red-700"
+              disabled={deleteMutation.isPending}>
+
                 {deleteMutation.isPending ? 'מוחק...' : 'מחק לצמיתות'}
-              </AlertDialogAction>
-            ) : (
-              <Button
-                onClick={handleReassign}
-                disabled={reassignMutation.isPending || !reassignTargetId}
-                className="bg-blue-600 hover:bg-blue-700"
-              >
-                {reassignMutation.isPending ? (
-                  <>
+              </AlertDialogAction> :
+
+            <Button
+              onClick={handleReassign}
+              disabled={reassignMutation.isPending || !reassignTargetId}
+              className="bg-blue-600 hover:bg-blue-700">
+
+                {reassignMutation.isPending ?
+              <>
                     <Loader2 className="w-4 h-4 ml-2 animate-spin" />
                     מעביר רשומות...
-                  </>
-                ) : (
-                  'העבר וקשר'
-                )}
+                  </> :
+
+              'העבר וקשר'
+              }
               </Button>
-            )}
+            }
           </AlertDialogFooter>
         </AlertDialogContent>
         </AlertDialog>
@@ -728,27 +728,27 @@ export default function StatusManagement() {
           setWorkflowStatusId(null);
         }}
         initialStatusId={workflowStatusId}
-        onOpenDetails={handleOpenDetailsFromWorkflow}
-        />
+        onOpenDetails={handleOpenDetailsFromWorkflow} />
 
-        {selectedRecord && (
-        <ApartmentDetailModal
-          record={selectedRecord}
-          isOpen={isDetailModalOpen}
-          onClose={() => setIsDetailModalOpen(false)}
-          onSave={handleSaveDetail}
-          isAdmin={isAdmin}
-          />
-          )}
+
+        {selectedRecord &&
+      <ApartmentDetailModal
+        record={selectedRecord}
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+        onSave={handleSaveDetail}
+        isAdmin={isAdmin} />
+
+      }
 
       {/* Color Picker */}
       <ColorPicker
         open={isColorPickerOpen}
         onClose={() => setIsColorPickerOpen(false)}
         currentColor={formData.color}
-        onSelectColor={(color) => setFormData({...formData, color})}
-        statusName={formData.name || 'סטטוס'}
-      />
+        onSelectColor={(color) => setFormData({ ...formData, color })}
+        statusName={formData.name || 'סטטוס'} />
+
 
       {/* Bulk Color Editor */}
       <ColorBulkEditor
@@ -757,11 +757,11 @@ export default function StatusManagement() {
         statuses={statuses}
         onUpdateStatus={async (statusId, updateData) => {
           await updateMutation.mutateAsync({ id: statusId, data: updateData });
-        }}
-      />
+        }} />
+
 
           {/* Debug Panel */}
           <AuthDebugPanel currentUser={currentUser} />
-          </div>
-          );
-          }
+          </div>);
+
+}
