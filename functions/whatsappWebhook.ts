@@ -12,12 +12,20 @@ Deno.serve(async (req) => {
       return Response.json({ message: "Invalid payload" }, { status: 400 });
     }
 
-    // Find contact by phone number
-    const phone = from.replace('@c.us', '');
+    // Find contact by phone number - normalize to match stored format
+    let phone = from.replace('@c.us', '');
+    // Try to normalize: remove leading 972 and add 0
+    let normalizedPhone = phone;
+    if (phone.startsWith('972')) {
+      normalizedPhone = '0' + phone.slice(3);
+    }
+    
     const contacts = await base44.asServiceRole.entities.Contact.filter({
       "$or": [
         { "owner_phone": phone },
-        { "tenant_phone": phone }
+        { "owner_phone": normalizedPhone },
+        { "tenant_phone": phone },
+        { "tenant_phone": normalizedPhone }
       ]
     });
 
@@ -31,6 +39,9 @@ Deno.serve(async (req) => {
         content: body,
         timestamp: new Date(timestamp * 1000).toISOString()
       });
+      console.log(`Message saved from ${phone} to contact ${contacts[0].id}`);
+    } else {
+      console.warn(`No contact found for phone: ${phone} or ${normalizedPhone}`);
     }
 
     return Response.json({ message: "OK" }, { status: 200 });
