@@ -22,14 +22,14 @@ Deno.serve(async (req) => {
     const payload = JSON.parse(text);
     
     console.log('=== WEBHOOK RECEIVED ===');
-    console.log('Event type:', payload.event);
+    console.log('Event type (typeWebhook):', payload.typeWebhook);
     console.log('Full payload:', JSON.stringify(payload, null, 2));
     
     // Initialize base44 - for webhooks, this should use service role
-    const base44 = await getBase44Client(req);
+    const base44 = createClientFromRequest(req);
     
-    // Green API sends 'incomingMessageReceived' event
-    if (payload.event === 'incomingMessageReceived') {
+    // Green API sends 'incomingMessageReceived' typeWebhook
+    if (payload.typeWebhook === 'incomingMessageReceived') {
       const message = payload.data;
       console.log('Message data:', JSON.stringify(message, null, 2));
       
