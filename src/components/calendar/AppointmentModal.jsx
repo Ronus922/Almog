@@ -102,15 +102,30 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
 
            {/* Recurring */}
            {appointment.is_recurring && (
-             <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
-               <span className="text-xs font-bold text-white bg-blue-600 px-2 py-1 rounded">חוזר</span>
-               <span className="text-sm text-blue-900 font-medium">
-                 {appointment.recurrence_pattern === 'weekly'
-                   ? 'כל שבוע'
-                   : appointment.recurrence_pattern === 'monthly'
-                   ? 'כל חודש'
-                   : 'כל שנה'}
-               </span>
+             <div className="flex items-start gap-3 p-4 bg-blue-50 rounded-lg border border-blue-100">
+               <div className="flex-1">
+                 <div className="flex items-center gap-2 mb-2">
+                   <span className="text-xs font-bold text-white bg-blue-600 px-2 py-1 rounded">חוזר</span>
+                   <span className="text-sm text-blue-900 font-semibold">אירוע מחזורי</span>
+                 </div>
+                 <p className="text-sm text-blue-800">
+                   {appointment.recurrence_count && appointment.recurrence_interval
+                     ? `${appointment.recurrence_count} פעמים, כל ${appointment.recurrence_interval} ${
+                         appointment.recurrence_pattern === 'יומי' ? 'ימים' :
+                         appointment.recurrence_pattern === 'שבועי' ? 'שבועות' :
+                         appointment.recurrence_pattern === 'חודשי' ? 'חודשים' :
+                         'שנים'
+                       }`
+                     : `${appointment.recurrence_pattern === 'יומי' ? 'כל יום' :
+                        appointment.recurrence_pattern === 'שבועי' ? 'כל שבוע' :
+                        appointment.recurrence_pattern === 'חודשי' ? 'כל חודש' :
+                        'כל שנה'}`
+                   }
+                 </p>
+                 {appointment.series_id && appointment.series_occurrence_number && (
+                   <p className="text-xs text-blue-700 mt-1">מופע {appointment.series_occurrence_number} בסדרה</p>
+                 )}
+               </div>
              </div>
            )}
 
