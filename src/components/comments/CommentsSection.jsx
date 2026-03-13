@@ -4,7 +4,7 @@ import { base44 } from '@/api/base44Client';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Send, Printer } from "lucide-react";
-import { toast } from 'sonner';
+import { useAlert } from '@/components/notifications/AlertContext';
 
 export default function CommentsSection({ debtorRecordId, apartmentNumber, currentUser, isAdmin }) {
   const [newComment, setNewComment] = useState('');
