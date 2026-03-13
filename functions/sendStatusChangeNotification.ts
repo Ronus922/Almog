@@ -4,8 +4,14 @@ Deno.serve(async (req) => {
     try {
         const base44 = createClientFromRequest(req);
         
-        // Get Gmail connection
-        const { accessToken } = await base44.asServiceRole.connectors.getConnection('gmail');
+        // Try to use Gmail connector, fall back to Resend if not available
+        let accessToken = null;
+        try {
+            const conn = await base44.asServiceRole.connectors.getConnection('gmail');
+            accessToken = conn?.accessToken;
+        } catch (err) {
+            console.log('[EMAIL] Gmail not available, will use Resend');
+        }
         
         const { debtorRecordId, oldStatusId, newStatusId } = await req.json();
         console.log('[EMAIL] Request params:', { debtorRecordId, oldStatusId, newStatusId });
