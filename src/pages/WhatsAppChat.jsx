@@ -146,9 +146,10 @@ export default function WhatsAppChat() {
   }, [messages]);
 
   return (
-    <div className="h-screen flex gap-0 bg-gray-100 overflow-hidden" dir="rtl" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Cpath d=\'M0 0h100v100H0z\' fill=\'%23ECE5DD\'/%3E%3Cpath d=\'M50 0L100 50L50 100L0 50z\' fill=\'%23E8DED2\' opacity=\'0.3\'/%3E%3C/svg%3E")', backgroundSize: '100px 100px' }}>
-      <div className="w-96 bg-white flex flex-col shadow-lg border-l border-gray-200 overflow-hidden">
-        {/* Contacts List - Right Side - Removed, now part of main container */}
+    <div className="min-h-screen bg-gray-100" dir="rtl" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Cpath d=\'M0 0h100v100H0z\' fill=\'%23ECE5DD\'/%3E%3Cpath d=\'M50 0L100 50L50 100L0 50z\' fill=\'%23E8DED2\' opacity=\'0.3\'/%3E%3C/svg%3E")', backgroundSize: '100px 100px' }}>
+      <div className="h-screen flex gap-0">
+        {/* Contacts List - Right Side */}
+        <div className="w-96 bg-white flex flex-col shadow-lg border-l border-gray-200">
           <div className="p-4 border-b border-gray-200 bg-white">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">הודעות</h2>
             <div className="relative">
@@ -202,7 +203,7 @@ export default function WhatsAppChat() {
         </div>
 
         {/* Chat Window */}
-        <div className="flex-1 flex flex-col" style={{ backgroundColor: '#fef5ea' }}>
+        <div className="flex-1 flex flex-col overflow-hidden" style={{ backgroundColor: '#fef5ea' }}>
           {selectedContact ? (
             <>
               {/* Chat Header */}
