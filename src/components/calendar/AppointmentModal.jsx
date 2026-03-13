@@ -24,34 +24,34 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
         <div className="space-y-4 py-4 text-right">
           {/* Type */}
           {appointment.appointment_type && (
-            <div className="flex items-center gap-3">
-              <span className="text-sm font-semibold text-slate-600 w-24">סוג:</span>
+            <div className="flex items-center justify-end gap-3">
               <span className="text-sm">{appointment.appointment_type}</span>
+              <span className="text-sm font-semibold text-slate-600">סוג:</span>
             </div>
           )}
 
           {/* Date and Time */}
-          <div className="flex items-center gap-3">
-            <Calendar className="w-5 h-5 text-slate-500" />
+          <div className="flex items-center justify-end gap-3">
             <div>
               <p className="text-sm font-semibold text-slate-600">
                 {format(new Date(appointment.date), 'd MMMM yyyy', { locale: he })}
               </p>
             </div>
+            <Calendar className="w-5 h-5 text-slate-500 flex-shrink-0" />
           </div>
 
-          <div className="flex items-center gap-3">
-            <Clock className="w-5 h-5 text-slate-500" />
+          <div className="flex items-center justify-end gap-3">
             <p className="text-sm">
               {appointment.start_time} - {appointment.end_time}
             </p>
+            <Clock className="w-5 h-5 text-slate-500 flex-shrink-0" />
           </div>
 
           {/* Location */}
           {appointment.location && (
-            <div className="flex items-center gap-3">
-              <MapPin className="w-5 h-5 text-slate-500" />
+            <div className="flex items-center justify-end gap-3">
               <p className="text-sm">{appointment.location}</p>
+              <MapPin className="w-5 h-5 text-slate-500 flex-shrink-0" />
             </div>
           )}
 
