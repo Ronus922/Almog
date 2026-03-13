@@ -13,7 +13,7 @@ const TRACKED_FIELDS = ["task_type", "status", "priority", "due_date", "assigned
 
 const TASK_TYPES = ["שיחת טלפון", "שליחת מכתב התראה", "פגישה", "מעקב תשלום", "הגשת תביעה", "אחר"];
 const PRIORITIES = ["גבוהה", "בינונית", "נמוכה"];
-const STATUSES = ["פתוחה", "בטיפול", "הושלמה", "בוטלה"];
+const STATUSES = ["פתוחה", "בטיפול", "הושלמה", "בוטלה", "לא השתנה"];
 
 export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSaved, currentUser }) {
   const isEdit = !!task;
