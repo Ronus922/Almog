@@ -173,36 +173,39 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
           {/* Additional Fields */}
           <div className="border-t pt-3 space-y-3">
             <div>
-              <Label>כתובת מגורים (אופציונלי)</Label>
+              <Label className="text-right block">כתובת מגורים (אופציונלי)</Label>
               <Input
                 value={form.address}
                 onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
-                className="mt-1"
+                className="mt-1 text-right"
+                dir="rtl"
               />
             </div>
 
             <div>
-              <Label>הערות</Label>
+              <Label className="text-right block">הערות</Label>
               <Textarea
                 value={form.notes}
                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                className="mt-1"
+                className="mt-1 text-right"
+                dir="rtl"
                 rows={2}
               />
             </div>
 
             <div>
-              <Label>תגיות</Label>
-              <div className="flex gap-2 mt-1">
+              <Label className="text-right block">תגיות</Label>
+              <div className="flex gap-2 mt-1 flex-row-reverse">
+                <Button variant="outline" size="icon" onClick={addTag}>
+                  <Plus className="w-4 h-4" />
+                </Button>
                 <Input
                   value={tagInput}
                   onChange={e => setTagInput(e.target.value)}
                   onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addTag())}
                   placeholder="הוסף תגית..."
+                  dir="rtl"
                 />
-                <Button variant="outline" size="icon" onClick={addTag}>
-                  <Plus className="w-4 h-4" />
-                </Button>
               </div>
               {form.tags.length > 0 && (
                 <div className="flex flex-wrap gap-1 mt-2">
