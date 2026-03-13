@@ -13,6 +13,7 @@ export default function WhatsAppChat() {
   const [selectedContact, setSelectedContact] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [messageInput, setMessageInput] = useState('');
+  const [fileInput, setFileInput] = useState(null);
   const queryClient = useQueryClient();
   const messagesEndRef = useRef(null);
 
