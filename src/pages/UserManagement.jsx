@@ -47,6 +47,7 @@ export default function UserManagement() {
   const [formError, setFormError] = useState('');
   const [shareToken, setShareToken] = useState('');
 
+  const { showAlert, showConfirm } = useAlert();
   const { data: users = [], isLoading } = useQuery({
     queryKey: ['appUsers'],
     queryFn: () => base44.entities.AppUser.list('-created_date'),
