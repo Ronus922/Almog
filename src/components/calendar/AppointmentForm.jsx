@@ -114,7 +114,15 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
     return colors[(index >= 0 ? index : 0) % colors.length];
   }, [contacts]);
 
+  const formatUserLabel = useCallback((user) => 
+    user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : user.username,
+    []
+  );
 
+  const formatContactLabel = useCallback((contact) =>
+    `דירה ${contact.apartment_number} - ${contact.owner_name || contact.tenant_name}`,
+    []
+  );
 
   const handleUserToggle = (userId) => {
     setFormData(prev => ({
