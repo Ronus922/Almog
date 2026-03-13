@@ -158,6 +158,9 @@ export default function Contacts() {
           <Button variant="outline" className="gap-2" onClick={() => setImportOpen(true)}>
             <Upload className="w-4 h-4" /> ייבוא Excel
           </Button>
+          <Button variant="outline" className="gap-2" onClick={handleExportCSV}>
+            <Download className="w-4 h-4" /> ייצוא CSV
+          </Button>
           {selected.length > 0 && (
             <>
               <Button
