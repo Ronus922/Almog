@@ -227,7 +227,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
 
             <div className="flex justify-end gap-2 mt-4">
               <Button variant="outline" onClick={onClose}>ביטול</Button>
-              <Button onClick={handleSave} disabled={saving || !form.task_type || !form.due_date}>
+              <Button onClick={handleSave} disabled={saving || !form.task_type || !form.due_date || !form.description}>
                 {saving ? "שומר..." : isEdit ? "שמור שינויים" : "צור משימה"}
               </Button>
             </div>
