@@ -104,15 +104,13 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
   const getUserAvatarColor = useCallback((user) => {
     const colors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6'];
-    const index = users.findIndex(u => u.id === user.id);
-    return colors[(index >= 0 ? index : 0) % colors.length];
-  }, [users]);
+    return colors[Math.abs(user.id?.charCodeAt(0) || 0) % colors.length];
+  }, []);
 
   const getContactAvatarColor = useCallback((contact) => {
     const colors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6'];
-    const index = contacts.findIndex(c => c.id === contact.id);
-    return colors[(index >= 0 ? index : 0) % colors.length];
-  }, [contacts]);
+    return colors[Math.abs(contact.id?.charCodeAt(0) || 0) % colors.length];
+  }, []);
 
   const formatUserLabel = useCallback((user) => 
     user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : user.username,
