@@ -103,7 +103,6 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
            const dayAppointments = getAppointmentsForDay(date);
            const holiday = getIsraeliHolidayName(date);
            const isToday = isSameDay(date, new Date());
-           const isOutOfMonth = !isCurrentMonth(date);
            const isPast = isPastDate(date);
 
           return (
@@ -111,7 +110,7 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
               key={idx}
               className={getDayStyles(date)}
               onClick={() => {
-                if (!isOutOfMonth && !isPast) {
+                if (!isPast) {
                   onDateClick(date);
                 }
               }}
