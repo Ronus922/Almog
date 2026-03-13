@@ -4,12 +4,13 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 Deno.serve(async (req) => {
+  console.log('[Webhook] Request received, method:', req.method);
   try {
     const payload = await req.json();
     
-    console.log('=== GREEN API WEBHOOK RECEIVED ===');
-    console.log('Full payload:', JSON.stringify(payload));
-    console.log('Event type:', payload.event);
+    console.log('[Webhook] === GREEN API WEBHOOK RECEIVED ===');
+    console.log('[Webhook] Full payload:', JSON.stringify(payload));
+    console.log('[Webhook] Event type:', payload.event);
     
     // Green API sends 'incomingMessageReceived' event
     if (payload.event === 'incomingMessageReceived') {
