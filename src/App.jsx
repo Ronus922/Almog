@@ -14,6 +14,7 @@ import Tasks from "./pages/Tasks.jsx";
 import WhatsAppTemplates from "./pages/WhatsAppTemplates";
 import Contacts from "./pages/Contacts.jsx";
 import WhatsAppChat from "./pages/WhatsAppChat.jsx";
+import Calendar from "./pages/Calendar.jsx";
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
 const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
