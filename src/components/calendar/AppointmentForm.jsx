@@ -197,7 +197,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
     <form onSubmit={handleSubmit} className="space-y-5" dir="rtl">
       {/* Title */}
       <div>
-        <Label htmlFor="title" className="block mb-2 font-semibold text-slate-900">כותרת *</Label>
+        <Label htmlFor="title" className="block mb-2 font-bold text-slate-900 text-sm">כותרת *</Label>
         <Input
           id="title"
           value={formData.title}
@@ -212,7 +212,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       {/* Type and Location */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label className="block mb-2 font-semibold text-slate-900">סוג</Label>
+          <Label className="block mb-2 font-bold text-slate-900 text-sm">סוג</Label>
           <select 
             value={formData.appointment_type} 
             onChange={(e) => handleChange('appointment_type', e.target.value)}
@@ -225,7 +225,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
           </select>
         </div>
         <div>
-          <Label htmlFor="location" className="block mb-2 font-semibold text-slate-900">מיקום</Label>
+          <Label htmlFor="location" className="block mb-2 font-bold text-slate-900 text-sm">מיקום</Label>
           <Input
             id="location"
             value={formData.location}
@@ -240,7 +240,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       {/* Date and Time */}
       <div className="grid grid-cols-3 gap-4">
         <div>
-          <Label htmlFor="date" className="block mb-2 font-semibold text-slate-900">תאריך *</Label>
+          <Label htmlFor="date" className="block mb-2 font-bold text-slate-900 text-sm">תאריך *</Label>
           <Input
             id="date"
             type="date"
@@ -253,7 +253,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
           />
         </div>
         <div>
-          <Label htmlFor="start_time" className="block mb-2 font-semibold text-slate-900">שעת התחלה *</Label>
+          <Label htmlFor="start_time" className="block mb-2 font-bold text-slate-900 text-sm">שעת התחלה *</Label>
           <Input
             id="start_time"
             type="time"
@@ -265,7 +265,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
           />
         </div>
         <div>
-          <Label htmlFor="end_time" className="block mb-2 font-semibold text-slate-900">שעת סיום *</Label>
+          <Label htmlFor="end_time" className="block mb-2 font-bold text-slate-900 text-sm">שעת סיום *</Label>
           <Input
             id="end_time"
             type="time"
@@ -280,7 +280,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
       {/* Description */}
       <div>
-        <Label htmlFor="description" className="block mb-2 font-semibold text-slate-900">תיאור</Label>
+        <Label htmlFor="description" className="block mb-2 font-bold text-slate-900 text-sm">תיאור</Label>
         <Textarea
           id="description"
           value={formData.description}
@@ -300,7 +300,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
             checked={formData.is_recurring}
             onCheckedChange={(checked) => handleChange('is_recurring', checked)}
           />
-          <Label htmlFor="is_recurring" className="cursor-pointer font-semibold text-slate-900">אירוע חוזר</Label>
+          <Label htmlFor="is_recurring" className="cursor-pointer font-bold text-slate-900 text-sm">אירוע חוזר</Label>
         </div>
         {formData.is_recurring && (
           <select 
@@ -318,7 +318,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
       {/* Event Color */}
       <div>
-        <Label className="block mb-3 font-semibold text-slate-900">צבע אירוע</Label>
+        <Label className="block mb-3 font-bold text-slate-900 text-sm">צבע אירוע</Label>
         <div className="flex gap-2 flex-wrap justify-end">
           {COLOR_PALETTE.map((color) => (
             <button
@@ -337,7 +337,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       {/* Reminder */}
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label className="block mb-2 font-semibold text-slate-900">תזכורת לפני</Label>
+          <Label className="block mb-2 font-bold text-slate-900 text-sm">תזכורת לפני</Label>
           <select 
             value={formData.reminder_before} 
             onChange={(e) => handleChange('reminder_before', e.target.value)}
@@ -351,7 +351,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
           </select>
         </div>
         <div>
-          <Label className="block mb-2 font-semibold text-slate-900">אופן התזכורת</Label>
+          <Label className="block mb-2 font-bold text-slate-900 text-sm">אופן התזכורת</Label>
           <select 
             value={formData.reminder_method} 
             onChange={(e) => handleChange('reminder_method', e.target.value)}
@@ -368,7 +368,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
       {/* Users - Multi Select */}
       <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-        <Label className="block mb-3 font-semibold text-slate-900">משתמשים</Label>
+        <Label className="block mb-3 font-bold text-slate-900 text-sm">משתמשים</Label>
         <div className="relative mb-3">
           <Search className="absolute right-3 top-3 w-4 h-4 text-slate-400" />
           <Input
@@ -427,7 +427,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       {/* Contacts - Multi Select */}
       {contacts.length > 0 && (
         <div className="bg-amber-50 rounded-lg p-4 border border-amber-200">
-          <Label className="block mb-3 font-semibold text-slate-900">אנשי קשר</Label>
+          <Label className="block mb-3 font-bold text-slate-900 text-sm">אנשי קשר</Label>
           <div className="relative mb-3">
             <Search className="absolute right-3 top-3 w-4 h-4 text-slate-400" />
             <Input
@@ -486,7 +486,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
       {/* File Upload - Drag & Drop */}
       <div>
-        <Label className="block mb-3 font-semibold text-slate-900">קבצים מצורפים</Label>
+        <Label className="block mb-3 font-bold text-slate-900 text-sm">קבצים מצורפים</Label>
         <div
           onDragEnter={handleDrag}
           onDragLeave={handleDrag}
@@ -515,7 +515,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         {/* Attachments List */}
         {formData.attachments.length > 0 && (
           <div className="mt-4 space-y-2">
-            <p className="text-sm font-semibold text-slate-700">קבצים מועלים:</p>
+            <p className="text-sm font-bold text-slate-700">קבצים מועלים:</p>
             {formData.attachments.map((url, idx) => (
               <div key={idx} className="flex items-center justify-between bg-slate-100 p-3 rounded-lg text-sm border border-slate-200" dir="rtl">
                 <div className="flex items-center gap-2 flex-1">
