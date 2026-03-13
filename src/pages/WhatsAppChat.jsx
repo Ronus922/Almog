@@ -199,10 +199,11 @@ export default function WhatsAppChat() {
                   </button>
                 );
               })
-            )}
-        </div>
+              )}
+              </div>
+              </div>
 
-        {/* Chat Window */}
+              {/* Chat Window */}
         <div className="flex-1 flex flex-col overflow-hidden" style={{ backgroundColor: '#fef5ea' }}>
           {selectedContact ? (
             <>
