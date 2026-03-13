@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
-import { Plus, Search, CheckCircle2, Clock, AlertTriangle, ClipboardList, Trash2, Pencil, UserPlus, Filter, X, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
+import { Plus, Search, CheckCircle2, Clock, AlertTriangle, ClipboardList, Trash2, Pencil, UserPlus, Filter, X, ChevronUp, ChevronDown, ChevronsUpDown, Calendar } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthContext";
 import { isManagerRole } from "@/components/utils/roles";
 import { StatusBadge } from "@/components/tasks/TaskBadge";
 import TaskFormDialog from "@/components/tasks/TaskFormDialog";
-import { format, isPast, isToday } from "date-fns";
+import { format, isPast, isToday, addDays } from "date-fns";
 
 function SortableHeader({ label, field, sortField, sortDir, onSort }) {
   const active = sortField === field;
@@ -37,7 +37,7 @@ export default function Tasks() {
   const queryClient = useQueryClient();
 
   const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState("הכל");
+  const [filterStatus, setFilterStatus] = useState("פתוחה");
   const [filterPriority, setFilterPriority] = useState("הכל");
   const [filterAssigned, setFilterAssigned] = useState("הכל");
   const [filterDueDate, setFilterDueDate] = useState("");
@@ -45,7 +45,7 @@ export default function Tasks() {
   const [showFilters, setShowFilters] = useState(false);
   const [showDialog, setShowDialog] = useState(false);
   const [editTask, setEditTask] = useState(null);
-  const [sortField, setSortField] = useState(null);
+  const [sortField, setSortField] = useState("priority");
   const [sortDir, setSortDir] = useState("asc");
 
   const handleSort = (field) => {
@@ -112,41 +112,76 @@ export default function Tasks() {
   }, [myTasks]);
 
   const filtered = useMemo(() => {
-    return myTasks.filter((t) => {
+    let result = myTasks;
+    
+    // Default filter: next week open tasks only
+    const isUsingDefaultFilters = filterStatus === "פתוחה" && filterPriority === "הכל" && filterAssigned === "הכל" && !filterDueDate && filterTaskType === "הכל" && !search;
+    
+    if (isUsingDefaultFilters) {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const nextWeek = addDays(today, 7);
+      
+      result = result.filter((t) => {
+        if (t.status !== "פתוחה" && t.status !== "בטיפול") return false;
+        if (!t.due_date) return false;
+        const dueDate = new Date(t.due_date);
+        dueDate.setHours(0, 0, 0, 0);
+        return dueDate >= today && dueDate <= nextWeek;
+      });
+    } else {
+      // Apply custom filters
       if (filterStatus !== "הכל" && t.status !== filterStatus) return false;
       if (filterPriority !== "הכל" && t.priority !== filterPriority) return false;
       if (filterAssigned !== "הכל" && (t.assigned_to_name || t.assigned_to) !== filterAssigned) return false;
       if (filterTaskType !== "הכל" && t.task_type !== filterTaskType) return false;
       if (filterDueDate && t.due_date !== filterDueDate) return false;
-      if (search) {
-        const s = search.toLowerCase();
-        return (
-          t.apartment_number?.includes(s) ||
-          t.owner_name?.toLowerCase().includes(s) ||
-          t.description?.toLowerCase().includes(s) ||
-          t.task_type?.includes(s) ||
-          t.assigned_to_name?.toLowerCase().includes(s));
-
-      }
-      return true;
-    });
+      
+      result = result.filter((t) => {
+        // Hide completed tasks in default view, but allow them in filtered view
+        if (t.status === "הושלמה" || t.status === "בוטלה") return false;
+        
+        if (filterStatus !== "הכל" && t.status !== filterStatus) return false;
+        if (filterPriority !== "הכל" && t.priority !== filterPriority) return false;
+        if (filterAssigned !== "הכל" && (t.assigned_to_name || t.assigned_to) !== filterAssigned) return false;
+        if (filterTaskType !== "הכל" && t.task_type !== filterTaskType) return false;
+        if (filterDueDate && t.due_date !== filterDueDate) return false;
+        
+        if (search) {
+          const s = search.toLowerCase();
+          return (
+            t.apartment_number?.includes(s) ||
+            t.owner_name?.toLowerCase().includes(s) ||
+            t.description?.toLowerCase().includes(s) ||
+            t.task_type?.includes(s) ||
+            t.assigned_to_name?.toLowerCase().includes(s));
+        }
+        return true;
+      });
+    }
+    
+    return result;
   }, [myTasks, filterStatus, filterPriority, filterAssigned, filterDueDate, filterTaskType, search]);
 
   const sorted = useMemo(() => {
-    if (!sortField) return filtered;
     return [...filtered].sort((a, b) => {
-      let av, bv;
-      if (sortField === "task_type") {av = a.task_type || "";bv = b.task_type || "";} else
-      if (sortField === "assigned") {av = a.assigned_to_name || a.assigned_to || "";bv = b.assigned_to_name || b.assigned_to || "";} else
-      if (sortField === "due_date") {av = a.due_date || "";bv = b.due_date || "";} else
-      if (sortField === "status") {av = a.status || "";bv = b.status || "";} else
-      if (sortField === "priority") {
-        const order = { "גבוהה": 1, "בינונית": 2, "נמוכה": 3 };
-        av = order[a.priority] || 9;bv = order[b.priority] || 9;
-        return sortDir === "asc" ? av - bv : bv - av;
+      // Always sort by priority first (high to low)
+      const priorityOrder = { "גבוהה": 1, "בינונית": 2, "נמוכה": 3 };
+      const aPriority = priorityOrder[a.priority] || 9;
+      const bPriority = priorityOrder[b.priority] || 9;
+      if (aPriority !== bPriority) return aPriority - bPriority;
+      
+      // Then apply secondary sort if specified
+      if (sortField && sortField !== "priority") {
+        let av, bv;
+        if (sortField === "task_type") {av = a.task_type || "";bv = b.task_type || "";} else
+        if (sortField === "assigned") {av = a.assigned_to_name || a.assigned_to || "";bv = b.assigned_to_name || b.assigned_to || "";} else
+        if (sortField === "due_date") {av = a.due_date || "";bv = b.due_date || "";} else
+        if (sortField === "status") {av = a.status || "";bv = b.status || "";}
+        
+        if (av < bv) return sortDir === "asc" ? -1 : 1;
+        if (av > bv) return sortDir === "asc" ? 1 : -1;
       }
-      if (av < bv) return sortDir === "asc" ? -1 : 1;
-      if (av > bv) return sortDir === "asc" ? 1 : -1;
       return 0;
     });
   }, [filtered, sortField, sortDir]);
@@ -262,12 +297,14 @@ export default function Tasks() {
                   </SelectContent>
                 </Select>
 
-                <Input
-                type="date"
-                className="w-44"
-                value={filterDueDate}
-                onChange={(e) => setFilterDueDate(e.target.value)} />
-
+                <div className="relative w-44">
+                  <Calendar className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 pointer-events-none" />
+                  <Input
+                  type="date"
+                  className="pr-10"
+                  value={filterDueDate}
+                  onChange={(e) => setFilterDueDate(e.target.value)} />
+                </div>
 
                 <Select value={filterStatus} onValueChange={setFilterStatus}>
                   <SelectTrigger className="w-36"><SelectValue placeholder="סטטוס" /></SelectTrigger>
@@ -287,9 +324,9 @@ export default function Tasks() {
                   </SelectContent>
                 </Select>
 
-                {(filterStatus !== "הכל" || filterPriority !== "הכל" || filterAssigned !== "הכל" || filterDueDate || filterTaskType !== "הכל") &&
+                {(filterStatus !== "פתוחה" || filterPriority !== "הכל" || filterAssigned !== "הכל" || filterDueDate || filterTaskType !== "הכל") &&
               <Button variant="ghost" size="sm" className="text-slate-400 gap-1" onClick={() => {
-                setFilterStatus("הכל");setFilterPriority("הכל");
+                setFilterStatus("פתוחה");setFilterPriority("הכל");
                 setFilterAssigned("הכל");setFilterDueDate("");setFilterTaskType("הכל");
               }}>
                     <X className="w-3.5 h-3.5" /> נקה
