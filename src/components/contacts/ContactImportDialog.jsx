@@ -38,6 +38,9 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
           let imported = 0;
           let failed = 0;
 
+          console.log("Total rows:", rows.length);
+          console.log("First row:", rows[0]);
+
           for (const row of rows) {
             const apartmentNumber = String(row["apartment_number"] || row["apartment"] || row["A"] || "").trim();
             if (!apartmentNumber) continue;
@@ -57,9 +60,11 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
             };
 
             try {
+              console.log("Creating contact:", contact);
               await base44.entities.Contact.create(contact);
               imported++;
             } catch (error) {
+              console.error(`Error creating contact ${apartmentNumber}:`, error.message);
               failed++;
             }
           }
