@@ -1,13 +1,16 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Calendar } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
+import { he } from 'date-fns/locale';
 
 export default function DateRangePickerDialog({ isOpen, onClose, onSelect, defaultStart, defaultEnd }) {
   const [startDate, setStartDate] = useState(defaultStart ? format(defaultStart, 'yyyy-MM-dd') : '');
   const [endDate, setEndDate] = useState(defaultEnd ? format(defaultEnd, 'yyyy-MM-dd') : '');
+  const [openStartPicker, setOpenStartPicker] = useState(false);
+  const [openEndPicker, setOpenEndPicker] = useState(false);
 
   const handleApply = () => {
     if (startDate && endDate) {
@@ -33,36 +36,54 @@ export default function DateRangePickerDialog({ isOpen, onClose, onSelect, defau
         <div className="space-y-4 p-4" dir="rtl">
           {/* Start Date */}
           <div className="space-y-2">
-            <label className="block text-sm font-semibold text-slate-900 text-right">
-              <span className="flex items-center justify-end gap-2 mb-2">
-                <Calendar className="w-4 h-4 text-blue-600" />
-                מתאריך
-              </span>
-            </label>
-            <Input
-              type="date"
-              value={startDate}
-              onChange={(e) => setStartDate(e.target.value)}
-              className="w-full text-right"
-              dir="rtl"
-            />
+            <label className="block text-sm font-semibold text-slate-900 text-right">מתאריך</label>
+            <Popover open={openStartPicker} onOpenChange={setOpenStartPicker}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-full justify-start text-left font-normal h-10 bg-white hover:bg-slate-50 border-slate-200">
+                  {startDate ? format(new Date(startDate + "T00:00:00"), "dd MMMM yyyy", { locale: he }) : "בחר תאריך"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start" dir="rtl">
+                <Calendar
+                  mode="single"
+                  selected={startDate ? new Date(startDate + "T00:00:00") : undefined}
+                  onSelect={(date) => {
+                    if (date) {
+                      setStartDate(format(date, "yyyy-MM-dd"));
+                      setOpenStartPicker(false);
+                    }
+                  }}
+                  locale={he}
+                  className="text-lg"
+                />
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* End Date */}
           <div className="space-y-2">
-            <label className="block text-sm font-semibold text-slate-900 text-right">
-              <span className="flex items-center justify-end gap-2 mb-2">
-                <Calendar className="w-4 h-4 text-blue-600" />
-                עד תאריך
-              </span>
-            </label>
-            <Input
-              type="date"
-              value={endDate}
-              onChange={(e) => setEndDate(e.target.value)}
-              className="w-full text-right"
-              dir="rtl"
-            />
+            <label className="block text-sm font-semibold text-slate-900 text-right">עד תאריך</label>
+            <Popover open={openEndPicker} onOpenChange={setOpenEndPicker}>
+              <PopoverTrigger asChild>
+                <Button variant="outline" className="w-full justify-start text-left font-normal h-10 bg-white hover:bg-slate-50 border-slate-200">
+                  {endDate ? format(new Date(endDate + "T00:00:00"), "dd MMMM yyyy", { locale: he }) : "בחר תאריך"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start" dir="rtl">
+                <Calendar
+                  mode="single"
+                  selected={endDate ? new Date(endDate + "T00:00:00") : undefined}
+                  onSelect={(date) => {
+                    if (date) {
+                      setEndDate(format(date, "yyyy-MM-dd"));
+                      setOpenEndPicker(false);
+                    }
+                  }}
+                  locale={he}
+                  className="text-lg"
+                />
+              </PopoverContent>
+            </Popover>
           </div>
 
           {/* Actions */}

@@ -5,7 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
+import { he } from 'date-fns/locale';
 import { Upload, X, Search, ChevronDown } from 'lucide-react';
 
 const COLOR_PALETTE = [
@@ -41,6 +44,8 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
     attendees_contacts: [],
     attachments: [],
   });
+
+  const [openDatePicker, setOpenDatePicker] = useState(false);
 
   useEffect(() => {
     const handleEscape = (e) => {
@@ -278,20 +283,32 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       </div>
 
       {/* Date and Time */}
-      <div className="grid grid-cols-3 gap-4">
-        <div>
-          <Label htmlFor="date" className="block mb-2 font-bold text-slate-900 text-sm">תאריך *</Label>
-          <Input
-            id="date"
-            type="date"
-            value={formData.date}
-            onChange={(e) => handleChange('date', e.target.value)}
-            required
-            dir="rtl"
-            className="h-10"
-            min={format(new Date(), 'yyyy-MM-dd')}
-          />
-        </div>
+       <div className="grid grid-cols-3 gap-4">
+         <div>
+           <Label className="block mb-2 font-bold text-slate-900 text-sm">תאריך *</Label>
+           <Popover open={openDatePicker} onOpenChange={setOpenDatePicker}>
+             <PopoverTrigger asChild>
+               <Button variant="outline" className="w-full justify-start text-left font-normal h-10 bg-white hover:bg-slate-50 border-slate-200">
+                 {formData.date ? format(new Date(formData.date + "T00:00:00"), "dd MMMM yyyy", { locale: he }) : "בחר תאריך"}
+               </Button>
+             </PopoverTrigger>
+             <PopoverContent className="w-auto p-0" align="start" dir="rtl">
+               <Calendar
+                 mode="single"
+                 selected={formData.date ? new Date(formData.date + "T00:00:00") : undefined}
+                 onSelect={(date) => {
+                   if (date) {
+                     handleChange('date', format(date, "yyyy-MM-dd"));
+                     setOpenDatePicker(false);
+                   }
+                 }}
+                 disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                 locale={he}
+                 className="text-lg"
+               />
+             </PopoverContent>
+           </Popover>
+         </div>
         <div>
           <Label htmlFor="start_time" className="block mb-2 font-bold text-slate-900 text-sm">שעת התחלה *</Label>
           <Input

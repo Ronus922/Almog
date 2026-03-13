@@ -13,6 +13,10 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { X, Plus } from "lucide-react";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from 'date-fns';
+import { he } from 'date-fns/locale';
 
 export default function ContactFormDialog({ open, onClose, contact, onSave }) {
   const [form, setForm] = useState({
