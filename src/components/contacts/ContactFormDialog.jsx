@@ -76,18 +76,19 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
           {/* Apartment */}
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <Label>מספר דירה *</Label>
+              <Label className="text-right block">מספר דירה *</Label>
               <Input
                 value={form.apartment_number}
                 onChange={e => setForm(f => ({ ...f, apartment_number: e.target.value }))}
-                className="mt-1"
+                className="mt-1 text-right"
+                dir="rtl"
                 disabled={contact !== null}
               />
             </div>
             <div>
-              <Label>איש קשר ראשי (להודעות)</Label>
+              <Label className="text-right block">איש קשר ראשי (להודעות)</Label>
               <Select value={form.contact_type} onValueChange={v => setForm(f => ({ ...f, contact_type: v }))}>
-                <SelectTrigger className="mt-1">
+                <SelectTrigger className="mt-1 text-right" dir="rtl">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
