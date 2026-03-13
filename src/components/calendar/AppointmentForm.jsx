@@ -329,7 +329,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
           selectedIds={formData.attendees_users}
           onToggle={handleUserToggle}
           searchPlaceholder="חפש משתמש..."
-          formatLabel={(user) => user.full_name || user.email}
+          formatLabel={(user) => user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : user.username}
           getAvatarColor={(user) => {
             const colors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6'];
             return colors[users.indexOf(user) % colors.length];
