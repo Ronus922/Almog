@@ -163,7 +163,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
 
         <div className="flex justify-end gap-2 mt-4">
           <Button variant="outline" onClick={onClose}>ביטול</Button>
-          <Button onClick={handleSave} disabled={!form.name || !form.phone} className="bg-[#3563d0] hover:bg-[#2a50b0] text-white">
+          <Button onClick={handleSave} disabled={!form.contact_type || !(form.contact_type === "בעל דירה" ? form.owner_phone : form.tenant_phone)} className="bg-[#3563d0] hover:bg-[#2a50b0] text-white">
             {contact ? "שמור שינויים" : "הוסף איש קשר"}
           </Button>
         </div>
