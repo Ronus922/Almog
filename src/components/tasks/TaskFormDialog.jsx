@@ -18,7 +18,20 @@ const STATUSES = ["פתוחה", "בטיפול", "הושלמה", "בוטלה", "�
 
 export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSaved, currentUser }) {
   const isEdit = !!task;
-  const [form, setForm] = useState({});
+  const [form, setForm] = useState({
+    task_type: "",
+    priority: "",
+    status: "",
+    description: "",
+    due_date: "",
+    assigned_to: "",
+    assigned_to_name: "",
+    debtor_record_id: "",
+    apartment_number: "",
+    owner_name: "",
+    assigned_by: "",
+    completion_notes: ""
+  });
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("form");
 
