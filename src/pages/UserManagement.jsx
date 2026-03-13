@@ -104,7 +104,7 @@ export default function UserManagement() {
     mutationFn: ({ id, is_active }) => base44.entities.AppUser.update(id, { is_active }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['appUsers'] });
-      toast.success('הסטטוס עודכן');
+      showAlert('הסטטוס עודכן', 'success');
     }
   });
 
