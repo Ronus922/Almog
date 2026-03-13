@@ -4,7 +4,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
-import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSaturday, isFriday, addMonths, subMonths, addDays, subDays, addWeeks, subWeeks } from 'date-fns';
+import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSaturday, isFriday, addMonths, subMonths, addDays, subDays, addWeeks, subWeeks, getDay } from 'date-fns';
 import { he } from 'date-fns/locale';
 import AppointmentForm from '@/components/calendar/AppointmentForm';
 import AppointmentModal from '@/components/calendar/AppointmentModal';
@@ -107,7 +107,35 @@ export default function Calendar() {
     if (selectedAppointment) {
       await updateMutation.mutateAsync({ id: selectedAppointment.id, data });
     } else {
-      await createMutation.mutateAsync(data);
+      // If it's recurring, create instances for next 12 months
+      if (data.is_recurring) {
+        const startDate = new Date(data.date);
+        const instances = [];
+        
+        for (let i = 0; i < 12; i++) {
+          let nextDate = startDate;
+          
+          if (data.recurrence_pattern === 'weekly') {
+            nextDate = addWeeks(startDate, i);
+          } else if (data.recurrence_pattern === 'monthly') {
+            nextDate = addMonths(startDate, i);
+          } else if (data.recurrence_pattern === 'yearly') {
+            nextDate = addMonths(startDate, i * 12);
+          }
+          
+          instances.push({
+            ...data,
+            date: format(nextDate, 'yyyy-MM-dd'),
+          });
+        }
+        
+        // Create all instances
+        for (const instance of instances) {
+          await createMutation.mutateAsync(instance);
+        }
+      } else {
+        await createMutation.mutateAsync(data);
+      }
     }
   };
 
