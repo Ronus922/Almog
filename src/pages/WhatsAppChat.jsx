@@ -22,13 +22,13 @@ export default function WhatsAppChat() {
     queryFn: async () => {
       const allContacts = await base44.entities.Contact.list();
       const allMessages = await base44.entities.ChatMessage.list();
-      
+
       // Attach last message to each contact
-      return allContacts.map(contact => {
-        const lastMsg = allMessages
-          .filter(m => m.contact_id === contact.id)
-          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
-        
+      return allContacts.map((contact) => {
+        const lastMsg = allMessages.
+        filter((m) => m.contact_id === contact.id).
+        sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+
         return {
           ...contact,
           lastMessageTime: lastMsg?.timestamp || null,
@@ -115,25 +115,25 @@ export default function WhatsAppChat() {
   });
 
   // Filter and sort contacts by last message (newest first)
-  const filteredContacts = contacts
-    .filter((contact) => {
-      const searchLower = searchQuery.toLowerCase();
-      const ownerName = (contact.owner_name || '').toLowerCase();
-      const tenantName = (contact.tenant_name || '').toLowerCase();
-      const apartmentNumber = (contact.apartment_number || '').toLowerCase();
+  const filteredContacts = contacts.
+  filter((contact) => {
+    const searchLower = searchQuery.toLowerCase();
+    const ownerName = (contact.owner_name || '').toLowerCase();
+    const tenantName = (contact.tenant_name || '').toLowerCase();
+    const apartmentNumber = (contact.apartment_number || '').toLowerCase();
 
-      return (
-        ownerName.includes(searchLower) ||
-        tenantName.includes(searchLower) ||
-        apartmentNumber.includes(searchLower)
-      );
-    })
-    .sort((a, b) => {
-      // Sort by last message time (newest first)
-      const timeA = a.lastMessageTime ? new Date(a.lastMessageTime) : new Date(0);
-      const timeB = b.lastMessageTime ? new Date(b.lastMessageTime) : new Date(0);
-      return timeB - timeA;
-    });
+    return (
+      ownerName.includes(searchLower) ||
+      tenantName.includes(searchLower) ||
+      apartmentNumber.includes(searchLower));
+
+  }).
+  sort((a, b) => {
+    // Sort by last message time (newest first)
+    const timeA = a.lastMessageTime ? new Date(a.lastMessageTime) : new Date(0);
+    const timeB = b.lastMessageTime ? new Date(b.lastMessageTime) : new Date(0);
+    return timeB - timeA;
+  });
 
   const handleSendMessage = () => {
     if (messageInput.trim() && selectedContact) {
@@ -159,35 +159,35 @@ export default function WhatsAppChat() {
                 placeholder="חיפוש..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-gray-100 border-0 rounded-full text-sm"
-              />
+                className="pl-10 bg-gray-100 border-0 rounded-full text-sm" />
+
             </div>
           </div>
 
           <div className="flex-1 overflow-y-auto divide-y divide-gray-100" style={{ scrollbarWidth: 'thin', scrollbarColor: '#3cb371 transparent' }}>
-            {filteredContacts.length === 0 ? (
-              <div className="p-4 text-center text-gray-400 text-sm">
+            {filteredContacts.length === 0 ?
+            <div className="p-4 text-center text-gray-400 text-sm">
                 אין אנשי קשר
-              </div>
-            ) : (
-              filteredContacts.map((contact) => {
-                const displayName = contact.owner_name || contact.tenant_name || 'ללא שם';
-                const initials = displayName.split(' ').map(n => n[0]).join('').substring(0, 2);
-                return (
-                  <button
-                    key={contact.id}
-                    onClick={() => setSelectedContact(contact)}
-                    className={`w-full p-3 text-right hover:bg-gray-50 transition-colors flex items-center gap-3 border-r-4 ${
-                      selectedContact?.id === contact.id ? 'border-r-blue-500' : 'border-r-transparent'
-                    }`}
-                    style={selectedContact?.id === contact.id ? { backgroundColor: '#f9fff5' } : {}}
-                  >
+              </div> :
+
+            filteredContacts.map((contact) => {
+              const displayName = contact.owner_name || contact.tenant_name || 'ללא שם';
+              const initials = displayName.split(' ').map((n) => n[0]).join('').substring(0, 2);
+              return (
+                <button
+                  key={contact.id}
+                  onClick={() => setSelectedContact(contact)}
+                  className={`w-full p-3 text-right hover:bg-gray-50 transition-colors flex items-center gap-3 border-r-4 ${
+                  selectedContact?.id === contact.id ? 'border-r-blue-500' : 'border-r-transparent'}`
+                  }
+                  style={selectedContact?.id === contact.id ? { backgroundColor: '#f9fff5' } : {}}>
+
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 overflow-hidden">
-                      {contact.whatsapp_profile_image ? (
-                        <img src={contact.whatsapp_profile_image} alt={displayName} className="w-full h-full object-cover" />
-                      ) : (
-                        initials
-                      )}
+                      {contact.whatsapp_profile_image ?
+                    <img src={contact.whatsapp_profile_image} alt={displayName} className="w-full h-full object-cover" /> :
+
+                    initials
+                    }
                     </div>
                     <div className="flex-1 text-right min-w-0">
                       <div className="font-semibold text-gray-900 text-sm truncate">
@@ -196,29 +196,29 @@ export default function WhatsAppChat() {
                       <div className="text-xs text-gray-600 mt-0.5 truncate">
                         דירה {contact.apartment_number}
                       </div>
-                      {contact.owner_name && contact.tenant_name && (
-                        <div className="text-xs text-gray-500 mt-0.5 truncate">
+                      {contact.owner_name && contact.tenant_name &&
+                    <div className="text-xs text-gray-500 mt-0.5 truncate">
                           {contact.owner_name === displayName ? 'שוכר: ' + contact.tenant_name : 'בעלים: ' + contact.owner_name}
                         </div>
-                      )}
+                    }
                     </div>
-                  </button>
-                );
-              })
-              )}
+                  </button>);
+
+            })
+            }
               </div>
               </div>
 
               {/* Chat Window */}
         <div className="flex-1 flex flex-col overflow-hidden" style={{ backgroundImage: `url('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69b3212f206c95cdd3b3e777/a209df2b7_BGWHATS.png')`, backgroundRepeat: 'repeat', backgroundSize: 'auto' }}>
-          {selectedContact ? (
-            <>
+          {selectedContact ?
+          <>
               {/* Chat Header */}
               <div className="p-4 bg-white border-b border-gray-200 flex justify-between items-center shadow-sm">
                 <div className="flex items-center gap-3">
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <Phone className="w-5 h-5 text-blue-600" />
-                  </Button>
+                  
+
+
                   <Button variant="ghost" size="icon" className="h-8 w-8">
                     <Info className="w-5 h-5 text-blue-600" />
                   </Button>
@@ -229,48 +229,48 @@ export default function WhatsAppChat() {
                 </div>
                 <div className="flex items-center gap-3">
                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm overflow-hidden">
-                    {selectedContact.whatsapp_profile_image ? (
-                      <img src={selectedContact.whatsapp_profile_image} alt={selectedContact.owner_name || selectedContact.tenant_name} className="w-full h-full object-cover" />
-                    ) : (
-                      (selectedContact.owner_name || selectedContact.tenant_name).split(' ').map(n => n[0]).join('').substring(0, 2)
-                    )}
+                    {selectedContact.whatsapp_profile_image ?
+                  <img src={selectedContact.whatsapp_profile_image} alt={selectedContact.owner_name || selectedContact.tenant_name} className="w-full h-full object-cover" /> :
+
+                  (selectedContact.owner_name || selectedContact.tenant_name).split(' ').map((n) => n[0]).join('').substring(0, 2)
+                  }
                   </div>
                 </div>
               </div>
 
               {/* Messages Area */}
               <div className="flex-1 overflow-y-auto p-3 space-y-2 flex flex-col" style={{ backgroundImage: `url('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69b3212f206c95cdd3b3e777/a209df2b7_BGWHATS.png')`, backgroundRepeat: 'repeat', backgroundSize: 'auto', scrollbarWidth: 'thin', scrollbarColor: '#ccc transparent' }}>
-                {messages.length === 0 ? (
-                  <div className="flex items-center justify-center h-full">
+                {messages.length === 0 ?
+              <div className="flex items-center justify-center h-full">
                     <div className="text-center text-gray-500">
                       <p className="text-lg">אין הודעות עדיין</p>
                       <p className="text-sm mt-1">התחל שיחה חדשה</p>
                     </div>
-                  </div>
-                ) : (
-                  <>
+                  </div> :
+
+              <>
                     {messages.map((msg, idx) => {
-                      const prevMsg = idx > 0 ? messages[idx - 1] : null;
-                      const showDate = !prevMsg || 
-                        format(new Date(msg.timestamp), 'yyyy-MM-dd') !== 
-                        format(new Date(prevMsg.timestamp), 'yyyy-MM-dd');
-                      
-                      return (
-                        <div key={msg.id}>
-                          {showDate && (
-                            <div className="flex justify-center my-4">
+                  const prevMsg = idx > 0 ? messages[idx - 1] : null;
+                  const showDate = !prevMsg ||
+                  format(new Date(msg.timestamp), 'yyyy-MM-dd') !==
+                  format(new Date(prevMsg.timestamp), 'yyyy-MM-dd');
+
+                  return (
+                    <div key={msg.id}>
+                          {showDate &&
+                      <div className="flex justify-center my-4">
                               <span className="text-xs text-gray-600 bg-white bg-opacity-70 px-4 py-1 rounded-full shadow-sm">
                                 {format(new Date(msg.timestamp), 'd בMMMM yyyy', { locale: he })}
                               </span>
                             </div>
-                          )}
+                      }
                           <ChatMessageBubble message={msg} />
-                        </div>
-                      );
-                    })}
+                        </div>);
+
+                })}
                     <div ref={messagesEndRef} />
                   </>
-                )}
+              }
               </div>
 
               {/* Input Area */}
@@ -282,25 +282,25 @@ export default function WhatsAppChat() {
                   <Paperclip className="w-5 h-5" />
                 </Button>
                 <Input
-                  placeholder="הקלד הודעה..."
-                  value={messageInput}
-                  onChange={(e) => setMessageInput(e.target.value)}
-                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                  disabled={sendMessageMutation.isPending}
-                  className="bg-gray-100 border-0 rounded-full text-sm"
-                />
+                placeholder="הקלד הודעה..."
+                value={messageInput}
+                onChange={(e) => setMessageInput(e.target.value)}
+                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                disabled={sendMessageMutation.isPending}
+                className="bg-gray-100 border-0 rounded-full text-sm" />
+
                 <Button
-                  onClick={handleSendMessage}
-                  disabled={!messageInput.trim() || sendMessageMutation.isPending}
-                  size="icon"
-                  className="bg-green-500 hover:bg-green-600 text-white rounded-full h-10 w-10"
-                >
+                onClick={handleSendMessage}
+                disabled={!messageInput.trim() || sendMessageMutation.isPending}
+                size="icon"
+                className="bg-green-500 hover:bg-green-600 text-white rounded-full h-10 w-10">
+
                   <Send className="w-5 h-5" />
                 </Button>
               </div>
-            </>
-          ) : (
-            <div className="flex items-center justify-center h-full text-gray-500">
+            </> :
+
+          <div className="flex items-center justify-center h-full text-gray-500">
               <div className="text-center">
                 <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center mx-auto mb-6">
                   <div className="text-4xl">💬</div>
@@ -309,9 +309,9 @@ export default function WhatsAppChat() {
                 <p className="text-sm mt-2">בחר איש קשר מהרשימה בצד כדי להתחיל שיחה</p>
               </div>
             </div>
-          )}
+          }
         </div>
       </div>
-    </div>
-  );
+    </div>);
+
 }
