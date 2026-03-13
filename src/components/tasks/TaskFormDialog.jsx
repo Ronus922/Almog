@@ -277,7 +277,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
                          })}
                        </div>
                        <div className="text-right text-xs text-slate-500 mb-3">
-                         {form.due_date ? format(new Date(form.due_date), 'EEEE, d MMMM yyyy', { locale: {} }) : 'בחר תאריך'}
+                         {form.due_date ? format(new Date(form.due_date), 'dd-MM-yyyy') : 'בחר תאריך'}
                        </div>
                        <button
                          type="button"
