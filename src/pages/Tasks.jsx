@@ -10,7 +10,7 @@ import { useAuth } from "@/components/auth/AuthContext";
 import { isManagerRole } from "@/components/utils/roles";
 import { StatusBadge } from "@/components/tasks/TaskBadge";
 import TaskFormDialog from "@/components/tasks/TaskFormDialog";
-import { format, isPast, isToday, addDays, isBefore, startOfDay } from "date-fns";
+import { format, isPast, isToday } from "date-fns";
 
 function SortableHeader({ label, field, sortField, sortDir, onSort }) {
   const active = sortField === field;
@@ -106,26 +106,13 @@ export default function Tasks() {
     return tasks.filter((t) => t.assigned_to === username);
   }, [tasks, currentUser]);
 
-  // ברירת מחדל: משימות פתוחות לשבוע הקרוב
-  const defaultViewTasks = useMemo(() => {
-    const today = startOfDay(new Date());
-    const nextWeek = addDays(today, 7);
-    return myTasks.filter((t) => {
-      if (t.status === "הושלמה" || t.status === "בוטלה") return false;
-      if (!t.due_date) return false;
-      const dueDate = startOfDay(new Date(t.due_date));
-      return !isBefore(dueDate, today) && isBefore(dueDate, nextWeek);
-    });
-  }, [myTasks]);
-
   const assignedOptions = useMemo(() => {
     const names = [...new Set(myTasks.map((t) => t.assigned_to_name || t.assigned_to).filter(Boolean))];
     return names.sort();
   }, [myTasks]);
 
   const filtered = useMemo(() => {
-    const source = (filterStatus !== "הכל" || filterPriority !== "הכל" || filterAssigned !== "הכל" || filterDueDate || filterTaskType !== "הכל" || search) ? myTasks : defaultViewTasks;
-    return source.filter((t) => {
+    return myTasks.filter((t) => {
       if (filterStatus !== "הכל" && t.status !== filterStatus) return false;
       if (filterPriority !== "הכל" && t.priority !== filterPriority) return false;
       if (filterAssigned !== "הכל" && (t.assigned_to_name || t.assigned_to) !== filterAssigned) return false;
@@ -143,7 +130,7 @@ export default function Tasks() {
       }
       return true;
     });
-  }, [myTasks, defaultViewTasks, filterStatus, filterPriority, filterAssigned, filterDueDate, filterTaskType, search]);
+  }, [myTasks, filterStatus, filterPriority, filterAssigned, filterDueDate, filterTaskType, search]);
 
   const sorted = useMemo(() => {
     if (!sortField) return filtered;
@@ -279,8 +266,7 @@ export default function Tasks() {
                 type="date"
                 className="w-44"
                 value={filterDueDate}
-                onChange={(e) => setFilterDueDate(e.target.value)}
-                min={format(new Date(), 'yyyy-MM-dd')} />
+                onChange={(e) => setFilterDueDate(e.target.value)} />
 
 
                 <Select value={filterStatus} onValueChange={setFilterStatus}>

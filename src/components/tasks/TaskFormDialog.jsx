@@ -7,10 +7,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
-import { format, addDays, startOfDay, isBefore, isAfter } from "date-fns";
+import { format } from "date-fns";
 import TaskAuditLogTab from "@/components/tasks/TaskAuditLogTab";
-import { Checkbox } from "@/components/ui/checkbox";
-import { X } from "lucide-react";
 
 const TRACKED_FIELDS = ["task_type", "status", "priority", "due_date", "assigned_to_name", "description", "completion_notes"];
 
@@ -36,10 +34,6 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
   });
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("form");
-  const [showDatePicker, setShowDatePicker] = useState(false);
-  const [selectedAssignees, setSelectedAssignees] = useState([]);
-  const [selectedHour, setSelectedHour] = useState(16);
-  const [selectedMinute, setSelectedMinute] = useState(50);
 
   const { data: appUsers = [] } = useQuery({
     queryKey: ["appUsers"],
@@ -49,10 +43,6 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
   useEffect(() => {
     if (open) {
       setActiveTab("form");
-      setShowDatePicker(false);
-      setSelectedAssignees([]);
-      setSelectedHour(16);
-      setSelectedMinute(50);
       if (isEdit) {
         setForm(prev => ({
           ...task,
@@ -95,37 +85,6 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
     username;
     set("assigned_to", username);
     set("assigned_to_name", fullName);
-  };
-
-  const toggleAssignee = (username) => {
-    setSelectedAssignees(prev =>
-      prev.includes(username)
-        ? prev.filter(u => u !== username)
-        : [...prev, username]
-    );
-  };
-
-  const generateDates = () => {
-    const today = startOfDay(new Date());
-    const dates = [];
-    for (let i = 0; i < 35; i++) {
-      dates.push(addDays(today, i));
-    }
-    return dates;
-  };
-
-  const handleDateSelect = (date) => {
-    const timeStr = `T${String(selectedHour).padStart(2, '0')}:${String(selectedMinute).padStart(2, '0')}:00`;
-    set("due_date", format(date, 'yyyy-MM-dd') + timeStr);
-    setShowDatePicker(false);
-  };
-
-  const handleTimeChange = () => {
-    if (form.due_date) {
-      const dateStr = form.due_date.split('T')[0];
-      const timeStr = `T${String(selectedHour).padStart(2, '0')}:${String(selectedMinute).padStart(2, '0')}:00`;
-      set("due_date", dateStr + timeStr);
-    }
   };
 
   const getChangerInfo = () => {
@@ -177,31 +136,27 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
         changes: JSON.stringify(changes)
       });
     } else {
-       const assignees = selectedAssignees.length > 0 ? selectedAssignees : [form.assigned_to];
-       for (const assigneeUsername of assignees) {
-         const taskData = { ...form, assigned_to: assigneeUsername };
-         const newTask = await base44.entities.Task.create(taskData);
-         await base44.entities.TaskAuditLog.create({
-           task_id: newTask.id,
-           action: "created",
-           changed_by_username: changer.username,
-           changed_by_name: changer.name,
-           changes: "{}"
-         });
-         // שליחת התראה לנמען המשימה
-         const user = appUsers.find(u => u.username === assigneeUsername);
-         const assigneeName = user ? `${user.first_name}${user.last_name ? " " + user.last_name : ""}` : assigneeUsername;
-         await base44.entities.Notification.create({
-           user_username: assigneeUsername,
-           type: "task_assigned",
-           message: `הוקצתה לך משימה: ${form.task_type}${form.owner_name ? ` – דירה ${form.apartment_number}` : ""}`,
-           task_id: newTask.id,
-           task_type: form.task_type,
-           assigner_name: changer.name || changer.username,
-           is_read: false
-         });
-       }
-     }
+      const newTask = await base44.entities.Task.create(form);
+      await base44.entities.TaskAuditLog.create({
+        task_id: newTask.id,
+        action: "created",
+        changed_by_username: changer.username,
+        changed_by_name: changer.name,
+        changes: "{}"
+      });
+      // שליחת התראה לנמען המשימה
+      if (form.assigned_to) {
+        await base44.entities.Notification.create({
+          user_username: form.assigned_to,
+          type: "task_assigned",
+          message: `הוקצתה לך משימה: ${form.task_type}${form.owner_name ? ` – דירה ${form.apartment_number}` : ""}`,
+          task_id: newTask.id,
+          task_type: form.task_type,
+          assigner_name: changer.name || changer.username,
+          is_read: false
+        });
+      }
+    }
     setSaving(false);
     onSaved();
     onClose();
@@ -254,112 +209,14 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
                     </SelectContent>
                   </Select>
                 </div>
-                <div className="space-y-1 relative">
-                   <Label>תאריך ושעה יעד *</Label>
-                   <button
-                     type="button"
-                     onClick={() => setShowDatePicker(!showDatePicker)}
-                     className="w-full px-3 py-2 border border-slate-200 rounded-md text-right text-sm bg-white hover:bg-slate-50 transition-colors font-medium"
-                   >
-                     {form.due_date ? `${format(new Date(form.due_date), 'HH:mm')} ${format(new Date(form.due_date), 'dd-MM-yyyy')}` : 'בחר תאריך ושעה'}
-                   </button>
-                   {showDatePicker && (
-                     <div className="absolute top-full mt-2 left-0 bg-white border border-slate-200 rounded-lg shadow-xl z-50 w-full md:w-96" dir="rtl">
-                       {/* Header with time */}
-                       <div className="bg-slate-50 border-b border-slate-200 px-4 py-3 flex items-center justify-between">
-                         <div className="text-sm font-semibold text-slate-700">
-                           {form.due_date ? `${String(selectedHour).padStart(2, '0')}:${String(selectedMinute).padStart(2, '0')} ${format(new Date(form.due_date), 'dd-MM-yyyy')}` : 'בחר תאריך ושעה'}
-                         </div>
-                       </div>
-
-                       {/* Time and Calendar Grid */}
-                       <div className="grid grid-cols-3 gap-0 p-4">
-                         {/* Hours */}
-                         <div className="flex flex-col items-center border-l border-slate-200 pl-3">
-                           <div className="text-xs font-semibold text-slate-500 mb-3">שעה</div>
-                           <div className="flex flex-col gap-0.5 max-h-56 overflow-y-auto">
-                             {Array.from({ length: 24 }, (_, i) => i).map((hour) => (
-                               <button
-                                 key={hour}
-                                 onClick={() => setSelectedHour(hour)}
-                                 className={`px-2 py-2 text-xs font-medium rounded transition-colors w-12 text-center ${
-                                   selectedHour === hour ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-slate-100'
-                                 }`}
-                               >
-                                 {String(hour).padStart(2, '0')}
-                               </button>
-                             ))}
-                           </div>
-                         </div>
-
-                         {/* Minutes */}
-                         <div className="flex flex-col items-center border-l border-slate-200 pl-3">
-                           <div className="text-xs font-semibold text-slate-500 mb-3">דקה</div>
-                           <div className="flex flex-col gap-0.5 max-h-56 overflow-y-auto">
-                             {Array.from({ length: 60 }, (_, i) => i).map((minute) => (
-                               <button
-                                 key={minute}
-                                 onClick={() => setSelectedMinute(minute)}
-                                 className={`px-2 py-2 text-xs font-medium rounded transition-colors w-12 text-center ${
-                                   selectedMinute === minute ? 'bg-blue-600 text-white' : 'text-slate-700 hover:bg-slate-100'
-                                 }`}
-                               >
-                                 {String(minute).padStart(2, '0')}
-                               </button>
-                             ))}
-                           </div>
-                         </div>
-
-                         {/* Calendar */}
-                         <div className="flex flex-col pr-2">
-                           <div className="text-xs font-semibold text-slate-600 mb-2 text-center">
-                             {form.due_date ? format(new Date(form.due_date), 'MMMM yyyy', { locale: {} }) : 'בחר תאריך'}
-                           </div>
-                           <div className="grid grid-cols-7 gap-1 text-center">
-                             {['א', 'ב', 'ג', 'ד', 'ה', 'ו', 'ש'].map((day) => (
-                               <div key={day} className="text-xs font-semibold text-slate-600">
-                                 {day}
-                               </div>
-                             ))}
-                           </div>
-                           <div className="grid grid-cols-7 gap-1 text-center mt-2">
-                             {generateDates().map((date, idx) => {
-                               const dateStr = format(date, 'yyyy-MM-dd');
-                               const formDateStr = form.due_date?.split('T')[0];
-                               const isSelected = dateStr === formDateStr;
-                               const isToday = dateStr === format(new Date(), 'yyyy-MM-dd');
-                               return (
-                                 <button
-                                   key={idx}
-                                   onClick={() => {
-                                     set("due_date", `${dateStr}T${String(selectedHour).padStart(2, '0')}:${String(selectedMinute).padStart(2, '0')}:00`);
-                                   }}
-                                   className={`py-1 rounded text-xs font-medium transition-colors ${
-                                     isSelected ? 'bg-blue-600 text-white' :
-                                     isToday ? 'bg-blue-100 text-blue-700 font-semibold' :
-                                     'text-slate-700 hover:bg-slate-100'
-                                   }`}
-                                 >
-                                   {format(date, 'd')}
-                                 </button>
-                               );
-                             })}
-                           </div>
-                         </div>
-                       </div>
-
-                       {/* Footer */}
-                       <div className="border-t border-slate-200 p-4 flex justify-between gap-2">
-                         <button
-                           type="button"
-                           onClick={() => setShowDatePicker(false)}
-                           className="flex-1 px-3 py-2 text-sm font-medium bg-blue-600 hover:bg-blue-700 rounded text-white transition-colors"
-                         >
-                           אישור
-                         </button>
-                       </div>
-                     </div>
-                   )}
+                <div className="space-y-1">
+                   <Label>תאריך יעד *</Label>
+                   <Input 
+                     type="date" 
+                     value={form.due_date || ""} 
+                     onChange={(e) => set("due_date", e.target.value)}
+                     min={!isEdit ? format(new Date(), 'yyyy-MM-dd') : undefined}
+                   />
                  </div>
               </div>
 
@@ -408,41 +265,16 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
 
               <div className="space-y-1">
                 <Label>הקצה ל:</Label>
-                <div className="border border-slate-200 rounded-md p-3 bg-slate-50 max-h-48 overflow-y-auto space-y-2">
-                  {appUsers.length === 0 ? (
-                    <p className="text-sm text-slate-500">אין משתמשים זמינים</p>
-                  ) : (
-                    appUsers.map((u) => (
-                      <label key={u.id} className="flex items-center gap-2 cursor-pointer hover:bg-white p-2 rounded transition-colors">
-                        <Checkbox
-                          checked={selectedAssignees.includes(u.username)}
-                          onCheckedChange={() => toggleAssignee(u.username)}
-                        />
-                        <span className="text-sm">{u.first_name}{u.last_name ? " " + u.last_name : ""}</span>
-                      </label>
-                    ))
+                <Select value={form.assigned_to} onValueChange={handleAssignedToChange}>
+                  <SelectTrigger><SelectValue placeholder="בחר משתמש..." /></SelectTrigger>
+                  <SelectContent>
+                    {appUsers.map((u) =>
+                  <SelectItem key={u.id} value={u.username}>
+                        {u.first_name}{u.last_name ? " " + u.last_name : ""}
+                      </SelectItem>
                   )}
-                </div>
-                {selectedAssignees.length > 0 && (
-                  <div className="flex flex-wrap gap-2 mt-2">
-                    {selectedAssignees.map((username) => {
-                      const user = appUsers.find(u => u.username === username);
-                      const name = user ? `${user.first_name}${user.last_name ? " " + user.last_name : ""}` : username;
-                      return (
-                        <div key={username} className="flex items-center gap-1 bg-blue-100 text-blue-700 px-2 py-1 rounded text-xs font-medium">
-                          <span>{name}</span>
-                          <button
-                            type="button"
-                            onClick={() => toggleAssignee(username)}
-                            className="hover:text-blue-900"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                )}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-1">
