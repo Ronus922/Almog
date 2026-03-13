@@ -76,15 +76,7 @@ export default function CalendarHeader({
         </div>
 
         {/* Left: Navigation Arrows */}
-        <div className="flex items-center gap-2 flex-shrink-0 order-first">
-          <Button
-            size="icon"
-            onClick={() => onNavigate('prev')}
-            className="h-10 w-10 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg hover:scale-105 transition-all rounded-lg"
-            title="חודש קודם"
-          >
-            <ChevronLeft className="w-5 h-5" />
-          </Button>
+        <div className="flex items-center gap-2 flex-shrink-0">
           <Button
             variant="ghost"
             size="icon"
@@ -93,6 +85,14 @@ export default function CalendarHeader({
             title="חודש הבא"
           >
             <ChevronRight className="w-5 h-5" />
+          </Button>
+          <Button
+            size="icon"
+            onClick={() => onNavigate('prev')}
+            className="h-10 w-10 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg hover:scale-105 transition-all rounded-lg"
+            title="חודש קודם"
+          >
+            <ChevronLeft className="w-5 h-5" />
           </Button>
         </div>
       </div>
