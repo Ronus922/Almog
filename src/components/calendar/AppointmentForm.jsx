@@ -408,7 +408,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
             {formData.attendees_users.map((userId) => {
               const user = users.find(u => u.id === userId);
               return user ? (
-                <div key={userId} className="flex items-center gap-1 bg-blue-200 text-blue-900 px-2 py-1 rounded-full text-xs font-medium">
+                <div key={userId} className="flex items-center gap-1 bg-blue-100 text-blue-700 px-3 py-1.5 rounded-full text-xs font-semibold">
                   <span>{formatUserLabel(user)}</span>
                   <button
                     type="button"
@@ -467,7 +467,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
               {formData.attendees_contacts.map((contactId) => {
                 const contact = contacts.find(c => c.id === contactId);
                 return contact ? (
-                  <div key={contactId} className="flex items-center gap-1 bg-amber-200 text-amber-900 px-2 py-1 rounded-full text-xs font-medium">
+                  <div key={contactId} className="flex items-center gap-1 bg-amber-100 text-amber-700 px-3 py-1.5 rounded-full text-xs font-semibold">
                     <span>{formatContactLabel(contact)}</span>
                     <button
                       type="button"
