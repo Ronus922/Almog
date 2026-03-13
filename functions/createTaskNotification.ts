@@ -20,14 +20,16 @@ Deno.serve(async (req) => {
     const taskLabel = data.task_type || 'משימה';
     const ownerPart = data.owner_name ? ` – ${data.owner_name}` : '';
 
-    // Try to get assigner's display name from AppUser
+    // Try to get assigner's display name from AppUser (by email or username)
     let assignerName = data.assigned_by || 'מנהל';
     if (data.assigned_by) {
       try {
-        const appUsers = await base44.asServiceRole.entities.AppUser.filter({ email: data.assigned_by });
-        if (appUsers && appUsers.length > 0) {
-          const u = appUsers[0];
-          assignerName = [u.first_name, u.last_name].filter(Boolean).join(' ') || data.assigned_by;
+        const allUsers = await base44.asServiceRole.entities.AppUser.list();
+        const match = allUsers.find(u =>
+          u.email === data.assigned_by || u.username === data.assigned_by
+        );
+        if (match) {
+          assignerName = [match.first_name, match.last_name].filter(Boolean).join(' ') || data.assigned_by;
         }
       } catch (_) { /* fallback to email */ }
     }
