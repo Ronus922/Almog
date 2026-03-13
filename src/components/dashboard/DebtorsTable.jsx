@@ -626,7 +626,6 @@ export default function DebtorsTable({
                     מים חמים
                   </div>
                 </TableHead>
-                <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6">דמי ניהול</TableHead>
 
                 <TableHead className="text-right font-bold text-slate-700 text-base py-4 px-6 cursor-pointer hover:text-slate-900" onClick={() => toggleSort('legal_status_id')}>
                   <div className="flex items-center gap-2 justify-end">
@@ -691,7 +690,6 @@ export default function DebtorsTable({
                   </TableHead>
                   <TableHead className="py-3 px-4"></TableHead>
                   <TableHead className="py-3 px-4"></TableHead>
-                  <TableHead className="py-3 px-4"></TableHead>
                   <TableHead className="py-3 px-4">
                     {!hideStatusFilter &&
                     <Select value={legalStatusFilter} onValueChange={(v) => {setLegalStatusFilter(v);setPage(1);}}>
@@ -717,7 +715,7 @@ export default function DebtorsTable({
               {/* Filter Actions Row */}
               {showAdvancedFilters &&
                 <TableRow className="bg-blue-50/30 border-b border-blue-200">
-                   <TableHead colSpan={9} className="py-3 px-6">
+                   <TableHead colSpan={8} className="py-3 px-6">
                     <div className="flex items-center justify-end" dir="rtl">
                       <Button
                         variant="outline"
@@ -736,7 +734,7 @@ export default function DebtorsTable({
             <TableBody>
               {paginatedRecords.length === 0 ?
                 <TableRow>
-                   <TableCell colSpan={9} className="text-center py-12">
+                   <TableCell colSpan={8} className="text-center py-12">
                     <div className="flex flex-col items-center gap-3">
                       <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center">
                         <Filter className="w-8 h-8 text-slate-400" />
@@ -779,9 +777,6 @@ export default function DebtorsTable({
                     </TableCell>
                     <TableCell className="py-6 px-6 align-middle text-center">
                       <span className="font-bold text-base text-purple-600">{formatCurrency(record.specialDebt)}</span>
-                    </TableCell>
-                    <TableCell className="py-6 px-6 align-middle text-right">
-                      <span className="text-sm text-slate-600">{record.detailsMonthly || '-'}</span>
                     </TableCell>
 
                     <TableCell className="py-6 px-6 align-middle text-center">

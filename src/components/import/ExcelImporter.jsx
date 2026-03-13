@@ -1153,7 +1153,7 @@ export default function ExcelImporter({ onImportComplete }) {
                   <div className="import-mapping-row">
                     <span className="import-mapping-letter">H</span>
                     <span className="import-mapping-arrow">→</span>
-                    <span className="import-mapping-label">דמי ניהול (טקסט)</span>
+                    <span className="import-mapping-label">פרטים</span>
                   </div>
                 </div>
               </AlertDescription>
