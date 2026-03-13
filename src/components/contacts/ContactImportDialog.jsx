@@ -42,19 +42,53 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
   };
 
   const mapHebrewColumns = (row) => {
-    return {
-      apartment_number: String(row["דירה"] || row["apartment_number"] || row["A"] || "").trim(),
-      owner_name: String(row["שם בעלים"] || row["owner_name"] || row["B"] || "").trim(),
-      owner_phone: String(row["טלפון בעלים"] || row["owner_phone"] || row["C"] || "").trim(),
-      owner_email: String(row["אימייל בעלים"] || row["owner_email"] || row["D"] || "").trim(),
-      tenant_name: String(row["שם שוכר"] || row["tenant_name"] || row["E"] || "").trim(),
-      tenant_phone: String(row["טלפון שוכר"] || row["tenant_phone"] || row["F"] || "").trim(),
-      tenant_email: String(row["אימייל שוכר"] || row["tenant_email"] || row["G"] || "").trim(),
-      contact_type: String(row["contact_type"] || row["type"] || "owner").trim(),
-      address: String(row["address"] || "").trim(),
-      notes: String(row["notes"] || "").trim(),
-      management_fees: parseFloat(row["תשלום חודשי"] || row["management_fees"] || row["H"] || 0) || 0,
-    };
+    const data = {};
+    
+    // Apartment number - דיוק
+    const apartmentNum = String(row["דירה"] || row["apartment_number"] || row["A"] || "").trim();
+    if (apartmentNum) data.apartment_number = apartmentNum;
+    
+    // Owner name - בעל דירה
+    const ownerName = String(row["שם בעלים"] || row["owner_name"] || row["B"] || "").trim();
+    if (ownerName) data.owner_name = ownerName;
+    
+    // Owner phone
+    const ownerPhone = String(row["טלפון בעלים"] || row["owner_phone"] || row["C"] || "").trim();
+    if (ownerPhone) data.owner_phone = ownerPhone;
+    
+    // Owner email
+    const ownerEmail = String(row["אימייל בעלים"] || row["owner_email"] || row["D"] || "").trim();
+    if (ownerEmail) data.owner_email = ownerEmail;
+    
+    // Tenant name
+    const tenantName = String(row["שם שוכר"] || row["tenant_name"] || row["E"] || "").trim();
+    if (tenantName) data.tenant_name = tenantName;
+    
+    // Tenant phone
+    const tenantPhone = String(row["טלפון שוכר"] || row["tenant_phone"] || row["F"] || "").trim();
+    if (tenantPhone) data.tenant_phone = tenantPhone;
+    
+    // Tenant email
+    const tenantEmail = String(row["אימייל שוכר"] || row["tenant_email"] || row["G"] || "").trim();
+    if (tenantEmail) data.tenant_email = tenantEmail;
+    
+    // Contact type
+    const contactType = String(row["contact_type"] || row["type"] || "owner").trim();
+    if (contactType) data.contact_type = contactType;
+    
+    // Address
+    const address = String(row["address"] || "").trim();
+    if (address) data.address = address;
+    
+    // Notes
+    const notes = String(row["notes"] || "").trim();
+    if (notes) data.notes = notes;
+    
+    // Management fees
+    const fees = parseFloat(row["תשלום חודשי"] || row["management_fees"] || row["H"] || 0);
+    if (!isNaN(fees) && fees > 0) data.management_fees = fees;
+    
+    return data;
   };
 
   const handleImport = async () => {
