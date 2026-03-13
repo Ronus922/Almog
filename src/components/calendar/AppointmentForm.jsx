@@ -42,6 +42,17 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
   });
 
   useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        setShowUserSearch(false);
+        setShowContactSearch(false);
+      }
+    };
+    document.addEventListener('keydown', handleEscape);
+    return () => document.removeEventListener('keydown', handleEscape);
+  }, []);
+
+  useEffect(() => {
     if (appointment) {
       setFormData(prev => ({
         ...prev,
