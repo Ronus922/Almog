@@ -53,10 +53,12 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         date: format(selectedDate, 'yyyy-MM-dd'),
       }));
     }
-    
+  }, [appointment, selectedDate]);
+
+  useEffect(() => {
     loadUsers();
     loadContacts();
-  }, [appointment, selectedDate]);
+  }, []);
 
   const loadUsers = async () => {
     try {
