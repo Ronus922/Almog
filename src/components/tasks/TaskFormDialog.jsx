@@ -1,13 +1,15 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Calendar } from "@/components/ui/calendar";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
+import { he } from "date-fns/locale";
 import TaskAuditLogTab from "@/components/tasks/TaskAuditLogTab";
 
 const TRACKED_FIELDS = ["task_type", "status", "priority", "due_date", "assigned_to_name", "description", "completion_notes"];
@@ -34,7 +36,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
   });
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("form");
-  const dateInputRef = useRef(null);
+  const [openDatePicker, setOpenDatePicker] = useState(false);
 
   const { data: appUsers = [] } = useQuery({
     queryKey: ["appUsers"],
@@ -212,19 +214,31 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
                 </div>
                 <div className="space-y-1">
                    <Label>תאריך יעד *</Label>
-                   <div 
-                     className="border border-slate-200 rounded-md h-10 flex items-center px-3 bg-white hover:border-slate-300 transition-colors cursor-pointer"
-                     onClick={() => dateInputRef.current?.click()}
-                   >
-                     <Input 
-                       ref={dateInputRef}
-                       type="date" 
-                       value={form.due_date || ""} 
-                       onChange={(e) => set("due_date", e.target.value)}
-                       min={!isEdit ? format(new Date(), 'yyyy-MM-dd') : undefined}
-                       className="border-0 p-0 h-full cursor-pointer focus:outline-none focus:ring-0"
-                     />
-                   </div>
+                   <Popover open={openDatePicker} onOpenChange={setOpenDatePicker}>
+                     <PopoverTrigger asChild>
+                       <Button variant="outline" className="w-full justify-start text-left font-normal h-10 bg-white hover:bg-slate-50 border-slate-200">
+                         {form.due_date ? format(new Date(form.due_date + "T00:00:00"), "dd MMMM yyyy", { locale: he }) : "בחר תאריך"}
+                       </Button>
+                     </PopoverTrigger>
+                     <PopoverContent className="w-auto p-0" align="start" dir="rtl">
+                       <Calendar
+                         mode="single"
+                         selected={form.due_date ? new Date(form.due_date + "T00:00:00") : undefined}
+                         onSelect={(date) => {
+                           if (date) {
+                             set("due_date", format(date, "yyyy-MM-dd"));
+                             setOpenDatePicker(false);
+                           }
+                         }}
+                         disabled={(date) => {
+                           if (isEdit) return false;
+                           return date < new Date(new Date().setHours(0, 0, 0, 0));
+                         }}
+                         locale={he}
+                         className="text-lg"
+                       />
+                     </PopoverContent>
+                   </Popover>
                  </div>
               </div>
 
