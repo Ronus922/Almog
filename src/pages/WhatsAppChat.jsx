@@ -104,19 +104,26 @@ export default function WhatsAppChat() {
     }
   });
 
-  // Filter contacts by search
-  const filteredContacts = contacts.filter((contact) => {
-    const searchLower = searchQuery.toLowerCase();
-    const ownerName = (contact.owner_name || '').toLowerCase();
-    const tenantName = (contact.tenant_name || '').toLowerCase();
-    const apartmentNumber = (contact.apartment_number || '').toLowerCase();
+  // Filter and sort contacts by last message (newest first)
+  const filteredContacts = contacts
+    .filter((contact) => {
+      const searchLower = searchQuery.toLowerCase();
+      const ownerName = (contact.owner_name || '').toLowerCase();
+      const tenantName = (contact.tenant_name || '').toLowerCase();
+      const apartmentNumber = (contact.apartment_number || '').toLowerCase();
 
-    return (
-      ownerName.includes(searchLower) ||
-      tenantName.includes(searchLower) ||
-      apartmentNumber.includes(searchLower)
-    );
-  });
+      return (
+        ownerName.includes(searchLower) ||
+        tenantName.includes(searchLower) ||
+        apartmentNumber.includes(searchLower)
+      );
+    })
+    .sort((a, b) => {
+      // Sort by last message time (newest first)
+      const timeA = a.lastMessageTime ? new Date(a.lastMessageTime) : new Date(0);
+      const timeB = b.lastMessageTime ? new Date(b.lastMessageTime) : new Date(0);
+      return timeB - timeA;
+    });
 
   const handleSendMessage = () => {
     if (messageInput.trim() && selectedContact) {
