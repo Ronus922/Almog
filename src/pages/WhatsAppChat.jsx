@@ -196,6 +196,11 @@ export default function WhatsAppChat() {
                       <div className="text-xs text-gray-600 mt-0.5 truncate">
                         דירה {contact.apartment_number}
                       </div>
+                      {contact.owner_name && contact.tenant_name && (
+                        <div className="text-xs text-gray-500 mt-0.5 truncate">
+                          {contact.owner_name === displayName ? 'שוכר: ' + contact.tenant_name : 'בעלים: ' + contact.owner_name}
+                        </div>
+                      )}
                     </div>
                   </button>
                 );
