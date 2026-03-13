@@ -3,7 +3,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Send, Search, Plus, Phone, Info } from 'lucide-react';
+import { Send, Search, Plus, Phone, Info, Paperclip, Image as ImageIcon } from 'lucide-react';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import ChatMessageBubble from '@/components/whatsapp/ChatMessageBubble';
@@ -146,8 +146,8 @@ export default function WhatsAppChat() {
   }, [messages]);
 
   return (
-    <div className="min-h-screen bg-gray-100" dir="rtl" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Cpath d=\'M0 0h100v100H0z\' fill=\'%23ECE5DD\'/%3E%3Cpath d=\'M50 0L100 50L50 100L0 50z\' fill=\'%23E8DED2\' opacity=\'0.3\'/%3E%3C/svg%3E")', backgroundSize: '100px 100px' }}>
-      <div className="h-screen flex gap-0">
+    <div className="flex flex-col h-screen bg-gray-100 overflow-hidden" dir="rtl" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Cpath d=\'M0 0h100v100H0z\' fill=\'%23ECE5DD\'/%3E%3Cpath d=\'M50 0L100 50L50 100L0 50z\' fill=\'%23E8DED2\' opacity=\'0.3\'/%3E%3C/svg%3E")', backgroundSize: '100px 100px' }}>
+      <div className="flex-1 flex gap-0 overflow-hidden">
         {/* Contacts List - Right Side */}
         <div className="w-96 bg-white flex flex-col shadow-lg border-l border-gray-200">
           <div className="p-4 border-b border-gray-200 bg-white">
@@ -266,7 +266,10 @@ export default function WhatsAppChat() {
               {/* Input Area */}
               <div className="p-4 bg-white border-t border-gray-200 flex gap-3 shadow-lg">
                 <Button variant="ghost" size="icon" className="h-10 w-10 text-gray-600 hover:bg-gray-100">
-                  <Plus className="w-5 h-5" />
+                  <ImageIcon className="w-5 h-5" />
+                </Button>
+                <Button variant="ghost" size="icon" className="h-10 w-10 text-gray-600 hover:bg-gray-100">
+                  <Paperclip className="w-5 h-5" />
                 </Button>
                 <Input
                   placeholder="הקלד הודעה..."
