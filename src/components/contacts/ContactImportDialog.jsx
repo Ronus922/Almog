@@ -111,19 +111,8 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
 
           <div>
             <Label>קובץ Excel</Label>
-            <Input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="mt-1" onChange={handleFile} />
+            <Input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="mt-1" />
           </div>
-
-
-
-          {preview && (
-            <div className="text-xs bg-slate-50 rounded p-2 overflow-auto max-h-28">
-              <p className="font-medium mb-1 text-slate-500">תצוגה מקדימה (3 שורות ראשונות):</p>
-              {preview.map((r, i) => (
-                <div key={i} className="text-slate-600 truncate">{JSON.stringify(r)}</div>
-              ))}
-            </div>
-          )}
         </div>
 
         <div className="flex justify-end gap-2 mt-4">
