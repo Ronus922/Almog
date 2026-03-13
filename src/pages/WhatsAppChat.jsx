@@ -199,7 +199,7 @@ export default function WhatsAppChat() {
         </div>
 
         {/* Chat Window */}
-        <div className="flex-1 bg-cover bg-center flex flex-col overflow-hidden" style={{ backgroundImage: 'url("https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69b3212f206c95cdd3b3e777/b45891363_crhrnjsk.JPG")', backgroundSize: 'cover' }}>
+        <div className="flex-1 flex flex-col overflow-hidden" style={{ backgroundColor: '#fef5ea' }}>
           {selectedContact ? (
             <>
               {/* Chat Header */}
