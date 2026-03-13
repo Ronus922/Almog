@@ -199,7 +199,7 @@ export default function WhatsAppChat() {
         </div>
 
         {/* Chat Window */}
-        <div className="flex-1 bg-cover bg-center flex flex-col overflow-hidden" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Cpath d=\'M0 0h100v100H0z\' fill=\'%23ECE5DD\'/%3E%3Cpath d=\'M50 0L100 50L50 100L0 50z\' fill=\'%23E8DED2\' opacity=\'0.3\'/%3E%3C/svg%3E")', backgroundSize: '100px 100px' }}>
+        <div className="flex-1 bg-cover bg-center flex flex-col overflow-hidden" style={{ backgroundImage: 'url("https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69b3212f206c95cdd3b3e777/b45891363_crhrnjsk.JPG")', backgroundSize: 'cover' }}>
           {selectedContact ? (
             <>
               {/* Chat Header */}
