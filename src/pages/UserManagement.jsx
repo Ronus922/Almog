@@ -94,10 +94,10 @@ export default function UserManagement() {
       setIsAddDialogOpen(false);
       setNewUser({ first_name: '', last_name: '', username: '', email: '', password: '', role: 'VIEWER' });
       setFormError('');
-      toast.success('המשתמש נוצר ומייל נשלח בהצלחה');
+      showAlert('המשתמש נוצר ומייל נשלח בהצלחה', 'success');
     },
     onError: () => {
-      toast.error('שגיאה ביצירת המשתמש');
+      showAlert('שגיאה ביצירת המשתמש', 'error');
     }
   });
 
@@ -105,7 +105,7 @@ export default function UserManagement() {
     mutationFn: ({ id, is_active }) => base44.entities.AppUser.update(id, { is_active }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['appUsers'] });
-      toast.success('הסטטוס עודכן');
+      showAlert('הסטטוס עודכן', 'success');
     }
   });
 
@@ -113,7 +113,7 @@ export default function UserManagement() {
     mutationFn: (id) => base44.entities.AppUser.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['appUsers'] });
-      toast.success('המשתמש נמחק');
+      showAlert('המשתמש נמחק', 'success');
     }
   });
 
@@ -139,10 +139,10 @@ export default function UserManagement() {
       queryClient.invalidateQueries({ queryKey: ['appUsers'] });
       setIsEditDialogOpen(false);
       setEditingUser(null);
-      toast.success('המשתמש עודכן בהצלחה');
+      showAlert('המשתמש עודכן בהצלחה', 'success');
     },
     onError: () => {
-      toast.error('שגיאה בעדכון המשתמש');
+      showAlert('שגיאה בעדכון המשתמש', 'error');
     }
   });
 
