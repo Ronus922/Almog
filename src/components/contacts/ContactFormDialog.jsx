@@ -48,8 +48,12 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
   const removeTag = (tag) => setForm(f => ({ ...f, tags: f.tags.filter(t => t !== tag) }));
 
   const handleSave = () => {
-    if (!form.name || !form.phone) return;
-    onSave(form);
+    if (!form.contact_type) return;
+    const name  = form.contact_type === "בעל דירה" ? form.owner_name  : form.tenant_name;
+    const phone = form.contact_type === "בעל דירה" ? form.owner_phone : form.tenant_phone;
+    const email = form.contact_type === "בעל דירה" ? form.owner_email : form.tenant_email;
+    if (!name || !phone) return;
+    onSave({ ...form, name, phone, email });
   };
 
   return (
