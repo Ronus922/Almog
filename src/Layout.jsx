@@ -245,7 +245,7 @@ function LayoutContent({ children, currentPageName }) {
       </main>
 
       <ConfirmDialog />
-      <Toaster position="top-center" dir="rtl" richColors />
+      <GlobalAlert />
       </div>);
 
 }
