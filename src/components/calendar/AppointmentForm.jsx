@@ -194,7 +194,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       });
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 p-6" dir="rtl">
+    <form onSubmit={handleSubmit} className="space-y-5" dir="rtl">
       {/* Title */}
       <div>
         <Label htmlFor="title" className="block mb-2 font-semibold text-slate-900">כותרת *</Label>
@@ -536,7 +536,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       </div>
 
       {/* Actions */}
-      <div className="flex gap-3 justify-end pt-6 border-t border-slate-200">
+      <div className="flex gap-3 justify-end pt-6 border-t border-slate-200 mt-8">
         <Button type="button" variant="outline" onClick={onCancel} className="h-10 px-6">
           ביטול
         </Button>
