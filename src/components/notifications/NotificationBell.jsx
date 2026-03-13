@@ -48,13 +48,13 @@ export default function NotificationBell({ currentUser }) {
     for (const n of unreadList) {
       await base44.entities.Notification.update(n.id, { is_read: true });
     }
-    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+    setNotifications(prev => prev.filter(n => n.is_read));
   };
 
   const markRead = async (notif) => {
     if (notif.is_read) return;
     await base44.entities.Notification.update(notif.id, { is_read: true });
-    setNotifications(prev => prev.map(n => n.id === notif.id ? { ...n, is_read: true } : n));
+    setNotifications(prev => prev.filter(n => n.id !== notif.id));
   };
 
   const handleOpen = () => {
@@ -98,13 +98,13 @@ export default function NotificationBell({ currentUser }) {
           </div>
 
           <div className="max-h-96 overflow-y-auto">
-            {notifications.length === 0 ? (
+            {unread.length === 0 ? (
               <div className="py-10 text-center text-slate-400 text-sm">
                 <Bell className="w-8 h-8 mx-auto mb-2 opacity-30" />
                 אין התראות
               </div>
             ) : (
-              notifications.map(n => (
+              unread.map(n => (
                 <div
                   key={n.id}
                   onClick={async () => {
