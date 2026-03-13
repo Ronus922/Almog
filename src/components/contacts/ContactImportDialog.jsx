@@ -51,6 +51,8 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
   const handleFileSelect = (e) => {
     if (e.target.files && e.target.files[0]) {
       setSelectedFile(e.target.files[0]);
+      // Reset input value so same file can be selected again
+      e.target.value = '';
     }
   };
 
