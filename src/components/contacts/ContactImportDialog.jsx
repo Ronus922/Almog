@@ -10,22 +10,8 @@ import * as XLSX from "xlsx";
 
 export default function ContactImportDialog({ open, onClose, onImported }) {
   const [loading, setLoading] = useState(false);
-  const [preview, setPreview] = useState(null);
   const fileRef = useRef();
   const { showAlert } = useAlert();
-
-  const handleFile = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (evt) => {
-      const wb = XLSX.read(evt.target.result, { type: "binary" });
-      const ws = wb.Sheets[wb.SheetNames[0]];
-      const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
-      setPreview(rows.slice(0, 3));
-    };
-    reader.readAsBinaryString(file);
-  };
 
   const handleImport = async () => {
     const file = fileRef.current?.files[0];
