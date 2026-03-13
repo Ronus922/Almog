@@ -175,6 +175,19 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
+    
+    // Validate recurring appointments
+    if (formData.is_recurring) {
+      if (!formData.recurrence_pattern) {
+        alert('אנא בחר תדירות חזרה');
+        return;
+      }
+      if (!formData.recurrence_count || formData.recurrence_count < 1) {
+        alert('אנא הזן מספר חזרות חוקי (לפחות 1)');
+        return;
+      }
+    }
+    
     await onSave(formData);
   }, [formData, onSave]);
 
