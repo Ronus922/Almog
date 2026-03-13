@@ -216,6 +216,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
                      value={form.due_date || ""} 
                      onChange={(e) => set("due_date", e.target.value)}
                      min={!isEdit ? format(new Date(), 'yyyy-MM-dd') : undefined}
+                     className="cursor-pointer"
                    />
                  </div>
               </div>
