@@ -46,7 +46,24 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
   useEffect(() => {
     if (appointment) {
-      setFormData(appointment);
+      setFormData(prev => ({
+        ...prev,
+        title: appointment.title || '',
+        appointment_type: appointment.appointment_type || 'פגישה',
+        date: appointment.date || '',
+        start_time: appointment.start_time || '10:00',
+        end_time: appointment.end_time || '11:00',
+        location: appointment.location || '',
+        description: appointment.description || '',
+        reminder_before: appointment.reminder_before || '15m',
+        reminder_method: appointment.reminder_method || 'email',
+        event_color: appointment.event_color || '#3B82F6',
+        is_recurring: appointment.is_recurring || false,
+        recurrence_pattern: appointment.recurrence_pattern || 'weekly',
+        attendees_users: appointment.attendees_users || [],
+        attendees_contacts: appointment.attendees_contacts || [],
+        attachments: appointment.attachments || [],
+      }));
     } else if (selectedDate) {
       setFormData(prev => ({
         ...prev,
