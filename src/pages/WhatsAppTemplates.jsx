@@ -104,7 +104,7 @@ export default function WhatsAppTemplates() {
     mutationFn: (data) => base44.entities.WhatsAppTemplate.create(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['whatsapp-templates'] });
-      toast.success('התבנית נשמרה');
+      showAlert('התבנית נשמרה', 'success');
       setDialogOpen(false);
     },
   });
@@ -113,7 +113,7 @@ export default function WhatsAppTemplates() {
     mutationFn: ({ id, data }) => base44.entities.WhatsAppTemplate.update(id, data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['whatsapp-templates'] });
-      toast.success('התבנית עודכנה');
+      showAlert('התבנית עודכנה', 'success');
       setDialogOpen(false);
       setEditing(null);
     },
@@ -123,7 +123,7 @@ export default function WhatsAppTemplates() {
     mutationFn: (id) => base44.entities.WhatsAppTemplate.delete(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['whatsapp-templates'] });
-      toast.success('התבנית נמחקה');
+      showAlert('התבנית נמחקה', 'success');
     },
   });
 
