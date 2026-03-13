@@ -400,6 +400,19 @@ export default function Tasks() {
         </Card>
       </div>
 
+      <AlertDialog open={!!confirmDeleteId} onOpenChange={() => setConfirmDeleteId(null)}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>מחיקת משימה</AlertDialogTitle>
+            <AlertDialogDescription>האם אתה בטוח שברצונך למחוק משימה זו? פעולה זו אינה הפיכה.</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>ביטול</AlertDialogCancel>
+            <AlertDialogAction className="bg-red-600 hover:bg-red-700" onClick={() => { deleteMutation.mutate(confirmDeleteId); setConfirmDeleteId(null); }}>מחק</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <TaskFormDialog
         open={showDialog}
         onClose={() => { setShowDialog(false); setEditTask(null); }}
