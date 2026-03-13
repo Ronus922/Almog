@@ -9,7 +9,7 @@ import AppButton from "@/components/ui/app-button";
 import { Loader2, Building2, RefreshCw, X, Users, Archive, Printer } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { isManagerRole } from '@/components/utils/roles';
-import { toast } from 'sonner';
+import { useAlert } from '@/components/notifications/AlertSystem';
 
 import KPICards from '../components/dashboard/KPICards';
 import DebtorsTable from '../components/dashboard/DebtorsTable';
