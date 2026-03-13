@@ -318,8 +318,8 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         <div>
           <Label className="text-right block">תזכורת לפני</Label>
           <Select value={formData.reminder_before || '15m'} onValueChange={(value) => handleChange('reminder_before', value)}>
-            <SelectTrigger dir="rtl">
-              <SelectValue />
+            <SelectTrigger dir="rtl" className="w-full">
+              <SelectValue placeholder="בחר זמן" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="15m">15 דקות</SelectItem>
@@ -332,8 +332,8 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         <div>
           <Label className="text-right block">אופן התזכורת</Label>
           <Select value={formData.reminder_method || 'email'} onValueChange={(value) => handleChange('reminder_method', value)}>
-            <SelectTrigger dir="rtl">
-              <SelectValue />
+            <SelectTrigger dir="rtl" className="w-full">
+              <SelectValue placeholder="בחר אופן" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="email">אימייל</SelectItem>
