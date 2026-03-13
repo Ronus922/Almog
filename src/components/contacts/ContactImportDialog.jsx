@@ -39,19 +39,34 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
       const rows = XLSX.utils.sheet_to_json(ws, { defval: "" });
       const tagList = tags.split(",").map(t => t.trim()).filter(Boolean);
       let imported = 0;
+
       for (const row of rows) {
-        const phone = String(row["phone"] || row["טלפון"] || row["Phone"] || "").trim();
-        const name = String(row["name"] || row["שם"] || row["Name"] || "").trim();
-        if (!phone || !name) continue;
-        await base44.entities.Contact.create({
-          name,
-          phone,
-          email: String(row["email"] || row["מייל"] || row["Email"] || "").trim(),
+        const apartmentNumber = String(row["apartment_number"] || row["apartment"] || row["A"] || "").trim();
+        if (!apartmentNumber) continue;
+
+        const contact = {
+          apartment_number: apartmentNumber,
+          owner_name: String(row["owner_name"] || row["B"] || "").trim(),
+          owner_phone: String(row["owner_phone"] || row["C"] || "").trim(),
+          owner_email: String(row["owner_email"] || row["D"] || "").trim(),
+          tenant_name: String(row["tenant_name"] || row["E"] || "").trim(),
+          tenant_phone: String(row["tenant_phone"] || row["F"] || "").trim(),
+          tenant_email: String(row["tenant_email"] || row["G"] || "").trim(),
+          contact_type: String(row["contact_type"] || row["type"] || "owner").trim(),
+          address: String(row["address"] || "").trim(),
+          notes: String(row["notes"] || "").trim(),
+          management_fees: parseFloat(row["management_fees"] || row["H"] || 0) || 0,
           tags: tagList,
-          notes: String(row["notes"] || row["הערות"] || row["Notes"] || "").trim(),
-        });
-        imported++;
+        };
+
+        try {
+          await base44.entities.Contact.create(contact);
+          imported++;
+        } catch (error) {
+          console.error(`שגיאה בייבוא דירה ${apartmentNumber}:`, error);
+        }
       }
+
       setLoading(false);
       showAlert(`יובאו ${imported} אנשי קשר`, "success");
       onImported();
@@ -61,7 +76,34 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
   };
 
   const downloadTemplate = () => {
-    const ws = XLSX.utils.aoa_to_sheet([["name", "phone", "email", "notes"], ["ישראל ישראלי", "972501234567", "israel@example.com", "הערה"]]);
+    const ws = XLSX.utils.aoa_to_sheet([
+      [
+        "apartment_number",
+        "owner_name",
+        "owner_phone",
+        "owner_email",
+        "tenant_name",
+        "tenant_phone",
+        "tenant_email",
+        "contact_type",
+        "address",
+        "notes",
+        "management_fees",
+      ],
+      [
+        "1",
+        "דוד כהן",
+        "972501234567",
+        "david@example.com",
+        "אברהם לוי",
+        "972502345678",
+        "abraham@example.com",
+        "owner",
+        "רחוב ראשי 10",
+        "דירה בקומה ראשונה",
+        "500",
+      ],
+    ]);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "אנשי קשר");
     XLSX.writeFile(wb, "contacts_template.xlsx");
@@ -74,29 +116,43 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
           <DialogTitle>ייבוא אנשי קשר מ-Excel</DialogTitle>
         </DialogHeader>
         <div className="space-y-4 mt-2">
-          <Button variant="outline" size="sm" className="gap-2" onClick={downloadTemplate}>
+          <div className="bg-blue-50 border border-blue-200 rounded p-3 text-xs text-blue-700">
+            <p className="font-medium mb-1">תבנית קובץ:</p>
+            <p>A: מספר דירה | B: שם בעל דירה | C: טלפון | D: מייל |</p>
+            <p>E: שם שוכר | F: טלפון | G: מייל | H: דמי ניהול</p>
+          </div>
+
+          <Button variant="outline" size="sm" className="gap-2 w-full" onClick={downloadTemplate}>
             <Download className="w-4 h-4" /> הורד תבנית Excel
           </Button>
+
           <div>
             <Label>קובץ Excel</Label>
             <Input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="mt-1" onChange={handleFile} />
           </div>
+
           <div>
-            <Label>תגיות לכל האנשי קשר המיובאים</Label>
+            <Label>תגיות לכל אנשי הקשר המיובאים</Label>
             <Input value={tags} onChange={e => setTags(e.target.value)} placeholder="לדוגמה: לקוח, ועד בית" className="mt-1" />
           </div>
+
           {preview && (
             <div className="text-xs bg-slate-50 rounded p-2 overflow-auto max-h-28">
               <p className="font-medium mb-1 text-slate-500">תצוגה מקדימה (3 שורות ראשונות):</p>
               {preview.map((r, i) => (
-                <div key={i} className="text-slate-600">{JSON.stringify(r)}</div>
+                <div key={i} className="text-slate-600 truncate">{JSON.stringify(r)}</div>
               ))}
             </div>
           )}
         </div>
+
         <div className="flex justify-end gap-2 mt-4">
           <Button variant="outline" onClick={onClose}>ביטול</Button>
-          <Button onClick={handleImport} disabled={loading} className="bg-[#3563d0] hover:bg-[#2a50b0] text-white gap-2">
+          <Button
+            onClick={handleImport}
+            disabled={loading}
+            className="bg-[#3563d0] hover:bg-[#2a50b0] text-white gap-2"
+          >
             {loading ? <><Loader2 className="w-4 h-4 animate-spin" /> מייבא...</> : <><Upload className="w-4 h-4" /> ייבא</>}
           </Button>
         </div>
