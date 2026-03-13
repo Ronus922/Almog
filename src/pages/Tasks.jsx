@@ -78,9 +78,15 @@ export default function Tasks() {
     return map;
   }, [appUsers]);
 
+  const showAlert = useAlert();
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Task.delete(id),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["tasks"] });
+      showAlert('המשימה נמחקה', 'success');
+    },
   });
 
   const quickComplete = useMutation({
