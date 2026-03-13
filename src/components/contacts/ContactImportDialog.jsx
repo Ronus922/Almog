@@ -111,7 +111,7 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
 
           <div>
             <Label>קובץ Excel</Label>
-            <Input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="mt-1" />
+            <Input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="mt-1" required />
           </div>
         </div>
 
