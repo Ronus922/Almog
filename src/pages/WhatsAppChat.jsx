@@ -46,7 +46,7 @@ export default function WhatsAppChat() {
       if (!selectedContact) return [];
       return base44.entities.ChatMessage.filter({
         contact_id: selectedContact.id
-      }, 'timestamp').then(msgs => msgs.reverse()); // Reverse to show newest at bottom
+      }, 'timestamp'); // Keep oldest first - they'll appear at top
     },
     enabled: !!selectedContact,
     staleTime: 1000 * 30,
