@@ -47,8 +47,7 @@ Deno.serve(async (req) => {
       console.log('Phone in Israeli format:', senderPhone);
       
       // Find matching contact - check all possible phone fields
-      // Webhooks don't have auth - we need to handle this differently
-      const contacts = await base44.entities.Contact.filter({});
+      const contacts = await base44.asServiceRole.entities.Contact.filter({});
       console.log('Total contacts in DB:', contacts.length);
       
       const senderPhoneClean = senderPhone.replace(/[^0-9]/g, '');
