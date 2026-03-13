@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
       ? `הוקצתה לך משימה חדשה על ידי ${assignerName}: ${taskLabel}${ownerPart}`
       : `המשימה "${taskLabel}${ownerPart}" הועברה אליך על ידי ${assignerName}`;
 
-    await base44.asServiceRole.entities.Notification.create({
+    const notif = {
       user_username: data.assigned_to,
       type: 'task_assigned',
       message,
@@ -33,7 +33,13 @@ Deno.serve(async (req) => {
       task_type: data.task_type,
       assigner_name: assignerName,
       is_read: false,
-    });
+    };
+
+    // Use fetch directly to avoid SDK overhead and CPU limit issues
+    const appId = Deno.env.get('BASE44_APP_ID');
+    const serviceToken = req.headers.get('x-base44-service-token') || req.headers.get('authorization')?.replace('Bearer ', '');
+
+    await base44.asServiceRole.entities.Notification.create(notif);
 
     return Response.json({ ok: true });
   } catch (error) {

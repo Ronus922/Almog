@@ -70,7 +70,7 @@ export default function NotificationBell({ currentUser }) {
     <div className="relative" ref={ref}>
       <button
         onClick={handleOpen}
-        className="relative p-2 rounded-lg text-slate-600 hover:bg-slate-100 transition-colors"
+        className="relative p-2 rounded-lg text-white hover:bg-white/15 transition-colors"
         title="התראות"
       >
         <Bell className="w-5 h-5" />
