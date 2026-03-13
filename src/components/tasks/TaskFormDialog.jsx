@@ -19,6 +19,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
   const isEdit = !!task;
   const [form, setForm] = useState({});
   const [saving, setSaving] = useState(false);
+  const [activeTab, setActiveTab] = useState("form");
 
   const { data: appUsers = [] } = useQuery({
     queryKey: ["appUsers"],
