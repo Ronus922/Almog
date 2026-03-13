@@ -76,12 +76,11 @@ export default function CalendarHeader({
         </div>
 
         {/* Left: Navigation Arrows */}
-        <div className="flex items-center gap-1 flex-shrink-0">
+        <div className="flex items-center gap-2 flex-shrink-0 order-first">
           <Button
-            variant="ghost"
             size="icon"
             onClick={() => onNavigate('prev')}
-            className="h-9 w-9 text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+            className="h-10 w-10 bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg hover:scale-105 transition-all rounded-lg"
             title="חודש קודם"
           >
             <ChevronLeft className="w-5 h-5" />
