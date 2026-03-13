@@ -229,9 +229,9 @@ export default function Contacts() {
                    <TableRow key={contact.id}>
                      <TableCell className="font-bold text-blue-600">{contact.apartment_number}</TableCell>
                      <TableCell className="text-sm">{contact.owner_name || "—"}</TableCell>
-                     <TableCell className="text-sm" dir="ltr">{contact.owner_phone || "—"}</TableCell>
+                     <TableCell className="text-sm text-right max-w-[90px] truncate" dir="ltr">{contact.owner_phone || "—"}</TableCell>
                      <TableCell className="hidden md:table-cell text-sm">{contact.tenant_name || "—"}</TableCell>
-                     <TableCell className="hidden md:table-cell text-sm" dir="ltr">{contact.tenant_phone || "—"}</TableCell>
+                     <TableCell className="hidden md:table-cell text-sm text-right max-w-[90px] truncate" dir="ltr">{contact.tenant_phone || "—"}</TableCell>
                      <TableCell className="hidden md:table-cell text-right">
                        {contact.management_fees ? (
                          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
