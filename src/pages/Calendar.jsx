@@ -2,7 +2,6 @@ import React, { useState, useMemo } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Plus, ChevronLeft, ChevronRight } from 'lucide-react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSaturday, isFriday, addMonths, subMonths, addDays, subDays, addWeeks, subWeeks, getDay } from 'date-fns';
 import { he } from 'date-fns/locale';
@@ -45,19 +44,17 @@ const HEBREW_HOLIDAYS = [
 
 export default function Calendar() {
   const [currentMonth, setCurrentMonth] = useState(new Date());
-  const [viewMode, setViewMode] = useState('month'); // month, week, day
+  const [viewMode, setViewMode] = useState('month');
   const [selectedDate, setSelectedDate] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const queryClient = useQueryClient();
 
-  // Fetch appointments
   const { data: appointments = [] } = useQuery({
     queryKey: ['appointments'],
     queryFn: () => base44.entities.Appointment.list('-date'),
   });
 
-  // Create appointment mutation
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Appointment.create(data),
     onSuccess: () => {
@@ -67,7 +64,6 @@ export default function Calendar() {
     },
   });
 
-  // Update appointment mutation
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Appointment.update(id, data),
     onSuccess: () => {
@@ -76,7 +72,6 @@ export default function Calendar() {
     },
   });
 
-  // Delete appointment mutation
   const deleteMutation = useMutation({
     mutationFn: (id) => base44.entities.Appointment.delete(id),
     onSuccess: () => {
@@ -107,7 +102,6 @@ export default function Calendar() {
     if (selectedAppointment) {
       await updateMutation.mutateAsync({ id: selectedAppointment.id, data });
     } else {
-      // If it's recurring, create instances for next 12 months
       if (data.is_recurring) {
         const startDate = new Date(data.date);
         const instances = [];
@@ -129,7 +123,6 @@ export default function Calendar() {
           });
         }
         
-        // Create all instances
         for (const instance of instances) {
           await createMutation.mutateAsync(instance);
         }
@@ -156,102 +149,128 @@ export default function Calendar() {
     return holiday?.name || '';
   };
 
+  const monthStart = startOfMonth(currentMonth);
+  const monthEnd = endOfMonth(currentMonth);
+  const monthRangeStr = `${format(monthStart, 'dd/MM/yyyy')} - ${format(monthEnd, 'dd/MM/yyyy')}`;
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6" dir="rtl">
-      <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-4xl font-bold text-slate-900">יומן פגישות</h1>
-            <p className="text-slate-600 mt-2">ניהול פגישות ומשימות בקלות</p>
-          </div>
-          <Button
-            onClick={() => {
-              setSelectedAppointment(null);
-              setShowForm(true);
-            }}
-            className="bg-blue-600 hover:bg-blue-700 gap-2"
-          >
-            <Plus className="w-5 h-5" />
-            פגישה חדשה
-          </Button>
-        </div>
+    <div className="min-h-screen w-full bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100 p-4 md:p-8" dir="rtl">
+      <div className="w-full h-full flex flex-col">
+        {/* Header Section */}
+        <div className="mb-6">
+          <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+            {/* Title and Navigation - Right */}
+            <div className="flex-1">
+              <h1 className="text-3xl md:text-4xl font-bold text-slate-900 mb-2">יומן פגישות</h1>
+              <p className="text-sm text-slate-600">ניהול פגישות ומשימות בקלות</p>
+            </div>
 
-        {/* View Mode Selector */}
-        <div className="flex gap-2 mb-6">
-          {[
-            { mode: 'day', label: 'יומי' },
-            { mode: 'week', label: 'שבועי' },
-            { mode: 'month', label: 'חודשי' },
-          ].map((item) => (
+            {/* Add Button - Left */}
             <Button
-              key={item.mode}
-              variant={viewMode === item.mode ? 'default' : 'outline'}
-              onClick={() => setViewMode(item.mode)}
+              onClick={() => {
+                setSelectedAppointment(null);
+                setShowForm(true);
+              }}
+              className="bg-blue-600 hover:bg-blue-700 text-white gap-2 whitespace-nowrap"
             >
-              {item.label}
+              <Plus className="w-5 h-5" />
+              פגישה חדשה
             </Button>
-          ))}
+          </div>
         </div>
 
-        {/* Navigation */}
-        <div className="flex justify-between items-center mb-6 bg-white rounded-lg p-4 shadow-sm border border-slate-200">
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={viewMode === 'day' ? handlePrevDay : viewMode === 'week' ? handlePrevWeek : handlePrevMonth}
-          >
-            <ChevronLeft className="w-4 h-4" />
-          </Button>
-          <h2 className="text-2xl font-bold text-slate-900">
-            {viewMode === 'day' 
-              ? format(currentMonth, 'd MMMM yyyy', { locale: he })
-              : format(currentMonth, 'MMMM yyyy', { locale: he })
-            }
-          </h2>
-          <Button 
-            variant="outline" 
-            size="icon" 
-            onClick={viewMode === 'day' ? handleNextDay : viewMode === 'week' ? handleNextWeek : handleNextMonth}
-          >
-            <ChevronRight className="w-4 h-4" />
-          </Button>
+        {/* Control Bar */}
+        <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-4 mb-6">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-4">
+            {/* Navigation Arrows - Right */}
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handlePrevMonth}
+                className="h-9 w-9 text-slate-600 hover:text-slate-900"
+              >
+                <ChevronRight className="w-5 h-5" />
+              </Button>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={handleNextMonth}
+                className="h-9 w-9 text-slate-600 hover:text-slate-900"
+              >
+                <ChevronLeft className="w-5 h-5" />
+              </Button>
+            </div>
+
+            {/* Date Range - Center */}
+            <div className="text-center">
+              <p className="text-sm font-semibold text-slate-900">{monthRangeStr}</p>
+              <p className="text-xs text-slate-500">{format(currentMonth, 'MMMM yyyy', { locale: he })}</p>
+            </div>
+
+            {/* View Mode Selector - Left */}
+            <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-1">
+              {[
+                { mode: 'day', label: 'יום' },
+                { mode: 'week', label: 'שבוע' },
+                { mode: 'month', label: 'חודש' },
+              ].map((item) => (
+                <Button
+                  key={item.mode}
+                  variant={viewMode === item.mode ? 'default' : 'ghost'}
+                  size="sm"
+                  onClick={() => setViewMode(item.mode)}
+                  className={`text-xs font-medium px-3 py-1.5 h-auto ${
+                    viewMode === item.mode 
+                      ? 'bg-blue-600 text-white hover:bg-blue-700' 
+                      : 'text-slate-700 hover:bg-slate-200'
+                  }`}
+                >
+                  {item.label}
+                </Button>
+              ))}
+            </div>
+          </div>
         </div>
 
-        {/* Calendar Views */}
-        {viewMode === 'month' && (
-          <CalendarGrid
-            currentMonth={currentMonth}
-            appointments={appointments}
-            onDateClick={handleDateClick}
-            onAppointmentClick={handleAppointmentClick}
-            isHoliday={isHoliday}
-            getHolidayName={getHolidayName}
-          />
-        )}
-        {viewMode === 'week' && (
-          <WeekView
-            currentDate={currentMonth}
-            appointments={appointments}
-            onDateClick={handleDateClick}
-            onAppointmentClick={handleAppointmentClick}
-          />
-        )}
-        {viewMode === 'day' && (
-          <DayView
-            currentDate={currentMonth}
-            appointments={appointments}
-            onDateClick={handleDateClick}
-            onAppointmentClick={handleAppointmentClick}
-          />
-        )}
+        {/* Calendar View Container */}
+        <div className="flex-1 overflow-auto">
+          {viewMode === 'month' && (
+            <CalendarGrid
+              currentMonth={currentMonth}
+              appointments={appointments}
+              onDateClick={handleDateClick}
+              onAppointmentClick={handleAppointmentClick}
+              isHoliday={isHoliday}
+              getHolidayName={getHolidayName}
+            />
+          )}
+          {viewMode === 'week' && (
+            <WeekView
+              currentDate={currentMonth}
+              appointments={appointments}
+              onDateClick={handleDateClick}
+              onAppointmentClick={handleAppointmentClick}
+            />
+          )}
+          {viewMode === 'day' && (
+            <DayView
+              currentDate={currentMonth}
+              appointments={appointments}
+              onDateClick={handleDateClick}
+              onAppointmentClick={handleAppointmentClick}
+            />
+          )}
+        </div>
       </div>
 
       {/* Appointment Form Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" dir="rtl">
           <DialogHeader>
-            <DialogTitle className="text-right">{selectedAppointment ? 'עריכת פגישה' : 'פגישה חדשה'}</DialogTitle>
+            <DialogTitle className="text-right text-2xl font-bold text-slate-900">
+              {selectedAppointment ? 'עריכת פגישה' : 'פגישה חדשה'}
+            </DialogTitle>
           </DialogHeader>
           <AppointmentForm
             appointment={selectedAppointment}

@@ -1,7 +1,6 @@
 import React from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSaturday, isFriday, getDay } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { Card } from '@/components/ui/card';
 
 export default function CalendarGrid({ currentMonth, appointments, onDateClick, onAppointmentClick, isHoliday, getHolidayName }) {
   const monthStart = startOfMonth(currentMonth);
@@ -17,7 +16,7 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
 
   const days = eachDayOfInterval({ start: startDate, end: endDate });
   
-  const weekDays = ['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'];
+  const weekDays = ['יום א׳', 'יום ב׳', 'יום ג׳', 'יום ד׳', 'יום ה׳', 'יום ו׳', 'שבת'];
 
   const getAppointmentsForDay = (date) => {
     return appointments.filter(apt => isSameDay(new Date(apt.date), date));
@@ -33,67 +32,131 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
     return date < today;
   };
 
-  const getDayStyles = (date) => {
-    const baseStyles = 'p-2 min-h-24 border border-slate-200 text-right cursor-pointer transition-colors';
+  const getIsraeliHolidayName = (date) => {
+    const holidayName = getHolidayName(date);
+    if (!holidayName) return null;
     
-    if (isPastDate(date) && isCurrentMonth(date)) {
-      return `${baseStyles} bg-slate-100 text-slate-400 opacity-50 cursor-not-allowed`;
+    // Categorize holiday
+    if (holidayName.includes('חול המועד')) return { name: holidayName, type: 'chol_hamoed' };
+    if (['ראש השנה', 'יום כיפור', 'סוכות', 'שמחת תורה', 'הושנא רבה', 'פסח', 'שבועות', 'לג בעומר', 'חנוכה'].some(h => holidayName.includes(h))) {
+      return { name: holidayName, type: 'yom_tov' };
     }
-    if (isHoliday(date)) {
-      return `${baseStyles} bg-amber-50 hover:bg-amber-100`;
+    return { name: holidayName, type: 'yom_tov' };
+  };
+
+  const getDayStyles = (date) => {
+    const holiday = getIsraeliHolidayName(date);
+    const isShabat = isSaturday(date) || isFriday(date);
+    const isOutOfMonth = !isCurrentMonth(date);
+    const isPast = isPastDate(date) && isCurrentMonth(date);
+    const isToday = isSameDay(date, new Date());
+
+    // Base styles
+    const baseStyles = 'p-3 min-h-32 border border-slate-200 transition-all cursor-pointer hover:shadow-md';
+    
+    // Holiday type styles (highest priority)
+    if (holiday?.type === 'yom_tov') {
+      return `${baseStyles} bg-gradient-to-b from-amber-50 to-amber-25 hover:from-amber-100 hover:to-amber-50`;
     }
-    if (isSaturday(date) || isFriday(date)) {
-      return `${baseStyles} bg-red-50 hover:bg-red-100`;
+    if (holiday?.type === 'chol_hamoed') {
+      return `${baseStyles} bg-gradient-to-b from-emerald-50 to-emerald-25 hover:from-emerald-100 hover:to-emerald-50`;
     }
-    if (!isCurrentMonth(date)) {
+
+    // Shabbat style (priority after holidays)
+    if (isShabat && !holiday) {
+      return `${baseStyles} bg-gradient-to-b from-blue-50 to-blue-25 hover:from-blue-100 hover:to-blue-50`;
+    }
+
+    // Out of month
+    if (isOutOfMonth) {
       return `${baseStyles} bg-slate-50 text-slate-400`;
     }
-    return `${baseStyles} bg-white hover:bg-blue-50`;
+
+    // Past date
+    if (isPast) {
+      return `${baseStyles} bg-slate-100 text-slate-500 opacity-60 cursor-not-allowed`;
+    }
+
+    // Today highlight
+    if (isToday) {
+      return `${baseStyles} bg-gradient-to-b from-blue-100 to-blue-50 border-blue-300 border-2 shadow-sm`;
+    }
+
+    // Default - current month, future
+    return `${baseStyles} bg-white hover:bg-slate-50`;
   };
 
   return (
-    <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-slate-200" dir="rtl">
+    <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-slate-200 w-full h-full flex flex-col" dir="rtl">
       {/* Header with weekday names */}
-      <div className="grid grid-cols-7 gap-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold">
+      <div className="grid grid-cols-7 gap-0 bg-gradient-to-r from-slate-100 to-slate-50 border-b border-slate-200">
         {weekDays.map((day) => (
-          <div key={day} className="p-4 text-center text-sm">
+          <div key={day} className="p-4 text-center text-sm font-semibold text-slate-700 border-r border-slate-200 last:border-r-0">
             {day}
           </div>
         ))}
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-0">
+      <div className="grid grid-cols-7 gap-0 flex-1 overflow-hidden">
         {days.map((date, idx) => {
           const dayAppointments = getAppointmentsForDay(date);
-          const holiday = getHolidayName(date);
+          const holiday = getIsraeliHolidayName(date);
           const isToday = isSameDay(date, new Date());
+          const isOutOfMonth = !isCurrentMonth(date);
+          const isPast = isPastDate(date) && isCurrentMonth(date);
 
           return (
             <div
               key={idx}
               className={getDayStyles(date)}
-              onClick={() => isCurrentMonth(date) && !isPastDate(date) && onDateClick(date)}
+              onClick={() => {
+                if (!isOutOfMonth && !isPast) {
+                  onDateClick(date);
+                }
+              }}
             >
-              <div className={`text-sm font-bold mb-2 ${isToday ? 'text-blue-600 text-lg bg-blue-100 rounded-full w-6 h-6 flex items-center justify-center' : ''}`}>
-                {format(date, 'd')}
+              {/* Day Number */}
+              <div className="flex items-center justify-between mb-2">
+                <div className={`text-sm font-bold ${
+                  isToday 
+                    ? 'text-white bg-blue-600 rounded-full w-7 h-7 flex items-center justify-center' 
+                    : isOutOfMonth 
+                    ? 'text-slate-400' 
+                    : isPast 
+                    ? 'text-slate-500' 
+                    : 'text-slate-900'
+                }`}>
+                  {format(date, 'd')}
+                </div>
               </div>
               
+              {/* Holiday Name */}
               {holiday && (
-                <div className="text-xs bg-gradient-to-r from-amber-300 to-amber-200 text-amber-950 rounded px-1.5 py-1 mb-2 font-semibold text-right truncate shadow-sm">
-                  {holiday}
+                <div className={`text-xs font-semibold rounded px-2 py-1 mb-2 truncate ${
+                  holiday.type === 'yom_tov'
+                    ? 'bg-amber-200 text-amber-900'
+                    : 'bg-emerald-200 text-emerald-900'
+                }`}>
+                  {holiday.name}
                 </div>
               )}
 
+              {/* Appointments */}
               <div className="space-y-1">
                 {dayAppointments.slice(0, 2).map((apt) => (
                   <div
                     key={apt.id}
-                    className="text-xs p-1.5 rounded text-white truncate cursor-pointer hover:shadow-md transition-shadow font-medium"
-                    style={{ backgroundColor: apt.event_color || '#3B82F6' }}
+                    className="text-xs p-2 rounded text-white truncate cursor-pointer hover:shadow-lg transition-shadow font-medium border border-opacity-20 border-white"
+                    style={{ 
+                      backgroundColor: apt.event_color || '#3B82F6',
+                      opacity: isPast ? 0.6 : 1
+                    }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      onAppointmentClick(apt);
+                      if (!isPast) {
+                        onAppointmentClick(apt);
+                      }
                     }}
                     title={apt.title}
                   >
@@ -101,7 +164,7 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
                   </div>
                 ))}
                 {dayAppointments.length > 2 && (
-                  <div className="text-xs text-blue-600 px-1 font-semibold">
+                  <div className="text-xs text-blue-600 px-2 font-semibold">
                     +{dayAppointments.length - 2} עוד
                   </div>
                 )}
