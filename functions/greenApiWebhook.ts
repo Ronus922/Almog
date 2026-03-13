@@ -15,8 +15,11 @@ async function getBase44Client(req) {
 }
 
 Deno.serve(async (req) => {
+  console.log('[WEBHOOK] Received request:', req.method, req.url);
   try {
-    const payload = await req.json();
+    const text = await req.text();
+    console.log('[WEBHOOK] Raw body:', text);
+    const payload = JSON.parse(text);
     
     console.log('=== WEBHOOK RECEIVED ===');
     console.log('Event type:', payload.event);
