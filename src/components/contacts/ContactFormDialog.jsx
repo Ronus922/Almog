@@ -81,8 +81,13 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
           </div>
 
           {/* Owner */}
-          <div className="border border-slate-200 rounded-lg p-3 space-y-2">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">בעל דירה</p>
+          <div className={`border rounded-lg p-3 space-y-2 cursor-pointer transition-colors ${form.contact_type === "בעל דירה" ? "border-blue-400 bg-blue-50" : "border-slate-200"}`}>
+            <div className="flex items-center gap-2" onClick={() => selectPrimary("בעל דירה")}>
+              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${form.contact_type === "בעל דירה" ? "border-blue-500 bg-blue-500" : "border-slate-300"}`}>
+                {form.contact_type === "בעל דירה" && <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/></svg>}
+              </div>
+              <p className="text-sm font-semibold text-slate-700">בעל דירה <span className="text-xs font-normal text-slate-400">(ראשי לוואטסאפ)</span></p>
+            </div>
             <div className="grid grid-cols-1 gap-2">
               <div>
                 <Label>שם</Label>
@@ -102,8 +107,13 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
           </div>
 
           {/* Tenant */}
-          <div className="border border-slate-200 rounded-lg p-3 space-y-2">
-            <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide">שוכר</p>
+          <div className={`border rounded-lg p-3 space-y-2 cursor-pointer transition-colors ${form.contact_type === "שוכר" ? "border-purple-400 bg-purple-50" : "border-slate-200"}`}>
+            <div className="flex items-center gap-2" onClick={() => selectPrimary("שוכר")}>
+              <div className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 ${form.contact_type === "שוכר" ? "border-purple-500 bg-purple-500" : "border-slate-300"}`}>
+                {form.contact_type === "שוכר" && <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7"/></svg>}
+              </div>
+              <p className="text-sm font-semibold text-slate-700">שוכר <span className="text-xs font-normal text-slate-400">(ראשי לוואטסאפ)</span></p>
+            </div>
             <div className="grid grid-cols-1 gap-2">
               <div>
                 <Label>שם</Label>
