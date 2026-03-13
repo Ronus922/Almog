@@ -165,13 +165,16 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-lg" dir="rtl">
-        <DialogHeader>
-          <DialogTitle>{isEdit ? "עריכת משימה" : "משימה חדשה"}</DialogTitle>
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 -mx-6 -mt-6 px-6 py-4 mb-4 rounded-t-lg">
+          <DialogTitle className="text-white text-lg font-bold">{isEdit ? "עריכת משימה" : "משימה חדשה"}</DialogTitle>
           {debtorRecord && !isEdit &&
-          <p className="text-sm text-slate-500">
+          <p className="text-blue-100 text-sm mt-1">
               דירה {debtorRecord.apartmentNumber} – {debtorRecord.ownerName}
             </p>
           }
+        </div>
+        <DialogHeader className="sr-only">
+          <DialogTitle>{isEdit ? "עריכת משימה" : "משימה חדשה"}</DialogTitle>
         </DialogHeader>
 
         {isEdit &&
@@ -219,23 +222,45 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
 
               <div className="grid grid-cols-2 gap-3">
                 <div className="space-y-1">
-                  <Label>עדיפות</Label>
-                  <Select value={form.priority} onValueChange={(v) => set("priority", v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {PRIORITIES.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-1">
-                  <Label>סטטוס</Label>
-                  <Select value={form.status} onValueChange={(v) => set("status", v)}>
-                    <SelectTrigger><SelectValue /></SelectTrigger>
-                    <SelectContent>
-                      {STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}
-                    </SelectContent>
-                  </Select>
-                </div>
+                    <Label>עדיפות</Label>
+                    <Select value={form.priority} onValueChange={(v) => set("priority", v)}>
+                      <SelectTrigger className={`${
+                        form.priority === "גבוהה" ? "bg-red-100 text-red-700 border-red-300" :
+                        form.priority === "בינונית" ? "bg-yellow-100 text-yellow-700 border-yellow-300" :
+                        "bg-green-100 text-green-700 border-green-300"
+                      } font-semibold`}><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {PRIORITIES.map((p) => <SelectItem key={p} value={p}>
+                          <span className={`${
+                            p === "גבוהה" ? "text-red-700" :
+                            p === "בינונית" ? "text-yellow-700" :
+                            "text-green-700"
+                          } font-semibold`}>● {p}</span>
+                        </SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-1">
+                    <Label>סטטוס</Label>
+                    <Select value={form.status} onValueChange={(v) => set("status", v)}>
+                      <SelectTrigger className={`${
+                        form.status === "פתוחה" ? "bg-blue-100 text-blue-700 border-blue-300" :
+                        form.status === "בטיפול" ? "bg-orange-100 text-orange-700 border-orange-300" :
+                        form.status === "הושלמה" ? "bg-green-100 text-green-700 border-green-300" :
+                        "bg-slate-100 text-slate-700 border-slate-300"
+                      } font-semibold`}><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        {STATUSES.map((s) => <SelectItem key={s} value={s}>
+                          <span className={`${
+                            s === "פתוחה" ? "text-blue-700" :
+                            s === "בטיפול" ? "text-orange-700" :
+                            s === "הושלמה" ? "text-green-700" :
+                            "text-slate-700"
+                          } font-semibold`}>● {s}</span>
+                        </SelectItem>)}
+                      </SelectContent>
+                    </Select>
+                  </div>
               </div>
 
               <div className="space-y-1">
