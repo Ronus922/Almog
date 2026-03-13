@@ -74,13 +74,10 @@ export default function Tasks() {
 
   // סינון לפי המשתמש המחובר - רואה רק משימות שיצר או שהוקצו אליו
   const myTasks = useMemo(() => {
-    const username = currentUser?.username;
-    if (!username) return tasks;
     if (isAdmin) return tasks; // אדמין רואה הכל
-    return tasks.filter(t =>
-      t.created_by === currentUser?.email ||
-      t.assigned_to === username
-    );
+    const username = currentUser?.username;
+    if (!username) return []; // אם אין username - אל תציג כלום
+    return tasks.filter(t => t.assigned_to === username);
   }, [tasks, currentUser, isAdmin]);
 
   const assignedOptions = useMemo(() => {
