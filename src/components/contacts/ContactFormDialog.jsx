@@ -85,7 +85,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
               />
             </div>
             <div>
-              <Label>סוג קשר</Label>
+              <Label>איש קשר ראשי (להודעות)</Label>
               <Select value={form.contact_type} onValueChange={v => setForm(f => ({ ...f, contact_type: v }))}>
                 <SelectTrigger className="mt-1">
                   <SelectValue />
