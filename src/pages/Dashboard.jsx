@@ -85,7 +85,7 @@ function DashboardContent() {
           await queryClient.invalidateQueries({ queryKey: ['settings'] });
           setRefreshKey(Date.now());
           
-          toast.success('✅ הנתונים עודכנו מהייבוא');
+          showAlert('✅ הנתונים עודכנו מהייבוא', 'success');
         }
         
         // Always remove after checking
