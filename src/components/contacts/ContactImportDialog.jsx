@@ -10,6 +10,7 @@ import * as XLSX from "xlsx";
 export default function ContactImportDialog({ open, onClose, onImported }) {
   const [loading, setLoading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
   const fileRef = useRef();
   const { showAlert } = useAlert();
 
@@ -29,6 +30,13 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
     setDragActive(false);
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       fileRef.current.files = e.dataTransfer.files;
+      setSelectedFile(e.dataTransfer.files[0]);
+    }
+  };
+
+  const handleFileSelect = (e) => {
+    if (e.target.files && e.target.files[0]) {
+      setSelectedFile(e.target.files[0]);
     }
   };
 
@@ -134,7 +142,7 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
             type="file"
             accept=".xlsx,.xls,.csv"
             className="hidden"
-            onChange={() => {}}
+            onChange={handleFileSelect}
           />
 
           <div
@@ -150,7 +158,7 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
             onClick={() => fileRef.current?.click()}
           >
             <p className="text-slate-700 font-medium">
-              {fileRef.current?.files?.[0]?.name || "גרור קובץ או לחץ לבחירה"}
+              {selectedFile?.name || "גרור קובץ או לחץ לבחירה"}
             </p>
           </div>
 
@@ -158,7 +166,7 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
 
           <Button
             onClick={handleImport}
-            disabled={loading || !fileRef.current?.files?.[0]}
+            disabled={loading || !selectedFile}
             className="mt-8 bg-blue-600 hover:bg-blue-700 text-white gap-2 px-8"
           >
             {loading ? (
