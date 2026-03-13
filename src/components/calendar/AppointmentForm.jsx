@@ -470,11 +470,10 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       {/* Users - Multi Select */}
       <div>
         <Label className="block mb-3 font-bold text-slate-900 text-sm">משתמשים</Label>
-        <div className="relative">
+        <div className="relative" ref={userDropdownRef}>
           <button
             type="button"
             onClick={() => setShowUserSearch(!showUserSearch)}
-            onKeyDown={(e) => e.key === 'Escape' && setShowUserSearch(false)}
             className="w-full h-10 border border-slate-200 rounded-lg px-3 flex items-center justify-between hover:border-slate-300 bg-white text-right transition-all"
           >
             <ChevronDown className={`w-4 h-4 text-slate-600 transition-transform ${showUserSearch ? 'rotate-180' : ''}`} />
@@ -551,11 +550,10 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       {contacts.length > 0 && (
         <div>
           <Label className="block mb-3 font-bold text-slate-900 text-sm">אנשי קשר</Label>
-          <div className="relative">
+          <div className="relative" ref={contactDropdownRef}>
             <button
               type="button"
               onClick={() => setShowContactSearch(!showContactSearch)}
-              onKeyDown={(e) => e.key === 'Escape' && setShowContactSearch(false)}
               className="w-full h-10 border border-slate-200 rounded-lg px-3 flex items-center justify-between hover:border-slate-300 bg-white text-right transition-all"
             >
               <ChevronDown className={`w-4 h-4 text-slate-600 transition-transform ${showContactSearch ? 'rotate-180' : ''}`} />
