@@ -73,31 +73,34 @@ export default function MultiSelectAttendees({
           {/* Items List */}
           <div className="max-h-48 overflow-y-auto p-2">
             {filteredItems.length > 0 ? (
-              filteredItems.map((item) => (
-                <div
-                  key={item.id || item.email}
-                  className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer text-right"
-                  onClick={() => onToggle(item.id || item.email)}
-                >
-                  <Checkbox
-                    checked={selectedIds.includes(item.id || item.email)}
-                    onCheckedChange={() => onToggle(item.id || item.email)}
-                  />
-                  
-                  {/* Avatar */}
+              filteredItems.map((item) => {
+                const itemId = String(item.id || item.email);
+                const isSelected = selectedIds.includes(itemId);
+                return (
                   <div
-                    className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0`}
-                    style={{ backgroundColor: getAvatarColor(item) }}
+                    key={itemId}
+                    className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded text-right"
                   >
-                    {formatLabel(item)[0]}
-                  </div>
+                    <Checkbox
+                      checked={isSelected}
+                      onCheckedChange={() => onToggle(itemId)}
+                    />
 
-                  {/* Label */}
-                  <span className="text-sm text-slate-700 truncate">
-                    {formatLabel(item)}
-                  </span>
-                </div>
-              ))
+                    {/* Avatar */}
+                    <div
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-white text-sm font-medium flex-shrink-0`}
+                      style={{ backgroundColor: getAvatarColor(item) }}
+                    >
+                      {formatLabel(item)[0]}
+                    </div>
+
+                    {/* Label */}
+                    <span className="text-sm text-slate-700 truncate">
+                      {formatLabel(item)}
+                    </span>
+                  </div>
+                );
+              })
             ) : (
               <p className="text-sm text-slate-500 text-center py-4">אין תוצאות</p>
             )}
