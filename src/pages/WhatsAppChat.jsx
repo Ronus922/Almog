@@ -17,7 +17,9 @@ export default function WhatsAppChat() {
   // Get all contacts
   const { data: contacts = [] } = useQuery({
     queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.list()
+    queryFn: () => base44.entities.Contact.list(),
+    staleTime: 1000 * 60 * 5, // 5 minutes
+    gcTime: 1000 * 60 * 10 // 10 minutes
   });
 
   // Get chat messages
@@ -29,7 +31,9 @@ export default function WhatsAppChat() {
         contact_id: selectedContact.id
       }, '-timestamp');
     },
-    enabled: !!selectedContact
+    enabled: !!selectedContact,
+    staleTime: 1000 * 30, // 30 seconds
+    gcTime: 1000 * 60 // 1 minute
   });
 
   // Subscribe to new messages in real-time
@@ -49,16 +53,10 @@ export default function WhatsAppChat() {
   const sendMessageMutation = useMutation({
     mutationFn: async (content) => {
       const phone = selectedContact.owner_phone || selectedContact.tenant_phone;
-      if (!phone) throw new Error('No phone number available');
+      if (!phone) throw new Error('אין מספר טלפון זמין');
 
-      // Send via Green API
-      await base44.functions.invoke('sendWhatsApp', {
-        phone,
-        message: content
-      });
-
-      // Save to ChatMessage
-      return base44.entities.ChatMessage.create({
+      // Save to ChatMessage first
+      const msg = await base44.entities.ChatMessage.create({
         contact_id: selectedContact.id,
         contact_phone: phone,
         direction: 'sent',
@@ -66,10 +64,26 @@ export default function WhatsAppChat() {
         content,
         timestamp: new Date().toISOString()
       });
+
+      // Send via Green API
+      try {
+        await base44.functions.invoke('sendWhatsApp', {
+          phone,
+          message: content
+        });
+      } catch (error) {
+        console.error('Failed to send via Green API:', error);
+        // Message is still saved, but log the error
+      }
+
+      return msg;
     },
     onSuccess: () => {
       setMessageInput('');
       queryClient.invalidateQueries({ queryKey: ['chatMessages', selectedContact.id] });
+    },
+    onError: (error) => {
+      console.error('Message send error:', error);
     }
   });
 
