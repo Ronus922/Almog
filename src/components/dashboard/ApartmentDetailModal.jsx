@@ -502,7 +502,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       
     } catch (error) {
       console.error('Print error:', error);
-      toast.error('שגיאה בהדפסה');
+      showAlert('שגיאה בהדפסה', 'error');
     }
   };
 
