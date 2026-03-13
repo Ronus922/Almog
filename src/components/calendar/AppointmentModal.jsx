@@ -1,5 +1,5 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
@@ -11,17 +11,18 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
   return (
     <Dialog open={!!appointment} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl" dir="rtl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center justify-end gap-2 text-right">
-            {appointment.title}
-            <div
-              className="w-4 h-4 rounded flex-shrink-0"
-              style={{ backgroundColor: appointment.event_color || '#3B82F6' }}
-            />
-          </DialogTitle>
-        </DialogHeader>
+         <DialogHeader>
+           <DialogTitle className="flex items-center justify-end gap-2 text-right">
+             {appointment.title}
+             <div
+               className="w-4 h-4 rounded flex-shrink-0"
+               style={{ backgroundColor: appointment.event_color || '#3B82F6' }}
+             />
+           </DialogTitle>
+           <DialogDescription className="hidden">פרטי הפגישה</DialogDescription>
+         </DialogHeader>
 
-        <div className="space-y-4 py-4 text-right">
+         <div className="space-y-4 py-4 text-right">
           {/* Type */}
           {appointment.appointment_type && (
             <div className="flex items-center justify-end gap-3">
