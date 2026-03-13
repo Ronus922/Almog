@@ -28,6 +28,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
 
   useEffect(() => {
     if (open) {
+      setActiveTab("form");
       if (isEdit) {
         setForm({ ...task });
       } else {
