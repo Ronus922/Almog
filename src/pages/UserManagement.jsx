@@ -42,7 +42,7 @@ export default function UserManagement() {
     username: '',
     email: '',
     password: '',
-    role: 'viewer_password'
+    role: 'VIEWER'
   });
   const [formError, setFormError] = useState('');
   const [shareToken, setShareToken] = useState('');
@@ -90,7 +90,7 @@ export default function UserManagement() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['appUsers'] });
       setIsAddDialogOpen(false);
-      setNewUser({ first_name: '', last_name: '', username: '', email: '', password: '', role: 'viewer_password' });
+      setNewUser({ first_name: '', last_name: '', username: '', email: '', password: '', role: 'VIEWER' });
       setFormError('');
       toast.success('המשתמש נוצר ומייל נשלח בהצלחה');
     },
@@ -267,7 +267,12 @@ export default function UserManagement() {
                       {user.email || '-'}
                     </TableCell>
                     <TableCell>
-                      {user.role === 'admin' ? (
+                      {user.role === 'SUPER_ADMIN' ? (
+                        <Badge className="bg-purple-100 text-purple-700 border-purple-200">
+                          <Shield className="w-3 h-3 ml-1" />
+                          סופר אדמין
+                        </Badge>
+                      ) : user.role === 'ADMIN' || user.role === 'admin' ? (
                         <Badge className="bg-red-100 text-red-700 border-red-200">
                           <Shield className="w-3 h-3 ml-1" />
                           מנהל
@@ -275,7 +280,7 @@ export default function UserManagement() {
                       ) : (
                         <Badge className="bg-blue-100 text-blue-700 border-blue-200">
                           <Eye className="w-3 h-3 ml-1" />
-                          צפייה
+                          צופה
                         </Badge>
                       )}
                     </TableCell>
@@ -433,8 +438,9 @@ export default function UserManagement() {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="admin">מנהל</SelectItem>
-                    <SelectItem value="viewer_password">צפייה עם סיסמה</SelectItem>
+                    <SelectItem value="SUPER_ADMIN">סופר אדמין</SelectItem>
+                    <SelectItem value="ADMIN">מנהל</SelectItem>
+                    <SelectItem value="VIEWER">צופה</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -444,7 +450,7 @@ export default function UserManagement() {
                   variant="outline"
                   onClick={() => {
                     setIsAddDialogOpen(false);
-                    setNewUser({ first_name: '', last_name: '', username: '', password: '', role: 'viewer_password' });
+                    setNewUser({ first_name: '', last_name: '', username: '', email: '', password: '', role: 'VIEWER' });
                     setFormError('');
                   }}
                   className="flex-1 rounded-xl"
