@@ -380,27 +380,36 @@ export default function Tasks() {
 
                         <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                            <Select value={task.priority} onValueChange={(value) => updatePriority.mutate({ taskId: task.id, priority: value })}>
-                             <SelectTrigger className="w-28 h-8 text-xs">
+                             <SelectTrigger className={`w-28 h-8 text-xs font-semibold ${
+                               task.priority === "גבוהה" ? "bg-red-100 text-red-700 border-red-300" :
+                               task.priority === "בינונית" ? "bg-yellow-100 text-yellow-700 border-yellow-300" :
+                               "bg-green-100 text-green-700 border-green-300"
+                             }`}>
                                <SelectValue />
                              </SelectTrigger>
                              <SelectContent>
-                               <SelectItem value="גבוהה">גבוהה</SelectItem>
-                               <SelectItem value="בינונית">בינונית</SelectItem>
-                               <SelectItem value="נמוכה">נמוכה</SelectItem>
+                               <SelectItem value="גבוהה"><span className="text-red-700 font-semibold">● גבוהה</span></SelectItem>
+                               <SelectItem value="בינונית"><span className="text-yellow-700 font-semibold">● בינונית</span></SelectItem>
+                               <SelectItem value="נמוכה"><span className="text-green-700 font-semibold">● נמוכה</span></SelectItem>
                              </SelectContent>
                            </Select>
                          </td>
 
                         <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                            <Select value={task.status} onValueChange={(value) => updateStatus.mutate({ taskId: task.id, status: value })}>
-                             <SelectTrigger className="w-28 h-8 text-xs">
+                             <SelectTrigger className={`w-28 h-8 text-xs font-semibold ${
+                               task.status === "פתוחה" ? "bg-blue-100 text-blue-700 border-blue-300" :
+                               task.status === "בטיפול" ? "bg-orange-100 text-orange-700 border-orange-300" :
+                               task.status === "הושלמה" ? "bg-green-100 text-green-700 border-green-300" :
+                               "bg-slate-100 text-slate-700 border-slate-300"
+                             }`}>
                                <SelectValue />
                              </SelectTrigger>
                              <SelectContent>
-                               <SelectItem value="פתוחה">פתוחה</SelectItem>
-                               <SelectItem value="בטיפול">בטיפול</SelectItem>
-                               <SelectItem value="הושלמה">הושלמה</SelectItem>
-                               <SelectItem value="בוטלה">בוטלה</SelectItem>
+                               <SelectItem value="פתוחה"><span className="text-blue-700 font-semibold">● פתוחה</span></SelectItem>
+                               <SelectItem value="בטיפול"><span className="text-orange-700 font-semibold">● בטיפול</span></SelectItem>
+                               <SelectItem value="הושלמה"><span className="text-green-700 font-semibold">● הושלמה</span></SelectItem>
+                               <SelectItem value="בוטלה"><span className="text-slate-700 font-semibold">● בוטלה</span></SelectItem>
                              </SelectContent>
                            </Select>
                          </td>
