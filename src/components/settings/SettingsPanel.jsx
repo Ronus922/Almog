@@ -36,6 +36,7 @@ export default function SettingsPanel() {
   const [isRecalculating, setIsRecalculating] = useState(false);
   const [recalcSuccess, setRecalcSuccess] = useState(false);
   const [recalcMessage, setRecalcMessage] = useState('');
+  const { showAlert } = useAlert();
 
 
 
