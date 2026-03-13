@@ -5,6 +5,8 @@ import { he } from 'date-fns/locale';
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 export default function WeekView({ currentDate, appointments, onDateClick, onAppointmentClick }) {
+  // Placeholder - will be updated to match new design
+  if (!appointments) return null;
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
   const weekEnd = endOfWeek(currentDate, { weekStartsOn: 0 });
   const days = eachDayOfInterval({ start: weekStart, end: weekEnd });

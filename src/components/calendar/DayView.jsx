@@ -6,6 +6,8 @@ import { isSameDay } from 'date-fns';
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
 export default function DayView({ currentDate, appointments, onDateClick, onAppointmentClick }) {
+  // Placeholder - will be updated to match new design
+  if (!appointments) return null;
   const dayAppointments = appointments.filter(apt => isSameDay(new Date(apt.date), currentDate));
 
   const getAppointmentStyle = (apt) => {
