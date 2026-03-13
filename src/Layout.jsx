@@ -18,6 +18,7 @@ import {
   User, ChevronDown, Building2, Menu, X, SlidersHorizontal, Users as UsersIcon, Copy, ClipboardList, MessageCircle } from
 "lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
+import { AlertProvider } from "@/components/notifications/AlertSystem";
 
 import { Toaster } from 'sonner';
 
