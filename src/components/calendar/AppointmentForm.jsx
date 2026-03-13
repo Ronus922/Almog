@@ -24,8 +24,7 @@ const COLOR_PALETTE = [
 export default function AppointmentForm({ appointment, selectedDate, onSave, onCancel, isLoading }) {
   const [users, setUsers] = useState([]);
   const [contacts, setContacts] = useState([]);
-  const [userSearch, setUserSearch] = useState('');
-  const [contactSearch, setContactSearch] = useState('');
+
   const [dragActive, setDragActive] = useState(false);
   const [formData, setFormData] = useState({
     title: '',
