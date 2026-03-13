@@ -335,7 +335,7 @@ export default function Tasks() {
                             </button>
                             {(task.assigned_by === currentUser?.username || task.assigned_by === currentUser?.email) && (
                               <button
-                                onClick={() => { if (window.confirm("למחוק משימה זו?")) deleteMutation.mutate(task.id); }}
+                                onClick={() => setConfirmDeleteId(task.id)}
                                 className="text-slate-300 hover:text-red-500 transition-colors"
                               >
                                 <Trash2 className="w-4 h-4" />
