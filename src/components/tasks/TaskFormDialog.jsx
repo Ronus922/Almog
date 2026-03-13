@@ -27,7 +27,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
       if (isEdit) {
         setForm({ ...task });
       } else {
-        const assignerName = currentUser?.first_name
+        const assignerDisplayName = currentUser?.first_name
           ? `${currentUser.first_name}${currentUser.last_name ? " " + currentUser.last_name : ""}`
           : currentUser?.username || "";
         setForm({
@@ -40,8 +40,8 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
           description: "",
           due_date: "",
           assigned_to: currentUser?.username || "",
-          assigned_to_name: assignerName,
-          assigned_by: assignerName,
+          assigned_to_name: assignerDisplayName,
+          assigned_by: currentUser?.username || currentUser?.email || "",
           completion_notes: "",
         });
       }
