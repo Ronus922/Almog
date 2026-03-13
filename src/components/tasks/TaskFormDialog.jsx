@@ -109,6 +109,18 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
         changed_by_name: changer.name,
         changes: "{}",
       });
+      // שליחת התראה לנמען המשימה
+      if (form.assigned_to) {
+        await base44.entities.Notification.create({
+          user_username: form.assigned_to,
+          type: "task_assigned",
+          message: `הוקצתה לך משימה: ${form.task_type}${form.owner_name ? ` – דירה ${form.apartment_number}` : ""}`,
+          task_id: newTask.id,
+          task_type: form.task_type,
+          assigner_name: changer.name || changer.username,
+          is_read: false,
+        });
+      }
     }
     setSaving(false);
     onSaved();
