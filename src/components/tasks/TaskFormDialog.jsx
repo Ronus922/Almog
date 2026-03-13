@@ -1,15 +1,18 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { Checkbox } from "@/components/ui/checkbox";
 import { base44 } from "@/api/base44Client";
 import { useQuery } from "@tanstack/react-query";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
+import { Search, ChevronDown } from "lucide-react";
 import TaskAuditLogTab from "@/components/tasks/TaskAuditLogTab";
 
 const TRACKED_FIELDS = ["task_type", "status", "priority", "due_date", "assigned_to_name", "description", "completion_notes"];
@@ -37,15 +40,48 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("form");
   const [openDatePicker, setOpenDatePicker] = useState(false);
+  const [showUserDropdown, setShowUserDropdown] = useState(false);
+  const [userSearchTerm, setUserSearchTerm] = useState("");
+  const userDropdownRef = useRef(null);
 
   const { data: appUsers = [] } = useQuery({
     queryKey: ["appUsers"],
     queryFn: () => base44.entities.AppUser.list("first_name")
   });
 
+  const filteredUsers = userSearchTerm.trim() === ""
+    ? appUsers
+    : appUsers.filter(u => {
+        const label = `${u.first_name}${u.last_name ? " " + u.last_name : ""}`.toLowerCase();
+        return label.includes(userSearchTerm.toLowerCase());
+      });
+
+  useEffect(() => {
+    const handleEscape = (e) => {
+      if (e.key === 'Escape') {
+        setShowUserDropdown(false);
+      }
+    };
+    
+    const handleClickOutside = (e) => {
+      if (userDropdownRef.current && !userDropdownRef.current.contains(e.target)) {
+        setShowUserDropdown(false);
+      }
+    };
+    
+    document.addEventListener('keydown', handleEscape);
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('keydown', handleEscape);
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   useEffect(() => {
     if (open) {
       setActiveTab("form");
+      setShowUserDropdown(false);
+      setUserSearchTerm("");
       if (isEdit) {
         setForm(prev => ({
           ...task,
@@ -285,18 +321,63 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
                   </div>
               </div>
 
-              <div className="space-y-1">
+              <div className="space-y-2">
                 <Label>הקצה ל:</Label>
-                <Select value={form.assigned_to} onValueChange={handleAssignedToChange}>
-                  <SelectTrigger><SelectValue placeholder="בחר משתמש..." /></SelectTrigger>
-                  <SelectContent>
-                    {appUsers.map((u) =>
-                  <SelectItem key={u.id} value={u.username}>
-                        {u.first_name}{u.last_name ? " " + u.last_name : ""}
-                      </SelectItem>
+                <div className="relative" ref={userDropdownRef}>
+                  <button
+                    type="button"
+                    onClick={() => setShowUserDropdown(!showUserDropdown)}
+                    className="w-full h-10 border border-slate-200 rounded-lg px-3 flex items-center justify-between hover:border-slate-300 bg-white text-right transition-all"
+                  >
+                    <ChevronDown className={`w-4 h-4 text-slate-600 transition-transform ${showUserDropdown ? 'rotate-180' : ''}`} />
+                    <span className="text-sm text-slate-700 flex-1 text-right">
+                      {form.assigned_to_name || "בחר משתמש..."}
+                    </span>
+                  </button>
+
+                  {showUserDropdown && (
+                    <div className="absolute top-full right-0 left-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-50">
+                      <div className="p-3 border-b border-slate-200">
+                        <div className="relative">
+                          <Search className="absolute right-3 top-2.5 w-4 h-4 text-slate-400" />
+                          <Input
+                            type="text"
+                            placeholder="חפש משתמש..."
+                            value={userSearchTerm}
+                            onChange={(e) => setUserSearchTerm(e.target.value)}
+                            dir="rtl"
+                            className="pl-10 h-9 text-sm"
+                            autoFocus
+                          />
+                        </div>
+                      </div>
+
+                      <div className="max-h-56 overflow-y-auto p-2">
+                        {filteredUsers.length > 0 ? (
+                          filteredUsers.map((user) => (
+                            <div 
+                              key={user.id} 
+                              className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer transition-colors" 
+                              dir="rtl"
+                              onClick={() => {
+                                handleAssignedToChange(user.username);
+                                setShowUserDropdown(false);
+                                setUserSearchTerm("");
+                              }}
+                            >
+                              <Checkbox
+                                checked={form.assigned_to === user.username}
+                              />
+                              <span className="text-sm text-slate-700">{user.first_name}{user.last_name ? " " + user.last_name : ""}</span>
+                            </div>
+                          ))
+                        ) : (
+                          <p className="text-sm text-slate-500 text-center py-3">לא נמצאו משתמשים</p>
+                        )}
+                      </div>
+                    </div>
                   )}
-                  </SelectContent>
-                </Select>
+                </div>
               </div>
 
               <div className="space-y-1">
