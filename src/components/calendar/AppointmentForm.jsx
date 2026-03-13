@@ -209,9 +209,9 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       {/* Type */}
       <div>
         <Label className="text-right block">סוג</Label>
-        <Select value={formData.appointment_type} onValueChange={(value) => handleChange('appointment_type', value)}>
+        <Select value={formData.appointment_type || 'פגישה'} onValueChange={(value) => handleChange('appointment_type', value)}>
           <SelectTrigger dir="rtl">
-            <SelectValue placeholder="בחר סוג" />
+            <SelectValue />
           </SelectTrigger>
           <SelectContent>
             <SelectItem value="פגישה">פגישה</SelectItem>
