@@ -158,7 +158,6 @@ function LayoutContent({ children, currentPageName }) {
             <div className="flex items-center gap-2">
               {currentUser &&
               <div className="hidden md:flex items-center gap-2">
-                  <NotificationBell currentUser={currentUser} />
                    <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                       <Button variant="ghost" className="gap-2 h-9 text-white hover:bg-white/15">
