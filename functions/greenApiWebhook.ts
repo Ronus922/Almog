@@ -55,7 +55,7 @@ Deno.serve(async (req) => {
       
       if (contact) {
         console.log('✓ Contact found:', contact.id, contact.apartment_number);
-        const textContent = message.messageData?.textMessageData?.textMessage || '';
+        const textContent = payload.messageData?.textMessageData?.textMessage || '';
         
         const savedMsg = await base44.asServiceRole.entities.ChatMessage.create({
           contact_id: contact.id,
@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
           direction: 'received',
           message_type: 'text',
           content: textContent,
-          timestamp: new Date(message.timestamp * 1000).toISOString()
+          timestamp: new Date(payload.timestamp * 1000).toISOString()
         });
         console.log('✓ Message saved:', savedMsg.id);
       } else {
