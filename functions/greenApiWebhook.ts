@@ -18,10 +18,7 @@ Deno.serve(async (req) => {
     
     // Green API sends 'incomingMessageReceived' typeWebhook
     if (payload.typeWebhook === 'incomingMessageReceived') {
-      const message = payload.data;
-      console.log('Message data:', JSON.stringify(message, null, 2));
-      
-      const senderRaw = message.senderData?.sender || '';
+      const senderRaw = payload.senderData?.sender || '';
       console.log('Sender raw:', senderRaw);
       
       // Green API format: "972512345678@c.us" - extract just the phone
