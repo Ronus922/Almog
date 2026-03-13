@@ -146,10 +146,9 @@ export default function WhatsAppChat() {
   }, [messages]);
 
   return (
-    <div className="flex flex-col h-screen bg-gray-100 overflow-hidden" dir="rtl" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Cpath d=\'M0 0h100v100H0z\' fill=\'%23ECE5DD\'/%3E%3Cpath d=\'M50 0L100 50L50 100L0 50z\' fill=\'%23E8DED2\' opacity=\'0.3\'/%3E%3C/svg%3E")', backgroundSize: '100px 100px' }}>
-      <div className="flex-1 flex gap-0 overflow-hidden">
-        {/* Contacts List - Right Side */}
-        <div className="w-96 bg-white flex flex-col shadow-lg border-l border-gray-200">
+    <div className="h-screen flex gap-0 bg-gray-100 overflow-hidden" dir="rtl" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Cpath d=\'M0 0h100v100H0z\' fill=\'%23ECE5DD\'/%3E%3Cpath d=\'M50 0L100 50L50 100L0 50z\' fill=\'%23E8DED2\' opacity=\'0.3\'/%3E%3C/svg%3E")', backgroundSize: '100px 100px' }}>
+      <div className="w-96 bg-white flex flex-col shadow-lg border-l border-gray-200 overflow-hidden">
+        {/* Contacts List - Right Side - Removed, now part of main container */}
           <div className="p-4 border-b border-gray-200 bg-white">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">הודעות</h2>
             <div className="relative">
@@ -181,8 +180,12 @@ export default function WhatsAppChat() {
                     }`}
                     style={selectedContact?.id === contact.id ? { backgroundColor: '#f9fff5' } : {}}
                   >
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
-                      {initials}
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 overflow-hidden">
+                      {contact.whatsapp_profile_image ? (
+                        <img src={contact.whatsapp_profile_image} alt={displayName} className="w-full h-full object-cover" />
+                      ) : (
+                        initials
+                      )}
                     </div>
                     <div className="flex-1 text-right min-w-0">
                       <div className="font-semibold text-gray-900 text-sm truncate">
@@ -196,11 +199,10 @@ export default function WhatsAppChat() {
                 );
               })
             )}
-          </div>
         </div>
 
         {/* Chat Window */}
-        <div className="flex-1 flex flex-col overflow-hidden" style={{ backgroundColor: '#fef5ea' }}>
+        <div className="flex-1 flex flex-col" style={{ backgroundColor: '#fef5ea' }}>
           {selectedContact ? (
             <>
               {/* Chat Header */}
@@ -222,8 +224,12 @@ export default function WhatsAppChat() {
                       דירה {selectedContact.apartment_number}
                     </p>
                   </div>
-                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm">
-                    {(selectedContact.owner_name || selectedContact.tenant_name).split(' ').map(n => n[0]).join('').substring(0, 2)}
+                  <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm overflow-hidden">
+                    {selectedContact.whatsapp_profile_image ? (
+                      <img src={selectedContact.whatsapp_profile_image} alt={selectedContact.owner_name || selectedContact.tenant_name} className="w-full h-full object-cover" />
+                    ) : (
+                      (selectedContact.owner_name || selectedContact.tenant_name).split(' ').map(n => n[0]).join('').substring(0, 2)
+                    )}
                   </div>
                 </div>
               </div>
