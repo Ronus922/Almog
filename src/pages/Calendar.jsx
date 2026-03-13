@@ -166,28 +166,57 @@ export default function Calendar() {
           ))}
         </div>
 
-        {/* Month Navigation */}
+        {/* Navigation */}
         <div className="flex justify-between items-center mb-6 bg-white rounded-lg p-4 shadow-sm border border-slate-200">
-          <Button variant="outline" size="icon" onClick={handlePrevMonth}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={viewMode === 'day' ? handlePrevDay : viewMode === 'week' ? handlePrevWeek : handlePrevMonth}
+          >
             <ChevronLeft className="w-4 h-4" />
           </Button>
           <h2 className="text-2xl font-bold text-slate-900">
-            {format(currentMonth, 'MMMM yyyy', { locale: he })}
+            {viewMode === 'day' 
+              ? format(currentMonth, 'd MMMM yyyy', { locale: he })
+              : format(currentMonth, 'MMMM yyyy', { locale: he })
+            }
           </h2>
-          <Button variant="outline" size="icon" onClick={handleNextMonth}>
+          <Button 
+            variant="outline" 
+            size="icon" 
+            onClick={viewMode === 'day' ? handleNextDay : viewMode === 'week' ? handleNextWeek : handleNextMonth}
+          >
             <ChevronRight className="w-4 h-4" />
           </Button>
         </div>
 
-        {/* Calendar Grid */}
-        <CalendarGrid
-          currentMonth={currentMonth}
-          appointments={appointments}
-          onDateClick={handleDateClick}
-          onAppointmentClick={handleAppointmentClick}
-          isHoliday={isHoliday}
-          getHolidayName={getHolidayName}
-        />
+        {/* Calendar Views */}
+        {viewMode === 'month' && (
+          <CalendarGrid
+            currentMonth={currentMonth}
+            appointments={appointments}
+            onDateClick={handleDateClick}
+            onAppointmentClick={handleAppointmentClick}
+            isHoliday={isHoliday}
+            getHolidayName={getHolidayName}
+          />
+        )}
+        {viewMode === 'week' && (
+          <WeekView
+            currentDate={currentMonth}
+            appointments={appointments}
+            onDateClick={handleDateClick}
+            onAppointmentClick={handleAppointmentClick}
+          />
+        )}
+        {viewMode === 'day' && (
+          <DayView
+            currentDate={currentMonth}
+            appointments={appointments}
+            onDateClick={handleDateClick}
+            onAppointmentClick={handleAppointmentClick}
+          />
+        )}
       </div>
 
       {/* Appointment Form Dialog */}
