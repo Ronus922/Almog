@@ -33,31 +33,58 @@ export default function SendWhatsAppBulkDialog({ open, onClose, contacts, settin
     let failCount = 0;
 
     for (const contact of contacts) {
-      try {
-        const phone = contact.phone.replace(/\D/g, "");
-        const chatId = phone.endsWith("@c.us") ? phone : `${phone}@c.us`;
-        const personalizedMsg = message
-          .replace(/{{name}}/g, contact.name)
-          .replace(/{{phone}}/g, contact.phone);
+       try {
+         const recipientsToSend = [];
 
-        const res = await fetch(
-          `https://api.green-api.com/waInstance${settings.greenApiInstanceId}/sendMessage/${settings.greenApiToken}`,
-          {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ chatId, message: personalizedMsg }),
-          }
-        );
-        if (res.ok) {
-          successCount++;
-          await base44.entities.Contact.update(contact.id, { last_whatsapp_sent_at: new Date().toISOString() });
-        } else {
-          failCount++;
-        }
-      } catch {
-        failCount++;
-      }
-    }
+         // קבע לאילו נמענים לשלוח
+         if (contact.contact_type === "owner" || contact.contact_type === "both") {
+           if (contact.owner_phone) {
+             recipientsToSend.push({
+               phone: contact.owner_phone,
+               name: contact.owner_name || "בעל דירה"
+             });
+           }
+         }
+         if (contact.contact_type === "tenant" || contact.contact_type === "both") {
+           if (contact.tenant_phone) {
+             recipientsToSend.push({
+               phone: contact.tenant_phone,
+               name: contact.tenant_name || "שוכר"
+             });
+           }
+         }
+
+         // שלח להודעה לכל נמענה
+         for (const recipient of recipientsToSend) {
+           const phone = recipient.phone.replace(/\D/g, "");
+           const chatId = phone.endsWith("@c.us") ? phone : `${phone}@c.us`;
+           const personalizedMsg = message
+             .replace(/{{name}}/g, recipient.name)
+             .replace(/{{phone}}/g, recipient.phone);
+
+           const res = await fetch(
+             `https://api.green-api.com/waInstance${settings.greenApiInstanceId}/sendMessage/${settings.greenApiToken}`,
+             {
+               method: "POST",
+               headers: { "Content-Type": "application/json" },
+               body: JSON.stringify({ chatId, message: personalizedMsg }),
+             }
+           );
+           if (res.ok) {
+             successCount++;
+           } else {
+             failCount++;
+           }
+         }
+
+         // עדכן את התאריך רק אחרי כל ההודעות
+         if (recipientsToSend.length > 0) {
+           await base44.entities.Contact.update(contact.id, { last_whatsapp_sent_at: new Date().toISOString() });
+         }
+       } catch {
+         failCount++;
+       }
+     }
 
     setSending(false);
     setResults({ successCount, failCount });

@@ -93,6 +93,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
                 <SelectContent>
                   <SelectItem value="owner">בעל דירה</SelectItem>
                   <SelectItem value="tenant">שוכר</SelectItem>
+                  <SelectItem value="both">שניהם</SelectItem>
                 </SelectContent>
               </Select>
             </div>
