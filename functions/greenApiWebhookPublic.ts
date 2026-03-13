@@ -8,6 +8,7 @@ Deno.serve(async (req) => {
     const payload = await req.json();
     
     console.log('=== GREEN API WEBHOOK RECEIVED ===');
+    console.log('Full payload:', JSON.stringify(payload));
     console.log('Event type:', payload.event);
     
     // Green API sends 'incomingMessageReceived' event
