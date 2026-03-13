@@ -45,9 +45,16 @@ Deno.serve(async (req) => {
           }
         );
 
-        const data = await response.json();
+        if (!response.ok) continue;
 
-        if (data.profilePicUrl) {
+        let data;
+        try {
+          data = await response.json();
+        } catch (e) {
+          continue;
+        }
+
+        if (data && data.profilePicUrl) {
           // Update contact with profile image
           await base44.entities.Contact.update(contact.id, {
             whatsapp_profile_image: data.profilePicUrl
