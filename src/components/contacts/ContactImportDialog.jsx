@@ -41,7 +41,7 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
   };
 
   const handleImport = async () => {
-    const file = fileRef.current?.files[0];
+    const file = selectedFile;
     if (!file) {
       showAlert("בחר קובץ Excel לייבוא", "error");
       return;
