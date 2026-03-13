@@ -72,7 +72,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
   };
 
   const handleSave = async () => {
-    if (!form.task_type || !form.due_date) return;
+    if (!form.task_type || !form.due_date || !form.description) return;
     setSaving(true);
     const changer = getChangerInfo();
 
