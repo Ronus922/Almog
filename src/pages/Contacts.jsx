@@ -214,12 +214,12 @@ export default function Contacts() {
           ) : (
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="w-10 text-center">דירה</TableHead>
-                  <TableHead>בעל הדירה</TableHead>
-                  <TableHead className="hidden md:table-cell">השוכר</TableHead>
-                  <TableHead className="text-center hidden md:table-cell">דמי ניהול</TableHead>
-                  <TableHead className="text-center">פעולות</TableHead>
+                <TableRow className="bg-blue-50">
+                  <TableHead className="text-right font-bold text-slate-700">דירה</TableHead>
+                  <TableHead className="text-right font-bold text-slate-700">בעל הדירה</TableHead>
+                  <TableHead className="hidden md:table-cell text-right font-bold text-slate-700">השוכר</TableHead>
+                  <TableHead className="text-center hidden md:table-cell font-bold text-slate-700">דמי ניהול</TableHead>
+                  <TableHead className="text-center font-bold text-slate-700">פעולות</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
