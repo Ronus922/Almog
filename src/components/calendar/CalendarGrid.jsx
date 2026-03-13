@@ -43,9 +43,9 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-lg overflow-hidden border border-slate-200">
+    <div className="bg-white rounded-xl shadow-2xl overflow-hidden border border-slate-200" dir="rtl">
       {/* Header with weekday names */}
-      <div className="grid grid-cols-7 gap-0 bg-slate-900 text-white font-bold">
+      <div className="grid grid-cols-7 gap-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white font-bold">
         {weekDays.map((day) => (
           <div key={day} className="p-4 text-center text-sm">
             {day}
@@ -66,12 +66,12 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
               className={getDayStyles(date)}
               onClick={() => isCurrentMonth(date) && onDateClick(date)}
             >
-              <div className={`text-sm font-semibold mb-1 ${isToday ? 'text-blue-600 text-lg' : ''}`}>
+              <div className={`text-sm font-bold mb-2 ${isToday ? 'text-blue-600 text-lg bg-blue-100 rounded-full w-6 h-6 flex items-center justify-center' : ''}`}>
                 {format(date, 'd')}
               </div>
               
               {holiday && (
-                <div className="text-xs bg-amber-200 text-amber-900 rounded px-1 py-0.5 mb-1 truncate">
+                <div className="text-xs bg-gradient-to-r from-amber-300 to-amber-200 text-amber-950 rounded px-1.5 py-1 mb-2 font-semibold text-right truncate shadow-sm">
                   {holiday}
                 </div>
               )}
@@ -80,18 +80,19 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
                 {dayAppointments.slice(0, 2).map((apt) => (
                   <div
                     key={apt.id}
-                    className="text-xs p-1 rounded text-white truncate cursor-pointer hover:opacity-80"
+                    className="text-xs p-1.5 rounded text-white truncate cursor-pointer hover:shadow-md transition-shadow font-medium"
                     style={{ backgroundColor: apt.event_color || '#3B82F6' }}
                     onClick={(e) => {
                       e.stopPropagation();
                       onAppointmentClick(apt);
                     }}
+                    title={apt.title}
                   >
                     {apt.title}
                   </div>
                 ))}
                 {dayAppointments.length > 2 && (
-                  <div className="text-xs text-slate-500 px-1">
+                  <div className="text-xs text-blue-600 px-1 font-semibold">
                     +{dayAppointments.length - 2} עוד
                   </div>
                 )}
