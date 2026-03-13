@@ -87,6 +87,16 @@ export default function Tasks() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] })
   });
 
+  const updateStatus = useMutation({
+    mutationFn: ({ taskId, status }) => base44.entities.Task.update(taskId, { status }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] })
+  });
+
+  const updatePriority = useMutation({
+    mutationFn: ({ taskId, priority }) => base44.entities.Task.update(taskId, { priority }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["tasks"] })
+  });
+
   // סינון לפי המשתמש המחובר - רואה רק משימות שיצר או שהוקצו אליו
   const myTasks = useMemo(() => {
     const isSuperAdmin = currentUser?.role === "SUPER_ADMIN";
@@ -368,15 +378,32 @@ export default function Tasks() {
                           {task.due_date ? formatDateTime(task.due_date + "T00:00:00") : "-"}
                         </td>
 
-                        <td className="px-4 py-3">
-                          {task.priority === "גבוהה" && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-red-100 text-red-700">גבוהה</span>}
-                          {task.priority === "בינונית" && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-yellow-100 text-yellow-700">בינונית</span>}
-                          {task.priority === "נמוכה" && <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-fuchsia-100 text-fuchsia-700">נמוכה</span>}
-                        </td>
+                        <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                           <Select value={task.priority} onValueChange={(value) => updatePriority.mutate({ taskId: task.id, priority: value })}>
+                             <SelectTrigger className="w-28 h-8 text-xs">
+                               <SelectValue />
+                             </SelectTrigger>
+                             <SelectContent>
+                               <SelectItem value="גבוהה">גבוהה</SelectItem>
+                               <SelectItem value="בינונית">בינונית</SelectItem>
+                               <SelectItem value="נמוכה">נמוכה</SelectItem>
+                             </SelectContent>
+                           </Select>
+                         </td>
 
-                        <td className="px-4 py-3">
-                          <StatusBadge status={task.status} />
-                        </td>
+                        <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                           <Select value={task.status} onValueChange={(value) => updateStatus.mutate({ taskId: task.id, status: value })}>
+                             <SelectTrigger className="w-28 h-8 text-xs">
+                               <SelectValue />
+                             </SelectTrigger>
+                             <SelectContent>
+                               <SelectItem value="פתוחה">פתוחה</SelectItem>
+                               <SelectItem value="בטיפול">בטיפול</SelectItem>
+                               <SelectItem value="הושלמה">הושלמה</SelectItem>
+                               <SelectItem value="בוטלה">בוטלה</SelectItem>
+                             </SelectContent>
+                           </Select>
+                         </td>
 
                         <td className="px-4 py-3 text-slate-500">
                           {formatDateTime(task.created_date)}
