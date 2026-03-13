@@ -158,29 +158,30 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
 
           {/* Description */}
           {appointment.description && (
-            <div>
-              <div className="flex items-center justify-end gap-3 mb-2">
-                <span className="text-sm font-semibold text-slate-600">תיאור:</span>
-                <FileText className="w-5 h-5 text-slate-500 flex-shrink-0" />
+            <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
+              <div className="flex items-center gap-2 mb-3 pb-2 border-b border-blue-200">
+                <FileText className="w-4 h-4 text-blue-600 flex-shrink-0" />
+                <span className="text-sm font-bold text-blue-900">תיאור</span>
               </div>
-              <p className="text-sm text-slate-700 text-right">{appointment.description}</p>
+              <p className="text-sm text-slate-800">{appointment.description}</p>
             </div>
           )}
 
           {/* Attachments */}
           {appointment.attachments?.length > 0 && (
-            <div>
-              <span className="text-sm font-semibold text-slate-600 block mb-2">קבצים:</span>
-              <div className="space-y-1">
+            <div className="p-4 bg-blue-50 rounded-lg border border-blue-100">
+              <span className="text-sm font-bold text-blue-900 block mb-3">קבצים מצורפים</span>
+              <div className="space-y-2">
                 {appointment.attachments.map((url, idx) => (
                   <a
                     key={idx}
                     href={url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-sm text-blue-600 hover:underline block"
+                    className="text-sm text-blue-700 hover:text-blue-900 font-medium flex items-center gap-2 p-2 bg-white rounded hover:bg-blue-100 transition"
                   >
-                    📎 {url.split('/').pop()}
+                    <span>📎</span>
+                    <span>{url.split('/').pop()}</span>
                   </a>
                 ))}
               </div>
@@ -189,32 +190,33 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 justify-end pt-4 border-t border-slate-200">
+        <div className="flex gap-3 pt-6 border-t border-slate-200">
           <Button
-            variant="destructive"
-            onClick={onDelete}
-            disabled={isDeleting}
-            className="gap-2"
+            onClick={onClose}
+            variant="outline"
+            className="flex-1"
           >
-            <Trash2 className="w-4 h-4" />
-            {isDeleting ? 'מוחק...' : 'מחק'}
+            סגור
           </Button>
           <Button
-            variant="outline"
             onClick={onEdit}
-            className="gap-2"
+            variant="default"
+            className="flex-1 gap-2 bg-blue-600 hover:bg-blue-700"
           >
             <Edit className="w-4 h-4" />
             ערוך
           </Button>
           <Button
-            variant="outline"
-            onClick={onClose}
+            variant="destructive"
+            onClick={onDelete}
+            disabled={isDeleting}
+            className="flex-1 gap-2"
           >
-            סגור
+            <Trash2 className="w-4 h-4" />
+            {isDeleting ? 'מוחק...' : 'מחק'}
           </Button>
         </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
+        </DialogContent>
+        </Dialog>
+        );
+        }
