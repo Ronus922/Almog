@@ -334,35 +334,18 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
       {/* Attendees - Users */}
       {users.length > 0 && (
-        <div>
-          <Label className="text-right block mb-2">משתמשים</Label>
-          <Input
-            type="text"
-            placeholder="חפש משתמש..."
-            value={userSearch}
-            onChange={(e) => setUserSearch(e.target.value)}
-            dir="rtl"
-            className="mb-3"
-          />
-          <div className="space-y-2 max-h-40 overflow-y-auto border border-slate-200 rounded p-3 bg-white">
-            {filteredUsers.length > 0 ? (
-              filteredUsers.map((user) => (
-                <div key={user.email} className="flex items-center gap-2">
-                  <Checkbox
-                    id={`user-${user.email}`}
-                    checked={formData.attendees_users.includes(user.email)}
-                    onCheckedChange={() => handleUserToggle(user.email)}
-                  />
-                  <Label htmlFor={`user-${user.email}`} className="cursor-pointer text-sm">
-                    {user.full_name}
-                  </Label>
-                </div>
-              ))
-            ) : (
-              <p className="text-sm text-slate-500 text-center">אין משתמשים בתוצאות</p>
-            )}
-          </div>
-        </div>
+        <MultiSelectAttendees
+          label="משתמשים"
+          items={users}
+          selectedIds={formData.attendees_users}
+          onToggle={handleUserToggle}
+          searchPlaceholder="חפש משתמש..."
+          formatLabel={(user) => user.full_name || user.email}
+          getAvatarColor={(user) => {
+            const colors = ['#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#8B5CF6'];
+            return colors[users.indexOf(user) % colors.length];
+          }}
+        />
       )}
 
       {/* Attendees - Contacts */}
