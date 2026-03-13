@@ -15,12 +15,28 @@ export default function WhatsAppChat() {
   const queryClient = useQueryClient();
   const messagesEndRef = useRef(null);
 
-  // Get all contacts
+  // Get all contacts with last message info
   const { data: contacts = [] } = useQuery({
     queryKey: ['contacts'],
-    queryFn: () => base44.entities.Contact.list(),
-    staleTime: 1000 * 60 * 5, // 5 minutes
-    gcTime: 1000 * 60 * 10 // 10 minutes
+    queryFn: async () => {
+      const allContacts = await base44.entities.Contact.list();
+      const allMessages = await base44.entities.ChatMessage.list();
+      
+      // Attach last message to each contact
+      return allContacts.map(contact => {
+        const lastMsg = allMessages
+          .filter(m => m.contact_id === contact.id)
+          .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+        
+        return {
+          ...contact,
+          lastMessageTime: lastMsg?.timestamp || null,
+          lastMessage: lastMsg || null
+        };
+      });
+    },
+    staleTime: 1000 * 30,
+    gcTime: 1000 * 60
   });
 
   // Get chat messages - sorted chronologically (oldest first for proper display)
