@@ -16,6 +16,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 
 import { useAuth } from '@/components/auth/AuthContext';
+import { useAlert } from '@/components/notifications/AlertSystem';
 import InlineEditableField from './InlineEditableField';
 import DebtSeverityBadge from './DebtSeverityBadge';
 import { calculateDebtStatusDebug } from '../utils/debtStatusCalculator';

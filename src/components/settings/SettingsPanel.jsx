@@ -13,6 +13,7 @@ import {
 import { base44 } from '@/api/base44Client';
 import { calculateDebtStatus, validateThresholds } from '../utils/debtStatusCalculator';
 import { useQuery } from '@tanstack/react-query';
+import { useAlert } from '@/components/notifications/AlertSystem';
 
 export default function SettingsPanel() {
   const [settings, setSettings] = useState({

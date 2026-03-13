@@ -53,6 +53,7 @@ import { Plus, Edit, Trash2, Shield, Loader2, Save, X, ArrowRight, SlidersHorizo
 import { isManagerRole, getUserRoleDisplay } from '@/components/utils/roles';
 import ColorPicker from '../components/status/ColorPicker';
 import ColorBulkEditor from '../components/status/ColorBulkEditor';
+import { useAlert } from '@/components/notifications/AlertSystem';
 
 const COLOR_OPTIONS = [
   { value: 'bg-green-100 text-green-700 border-green-200', label: 'ירוק', preview: 'bg-green-100 border-green-200' },

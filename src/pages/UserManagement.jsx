@@ -29,6 +29,7 @@ import {
 import { Users, Plus, Trash2, Power, PowerOff, AlertCircle, Shield, Eye, Pencil, Loader2 } from "lucide-react";
 
 import EditUserDialog from '@/components/users/EditUserDialog';
+import { useAlert } from '@/components/notifications/AlertSystem';
 
 export default function UserManagement() {
   const { currentUser, loading } = useAuth();
