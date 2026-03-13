@@ -229,7 +229,7 @@ export default function WhatsAppChat() {
               </div>
 
               {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto p-6 space-y-4 flex flex-col" style={{ backgroundColor: '#fef5ea', scrollbarWidth: 'thin', scrollbarColor: '#ccc transparent' }}>
+              <div className="flex-1 overflow-y-auto p-3 space-y-2 flex flex-col" style={{ backgroundColor: '#fef5ea', scrollbarWidth: 'thin', scrollbarColor: '#ccc transparent' }}>
                 {messages.length === 0 ? (
                   <div className="flex items-center justify-center h-full">
                     <div className="text-center text-gray-500">
