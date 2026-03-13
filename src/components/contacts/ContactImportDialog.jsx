@@ -16,7 +16,7 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
   const { showAlert } = useAlert();
 
   // Reset file when dialog closes
-  React.useEffect(() => {
+  useEffect(() => {
     if (!open) {
       setSelectedFile(null);
       if (fileRef.current) fileRef.current.value = '';
