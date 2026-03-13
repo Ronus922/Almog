@@ -50,13 +50,13 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
 
   return (
     <Dialog open={!!appointment} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl p-0" dir="rtl">
-        <div className="bg-gradient-to-l from-indigo-600 to-blue-600 px-6 py-6 text-white rounded-t-lg">
+      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0" dir="rtl">
+        <div className="bg-gradient-to-l from-indigo-600 to-blue-600 px-6 py-6 text-white rounded-t-lg flex-shrink-0">
           <h2 className="text-2xl font-bold">פרטי הפגישה</h2>
           <p className="text-sm text-indigo-100 mt-1">{appointment?.title}</p>
         </div>
 
-        <div className="space-y-5 py-4 px-6" dir="rtl">
+        <div className="space-y-5 py-4 px-6 overflow-y-auto flex-1" dir="rtl">
            {/* Title */}
            <div className="flex items-center gap-3 pb-4 border-b border-slate-200">
              <div className="w-5 h-5 rounded-full flex-shrink-0 shadow-sm" style={{ backgroundColor: appointment.event_color || '#3B82F6' }} />
@@ -205,7 +205,7 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
         </div>
 
         {/* Actions */}
-        <div className="flex gap-3 pt-6 px-6 pb-6 border-t border-slate-200">
+        <div className="flex gap-3 pt-6 px-6 pb-6 border-t border-slate-200 flex-shrink-0">
           <Button
             onClick={onClose}
             variant="outline"
