@@ -83,17 +83,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
     }));
   };
 
-  const filteredUsers = users.filter(u =>
-    `${u.full_name || ''} ${u.email || ''}`
-      .toLowerCase()
-      .includes(userSearch.toLowerCase())
-  );
 
-  const filteredContacts = contacts.filter(c =>
-    `${c.apartment_number || ''} ${c.owner_name || ''} ${c.tenant_name || ''}`
-      .toLowerCase()
-      .includes(contactSearch.toLowerCase())
-  );
 
   const handleUserToggle = (email) => {
     setFormData(prev => ({
