@@ -7,6 +7,7 @@ import { Send, Search, Plus, Phone, Info, Paperclip, Image as ImageIcon } from '
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import ChatMessageBubble from '@/components/whatsapp/ChatMessageBubble';
+import LinkedContactInfo from '@/components/whatsapp/LinkedContactInfo';
 
 export default function WhatsAppChat() {
   const [selectedContact, setSelectedContact] = useState(null);
