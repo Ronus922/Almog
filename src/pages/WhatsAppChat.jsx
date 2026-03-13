@@ -315,16 +315,17 @@ export default function WhatsAppChat() {
               {/* Input Area */}
               <div className="p-4 bg-white border-t border-gray-200 flex gap-3 shadow-lg">
                 <input
+                  ref={setFileInput}
                   type="file"
-                  id="file-input"
                   accept="image/*,.pdf"
                   className="hidden"
+                  onChange={handleFileSelect}
                 />
                 <Button
                   variant="ghost"
                   size="icon"
                   className="h-10 w-10 text-gray-600 hover:bg-gray-100"
-                  onClick={() => document.getElementById('file-input').click()}
+                  onClick={() => fileInput?.click()}
                 >
                   <Paperclip className="w-5 h-5" />
                 </Button>
