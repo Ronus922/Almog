@@ -56,73 +56,73 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
            <DialogDescription className="hidden">פרטי הפגישה</DialogDescription>
          </DialogHeader>
 
-         <div className="space-y-5 py-4 text-right">
+         <div className="space-y-5 py-4" dir="rtl">
            {/* Title */}
-           <div className="flex items-center justify-end gap-3 pb-4 border-b border-slate-200">
-             <div className="flex-1">
-               <h2 className="text-xl font-bold text-slate-900 text-right">{appointment.title}</h2>
-             </div>
-             <div
-               className="w-5 h-5 rounded-full flex-shrink-0 shadow-sm"
-               style={{ backgroundColor: appointment.event_color || '#3B82F6' }}
-             />
+           <div className="flex items-center gap-3 pb-4 border-b border-slate-200">
+             <div className="w-5 h-5 rounded-full flex-shrink-0 shadow-sm" style={{ backgroundColor: appointment.event_color || '#3B82F6' }} />
+             <h2 className="flex-1 text-xl font-bold text-slate-900">{appointment.title}</h2>
            </div>
-          {/* Type */}
-          {appointment.appointment_type && (
-            <div className="flex items-center justify-end gap-3">
-              <span className="text-sm">{appointment.appointment_type}</span>
-              <span className="text-sm font-semibold text-slate-600">סוג:</span>
-            </div>
-          )}
 
-          {/* Date and Time */}
-          <div className="flex items-center justify-end gap-3">
-            <div>
-              <p className="text-sm font-semibold text-slate-600">
-                {format(new Date(appointment.date), 'd MMMM yyyy', { locale: he })}
-              </p>
-            </div>
-            <Calendar className="w-5 h-5 text-slate-500 flex-shrink-0" />
-          </div>
+           {/* Type */}
+           {appointment.appointment_type && (
+             <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+               <span className="text-xs font-semibold text-slate-700 bg-white px-2 py-1 rounded">סוג</span>
+               <span className="text-sm text-slate-800 font-medium">{appointment.appointment_type}</span>
+             </div>
+           )}
 
-          <div className="flex items-center justify-end gap-3">
-            <p className="text-sm">
-              {appointment.start_time} - {appointment.end_time}
-            </p>
-            <Clock className="w-5 h-5 text-slate-500 flex-shrink-0" />
-          </div>
+           {/* Date and Time */}
+           <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+             <Calendar className="w-5 h-5 text-blue-600 flex-shrink-0" />
+             <div className="flex-1">
+               <p className="text-sm font-semibold text-slate-800">
+                 {format(new Date(appointment.date), 'd MMMM yyyy', { locale: he })}
+               </p>
+             </div>
+           </div>
 
-          {/* Location */}
-          {appointment.location && (
-            <div className="flex items-center justify-end gap-3">
-              <p className="text-sm">{appointment.location}</p>
-              <MapPin className="w-5 h-5 text-slate-500 flex-shrink-0" />
-            </div>
-          )}
+           <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+             <Clock className="w-5 h-5 text-blue-600 flex-shrink-0" />
+             <div className="flex-1">
+               <p className="text-sm font-semibold text-slate-800">
+                 {appointment.start_time} - {appointment.end_time}
+               </p>
+             </div>
+           </div>
 
-          {/* Recurring */}
-          {appointment.is_recurring && (
-            <div className="flex items-center justify-end gap-3">
-              <span className="text-sm bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                {appointment.recurrence_pattern === 'weekly'
-                  ? 'שבועי'
-                  : appointment.recurrence_pattern === 'monthly'
-                  ? 'חודשי'
-                  : 'שנתי'}
-              </span>
-              <span className="text-sm font-semibold text-slate-600">חזרה:</span>
-            </div>
-          )}
+           {/* Location */}
+           {appointment.location && (
+             <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-lg">
+               <MapPin className="w-5 h-5 text-blue-600 flex-shrink-0" />
+               <div className="flex-1">
+                 <p className="text-sm font-semibold text-slate-800">{appointment.location}</p>
+               </div>
+             </div>
+           )}
 
-          {/* Reminder */}
-          {appointment.reminder_method !== 'none' && (
-            <div className="flex items-center justify-end gap-3">
-              <span className="text-sm">
-                ב-{appointment.reminder_method} {appointment.reminder_before} לפני
-              </span>
-              <span className="text-sm font-semibold text-slate-600">תזכורת:</span>
-            </div>
-          )}
+           {/* Recurring */}
+           {appointment.is_recurring && (
+             <div className="flex items-center gap-3 p-3 bg-blue-50 rounded-lg border border-blue-100">
+               <span className="text-xs font-bold text-white bg-blue-600 px-2 py-1 rounded">חוזר</span>
+               <span className="text-sm text-blue-900 font-medium">
+                 {appointment.recurrence_pattern === 'weekly'
+                   ? 'כל שבוע'
+                   : appointment.recurrence_pattern === 'monthly'
+                   ? 'כל חודש'
+                   : 'כל שנה'}
+               </span>
+             </div>
+           )}
+
+           {/* Reminder */}
+           {appointment.reminder_method !== 'none' && (
+             <div className="flex items-center gap-3 p-3 bg-amber-50 rounded-lg border border-amber-100">
+               <span className="text-xs font-bold text-white bg-amber-600 px-2 py-1 rounded">תזכורת</span>
+               <span className="text-sm text-amber-900 font-medium">
+                 {appointment.reminder_before} לפני דרך {appointment.reminder_method}
+               </span>
+             </div>
+           )}
 
           {/* Attendees */}
           {(appointment.attendees_users?.length > 0 || appointment.attendees_contacts?.length > 0) && (
