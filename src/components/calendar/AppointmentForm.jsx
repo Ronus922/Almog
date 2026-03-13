@@ -73,27 +73,27 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
   }, [appointment, selectedDate]);
 
   useEffect(() => {
+    const loadUsers = async () => {
+      try {
+        const usersList = await base44.entities.AppUser.list();
+        setUsers(usersList);
+      } catch (error) {
+        console.error('Failed to load users:', error);
+      }
+    };
+
+    const loadContacts = async () => {
+      try {
+        const contactsList = await base44.entities.Contact.list();
+        setContacts(contactsList);
+      } catch (error) {
+        console.error('Failed to load contacts:', error);
+      }
+    };
+
     loadUsers();
     loadContacts();
   }, []);
-
-  const loadUsers = async () => {
-    try {
-      const usersList = await base44.entities.AppUser.list();
-      setUsers(usersList);
-    } catch (error) {
-      console.error('Failed to load users:', error);
-    }
-  };
-
-  const loadContacts = async () => {
-    try {
-      const contactsList = await base44.entities.Contact.list();
-      setContacts(contactsList);
-    } catch (error) {
-      console.error('Failed to load contacts:', error);
-    }
-  };
 
   const handleChange = useCallback((field, value) => {
     setFormData(prev => ({
