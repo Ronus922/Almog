@@ -7,6 +7,11 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Search, CheckCircle2, Clock, AlertTriangle, ClipboardList, Trash2, Pencil, UserPlus, Filter, X, ChevronUp, ChevronDown, ChevronsUpDown } from "lucide-react";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/components/auth/AuthContext";
 import { isManagerRole } from "@/components/utils/roles";
 import { StatusBadge } from "@/components/tasks/TaskBadge";
