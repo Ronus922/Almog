@@ -262,6 +262,7 @@ export default function Calendar() {
 
   const handleSaveAppointment = async (data) => {
     if (selectedAppointment) {
+      // Edit existing
       if (selectedAppointment.series_id) {
         setEditMode(null);
         setShowEditDialog(true);
@@ -269,18 +270,17 @@ export default function Calendar() {
         await updateMutation.mutateAsync({ id: selectedAppointment.id, data });
       }
     } else {
-      if (data.is_recurring && data.recurrence_count) {
+      // Create new
+      if (data.is_recurring && data.recurrence_count && data.recurrence_pattern) {
         const seriesId = `series_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const startDate = new Date(data.date);
-        const instances = [];
+        const interval = data.recurrence_interval || 1;
         
+        const instances = [];
         for (let i = 0; i < data.recurrence_count; i++) {
-          let nextDate = startDate;
-          const interval = data.recurrence_interval || 1;
+          let nextDate = new Date(startDate);
           
-          if (data.recurrence_pattern === 'יומי') {
-            nextDate = addDays(startDate, i * interval);
-          } else if (data.recurrence_pattern === 'שבועי') {
+          if (data.recurrence_pattern === 'שבועי') {
             nextDate = addWeeks(startDate, i * interval);
           } else if (data.recurrence_pattern === 'חודשי') {
             nextDate = addMonths(startDate, i * interval);
@@ -290,18 +290,19 @@ export default function Calendar() {
           
           instances.push({
             ...data,
-            date: format(nextDate, 'yyyy-MM-dd'),
+            event_date: format(nextDate, 'yyyy-MM-dd'),
             series_id: seriesId,
-            series_occurrence_number: i + 1,
-            is_recurring: true,
+            series_occurrence: i + 1,
+            parent_series_id: seriesId,
+            source_type: i === 0 ? 'manual' : 'generated_occurrence',
           });
         }
         
         for (const instance of instances) {
-          await createMutation.mutateAsync(instance);
+          await createEventMutation.mutateAsync(instance);
         }
       } else if (!data.is_recurring) {
-        await createMutation.mutateAsync(data);
+        await createEventMutation.mutateAsync(data);
       }
     }
   };
@@ -310,59 +311,68 @@ export default function Calendar() {
     setEditMode(mode);
     setShowEditDialog(false);
     
-    if (mode === 'single') {
-      // Mark as exception and open form
+    if (mode === 'this-only') {
+      // Edit this occurrence only - mark as exception
       setSelectedAppointment({
         ...selectedAppointment,
-        is_exception: true,
+        source_type: 'generated_occurrence',
       });
       setShowForm(true);
-    } else if (mode === 'following') {
-      // Create new series for following events
+    } else if (mode === 'this-and-future') {
+      // Create new series for this and future occurrences
       const newSeriesId = `series_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      const followingAppointments = appointments.filter(
-        a => a.series_id === selectedAppointment.series_id && 
-        a.series_occurrence_number > selectedAppointment.series_occurrence_number
+      const futureAppointments = calendarEvents.filter(
+        e => e.parent_series_id === selectedAppointment.parent_series_id && 
+        new Date(e.event_date) >= new Date(selectedAppointment.event_date)
       );
       
-      for (const apt of followingAppointments) {
-        await updateMutation.mutateAsync({
-          id: apt.id,
-          data: { series_id: newSeriesId },
+      for (const event of futureAppointments) {
+        await updateEventMutation.mutateAsync({
+          id: event.id,
+          data: { parent_series_id: newSeriesId },
         });
       }
-      setShowForm(true);
-    } else if (mode === 'all') {
+      setSelectedAppointment(null);
+    } else if (mode === 'entire-series') {
+      // Edit all occurrences in series
       setShowForm(true);
     }
   };
 
   const handleDeleteAppointment = async () => {
-    if (selectedAppointment && selectedAppointment.series_id) {
+    if (selectedAppointment && selectedAppointment.parent_series_id) {
       setShowDeleteDialog(true);
     } else if (selectedAppointment) {
-      await deleteMutation.mutateAsync(selectedAppointment.id);
+      await deleteEventMutation.mutateAsync(selectedAppointment.id);
     }
   };
 
   const handleDeleteRecurring = async (mode) => {
-    if (mode === 'single') {
+    if (mode === 'this-only') {
       // מחק רק את המופע הספציפי
-      await deleteMutation.mutateAsync(selectedAppointment.id);
-    } else if (mode === 'following') {
+      await deleteEventMutation.mutateAsync(selectedAppointment.id);
+    } else if (mode === 'this-and-future') {
       // מחק את האירוע הנוכחי וכל האירועים העתידיים באותה סדרה
-      const seriesAppointments = appointments.filter(
-        a => a.series_id === selectedAppointment.series_id
+      const seriesEvents = calendarEvents.filter(
+        e => e.parent_series_id === selectedAppointment.parent_series_id
       );
       
-      // מיין לפי תאריך כדי למצוא כל המופעים שבתאריך שווה או גדול יותר
-      const selectedDate = new Date(selectedAppointment.date);
-      const toDelete = seriesAppointments.filter(
-        a => new Date(a.date) >= selectedDate
+      const selectedDate = new Date(selectedAppointment.event_date);
+      const toDelete = seriesEvents.filter(
+        e => new Date(e.event_date) >= selectedDate
       );
       
-      for (const apt of toDelete) {
-        await deleteMutation.mutateAsync(apt.id);
+      for (const event of toDelete) {
+        await deleteEventMutation.mutateAsync(event.id);
+      }
+    } else if (mode === 'entire-series') {
+      // מחק את כל הסדרה
+      const seriesEvents = calendarEvents.filter(
+        e => e.parent_series_id === selectedAppointment.parent_series_id
+      );
+      
+      for (const event of seriesEvents) {
+        await deleteEventMutation.mutateAsync(event.id);
       }
     }
     setShowDeleteDialog(false);
