@@ -49,6 +49,7 @@ const HEBREW_HOLIDAYS = [
 ];
 
 export default function Calendar() {
+  const { toast } = useToast();
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [viewMode, setViewMode] = useState('month');
   const [selectedDate, setSelectedDate] = useState(null);
@@ -66,15 +67,39 @@ export default function Calendar() {
   // Drag & Drop
   const [draggedAppointment, setDraggedAppointment] = useState(null);
 
-  const handleDragDrop = async (e, newDate) => {
+  const handleDragDrop = async (e, newDate, newTime = null) => {
     if (!draggedAppointment) return;
-    await updateEventMutation.mutateAsync({
-      id: draggedAppointment.id,
-      data: {
+    
+    try {
+      const updatedData = {
         ...draggedAppointment,
         event_date: format(newDate, 'yyyy-MM-dd'),
-      },
-    });
+      };
+      
+      // אם יש שעה חדשה (מWeek/Day view), עדכן את השעה
+      if (newTime) {
+        updatedData.start_datetime = `${format(newDate, 'yyyy-MM-dd')}T${newTime}`;
+      }
+      
+      await updateEventMutation.mutateAsync({
+        id: draggedAppointment.id,
+        data: updatedData,
+      });
+      
+      toast({
+        title: '✅ נשמר בהצלחה',
+        description: `הפגישה "${draggedAppointment.title}" הועברה`,
+        duration: 3000,
+      });
+    } catch (error) {
+      toast({
+        title: '❌ שגיאה',
+        description: 'לא הצלחנו לשמור את השינוי',
+        variant: 'destructive',
+        duration: 3000,
+      });
+    }
+    
     setDraggedAppointment(null);
   };
 
