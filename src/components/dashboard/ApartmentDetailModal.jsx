@@ -43,6 +43,9 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   const [savingStatus, setSavingStatus] = useState(false);
   const [statusSaveError, setStatusSaveError] = useState('');
   const statusRequestIdRef = React.useRef(0);
+  
+  const [phoneEditMode, setPhoneEditMode] = useState(null);
+  const [phoneEditValue, setPhoneEditValue] = useState('');
 
   const queryClient = useQueryClient();
 
@@ -795,7 +798,10 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               <div className="flex items-center justify-between gap-3">
                 {isAdmin ? (
                   <button
-                    onClick={() => handleFieldSave('phoneOwner', editedRecord?.phoneOwner || record.phoneOwner)}
+                    onClick={() => {
+                      setPhoneEditMode('phoneOwner');
+                      setPhoneEditValue(editedRecord?.phoneOwner || record.phoneOwner || '');
+                    }}
                     className="flex items-center gap-2 text-[#7f93b0] hover:text-blue-600 transition-colors"
                   >
                     <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#f7f9fc] hover:bg-blue-100 text-[#8ea0b8] hover:text-blue-600 transition-all">
@@ -819,7 +825,10 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               <div className="flex items-center justify-between gap-3">
                 {isAdmin ? (
                   <button
-                    onClick={() => handleFieldSave('phoneTenant', editedRecord?.phoneTenant || record.phoneTenant)}
+                    onClick={() => {
+                      setPhoneEditMode('phoneTenant');
+                      setPhoneEditValue(editedRecord?.phoneTenant || record.phoneTenant || '');
+                    }}
                     className="flex items-center gap-2 text-[#7f93b0] hover:text-blue-600 transition-colors"
                   >
                     <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#f7f9fc] hover:bg-blue-100 text-[#8ea0b8] hover:text-blue-600 transition-all">
@@ -840,6 +849,40 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               </div>
             </div>
           </div>
+
+          {/* Phone Edit Dialog */}
+          {phoneEditMode && (
+            <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 rounded-2xl" onClick={() => setPhoneEditMode(null)}>
+              <div className="bg-white rounded-2xl p-6 w-96 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+                <p className="text-lg font-bold text-[#253b5b] mb-4">עדכן {phoneEditMode === 'phoneOwner' ? 'טלפון בעלים' : 'טלפון שוכר'}</p>
+                <Input
+                  value={phoneEditValue}
+                  onChange={(e) => setPhoneEditValue(e.target.value)}
+                  placeholder="הכנס מספר טלפון"
+                  className="mb-4 h-12 rounded-lg"
+                  dir="rtl"
+                />
+                <div className="flex gap-3 justify-end">
+                  <Button
+                    variant="outline"
+                    onClick={() => setPhoneEditMode(null)}
+                    className="h-10 rounded-lg"
+                  >
+                    ביטול
+                  </Button>
+                  <Button
+                    onClick={async () => {
+                      await handleFieldSave(phoneEditMode, phoneEditValue);
+                      setPhoneEditMode(null);
+                    }}
+                    className="h-10 rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    שמור
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Debt summary section */}
           <div className="rounded-[22px] border border-slate-200/80 bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
