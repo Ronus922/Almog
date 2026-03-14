@@ -314,6 +314,8 @@ export default function Calendar() {
         setShowEditDialog(true);
       } else {
         await updateMutation.mutateAsync({ id: selectedAppointment.id, data });
+        setShowForm(false);
+        setSelectedAppointment(null);
       }
     } else {
       // Create new
@@ -321,11 +323,11 @@ export default function Calendar() {
         const seriesId = `series_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const startDate = new Date(data.date);
         const interval = data.recurrence_interval || 1;
-        
+
         const instances = [];
         for (let i = 0; i < data.recurrence_count; i++) {
           let nextDate = new Date(startDate);
-          
+
           if (data.recurrence_pattern === 'שבועי') {
             nextDate = addWeeks(startDate, i * interval);
           } else if (data.recurrence_pattern === 'חודשי') {
@@ -333,17 +335,17 @@ export default function Calendar() {
           } else if (data.recurrence_pattern === 'שנתי') {
             nextDate = addMonths(startDate, i * interval * 12);
           }
-          
+
           instances.push({
             ...data,
-            event_date: format(nextDate, 'yyyy-MM-dd'),
+            date: format(nextDate, 'yyyy-MM-dd'),
             series_id: seriesId,
             series_occurrence: i + 1,
             parent_series_id: seriesId,
             source_type: i === 0 ? 'manual' : 'generated_occurrence',
           });
         }
-        
+
         for (const instance of instances) {
           await createMutation.mutateAsync(instance);
         }

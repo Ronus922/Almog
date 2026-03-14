@@ -78,8 +78,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         return { id: attendee, name: attendee, email: '' };
       });
 
-      setFormData(prev => ({
-        ...prev,
+      setFormData({
         title: appointment.title || '',
         appointment_type: appointment.appointment_type || 'פגישה',
         date: appointment.date || '',
@@ -92,10 +91,12 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         event_color: appointment.event_color || '#3B82F6',
         is_recurring: appointment.is_recurring || false,
         recurrence_pattern: appointment.recurrence_pattern || '',
+        recurrence_interval: appointment.recurrence_interval || 1,
+        recurrence_count: appointment.recurrence_count || '',
         attendees_users: normalizedAttendees,
         attendees_contacts: appointment.attendees_contacts || [],
         attachments: appointment.attachments || [],
-      }));
+      });
     } else if (selectedDate) {
       setFormData(prev => ({
         ...prev,
