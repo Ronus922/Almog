@@ -240,20 +240,34 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
             <button
             onClick={() => setActiveTab("form")}
             className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === "form" ? "border-b-2 border-blue-600 text-blue-600" : "text-slate-500 hover:text-slate-700"}`}>
-
               פרטי משימה
+            </button>
+            <button
+            onClick={() => setActiveTab("attachments")}
+            className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === "attachments" ? "border-b-2 border-blue-600 text-blue-600" : "text-slate-500 hover:text-slate-700"}`}>
+              קבצים מצורפים
             </button>
             <button
             onClick={() => setActiveTab("audit")}
             className={`px-4 py-2 text-sm font-medium transition-colors ${activeTab === "audit" ? "border-b-2 border-blue-600 text-blue-600" : "text-slate-500 hover:text-slate-700"}`}>
-
               היסטוריית שינויים
             </button>
           </div>
         }
 
-        {activeTab === "audit" && isEdit ?
-        <TaskAuditLogTab taskId={task?.id} /> :
+        {activeTab === "audit" && isEdit ? (
+        <TaskAuditLogTab taskId={task?.id} />
+        ) : activeTab === "attachments" && isEdit ? (
+        <TaskAttachmentsTab
+          taskId={task?.id}
+          currentUser={currentUser}
+          canEdit={
+            currentUser?.role === "SUPER_ADMIN" ||
+            task?.assigned_by === currentUser?.username ||
+            task?.assigned_to === currentUser?.username
+          }
+        />
+        ) :
 
         <>
             <div className="space-y-4 mt-2 max-h-[60vh] overflow-y-auto px-6 pt-4">
