@@ -424,8 +424,6 @@ function DashboardContent() {
 
       {/* Content Wrapper Below Shell */}
       <div className="relative mx-auto w-full max-w-[1365px] mt-8 space-y-6 px-[18px]">
-        {/* Fragment for content */}
-        <>
 
         {/* Filter indicators */}
         {filterKeyFromUrl &&
