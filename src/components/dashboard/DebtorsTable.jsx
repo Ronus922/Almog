@@ -195,7 +195,7 @@ export default function DebtorsTable({
     });
 
     return result;
-  }, [records, search, apartmentSearch, statusFilter, autoStatusFilter, sortField, sortDir, minDebt, maxDebt, ownerNameFilter, phoneFilter, legalStatusFilter, allStatuses]);
+  }, [records, search, apartmentSearch, autoStatusFilter, sortField, sortDir, minDebt, maxDebt, ownerNameFilter, phoneFilter, legalStatusFilter, allStatuses]);
 
   useEffect(() => {
     if (onFilteredDataChange) {
