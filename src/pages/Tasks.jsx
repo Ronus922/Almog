@@ -506,12 +506,13 @@ export default function Tasks() {
       </div>
 
       <TaskFormDialog
-        open={showDialog}
-        onClose={() => {setShowDialog(false);setEditTask(null);}}
-        task={editTask}
-        debtorRecord={null}
-        currentUser={currentUser}
-        onSaved={() => queryClient.invalidateQueries({ queryKey: ["tasks"] })} />
+         open={showDialog}
+         onClose={() => {setShowDialog(false);setEditTask(null);}}
+         task={editTask}
+         debtorRecord={null}
+         currentUser={currentUser}
+         onSaved={() => queryClient.invalidateQueries({ queryKey: ["tasks"] })}
+         onTaskViewed={(taskId) => setViewedTasks(prev => new Set(prev).add(taskId))} />
 
     </div>);
 

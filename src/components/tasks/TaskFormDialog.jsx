@@ -20,7 +20,7 @@ const TASK_TYPES = ["שיחת טלפון", "שליחת מכתב התראה", "פ
 const PRIORITIES = ["גבוהה", "בינונית", "נמוכה"];
 const STATUSES = ["פתוחה", "בטיפול", "הושלמה", "בוטלה", "לא השתנה"];
 
-export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSaved, currentUser }) {
+export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSaved, currentUser, onTaskViewed }) {
   const isEdit = !!task;
   const [form, setForm] = useState({
     task_type: "",
@@ -38,7 +38,6 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
   });
   const [saving, setSaving] = useState(false);
    const [activeTab, setActiveTab] = useState("form");
-   const [viewedTasks, setViewedTasks] = useState(new Set());
 
    const [showUserDropdown, setShowUserDropdown] = useState(false);
    const [userSearchTerm, setUserSearchTerm] = useState("");
@@ -82,8 +81,8 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
        setActiveTab("form");
        setShowUserDropdown(false);
        setUserSearchTerm("");
-       if (isEdit && task?.id) {
-         setViewedTasks(prev => new Set(prev).add(task.id));
+       if (isEdit && task?.id && onTaskViewed) {
+         onTaskViewed(task.id);
         setForm(prev => ({
           ...task,
           task_type: task.task_type || "שיחת טלפון",
