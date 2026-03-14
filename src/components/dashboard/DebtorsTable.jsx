@@ -770,13 +770,13 @@ export default function DebtorsTable({
                       {formatPhoneForDisplay(getPhonePrimaryForTable(record))}
                     </TableCell>
                     <TableCell className="py-4 px-5 align-middle text-center">
-                      <span className="font-medium text-[14px] text-rose-600 tabular-nums">{formatCurrency(record.totalDebt)}</span>
+                      <span className="font-bold text-[13px] text-[#ff5d8f] tabular-nums">{formatCurrency(record.totalDebt)}</span>
                     </TableCell>
                     <TableCell className="py-4 px-5 align-middle text-center">
-                      <span className="font-medium text-[14px] text-amber-600 tabular-nums">{formatCurrency(record.monthlyDebt)}</span>
+                      <span className="font-bold text-[13px] text-[#8b5cff] tabular-nums">{formatCurrency(record.monthlyDebt)}</span>
                     </TableCell>
                     <TableCell className="py-4 px-5 align-middle text-center">
-                      <span className="font-medium text-[14px] text-purple-600 tabular-nums">{formatCurrency(record.specialDebt)}</span>
+                      <span className="font-bold text-[13px] text-[#f5a623] tabular-nums">{formatCurrency(record.specialDebt)}</span>
                     </TableCell>
 
                     <TableCell className="py-4 px-5 align-middle text-center">
