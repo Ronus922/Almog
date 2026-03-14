@@ -113,40 +113,25 @@ export default function Tasks() {
 
   const filtered = useMemo(() => {
     let result = myTasks;
-    
-    // Default filter: next week open tasks only
-    const isUsingDefaultFilters = filterStatus === "פתוחה" && filterPriority === "הכל" && filterAssigned === "הכל" && !filterDueDate && filterTaskType === "הכל" && !search;
-    
+
+    // ברירת מחדל: כל המשימות פתוחה + בטיפול, ללא הגבלת תאריך
+    const isUsingDefaultFilters =
+      filterStatus === "פתוחה" &&
+      filterPriority === "הכל" &&
+      filterAssigned === "הכל" &&
+      !filterDueDate &&
+      filterTaskType === "הכל" &&
+      !search;
+
     if (isUsingDefaultFilters) {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-      const nextWeek = addDays(today, 7);
-      
-      result = result.filter((t) => {
-        if (t.status !== "פתוחה" && t.status !== "בטיפול") return false;
-        if (!t.due_date) return false;
-        const dueDate = new Date(t.due_date);
-        dueDate.setHours(0, 0, 0, 0);
-        return dueDate >= today && dueDate <= nextWeek;
-      });
+      result = result.filter((t) => t.status === "פתוחה" || t.status === "בטיפול");
     } else {
-      // Apply custom filters
-      if (filterStatus !== "הכל" && t.status !== filterStatus) return false;
-      if (filterPriority !== "הכל" && t.priority !== filterPriority) return false;
-      if (filterAssigned !== "הכל" && (t.assigned_to_name || t.assigned_to) !== filterAssigned) return false;
-      if (filterTaskType !== "הכל" && t.task_type !== filterTaskType) return false;
-      if (filterDueDate && t.due_date !== filterDueDate) return false;
-      
       result = result.filter((t) => {
-        // Hide completed tasks in default view, but allow them in filtered view
-        if (t.status === "הושלמה" || t.status === "בוטלה") return false;
-        
         if (filterStatus !== "הכל" && t.status !== filterStatus) return false;
         if (filterPriority !== "הכל" && t.priority !== filterPriority) return false;
         if (filterAssigned !== "הכל" && (t.assigned_to_name || t.assigned_to) !== filterAssigned) return false;
         if (filterTaskType !== "הכל" && t.task_type !== filterTaskType) return false;
         if (filterDueDate && t.due_date !== filterDueDate) return false;
-        
         if (search) {
           const s = search.toLowerCase();
           return (
@@ -154,34 +139,48 @@ export default function Tasks() {
             t.owner_name?.toLowerCase().includes(s) ||
             t.description?.toLowerCase().includes(s) ||
             t.task_type?.includes(s) ||
-            t.assigned_to_name?.toLowerCase().includes(s));
+            t.assigned_to_name?.toLowerCase().includes(s)
+          );
         }
         return true;
       });
     }
-    
+
     return result;
   }, [myTasks, filterStatus, filterPriority, filterAssigned, filterDueDate, filterTaskType, search]);
 
+  const isOverdue = (task) => {
+    if (task.status === "הושלמה" || task.status === "בוטלה") return false;
+    if (!task.due_date) return false;
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    return new Date(task.due_date) < today;
+  };
+
   const sorted = useMemo(() => {
     return [...filtered].sort((a, b) => {
-      // Always sort by priority first (high to low)
       const priorityOrder = { "גבוהה": 1, "בינונית": 2, "נמוכה": 3 };
       const aPriority = priorityOrder[a.priority] || 9;
       const bPriority = priorityOrder[b.priority] || 9;
       if (aPriority !== bPriority) return aPriority - bPriority;
-      
-      // Then apply secondary sort if specified
-      if (sortField && sortField !== "priority") {
-        let av, bv;
-        if (sortField === "task_type") {av = a.task_type || "";bv = b.task_type || "";} else
-        if (sortField === "assigned") {av = a.assigned_to_name || a.assigned_to || "";bv = b.assigned_to_name || b.assigned_to || "";} else
-        if (sortField === "due_date") {av = a.due_date || "";bv = b.due_date || "";} else
-        if (sortField === "status") {av = a.status || "";bv = b.status || "";}
-        
-        if (av < bv) return sortDir === "asc" ? -1 : 1;
-        if (av > bv) return sortDir === "asc" ? 1 : -1;
+
+      // מיון משני: לפי due_date - קרוב לרחוק (משימות באיחור יעלו ראשונות כי תאריכן קטן)
+      if (sortField === "priority" || !sortField) {
+        const av = a.due_date || "9999-99-99";
+        const bv = b.due_date || "9999-99-99";
+        if (av < bv) return -1;
+        if (av > bv) return 1;
+        return 0;
       }
+
+      let av, bv;
+      if (sortField === "task_type") { av = a.task_type || ""; bv = b.task_type || ""; }
+      else if (sortField === "assigned") { av = a.assigned_to_name || a.assigned_to || ""; bv = b.assigned_to_name || b.assigned_to || ""; }
+      else if (sortField === "due_date") { av = a.due_date || ""; bv = b.due_date || ""; }
+      else if (sortField === "status") { av = a.status || ""; bv = b.status || ""; }
+
+      if (av < bv) return sortDir === "asc" ? -1 : 1;
+      if (av > bv) return sortDir === "asc" ? 1 : -1;
       return 0;
     });
   }, [filtered, sortField, sortDir]);
