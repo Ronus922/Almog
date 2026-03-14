@@ -220,7 +220,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-lg p-0 overflow-hidden flex flex-col" style={{height: '90vh', maxHeight: '680px'}} dir="rtl">
+      <DialogContent className="max-w-2xl p-0 overflow-hidden flex flex-col" style={{height: '92vh', maxHeight: '780px'}} dir="rtl">
          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-lg">
            <DialogTitle className="text-white text-lg font-bold">{isEdit ? "עריכת משימה" : "משימה חדשה"}</DialogTitle>
           {debtorRecord && !isEdit &&
