@@ -59,38 +59,40 @@ export default function Documents() {
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState('name');
   const [filterType, setFilterType] = useState('all');
-  const [selectedFiles, setSelectedFiles] = useState([]);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(null);
-  const [showFilePreview, setShowFilePreview] = useState(null);
+  const [showTrash, setShowTrash] = useState(false);
+  const [previewFile, setPreviewFile] = useState(null);
   const [dragActive, setDragActive] = useState(false);
   const fileInputRef = useRef(null);
   const queryClient = useQueryClient();
 
   // ============== QUERIES ==============
 
-  const { data: folders = [], isLoading: foldersLoading } = useQuery({
+  const { data: folders = [] } = useQuery({
     queryKey: ['folders', currentFolderId],
     queryFn: async () => {
       const all = await base44.entities.DocumentFolder.list();
       return all.filter(f => {
+        if (showTrash) return f.is_deleted;
         if (currentFolderId === null) {
-          return !f.parent_folder_id;
+          return !f.parent_folder_id && !f.is_deleted;
         }
-        return f.parent_folder_id === currentFolderId;
+        return f.parent_folder_id === currentFolderId && !f.is_deleted;
       });
     },
   });
 
-  const { data: files = [], isLoading: filesLoading } = useQuery({
+  const { data: files = [] } = useQuery({
     queryKey: ['files', currentFolderId],
     queryFn: async () => {
       const all = await base44.entities.DocumentFile.list();
       return all.filter(f => {
+        if (showTrash) return f.is_deleted;
         if (currentFolderId === null) {
-          return !f.folder_id;
+          return !f.folder_id && !f.is_deleted;
         }
-        return f.folder_id === currentFolderId;
+        return f.folder_id === currentFolderId && !f.is_deleted;
       });
     },
   });
@@ -148,15 +150,53 @@ export default function Documents() {
     },
   });
 
-  const deleteFolderMutation = useMutation({
-    mutationFn: (id) => base44.entities.DocumentFolder.delete(id),
+  const softDeleteFolderMutation = useMutation({
+    mutationFn: (id) =>
+      base44.entities.DocumentFolder.update(id, { 
+        is_deleted: true,
+        deleted_at: new Date().toISOString()
+      }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['folders', currentFolderId] });
     },
   });
 
-  const deleteFileMutation = useMutation({
-    mutationFn: (id) => base44.entities.DocumentFile.delete(id),
+  const softDeleteFileMutation = useMutation({
+    mutationFn: (id) =>
+      base44.entities.DocumentFile.update(id, { 
+        is_deleted: true,
+        deleted_at: new Date().toISOString()
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['files', currentFolderId] });
+    },
+  });
+
+  const restoreFolderMutation = useMutation({
+    mutationFn: (id) =>
+      base44.entities.DocumentFolder.update(id, { 
+        is_deleted: false,
+        deleted_at: null
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['folders', currentFolderId] });
+    },
+  });
+
+  const restoreFileMutation = useMutation({
+    mutationFn: (id) =>
+      base44.entities.DocumentFile.update(id, { 
+        is_deleted: false,
+        deleted_at: null
+      }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['files', currentFolderId] });
+    },
+  });
+
+  const moveFileMutation = useMutation({
+    mutationFn: ({ fileId, newFolderId }) =>
+      base44.entities.DocumentFile.update(fileId, { folder_id: newFolderId || null }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['files', currentFolderId] });
     },
@@ -306,82 +346,98 @@ export default function Documents() {
       <div className="max-w-7xl mx-auto flex flex-col h-[calc(100vh-2rem)]">
         {/* Header */}
         <div className="bg-gradient-to-l from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg p-6 mb-6">
-          <h1 className="text-3xl md:text-4xl font-bold mb-2">מסמכים</h1>
-          <p className="text-blue-100 text-sm">ניהול קבצים וקבצי אחסון מרכזיים</p>
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">
+            {showTrash ? '🗑️ קובץ זבל' : 'מסמכים'}
+          </h1>
+          <p className="text-blue-100 text-sm">
+            {showTrash ? 'קבצים ותיקיות שנמחקו' : 'ניהול קבצים וקבצי אחסון מרכזיים'}
+          </p>
         </div>
 
         {/* Controls */}
-        <div className="flex flex-wrap gap-3 mb-6">
-          <Button
-            onClick={() => setShowNewFolderDialog(true)}
-            className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
-          >
-            <Folder className="w-4 h-4" />
-            תיקייה חדשה
-          </Button>
+        {!showTrash && (
+          <div className="flex flex-wrap gap-3 mb-6">
+            <Button
+              onClick={() => setShowNewFolderDialog(true)}
+              className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
+            >
+              <Folder className="w-4 h-4" />
+              תיקייה חדשה
+            </Button>
 
-          <Button
-            onClick={() => fileInputRef.current?.click()}
-            variant="outline"
-            className="gap-2"
-          >
-            <Upload className="w-4 h-4" />
-            העלאת קובץ
-          </Button>
+            <Button
+              onClick={() => fileInputRef.current?.click()}
+              variant="outline"
+              className="gap-2"
+            >
+              <Upload className="w-4 h-4" />
+              העלאת קובץ
+            </Button>
 
-          <input
-            ref={fileInputRef}
-            type="file"
-            multiple
-            onChange={handleFileSelect}
-            className="hidden"
-            accept="*/*"
-          />
-
-          {/* Search */}
-          <div className="relative flex-1 min-w-64">
-            <Search className="absolute right-3 top-2.5 w-4 h-4 text-slate-400" />
-            <Input
-              type="text"
-              placeholder="חיפוש בקבצים..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              dir="rtl"
-              className="pr-9 pl-3"
+            <input
+              ref={fileInputRef}
+              type="file"
+              multiple
+              onChange={handleFileSelect}
+              className="hidden"
+              accept="*/*"
             />
+
+            {/* Search */}
+            <div className="relative flex-1 min-w-64">
+              <Search className="absolute right-3 top-2.5 w-4 h-4 text-slate-400" />
+              <Input
+                type="text"
+                placeholder="חיפוש בקבצים..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                dir="rtl"
+                className="pr-9 pl-3"
+              />
+            </div>
+
+            {/* Sort */}
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value)}
+              dir="rtl"
+              className="h-9 border border-slate-200 rounded-lg px-3 py-1 text-sm bg-white text-slate-900 font-medium"
+            >
+              <option value="name">שם</option>
+              <option value="date">תאריך</option>
+              <option value="size">גודל</option>
+            </select>
+
+            {/* Filter */}
+            <select
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              dir="rtl"
+              className="h-9 border border-slate-200 rounded-lg px-3 py-1 text-sm bg-white text-slate-900 font-medium"
+            >
+              <option value="all">כל הסוגים</option>
+              <option value="image">תמונות</option>
+              <option value="pdf">PDF</option>
+              <option value="document">מסמכים</option>
+              <option value="spreadsheet">גיליונות חישוב</option>
+              <option value="video">וידאו</option>
+              <option value="audio">אודיו</option>
+            </select>
+
+            {/* Trash Button */}
+            <Button
+              onClick={() => setShowTrash(!showTrash)}
+              variant={showTrash ? 'default' : 'outline'}
+              className="gap-2"
+            >
+              <Trash2 className="w-4 h-4" />
+              קובץ זבל
+            </Button>
           </div>
-
-          {/* Sort */}
-          <select
-            value={sortBy}
-            onChange={(e) => setSortBy(e.target.value)}
-            dir="rtl"
-            className="h-9 border border-slate-200 rounded-lg px-3 py-1 text-sm bg-white text-slate-900 font-medium"
-          >
-            <option value="name">שם</option>
-            <option value="date">תאריך</option>
-            <option value="size">גודל</option>
-          </select>
-
-          {/* Filter */}
-          <select
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-            dir="rtl"
-            className="h-9 border border-slate-200 rounded-lg px-3 py-1 text-sm bg-white text-slate-900 font-medium"
-          >
-            <option value="all">כל הסוגים</option>
-            <option value="image">תמונות</option>
-            <option value="pdf">PDF</option>
-            <option value="document">מסמכים</option>
-            <option value="spreadsheet">גיליונות חישוב</option>
-            <option value="video">וידאו</option>
-            <option value="audio">אודיו</option>
-          </select>
-        </div>
+        )}
 
         {/* Breadcrumbs */}
-        {breadcrumbs.length > 0 && (
+        {breadcrumbs.length > 0 && !showTrash && (
           <div className="flex items-center gap-2 mb-4 text-sm" dir="rtl">
             <button
               onClick={() => setCurrentFolderId(null)}
@@ -417,7 +473,7 @@ export default function Documents() {
           {filteredFolders.length === 0 && filteredFiles.length === 0 ? (
             <div className="flex flex-col items-center justify-center h-full text-slate-500">
               <FolderOpen className="w-16 h-16 mb-4 opacity-20" />
-              <p>אין קבצים או תיקיות</p>
+              <p>{showTrash ? 'קובץ הזבל ריק' : 'אין קבצים או תיקיות'}</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -446,8 +502,8 @@ export default function Documents() {
                     ) : (
                       <>
                         <p
-                          className="font-medium text-slate-900 truncate cursor-pointer"
-                          onClick={() => setCurrentFolderId(folder.id)}
+                          className="font-medium text-slate-900 truncate"
+                          onClick={() => !showTrash && setCurrentFolderId(folder.id)}
                         >
                           {folder.name}
                         </p>
@@ -455,27 +511,36 @@ export default function Documents() {
                       </>
                     )}
                   </div>
-                  <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  {showTrash ? (
                     <button
-                      onClick={() => {
-                        setRenamingFolderId(folder.id);
-                        setRenamingFolderName(folder.name);
-                      }}
-                      className="p-1 text-slate-600 hover:text-slate-900"
+                      onClick={() => restoreFolderMutation.mutate(folder.id)}
+                      className="p-1 text-blue-600 hover:text-blue-700"
                     >
-                      <Edit2 className="w-4 h-4" />
+                      <RotateCcw className="w-4 h-4" />
                     </button>
-                    <button
-                      onClick={() => {
-                        if (confirm(`למחוק את התיקייה "${folder.name}"?`)) {
-                          deleteFolderMutation.mutate(folder.id);
-                        }
-                      }}
-                      className="p-1 text-red-600 hover:text-red-700"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                  ) : (
+                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button
+                        onClick={() => {
+                          setRenamingFolderId(folder.id);
+                          setRenamingFolderName(folder.name);
+                        }}
+                        className="p-1 text-slate-600 hover:text-slate-900"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => {
+                          if (confirm(`למחוק את התיקייה "${folder.name}"?`)) {
+                            softDeleteFolderMutation.mutate(folder.id);
+                          }
+                        }}
+                        className="p-1 text-red-600 hover:text-red-700"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  )}
                 </div>
               ))}
 
@@ -512,33 +577,48 @@ export default function Documents() {
                         </>
                       )}
                     </div>
-                    <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    {showTrash ? (
                       <button
-                        onClick={() => handleDownload(file)}
-                        className="p-1 text-slate-600 hover:text-slate-900"
+                        onClick={() => restoreFileMutation.mutate(file.id)}
+                        className="p-1 text-blue-600 hover:text-blue-700"
                       >
-                        <Download className="w-4 h-4" />
+                        <RotateCcw className="w-4 h-4" />
                       </button>
-                      <button
-                        onClick={() => {
-                          setRenamingFileId(file.id);
-                          setRenamingFileName(file.title);
-                        }}
-                        className="p-1 text-slate-600 hover:text-slate-900"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                      </button>
-                      <button
-                        onClick={() => {
-                          if (confirm(`למחוק את הקובץ "${file.title}"?`)) {
-                            deleteFileMutation.mutate(file.id);
-                          }
-                        }}
-                        className="p-1 text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
+                    ) : (
+                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button
+                          onClick={() => setPreviewFile(file)}
+                          className="p-1 text-slate-600 hover:text-slate-900"
+                        >
+                          <Eye className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => handleDownload(file)}
+                          className="p-1 text-slate-600 hover:text-slate-900"
+                        >
+                          <Download className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            setRenamingFileId(file.id);
+                            setRenamingFileName(file.title);
+                          }}
+                          className="p-1 text-slate-600 hover:text-slate-900"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (confirm(`למחוק את הקובץ "${file.title}"?`)) {
+                              softDeleteFileMutation.mutate(file.id);
+                            }
+                          }}
+                          className="p-1 text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -585,34 +665,99 @@ export default function Documents() {
         </DialogContent>
       </Dialog>
 
-      {/* Upload Dialog */}
-      <Dialog open={showUploadDialog} onOpenChange={setShowUploadDialog}>
-        <DialogContent className="max-w-md" dir="rtl">
-          <DialogHeader>
-            <DialogTitle>העלאת קובץ</DialogTitle>
-          </DialogHeader>
-          {uploadProgress ? (
+      {/* File Preview Dialog */}
+      {previewFile && (
+        <Dialog open={!!previewFile} onOpenChange={() => setPreviewFile(null)}>
+          <DialogContent className="max-w-2xl" dir="rtl">
+            <DialogHeader>
+              <DialogTitle className="text-right">{previewFile.title}</DialogTitle>
+            </DialogHeader>
             <div className="space-y-4">
-              <div className="text-sm text-slate-600">
-                {uploadProgress.fileName}
+              {/* Preview Section */}
+              <div className="bg-slate-100 rounded-lg p-8 min-h-64 flex items-center justify-center">
+                {previewFile.file_category === 'image' ? (
+                  <img
+                    src={previewFile.file_url}
+                    alt={previewFile.title}
+                    className="max-w-full max-h-96 rounded"
+                  />
+                ) : previewFile.file_category === 'pdf' ? (
+                  <div className="text-center">
+                    <p className="text-slate-600 mb-4">📄 PDF עדיין לא תומך בתצוגה מקדימה</p>
+                    <Button
+                      onClick={() => handleDownload(previewFile)}
+                      className="gap-2"
+                    >
+                      <Download className="w-4 h-4" />
+                      הורד
+                    </Button>
+                  </div>
+                ) : previewFile.file_category === 'audio' ? (
+                  <audio controls className="w-full">
+                    <source src={previewFile.file_url} />
+                  </audio>
+                ) : previewFile.file_category === 'video' ? (
+                  <video controls className="max-w-full max-h-96 rounded">
+                    <source src={previewFile.file_url} />
+                  </video>
+                ) : (
+                  <div className="text-center">
+                    <p className="text-slate-600 mb-4">📄 לא ניתן להציג תצוגה מקדימה לסוג קובץ זה</p>
+                    <Button
+                      onClick={() => handleDownload(previewFile)}
+                      className="gap-2"
+                    >
+                      <Download className="w-4 h-4" />
+                      הורד
+                    </Button>
+                  </div>
+                )}
               </div>
-              <div className="w-full bg-slate-200 rounded-lg h-2 overflow-hidden">
-                <div
-                  className="bg-blue-600 h-full transition-all"
-                  style={{
-                    width: `${(uploadProgress.current / uploadProgress.total) * 100}%`,
+
+              {/* Details */}
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <p className="text-slate-500">שם מקורי</p>
+                  <p className="font-medium">{previewFile.original_file_name}</p>
+                </div>
+                <div>
+                  <p className="text-slate-500">גודל</p>
+                  <p className="font-medium">{getFileSizeDisplay(previewFile.file_size_bytes)}</p>
+                </div>
+                <div>
+                  <p className="text-slate-500">סוג</p>
+                  <p className="font-medium">{FILE_CATEGORIES[previewFile.file_category]?.label}</p>
+                </div>
+                <div>
+                  <p className="text-slate-500">תאריך</p>
+                  <p className="font-medium">
+                    {new Date(previewFile.created_date).toLocaleDateString('he-IL')}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex gap-3 justify-end">
+                <Button
+                  variant="outline"
+                  onClick={() => setPreviewFile(null)}
+                >
+                  סגור
+                </Button>
+                <Button
+                  onClick={() => {
+                    handleDownload(previewFile);
+                    setPreviewFile(null);
                   }}
-                />
+                  className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
+                >
+                  <Download className="w-4 h-4" />
+                  הורד
+                </Button>
               </div>
-              <p className="text-xs text-slate-500 text-center">
-                {uploadProgress.current} / {uploadProgress.total}
-              </p>
             </div>
-          ) : (
-            <p className="text-slate-500 text-center py-4">העלאה הסתיימה בהצלחה</p>
-          )}
-        </DialogContent>
-      </Dialog>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   );
 }
