@@ -39,7 +39,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
     reminder_method: 'none',
     event_color: '#3B82F6',
     is_recurring: false,
-    recurrence_pattern: 'weekly',
+    recurrence_pattern: '',
     attendees_users: [],
     attendees_contacts: [],
     attachments: [],
