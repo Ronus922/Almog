@@ -681,17 +681,17 @@ function DashboardContent() {
             </div>
             </div>
 
-            {/* מודל פרטי דירה */}
-            <ApartmentDetailModal
-              record={selectedRecord}
-              isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-              onSave={handleSaveRecord}
-              isAdmin={isAdmin}
-              settings={settings} />
-              </div>
-              </TooltipProvider>
-              );
+        {/* מודל פרטי דירה */}
+        <ApartmentDetailModal
+          record={selectedRecord}
+          isOpen={isModalOpen}
+          onClose={() => setIsModalOpen(false)}
+          onSave={handleSaveRecord}
+          isAdmin={isAdmin}
+          settings={settings} />
+      </div>
+    </TooltipProvider>
+  );
 }
 
 export default function Dashboard() {
