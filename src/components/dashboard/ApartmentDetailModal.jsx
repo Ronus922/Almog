@@ -674,33 +674,33 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             <Button
               onClick={handleSave}
               disabled={isSaving}
-              className="h-12 min-w-[180px] rounded-[16px] border-0 bg-[linear-gradient(180deg,#2d6cff_0%,#1f5cf2_100%)] px-6 text-[17px] font-black text-white shadow-[0_14px_28px_rgba(37,99,235,0.35)] transition hover:brightness-[1.04]"
+              className="h-10 min-w-[140px] rounded-[14px] border-0 bg-[linear-gradient(180deg,#2d6cff_0%,#1f5cf2_100%)] px-4 text-[15px] font-black text-white shadow-[0_14px_28px_rgba(37,99,235,0.35)] transition hover:brightness-[1.04]"
             >
-              <Save className="mr-2 h-4 w-4" />
-              {isSaving ? 'שומר...' : 'שמור שינויים'}
+              <Save className="mr-2 h-3 w-3" />
+              {isSaving ? 'שומר...' : 'שמור'}
             </Button>
           )}
           <Button
             variant="outline"
             onClick={handleExportPDF}
             disabled={isExporting}
-            className="h-12 min-w-[122px] rounded-[16px] border border-slate-200 bg-white px-5 text-[16px] font-bold text-[#243858] shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition hover:bg-slate-50"
+            className="h-10 min-w-[90px] rounded-[14px] border border-slate-200 bg-white px-3 text-[14px] font-bold text-[#243858] shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition hover:bg-slate-50"
           >
-            <FileDown className="mr-2 h-4 w-4" />
-            {isExporting ? 'מייצא...' : 'PDF'}
+            <FileDown className="mr-1.5 h-3 w-3" />
+            PDF
           </Button>
           <Button
             variant="outline"
             onClick={handlePrint}
-            className="h-12 min-w-[122px] rounded-[16px] border border-slate-200 bg-white px-5 text-[16px] font-bold text-[#243858] shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition hover:bg-slate-50"
+            className="h-10 min-w-[90px] rounded-[14px] border border-slate-200 bg-white px-3 text-[14px] font-bold text-[#243858] shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition hover:bg-slate-50"
           >
-            <Printer className="mr-2 h-4 w-4" />
+            <Printer className="mr-1.5 h-3 w-3" />
             הדפסה
           </Button>
           <Button
             variant="outline"
             onClick={onClose}
-            className="h-12 min-w-[122px] rounded-[16px] border border-slate-200 bg-white px-5 text-[16px] font-bold text-[#243858] shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition hover:bg-slate-50"
+            className="h-10 min-w-[90px] rounded-[14px] border border-slate-200 bg-white px-3 text-[14px] font-bold text-[#243858] shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition hover:bg-slate-50"
           >
             סגור
           </Button>
@@ -791,32 +791,53 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
           {/* Contact row */}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <div className="rounded-[18px] border border-slate-200/80 bg-white px-5 py-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2 text-[#7f93b0]">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#f7f9fc] text-[#8ea0b8]">
-                    <Phone className="w-4 h-4" />
+            {isAdmin ? (
+              <>
+                <InlineEditableField
+                  label="טלפון בעלים"
+                  value={editedRecord?.phoneOwner || record.phoneOwner || 'אין'}
+                  onSave={(val) => handleFieldSave('phoneOwner', val)}
+                  validate={validatePhone}
+                  icon={Phone}
+                />
+                <InlineEditableField
+                  label="טלפון שוכר"
+                  value={editedRecord?.phoneTenant || record.phoneTenant || 'אין'}
+                  onSave={(val) => handleFieldSave('phoneTenant', val)}
+                  validate={validatePhone}
+                  icon={Phone}
+                />
+              </>
+            ) : (
+              <>
+                <div className="rounded-[18px] border border-slate-200/80 bg-white px-5 py-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 text-[#7f93b0]">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#f7f9fc] text-[#8ea0b8]">
+                        <Phone className="w-4 h-4" />
+                      </div>
+                    </div>
+                    <div className="space-y-1 text-right">
+                      <p className="text-[13px] font-semibold text-[#95a3b8]">טלפון בעלים</p>
+                      <p className="text-[32px] leading-none font-black text-[#233754]">{formatPhone(editedRecord?.phoneOwner || record.phoneOwner || 'אין')}</p>
+                    </div>
                   </div>
                 </div>
-                <div className="space-y-1 text-right">
-                  <p className="text-[13px] font-semibold text-[#95a3b8]">טלפון בעלים</p>
-                  <p className="text-[32px] leading-none font-black text-[#233754]">{formatPhone(editedRecord?.phoneOwner || record.phoneOwner || 'אין')}</p>
-                </div>
-              </div>
-            </div>
-            <div className="rounded-[18px] border border-slate-200/80 bg-white px-5 py-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
-              <div className="flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2 text-[#7f93b0]">
-                  <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#f7f9fc] text-[#8ea0b8]">
-                    <Phone className="w-4 h-4" />
+                <div className="rounded-[18px] border border-slate-200/80 bg-white px-5 py-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-2 text-[#7f93b0]">
+                      <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#f7f9fc] text-[#8ea0b8]">
+                        <Phone className="w-4 h-4" />
+                      </div>
+                    </div>
+                    <div className="space-y-1 text-right">
+                      <p className="text-[13px] font-semibold text-[#95a3b8]">טלפון שוכר</p>
+                      <p className="text-[32px] leading-none font-black text-[#233754]">{formatPhone(editedRecord?.phoneTenant || record.phoneTenant || 'אין')}</p>
+                    </div>
                   </div>
                 </div>
-                <div className="space-y-1 text-right">
-                  <p className="text-[13px] font-semibold text-[#95a3b8]">טלפון שוכר</p>
-                  <p className="text-[32px] leading-none font-black text-[#233754]">{formatPhone(editedRecord?.phoneTenant || record.phoneTenant || 'אין')}</p>
-                </div>
-              </div>
-            </div>
+              </>
+            )}
           </div>
 
           {/* Debt summary section */}
