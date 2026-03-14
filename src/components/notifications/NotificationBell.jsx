@@ -100,14 +100,24 @@ export default function NotificationBell({ currentUser }) {
         <div className="absolute left-0 top-full mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 z-50 overflow-hidden" dir="rtl">
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50">
             <span className="font-semibold text-slate-700 text-sm">התראות</span>
-            {unread.length > 0 && (
-              <button
-                onClick={markAllRead}
-                className="text-xs text-blue-600 hover:underline"
-              >
-                סמן הכל כנקרא
-              </button>
-            )}
+            <div className="flex gap-2">
+              {unread.length > 0 && (
+                <button
+                  onClick={markAllRead}
+                  className="text-xs text-blue-600 hover:underline"
+                >
+                  סמן הכל כנקרא
+                </button>
+              )}
+              {notifications.length > 0 && (
+                <button
+                  onClick={clearAllNotifications}
+                  className="text-xs text-red-600 hover:underline"
+                >
+                  נקה הכל
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="max-h-96 overflow-y-auto">
