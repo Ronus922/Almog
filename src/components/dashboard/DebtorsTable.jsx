@@ -330,23 +330,26 @@ export default function DebtorsTable({
       />
     )}
     <TooltipProvider>
-    <div className="rounded-[22px] border border-[rgba(227,232,247,0.98)] bg-[rgba(255,255,255,0.91)] shadow-[0_18px_42px_rgba(122,140,210,0.10),inset_0_1px_0_rgba(255,255,255,0.98)] overflow-hidden">
-      {/* Toolbar */}
-      <div className="flex min-h-[58px] flex-wrap items-center justify-between gap-3 border-b border-[rgba(231,236,248,0.96)] bg-[linear-gradient(180deg,rgba(252,253,255,0.98)_0%,rgba(246,248,255,0.98)_100%)] px-[18px] py-2">
-        <div className="flex items-center gap-2">
-          <span className="text-[12px] font-bold text-[#5f698d]">טבלה</span>
-          <span className="text-[11px] font-medium text-[#9aa5c9]">סה״כ: {filteredRecords.length} רשומות</span>
-        </div>
-
-        {/* Mobile filters */}
-        <div className="flex lg:hidden gap-2">
+    <Card className="rounded-[24px] border border-white/80 bg-white/88 backdrop-blur-[8px] shadow-[0_18px_40px_rgba(15,23,42,0.09)] overflow-hidden">
+      <CardHeader className="bg-slate-50/90 pt-4 pb-4 p-6 flex flex-col space-y-1.5 md:pb-6 md:pt-6 border-b border-slate-200/80">
+        <div className="flex flex-col gap-4">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <CardTitle className="text-[22px] md:text-[26px] font-[700] text-slate-800">טבלת חייבים</CardTitle>
+              <p className="text-sm text-slate-600 mt-1 font-medium">
+                סה״כ רשומות: <span className="font-bold text-blue-600">{filteredRecords.length}</span>
+              </p>
+            </div>
+            
+            {/* Mobile filters */}
+            <div className="flex lg:hidden gap-2">
               <div className="relative flex-1">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <Input
                     placeholder="מספר דירה..."
                     value={apartmentSearch}
                     onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
-                    className="pr-10 h-[34px] rounded-[10px] border-[rgba(224,230,246,0.96)] bg-white px-3 text-[12px] font-semibold text-[#687395] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] outline-none transition-colors placeholder:text-[#a2abc8] focus:border-[#cfd8ff]"
+                    className="pr-10 h-10 rounded-xl border-slate-300 text-sm"
                     inputMode="numeric" />
 
               </div>
@@ -355,7 +358,7 @@ export default function DebtorsTable({
                   <Button
                       variant="outline"
                       size="sm"
-                      className="h-[34px] min-w-[86px] rounded-[10px] border border-[rgba(224,230,246,0.96)] bg-white px-3 text-[12px] font-semibold text-[#687395] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] outline-none transition-colors hover:border-[#cfd8ff]"
+                      className="h-10 px-3 rounded-xl"
                       style={{
                         fontSize: '15px',
                         fontWeight: 800,
@@ -491,30 +494,31 @@ export default function DebtorsTable({
             </div>
 
             {/* Desktop filters */}
-            <div className="hidden lg:flex flex-wrap items-center gap-2">
+            <div className="hidden lg:flex flex-wrap items-center gap-3">
               <div className="relative">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9ca7ca]" />
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <Input
-                  placeholder="מספר דירה..."
-                  value={apartmentSearch}
-                  onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
-                  className="pr-10 h-[34px] w-32 rounded-[10px] border border-[rgba(224,230,246,0.96)] bg-white px-3 text-[12px] font-semibold text-[#687395] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] outline-none transition-colors placeholder:text-[#a2abc8] focus:border-[#cfd8ff]"
+                    placeholder="מספר דירה..."
+                    value={apartmentSearch}
+                    onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
+                    className="pr-12 w-40 h-11 rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500"
                     inputMode="numeric" />
 
               </div>
 
               <div className="relative">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9ca7ca]" />
+                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
                 <Input
-                  placeholder="חיפוש..."
-                  value={search}
-                  onChange={(e) => {setSearch(e.target.value);setPage(1);}}
-                  className="pr-10 h-[34px] w-40 rounded-[10px] border border-[rgba(224,230,246,0.96)] bg-white px-3 text-[12px] font-semibold text-[#687395] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] outline-none transition-colors placeholder:text-[#a2abc8] focus:border-[#cfd8ff]" />
+                    placeholder="חיפוש שם או טלפון..."
+                    value={search}
+                    onChange={(e) => {setSearch(e.target.value);setPage(1);}}
+                    className="pr-12 w-52 h-11 rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500" />
+
               </div>
 
               <Select value={statusFilter} onValueChange={(v) => {setStatusFilter(v);setPage(1);}}>
-                <SelectTrigger className="h-[34px] min-w-[86px] rounded-[10px] border border-[rgba(224,230,246,0.96)] bg-white px-3 text-[12px] font-semibold text-[#687395] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] outline-none transition-colors">
-                  <SelectValue placeholder="סטטוס" />
+                <SelectTrigger className="w-44 h-11 rounded-xl border-slate-300">
+                  <SelectValue placeholder="כל הסטטוסים" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
                   <SelectItem value="all">כל הסטטוסים</SelectItem>
@@ -525,10 +529,10 @@ export default function DebtorsTable({
               </Select>
 
               <Button
-                variant={showAdvancedFilters ? "default" : "outline"}
-                size="sm"
-                onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                className="h-[34px] rounded-[10px] px-4 inline-flex items-center justify-center bg-[linear-gradient(135deg,#6a7cff_0%,#5b6cff_100%)] text-white text-[12px] font-bold shadow-[0_8px_18px_rgba(91,108,255,0.24)] transition-opacity hover:opacity-95"
+                  variant={showAdvancedFilters ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                  className="h-11 rounded-xl px-4"
                   style={{
                     fontSize: '15px',
                     fontWeight: 800,
@@ -562,8 +566,7 @@ export default function DebtorsTable({
         </div>
       </CardHeader>
 
-      {/* Table Content */}
-      <div className="p-0">
+      <CardContent className="p-0">
         {/* Mobile Card View */}
         <div className="block lg:hidden p-4 space-y-3">
           {paginatedRecords.length === 0 ?
@@ -593,28 +596,44 @@ export default function DebtorsTable({
         </div>
 
         {/* Desktop Table View */}
-        <div className="hidden lg:block overflow-x-auto px-[14px] pt-3 pb-4">
-          <Table className="w-full border-separate border-spacing-y-2 border-spacing-x-0">
+        <div className="hidden lg:block overflow-x-auto">
+          <Table className="border-separate border-spacing-0">
             <TableHeader>
-              <TableRow className="h-[38px]">
-                <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('apartmentNumber')}>
+              <TableRow className="bg-slate-50/90 border-b border-slate-200/80">
+                <TableHead className="text-right font-semibold text-slate-600 text-[13px] px-4 md:px-5 py-4 cursor-pointer hover:text-slate-800" onClick={() => toggleSort('apartmentNumber')}>
                   <div className="flex items-center gap-2 justify-end">
                     <ArrowUpDown className={`w-5 h-5 ${sortField === 'apartmentNumber' ? 'text-blue-600' : 'text-slate-400'}`} />
                     מס׳ דירה
                   </div>
                 </TableHead>
-                <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be]">שם בעלים</TableHead>
-                <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be]">טלפון</TableHead>
-                <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('totalDebt')}>
+                <TableHead className="text-right font-semibold text-slate-600 text-[13px] px-4 md:px-5 py-4">שם בעל הדירה</TableHead>
+                <TableHead className="text-right font-semibold text-slate-600 text-[13px] px-4 md:px-5 py-4">טלפון</TableHead>
+                <TableHead className="text-right font-semibold text-slate-600 text-[13px] px-4 md:px-5 py-4 cursor-pointer hover:text-slate-800" onClick={() => toggleSort('totalDebt')}>
                   <div className="flex items-center gap-2 justify-end">
                     <ArrowUpDown className={`w-5 h-5 ${sortField === 'totalDebt' ? 'text-blue-600' : 'text-slate-400'}`} />
                     סה״כ חוב
                   </div>
                 </TableHead>
-                <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('monthlyDebt')}>דמי ניהול</TableHead>
-                <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('specialDebt')}>מים חמים</TableHead>
-                <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('legal_status_id')}>מצב משפטי</TableHead>
-                <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-center text-[11px] font-bold text-[#8f99be]">פעולות</TableHead>
+                <TableHead className="text-right font-semibold text-slate-600 text-[13px] px-4 md:px-5 py-4 cursor-pointer hover:text-slate-800" onClick={() => toggleSort('monthlyDebt')}>
+                   <div className="flex items-center gap-2 justify-end">
+                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'monthlyDebt' ? 'text-blue-600' : 'text-slate-400'}`} />
+                    דמי ניהול
+                   </div>
+                 </TableHead>
+                 <TableHead className="text-right font-semibold text-slate-600 text-[13px] px-4 md:px-5 py-4 cursor-pointer hover:text-slate-800" onClick={() => toggleSort('specialDebt')}>
+                   <div className="flex items-center gap-2 justify-end">
+                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'specialDebt' ? 'text-blue-600' : 'text-slate-400'}`} />
+                    מים חמים
+                   </div>
+                 </TableHead>
+
+                 <TableHead className="text-right font-semibold text-slate-600 text-[13px] px-4 md:px-5 py-4 cursor-pointer hover:text-slate-800" onClick={() => toggleSort('legal_status_id')}>
+                   <div className="flex items-center gap-2 justify-end">
+                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'legal_status_id' ? 'text-blue-600' : 'text-slate-400'}`} />
+                    מצב משפטי
+                   </div>
+                 </TableHead>
+                 <TableHead className="text-center font-semibold text-slate-600 text-[13px] px-4 md:px-5 py-4" style={{ width: '120px' }}>פעולות</TableHead>
               </TableRow>
               
               {/* Advanced Filter Row */}
@@ -729,13 +748,13 @@ export default function DebtorsTable({
                 paginatedRecords.map((record, idx) =>
                 <TableRow
                   key={record.id}
-                  className="group transition-all duration-150"
+                  className={`text-[14px] text-slate-700 border-b border-slate-100 hover:bg-[#f5f8ff] transition-all cursor-pointer ${idx % 2 === 0 ? 'bg-white' : 'bg-[#fcfdff]'}`}
                   onClick={() => onRowClick(record)}>
 
-                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] rounded-r-[14px] group-hover:-translate-y-px group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
+                    <TableCell className="font-semibold text-slate-800 text-[14px] py-4 px-5 align-middle">
                       {record.apartmentNumber}
                     </TableCell>
-                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] group-hover:-translate-y-px group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
+                    <TableCell className="text-slate-700 text-[14px] py-4 px-5 align-middle">
                       <div className="line-clamp-2 break-words">
                         {record.ownerName ? (
                           <>
@@ -747,35 +766,35 @@ export default function DebtorsTable({
                         ) : '-'}
                       </div>
                     </TableCell>
-                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-right group-hover:-translate-y-px group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]" dir="rtl">
+                    <TableCell className="text-[14px] font-medium text-slate-600 py-4 px-5 align-middle text-right" dir="rtl">
                       {formatPhoneForDisplay(getPhonePrimaryForTable(record))}
                     </TableCell>
-                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-center text-[12px] font-bold text-[#8b5cff] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] group-hover:-translate-y-px group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
-                      {formatCurrency(record.totalDebt)}
+                    <TableCell className="py-4 px-5 align-middle text-center">
+                      <span className="font-medium text-[14px] text-rose-600 tabular-nums">{formatCurrency(record.totalDebt)}</span>
                     </TableCell>
-                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-center text-[12px] font-bold text-[#f5a623] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] group-hover:-translate-y-px group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
-                      {formatCurrency(record.monthlyDebt)}
+                    <TableCell className="py-4 px-5 align-middle text-center">
+                      <span className="font-medium text-[14px] text-amber-600 tabular-nums">{formatCurrency(record.monthlyDebt)}</span>
                     </TableCell>
-                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-center text-[12px] font-bold text-[#f5a623] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] group-hover:-translate-y-px group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
-                      {formatCurrency(record.specialDebt)}
+                    <TableCell className="py-4 px-5 align-middle text-center">
+                      <span className="font-medium text-[14px] text-purple-600 tabular-nums">{formatCurrency(record.specialDebt)}</span>
                     </TableCell>
 
-                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-center shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] group-hover:-translate-y-px group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
+                    <TableCell className="py-4 px-5 align-middle text-center">
                       {(() => {
                       const legalStatus = getLegalStatusForRecord(record);
 
                       return legalStatus ?
-                      <Badge className={`${legalStatus.color} rounded-full px-3 py-1 text-[11px] font-bold inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 hover:opacity-80`}>
+                      <Badge className={`${legalStatus.color} rounded-full px-3 py-1 text-[12px] font-medium inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 hover:opacity-80`}>
                             {legalStatus.name}
                           </Badge> :
 
-                      <Badge className="bg-[rgba(226,232,248,0.96)] text-[#8f99bd] rounded-full px-3 py-1 text-[11px] font-bold inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 hover:opacity-80">
+                      <Badge className="bg-slate-100 text-slate-600 rounded-full px-3 py-1 text-[12px] font-medium inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 hover:opacity-80">
                             לא הוגדר
                           </Badge>;
 
                     })()}
                     </TableCell>
-                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-center shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] rounded-l-[14px] group-hover:-translate-y-px group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]" onClick={(e) => e.stopPropagation()}>
+                    <TableCell className="py-4 px-5 align-middle text-center" onClick={(e) => e.stopPropagation()}>
                        <div className="flex items-center justify-center gap-2">
                         <Tooltip>
                           <TooltipTrigger asChild>
