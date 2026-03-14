@@ -16,7 +16,7 @@ function SortableHeader({ label, field, sortField, sortDir, onSort }) {
   const active = sortField === field;
   return (
     <th
-      className="text-right px-4 py-3 font-semibold text-slate-600 cursor-pointer select-none hover:bg-slate-100 transition-colors"
+      className="sys-table-header-cell cursor-pointer select-none hover:bg-slate-100 transition-colors"
       onClick={() => onSort(field)}>
 
       <span className="inline-flex items-center gap-1">
