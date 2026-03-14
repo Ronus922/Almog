@@ -194,9 +194,9 @@ function DashboardContent() {
                   <p className="text-[32px] font-black leading-none text-[#2bc9a8]">
                     {new Intl.NumberFormat('he-IL', { notation: 'compact', maximumFractionDigits: 0 }).format(records.reduce((sum, r) => sum + (r.totalDebt || 0), 0))}
                   </p>
-                  <div className="mt-3 h-7 rounded-full bg-[#f7f9ff] border border-[rgba(226,232,248,0.96)] px-3.5 flex items-center">
-                    <span className="text-[11px] font-semibold text-[#8f99bd]">סה״כ</span>
-                  </div>
+                  
+
+
                 </div>
               </div>
 
@@ -207,9 +207,9 @@ function DashboardContent() {
                   <p className="text-[32px] font-black leading-none text-[#6270ff]">
                     {new Intl.NumberFormat('he-IL', { notation: 'compact', maximumFractionDigits: 0 }).format(records.reduce((sum, r) => sum + (r.monthlyDebt || 0), 0))}
                   </p>
-                  <div className="mt-3 h-7 rounded-full bg-[#f7f9ff] border border-[rgba(226,232,248,0.96)] px-3.5 flex items-center">
-                    <span className="text-[11px] font-semibold text-[#8f99bd]">חודשי</span>
-                  </div>
+                  
+
+
                 </div>
               </div>
 
@@ -220,9 +220,9 @@ function DashboardContent() {
                   <p className="text-[32px] font-black leading-none text-[#f5a623]">
                     {new Intl.NumberFormat('he-IL', { notation: 'compact', maximumFractionDigits: 0 }).format(records.reduce((sum, r) => sum + (r.specialDebt || 0), 0))}
                   </p>
-                  <div className="mt-3 h-7 rounded-full bg-[#f7f9ff] border border-[rgba(226,232,248,0.96)] px-3.5 flex items-center">
-                    <span className="text-[11px] font-semibold text-[#8f99bd]">מיוחד</span>
-                  </div>
+                  
+
+
                 </div>
               </div>
 
@@ -233,9 +233,9 @@ function DashboardContent() {
                   <p className="text-[32px] font-black leading-none text-[#ff5a9c]">
                     {records.filter((r) => (r.totalDebt || 0) > 0).length}
                   </p>
-                  <div className="mt-3 h-7 rounded-full bg-[#f7f9ff] border border-[rgba(226,232,248,0.96)] px-3.5 flex items-center">
-                    <span className="text-[11px] font-semibold text-[#8f99bd]">דירות</span>
-                  </div>
+                  
+
+
                 </div>
               </div>
 
@@ -250,9 +250,9 @@ function DashboardContent() {
                   <p className="text-[32px] font-black leading-none text-[#ff7a5c]">
                     {records.filter((r) => r.debt_status_auto === 'לגבייה מיידית').length}
                   </p>
-                  <div className="mt-3 h-7 rounded-full bg-[#f7f9ff] border border-[rgba(226,232,248,0.96)] px-3.5 flex items-center">
-                    <span className="text-[11px] font-semibold text-[#8f99bd]">דירות</span>
-                  </div>
+                  
+
+
                 </div>
               </div>
 
@@ -267,9 +267,9 @@ function DashboardContent() {
                   <p className="text-[32px] font-black leading-none text-[#ff3b3b]">
                     {records.filter((r) => r.debt_status_auto === 'חריגה מופרזת').length}
                   </p>
-                  <div className="mt-3 h-7 rounded-full bg-[#f7f9ff] border border-[rgba(226,232,248,0.96)] px-3.5 flex items-center">
-                    <span className="text-[11px] font-semibold text-[#8f99bd]">דירות</span>
-                  </div>
+                  
+
+
                 </div>
               </div>
 
@@ -284,9 +284,9 @@ function DashboardContent() {
                   <p className="text-[32px] font-black leading-none text-[#ffa500]">
                     {allStatuses.find((s) => s.type === 'LEGAL' && s.name === 'מכתב התראה') ? records.filter((r) => r.legal_status_id === allStatuses.find((s) => s.type === 'LEGAL' && s.name === 'מכתב התראה')?.id).length : 0}
                   </p>
-                  <div className="mt-3 h-7 rounded-full bg-[#f7f9ff] border border-[rgba(226,232,248,0.96)] px-3.5 flex items-center">
-                    <span className="text-[11px] font-semibold text-[#8f99bd]">דירות</span>
-                  </div>
+                  
+
+
                 </div>
               </div>
 
@@ -304,9 +304,9 @@ function DashboardContent() {
                   <p className="text-[32px] font-black leading-none text-[#5b6cff]">
                     {records.filter((r) => !r.legal_status_id && r.debt_status_auto === 'חריגה מופרזת').length}
                   </p>
-                  <div className="mt-3 h-7 rounded-full bg-[#f7f9ff] border border-[rgba(226,232,248,0.96)] px-3.5 flex items-center">
-                    <span className="text-[11px] font-semibold text-[#8f99bd]">דירות</span>
-                  </div>
+                  
+
+
                 </div>
               </div>
 
@@ -321,9 +321,9 @@ function DashboardContent() {
                   <p className="text-[32px] font-black leading-none text-[#2bc9a8]">
                     {allStatuses.find((s) => s.type === 'LEGAL' && s.name === 'תביעה משפטית') ? records.filter((r) => r.legal_status_id === allStatuses.find((s) => s.type === 'LEGAL' && s.name === 'תביעה משפטית')?.id).length : 0}
                   </p>
-                  <div className="mt-3 h-7 rounded-full bg-[#f7f9ff] border border-[rgba(226,232,248,0.96)] px-3.5 flex items-center">
-                    <span className="text-[11px] font-semibold text-[#8f99bd]">דירות</span>
-                  </div>
+                  
+
+
                 </div>
               </div>
             </div>
