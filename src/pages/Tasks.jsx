@@ -407,10 +407,10 @@ export default function Tasks() {
         {/* Table */}
         <div className="sys-card overflow-hidden">
             {isLoading ?
-            <div className="py-16 text-center text-slate-400">טוען משימות...</div> :
+            <div className="empty-state">טוען משימות...</div> :
             sorted.length === 0 ?
-            <div className="py-16 text-center text-slate-400">
-                <ClipboardList className="w-10 h-10 mx-auto mb-3 opacity-30" />
+            <div className="empty-state">
+                <ClipboardList className="empty-state-icon" />
                 <p>אין משימות להצגה</p>
               </div> :
 
