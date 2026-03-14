@@ -238,6 +238,94 @@ function DashboardContent() {
                   </div>
                 </div>
               </div>
+
+              {/* KPI 5 - לגבייה מיידית */}
+              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all" onClick={() => {
+                setFilterKeyFromUrl('IMMEDIATE_COLLECTION');
+                setFilterDisplayName('לגבייה מיידית');
+                window.history.pushState({}, '', `${window.location.pathname}?reportKey=IMMEDIATE_COLLECTION`);
+              }}>
+                <p className="text-[10px] font-bold uppercase text-[#a0aacb]">לגבייה מיידית</p>
+                <div>
+                  <p className="text-[32px] font-black leading-none text-[#ff7a5c]">
+                    {records.filter((r) => r.debt_status_auto === 'לגבייה מיידית').length}
+                  </p>
+                  <div className="mt-3 h-7 rounded-full bg-[#f7f9ff] border border-[rgba(226,232,248,0.96)] px-3.5 flex items-center">
+                    <span className="text-[11px] font-semibold text-[#8f99bd]">דירות</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* KPI 6 - חריגה מופרזת */}
+              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all" onClick={() => {
+                setFilterKeyFromUrl('REQUIRES_LEGAL_ACTION');
+                setFilterDisplayName('חריגה מופרזת');
+                window.history.pushState({}, '', `${window.location.pathname}?reportKey=REQUIRES_LEGAL_ACTION`);
+              }}>
+                <p className="text-[10px] font-bold uppercase text-[#a0aacb]">חריגה מופרזת</p>
+                <div>
+                  <p className="text-[32px] font-black leading-none text-[#ff3b3b]">
+                    {records.filter((r) => r.debt_status_auto === 'חריגה מופרזת').length}
+                  </p>
+                  <div className="mt-3 h-7 rounded-full bg-[#f7f9ff] border border-[rgba(226,232,248,0.96)] px-3.5 flex items-center">
+                    <span className="text-[11px] font-semibold text-[#8f99bd]">דירות</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* KPI 7 - מכתבי התראה */}
+              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all" onClick={() => {
+                setFilterKeyFromUrl('WARNING_LETTER');
+                setFilterDisplayName('מכתבי התראה');
+                window.history.pushState({}, '', `${window.location.pathname}?reportKey=WARNING_LETTER`);
+              }}>
+                <p className="text-[10px] font-bold uppercase text-[#a0aacb]">מכתבי התראה</p>
+                <div>
+                  <p className="text-[32px] font-black leading-none text-[#ffa500]">
+                    {allStatuses.find((s) => s.type === 'LEGAL' && s.name === 'מכתב התראה') ? records.filter((r) => r.legal_status_id === allStatuses.find((s) => s.type === 'LEGAL' && s.name === 'מכתב התראה')?.id).length : 0}
+                  </p>
+                  <div className="mt-3 h-7 rounded-full bg-[#f7f9ff] border border-[rgba(226,232,248,0.96)] px-3.5 flex items-center">
+                    <span className="text-[11px] font-semibold text-[#8f99bd]">דירות</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* KPI 8 - לטיפול משפטי */}
+              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all" onClick={() => {
+                const statuses = allStatuses.filter((s) => s.type === 'LEGAL' && s.is_active);
+                if (statuses.length > 0) {
+                  setFilterKeyFromUrl('LEGAL_CANDIDATES');
+                  setFilterDisplayName('לטיפול משפטי');
+                  window.history.pushState({}, '', `${window.location.pathname}?reportKey=LEGAL_CANDIDATES`);
+                }
+              }}>
+                <p className="text-[10px] font-bold uppercase text-[#a0aacb]">לטיפול משפטי</p>
+                <div>
+                  <p className="text-[32px] font-black leading-none text-[#5b6cff]">
+                    {records.filter((r) => !r.legal_status_id && r.debt_status_auto === 'חריגה מופרזת').length}
+                  </p>
+                  <div className="mt-3 h-7 rounded-full bg-[#f7f9ff] border border-[rgba(226,232,248,0.96)] px-3.5 flex items-center">
+                    <span className="text-[11px] font-semibold text-[#8f99bd]">דירות</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* KPI 9 - בהליך משפטי */}
+              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all" onClick={() => {
+                setFilterKeyFromUrl('LEGAL_PROCESS');
+                setFilterDisplayName('בהליך משפטי');
+                window.history.pushState({}, '', `${window.location.pathname}?reportKey=LEGAL_PROCESS`);
+              }}>
+                <p className="text-[10px] font-bold uppercase text-[#a0aacb]">בהליך משפטי</p>
+                <div>
+                  <p className="text-[32px] font-black leading-none text-[#2bc9a8]">
+                    {allStatuses.find((s) => s.type === 'LEGAL' && s.name === 'תביעה משפטית') ? records.filter((r) => r.legal_status_id === allStatuses.find((s) => s.type === 'LEGAL' && s.name === 'תביעה משפטית')?.id).length : 0}
+                  </p>
+                  <div className="mt-3 h-7 rounded-full bg-[#f7f9ff] border border-[rgba(226,232,248,0.96)] px-3.5 flex items-center">
+                    <span className="text-[11px] font-semibold text-[#8f99bd]">דירות</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </section>
