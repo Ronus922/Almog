@@ -172,22 +172,11 @@ export default function CalendarGrid({
                 {dayAppointments.slice(0, 2).map((apt) => (
                   <div
                     key={apt.id}
-                    draggable={!isPast && !!onDragDrop}
-                    onDragStart={(e) => {
-                      if (onDragStart) {
-                        onDragStart(e, apt);
-                      }
-                    }}
-                    onDragEnd={(e) => {
-                      if (onDragEnd) {
-                        onDragEnd(e);
-                      }
-                    }}
                     className="text-xs p-2 rounded text-white cursor-pointer hover:shadow-lg transition-all font-medium border border-opacity-20 border-white flex flex-col gap-0.5 group relative"
                     style={{
                       backgroundColor: apt.event_color || '#3B82F6',
-                      opacity: draggedAppointment?.id === apt.id ? 0.5 : isPast ? 0.6 : 1,
-                      cursor: !isPast && onDragDrop ? 'grab' : 'pointer',
+                      opacity: isPast ? 0.6 : 1,
+                      cursor: 'pointer',
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
@@ -207,18 +196,38 @@ export default function CalendarGrid({
                       {apt.location && ` • ${apt.location}`}
                     </div>
 
-                        {/* Desktop Tooltip */}
-                    <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block bg-slate-900 text-white text-xs p-3 rounded-lg shadow-lg whitespace-normal w-48 z-50 border border-slate-700">
-                      <div className="font-bold mb-1">{apt.title}</div>
+                    {/* Desktop Tooltip */}
+                    <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block bg-white text-slate-900 text-xs p-4 rounded-lg shadow-md whitespace-normal w-56 z-50 border border-slate-200" dir="rtl">
+                      <div className="font-bold text-sm mb-3 text-slate-900">{apt.title}</div>
+                      
                       {apt.start_datetime && (
-                        <div className="text-slate-300">
-                          {format(new Date(apt.start_datetime), 'HH:mm')} - {apt.end_datetime && format(new Date(apt.end_datetime), 'HH:mm')}
+                        <div className="text-slate-700 text-xs mb-2">
+                          🕐 {format(new Date(apt.start_datetime), 'HH:mm')} {apt.end_datetime && `- ${format(new Date(apt.end_datetime), 'HH:mm')}`}
                         </div>
                       )}
-                      {apt.location && <div className="text-slate-300">📍 {apt.location}</div>}
-                      {apt.description && <div className="text-slate-300 mt-1">{apt.description}</div>}
+                      
+                      {apt.location && (
+                        <div className="text-slate-700 text-xs mb-2">
+                          📍 {apt.location}
+                        </div>
+                      )}
+                      
+                      {apt.description && (
+                        <div className="text-slate-600 text-xs mb-2 line-clamp-3">
+                          {apt.description}
+                        </div>
+                      )}
+                      
                       {apt.attendees_users?.length > 0 && (
-                        <div className="text-slate-300 text-xs mt-1">👥 {apt.attendees_users.length} משתתפים</div>
+                        <div className="text-slate-700 text-xs">
+                          <div className="font-medium mb-1">משתתפים:</div>
+                          {apt.attendees_users.slice(0, 3).map((user, idx) => (
+                            <div key={idx} className="text-slate-600 mr-2">{user}</div>
+                          ))}
+                          {apt.attendees_users.length > 3 && (
+                            <div className="text-slate-600 mr-2 text-xs">ועוד {apt.attendees_users.length - 3}</div>
+                          )}
+                        </div>
                       )}
                     </div>
 
@@ -235,17 +244,37 @@ export default function CalendarGrid({
 
                     {/* Mobile Tooltip */}
                     {mobileTooltipId === apt.id && (
-                      <div className="absolute bottom-full right-0 mb-2 md:hidden bg-slate-900 text-white text-xs p-3 rounded-lg shadow-lg whitespace-normal w-56 z-50 border border-slate-700" dir="rtl">
-                        <div className="font-bold mb-1">{apt.title}</div>
+                      <div className="absolute bottom-full right-0 mb-2 md:hidden bg-white text-slate-900 text-xs p-4 rounded-lg shadow-md whitespace-normal w-60 z-50 border border-slate-200" dir="rtl">
+                        <div className="font-bold text-sm mb-3 text-slate-900">{apt.title}</div>
+                        
                         {apt.start_datetime && (
-                          <div className="text-slate-300">
-                            {format(new Date(apt.start_datetime), 'HH:mm')} - {apt.end_datetime && format(new Date(apt.end_datetime), 'HH:mm')}
+                          <div className="text-slate-700 text-xs mb-2">
+                            🕐 {format(new Date(apt.start_datetime), 'HH:mm')} {apt.end_datetime && `- ${format(new Date(apt.end_datetime), 'HH:mm')}`}
                           </div>
                         )}
-                        {apt.location && <div className="text-slate-300">📍 {apt.location}</div>}
-                        {apt.description && <div className="text-slate-300 mt-1">{apt.description}</div>}
+                        
+                        {apt.location && (
+                          <div className="text-slate-700 text-xs mb-2">
+                            📍 {apt.location}
+                          </div>
+                        )}
+                        
+                        {apt.description && (
+                          <div className="text-slate-600 text-xs mb-2 line-clamp-3">
+                            {apt.description}
+                          </div>
+                        )}
+                        
                         {apt.attendees_users?.length > 0 && (
-                          <div className="text-slate-300 text-xs mt-1">👥 {apt.attendees_users.length} משתתפים</div>
+                          <div className="text-slate-700 text-xs">
+                            <div className="font-medium mb-1">משתתפים:</div>
+                            {apt.attendees_users.slice(0, 3).map((user, idx) => (
+                              <div key={idx} className="text-slate-600 mr-2">{user}</div>
+                            ))}
+                            {apt.attendees_users.length > 3 && (
+                              <div className="text-slate-600 mr-2 text-xs">ועוד {apt.attendees_users.length - 3}</div>
+                            )}
+                          </div>
                         )}
                       </div>
                     )}
