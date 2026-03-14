@@ -50,15 +50,17 @@ export default function Settings() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-10 px-6" dir="rtl">
-      <div className="max-w-2xl mx-auto">
-        <div className="flex items-center gap-3 mb-8">
-          <div className="p-2 bg-white rounded-xl shadow-sm">
-            <SettingsIcon className="w-6 h-6 text-slate-700" />
-          </div>
-          <div>
-            <h1 className="text-xl font-bold text-slate-800">הגדרות מערכת</h1>
-            <p className="text-sm text-slate-500">ניהול הגדרות והעדפות</p>
+    <div className="page-root" dir="rtl">
+      <div className="max-w-2xl mx-auto space-y-6">
+        <div className="page-header">
+          <div className="flex items-center gap-3">
+            <div className="p-2 bg-white rounded-lg shadow-sm border border-slate-200">
+              <SettingsIcon className="w-5 h-5 text-slate-600" />
+            </div>
+            <div>
+              <h1 className="page-title">הגדרות מערכת</h1>
+              <p className="page-subtitle">ניהול הגדרות והעדפות</p>
+            </div>
           </div>
         </div>
 
