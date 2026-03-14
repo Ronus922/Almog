@@ -483,7 +483,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
             <div className="absolute top-full right-0 left-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-50">
               <div className="p-3 border-b border-slate-200">
                 <div className="relative">
-                  <Search className="absolute right-3 top-2.5 w-4 h-4 text-slate-400" />
+                  <Search className="absolute right-2.5 top-2.5 w-4 h-4 text-slate-400" />
                   <Input
                     type="text"
                     placeholder="חפש משתמש..."
