@@ -49,14 +49,15 @@ export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }
 
   const validateEmail = (email) => {
     if (!email) return true;
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    // מאפשר רק אנגלית ותווים של אימייל
+    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     return emailRegex.test(email);
   };
 
   const handleChange = (field, value) => {
     setForm(prev => ({
       ...prev,
-      [field]: typeof value === 'string' ? value.trim() : value
+      [field]: value
     }));
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
@@ -72,6 +73,14 @@ export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }
 
     if (!form.category_id) {
       newErrors.category_id = 'קטגוריה חובה';
+    }
+
+    if (!form.contact_person_name.trim()) {
+      newErrors.contact_person_name = 'שם איש קשר חובה';
+    }
+
+    if (!form.contact_mobile_whatsapp.trim()) {
+      newErrors.contact_mobile_whatsapp = 'טלפון נייד חובה';
     }
 
     if (form.email && !validateEmail(form.email)) {
@@ -159,27 +168,29 @@ export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }
               </div>
 
               <div>
-                <Label htmlFor="contact_person_name" className="text-right block mb-1">שם איש קשר 1</Label>
+                <Label htmlFor="contact_person_name" className="text-right block mb-1">שם איש קשר 1 *</Label>
                 <Input
                   id="contact_person_name"
                   placeholder="שם איש קשר"
                   value={form.contact_person_name}
                   onChange={(e) => handleChange('contact_person_name', e.target.value)}
-                  className="h-9 text-right"
+                  className={`h-9 text-right ${errors.contact_person_name ? 'border-red-500' : ''}`}
                   dir="rtl"
                 />
+                {errors.contact_person_name && <span className="text-red-500 text-xs mt-1 block">{errors.contact_person_name}</span>}
               </div>
 
               <div>
-                <Label htmlFor="contact_mobile_whatsapp" className="text-right block mb-1">טלפון נייד / וואטסאפ</Label>
+                <Label htmlFor="contact_mobile_whatsapp" className="text-right block mb-1">טלפון נייד / וואטסאפ *</Label>
                 <Input
                   id="contact_mobile_whatsapp"
                   placeholder="הזן מספר טלפון נייד"
                   value={form.contact_mobile_whatsapp}
                   onChange={(e) => handleChange('contact_mobile_whatsapp', e.target.value)}
-                  className="h-9 text-right"
+                  className={`h-9 text-right ${errors.contact_mobile_whatsapp ? 'border-red-500' : ''}`}
                   dir="rtl"
                 />
+                {errors.contact_mobile_whatsapp && <span className="text-red-500 text-xs mt-1 block">{errors.contact_mobile_whatsapp}</span>}
               </div>
 
               <div>
@@ -242,7 +253,7 @@ export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }
           </Button>
           <Button
             onClick={handleSave}
-            disabled={!form.company_name || !form.category_id}
+            disabled={!form.company_name || !form.category_id || !form.contact_person_name.trim() || !form.contact_mobile_whatsapp.trim()}
             className="h-9 bg-[#3563d0] text-white px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90"
           >
             {supplier ? 'שמור שינויים' : 'הוסף ספק'}
