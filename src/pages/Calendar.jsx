@@ -64,6 +64,8 @@ export default function Calendar() {
   const queryClient = useQueryClient();
 
   // Drag & Drop
+  const [draggedAppointment, setDraggedAppointment] = useState(null);
+
   const handleDragDrop = async (e, newDate) => {
     if (!draggedAppointment) return;
     await updateEventMutation.mutateAsync({
@@ -76,11 +78,14 @@ export default function Calendar() {
     setDraggedAppointment(null);
   };
 
-  const {
-    draggedAppointment,
-    handleDragStart,
-    handleDragEnd,
-  } = useCalendarDragDrop(handleDragDrop);
+  const handleDragStart = (e, appointment) => {
+    setDraggedAppointment(appointment);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragEnd = () => {
+    setDraggedAppointment(null);
+  };
 
   // Persist filters to localStorage
   React.useEffect(() => {
