@@ -227,15 +227,15 @@ export default function DateTimePicker({ value, onChange, placeholder }) {
   };
 
   return (
-    <div ref={containerRef} style={{ position:"relative", display:"inline-block" }} dir="rtl">
+    <div ref={containerRef} style={{ position:"relative", display:"block", width:"100%" }} dir="rtl">
       {/* trigger */}
       <div
         onClick={() => setOpen(o => !o)}
         style={{
-          display:"flex", alignItems:"center", gap:8, height:36, padding:"0 12px",
+          display:"flex", alignItems:"center", gap:8, height:40, padding:"0 12px",
           border:"1px solid #e2e8f0", borderRadius:8, background:"#fff", cursor:"pointer",
           fontSize:13, color: value ? "#1e293b" : "#94a3b8", userSelect:"none",
-          minWidth:190,
+          width:"100%", boxSizing:"border-box",
         }}
       >
         <span style={{ flex:1 }}>{value ? fmt(new Date(value)) : (placeholder || "בחר תאריך ושעה")}</span>
