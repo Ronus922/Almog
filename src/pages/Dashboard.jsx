@@ -191,12 +191,7 @@ function DashboardContent() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-hidden" dir="rtl" style={{background: 'linear-gradient(180deg,#f8fbff 0%,#f3f7ff 45%,#eef2ff 100%)'}}>
-      {/* Decorative glow elements */}
-      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-300/20 rounded-full blur-3xl pointer-events-none" style={{opacity: 0.3}}></div>
-      <div className="absolute bottom-20 left-0 w-80 h-80 bg-indigo-300/20 rounded-full blur-3xl pointer-events-none" style={{opacity: 0.2}}></div>
-      
-      <div className="relative" dir="rtl">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#f8fbff_0%,#f2f6ff_45%,#eef2ff_100%)]" dir="rtl">
       <style>{`
         @media print {
           body * {
@@ -320,7 +315,7 @@ function DashboardContent() {
           .tab-pill { flex: 1; min-width: 0; }
         }
       `}</style>
-      <div className="max-w-[1500px] mx-auto px-6 md:px-8 xl:px-10 pt-6 pb-10 space-y-6 md:space-y-8">
+      <div className="max-w-[1400px] mx-auto px-6 md:px-8 pt-6 pb-12 space-y-6">
         {/* Filter indicators */}
         {filterKeyFromUrl &&
         <Alert className="rounded-[18px] border border-white/70 bg-white/85 backdrop-blur-[6px] shadow-[0_10px_26px_rgba(15,23,42,0.06)] px-5 md:px-6 py-4">
