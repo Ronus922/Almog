@@ -330,8 +330,8 @@ export default function DebtorsTable({
       />
     )}
     <TooltipProvider>
-    <Card className="border-0 shadow-xl rounded-2xl overflow-hidden">
-      <CardHeader className="bg-blue-50 pt-4 pb-4 p-6 flex flex-col space-y-1.5 md:pb-6 md:pt-6 from-white to-slate-50 border-b border-slate-200">
+    <Card className="rounded-[24px] border border-white/80 bg-white/88 backdrop-blur-[8px] shadow-[0_18px_40px_rgba(15,23,42,0.09)] overflow-hidden">
+      <CardHeader className="bg-slate-50/90 pt-4 pb-4 p-6 flex flex-col space-y-1.5 md:pb-6 md:pt-6 border-b border-slate-200/80">
         <div className="flex flex-col gap-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
