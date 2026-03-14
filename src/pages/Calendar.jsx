@@ -315,12 +315,12 @@ export default function Calendar() {
 
       {/* Appointment Form Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0" dir="rtl">
-          <div className="bg-gradient-to-l from-blue-600 to-indigo-600 px-6 py-6 text-white rounded-t-lg">
-            <h2 className="text-2xl font-bold">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 rounded-xl" dir="rtl">
+          <div className="px-6 py-5 border-b border-slate-100 bg-slate-50 rounded-t-xl">
+            <h2 className="text-xl font-bold text-slate-800">
               {selectedAppointment ? 'עריכת פגישה' : 'פגישה חדשה'}
             </h2>
-            <p className="text-sm text-blue-100 mt-1">ניהול פרטי הפגישה</p>
+            <p className="text-sm text-slate-500 mt-0.5">ניהול פרטי הפגישה</p>
           </div>
           <div className="p-6">
             <AppointmentForm
