@@ -18,11 +18,15 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
         if (appointment.attendees_users?.length > 0) {
           const users = await base44.entities.AppUser.list();
           const names = {};
-          appointment.attendees_users.forEach(userId => {
-            const user = users.find(u => u.id === userId);
-            names[userId] = user?.first_name && user?.last_name 
-              ? `${user.first_name} ${user.last_name}` 
-              : user?.username || userId;
+          appointment.attendees_users.forEach(attendee => {
+            // Handle both formats: old string IDs and new objects with {id, name, email}
+            const userId = typeof attendee === 'object' ? attendee.id : attendee;
+            const displayName = typeof attendee === 'object' 
+              ? attendee.name 
+              : users.find(u => u.id === userId)?.first_name && users.find(u => u.id === userId)?.last_name
+                ? `${users.find(u => u.id === userId).first_name} ${users.find(u => u.id === userId).last_name}`
+                : users.find(u => u.id === userId)?.username || userId;
+            names[userId] = displayName;
           });
           setUserNames(names);
         }
@@ -149,12 +153,18 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
               <div className="space-y-2">
                 {appointment.attendees_users?.length > 0 && (
                   <div className="space-y-2">
-                    {appointment.attendees_users.map((userId) => (
-                      <div key={userId} className="flex items-center gap-2 text-sm text-slate-800 bg-white rounded px-3 py-2 border border-blue-100">
-                        <span className="text-blue-600 text-lg">👤</span>
-                        <span className="font-medium">{userNames[userId] || 'משתמש'}</span>
-                      </div>
-                    ))}
+                    {appointment.attendees_users.map((attendee) => {
+                      const userId = typeof attendee === 'object' ? attendee.id : attendee;
+                      const displayName = typeof attendee === 'object' 
+                        ? attendee.name 
+                        : userNames[userId] || 'משתמש';
+                      return (
+                        <div key={userId} className="flex items-center gap-2 text-sm text-slate-800 bg-white rounded px-3 py-2 border border-blue-100">
+                          <span className="text-blue-600 text-lg">👤</span>
+                          <span className="font-medium">{displayName}</span>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
                 {appointment.attendees_contacts?.length > 0 && (
