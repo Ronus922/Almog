@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow } from
 "@/components/ui/table";
-import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X, Download, FileText, Printer, MessageCircle, MessageSquare } from "lucide-react";
+import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X, Download, FileText, Printer, MessageCircle, MessageSquare, Archive, Undo2 } from "lucide-react";
 import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import WhatsAppDialog from '../whatsapp/WhatsAppDialog';
@@ -608,17 +608,26 @@ export default function DebtorsTable({
                       </TableCell>
                       <TableCell className="px-4 py-3 text-center" onClick={(e) => e.stopPropagation()}>
                         <div className="flex items-center justify-center gap-2">
-                          <button
-                            onClick={() => setWhatsappRecord(record)}
-                            className="p-1.5 hover:bg-green-50 rounded-lg transition-colors"
-                            title="שלח הודעת וואטסאפ">
-                            <MessageCircle className="w-4 h-4 text-green-600" />
-                          </button>
+                          {isAdmin && (
+                            <button
+                              onClick={(e) => handleArchiveToggle(record, e)}
+                              disabled={archivingRecords.has(record.id)}
+                              className="p-1.5 hover:bg-orange-50 rounded-lg transition-colors disabled:opacity-50"
+                              title={showArchived ? 'החזר לחייבים' : 'העבר לארכיון'}>
+                              {showArchived ? <Undo2 className="w-4 h-4 text-orange-600" /> : <Archive className="w-4 h-4 text-orange-600" />}
+                            </button>
+                          )}
                           <button
                             onClick={() => setCommentRecord(record)}
                             className="p-1.5 hover:bg-blue-50 rounded-lg transition-colors"
                             title="הערות">
                             <MessageSquare className="w-4 h-4 text-blue-600" />
+                          </button>
+                          <button
+                            onClick={() => setWhatsappRecord(record)}
+                            className="p-1.5 hover:bg-green-50 rounded-lg transition-colors"
+                            title="שלח הודעת וואטסאפ">
+                            <MessageCircle className="w-4 h-4 text-green-600" />
                           </button>
                         </div>
 
