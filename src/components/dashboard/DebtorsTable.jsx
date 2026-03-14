@@ -766,20 +766,20 @@ export default function DebtorsTable({
                         ) : '-'}
                       </div>
                     </TableCell>
-                    <TableCell className="text-base font-medium text-slate-600 py-6 px-6 align-middle text-right" dir="rtl">
+                    <TableCell className="text-[14px] font-medium text-slate-600 py-4 px-4 md:px-5 align-middle text-right" dir="rtl">
                       {formatPhoneForDisplay(getPhonePrimaryForTable(record))}
                     </TableCell>
-                    <TableCell className="py-6 px-6 align-middle text-center">
-                      <span className="font-bold text-lg text-rose-600">{formatCurrency(record.totalDebt)}</span>
+                    <TableCell className="py-4 px-4 md:px-5 align-middle text-center">
+                      <span className="font-medium text-[14px] text-rose-600 tabular-nums">{formatCurrency(record.totalDebt)}</span>
                     </TableCell>
-                    <TableCell className="py-6 px-6 align-middle text-center">
-                      <span className="font-bold text-base text-amber-600">{formatCurrency(record.monthlyDebt)}</span>
+                    <TableCell className="py-4 px-4 md:px-5 align-middle text-center">
+                      <span className="font-medium text-[14px] text-amber-600 tabular-nums">{formatCurrency(record.monthlyDebt)}</span>
                     </TableCell>
-                    <TableCell className="py-6 px-6 align-middle text-center">
-                      <span className="font-bold text-base text-purple-600">{formatCurrency(record.specialDebt)}</span>
+                    <TableCell className="py-4 px-4 md:px-5 align-middle text-center">
+                      <span className="font-medium text-[14px] text-purple-600 tabular-nums">{formatCurrency(record.specialDebt)}</span>
                     </TableCell>
 
-                    <TableCell className="py-6 px-6 align-middle text-center">
+                    <TableCell className="py-4 px-4 md:px-5 align-middle text-center">
                       {(() => {
                       const legalStatus = getLegalStatusForRecord(record);
 
