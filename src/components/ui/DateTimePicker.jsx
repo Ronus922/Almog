@@ -217,8 +217,8 @@ export default function DateTimePicker({ value, onChange, placeholder }) {
     return () => document.removeEventListener("mousedown", handler);
   }, [open]);
 
-  const handleSelectHour = (h) => {
-    setInternal(prev => { const d = new Date(prev); d.setHours(h, 0, 0, 0); return d; });
+  const handleSelectTime = (h, m) => {
+    setInternal(prev => { const d = new Date(prev); d.setHours(h, m, 0, 0); return d; });
   };
 
   const handleSelectDay = (year, month, day) => {
