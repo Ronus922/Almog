@@ -483,47 +483,48 @@ function DashboardContent() {
         {/* טבלה במיכל פרימיום */}
         <>
           <div className="mx-[26px] mt-[18px] mb-7 overflow-hidden rounded-[22px] border border-[rgba(227,232,247,0.98)] bg-[rgba(255,255,255,0.91)] shadow-[0_18px_42px_rgba(122,140,210,0.10),inset_0_1px_0_rgba(255,255,255,0.98)]">
-            {(activeTab === 'debtors' || !isAdmin) &&
-            <DebtorsTable
-              records={debtorRecords}
-              onRowClick={handleRowClick}
+              {(activeTab === 'debtors' || !isAdmin) &&
+                <DebtorsTable
+                  records={debtorRecords}
+                  onRowClick={handleRowClick}
+                  isAdmin={isAdmin}
+                  settings={settings}
+                  initialFilterKey={filterKeyFromUrl}
+                  initialStatusFilter={statusFilterFromUrl}
+                  initialAutoStatusFilter={autoStatusFilter}
+                  allStatuses={allStatuses}
+                  onFilteredDataChange={setFilteredDataset}
+                  onRecordUpdate={handleRecordUpdate}
+                  showArchived={false} />
+              }
+
+              {isAdmin && activeTab === 'archived' &&
+                <DebtorsTable
+                  records={archivedRecords}
+                  onRowClick={handleRowClick}
+                  isAdmin={isAdmin}
+                  settings={settings}
+                  initialFilterKey={null}
+                  initialStatusFilter={null}
+                  initialAutoStatusFilter={null}
+                  allStatuses={allStatuses}
+                  onFilteredDataChange={setFilteredDataset}
+                  onRecordUpdate={handleRecordUpdate}
+                  showArchived={true} />
+              }
+            </div>
+
+            {/* מודל פרטי דירה */}
+            <ApartmentDetailModal
+              record={selectedRecord}
+              isOpen={isModalOpen}
+              onClose={() => setIsModalOpen(false)}
+              onSave={handleSaveRecord}
               isAdmin={isAdmin}
-              settings={settings}
-              initialFilterKey={filterKeyFromUrl}
-              initialStatusFilter={statusFilterFromUrl}
-              initialAutoStatusFilter={autoStatusFilter}
-              allStatuses={allStatuses}
-              onFilteredDataChange={setFilteredDataset}
-              onRecordUpdate={handleRecordUpdate}
-              showArchived={false} />
-            }
+              settings={settings} />
+          </>
 
-            {isAdmin && activeTab === 'archived' &&
-            <DebtorsTable
-              records={archivedRecords}
-              onRowClick={handleRowClick}
-              isAdmin={isAdmin}
-              settings={settings}
-              initialFilterKey={null}
-              initialStatusFilter={null}
-              initialAutoStatusFilter={null}
-              allStatuses={allStatuses}
-              onFilteredDataChange={setFilteredDataset}
-              onRecordUpdate={handleRecordUpdate}
-              showArchived={true} />
-            }
-          </div>
-
-          {/* מודל פרטי דירה */}
-          <ApartmentDetailModal
-            record={selectedRecord}
-            isOpen={isModalOpen}
-            onClose={() => setIsModalOpen(false)}
-            onSave={handleSaveRecord}
-            isAdmin={isAdmin}
-            settings={settings} />
-        </>
-
+        </div>
       </div>
     </div>
   );
