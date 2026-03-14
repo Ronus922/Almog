@@ -467,6 +467,10 @@ export default function Calendar() {
               appointments={filteredAppointments}
               onDateClick={handleDateClick}
               onAppointmentClick={handleAppointmentClick}
+              draggedAppointment={draggedAppointment}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              onDragDrop={handleDragDrop}
             />
           )}
           {viewMode === 'day' && (
@@ -475,6 +479,10 @@ export default function Calendar() {
               appointments={filteredAppointments}
               onDateClick={handleDateClick}
               onAppointmentClick={handleAppointmentClick}
+              draggedAppointment={draggedAppointment}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              onDragDrop={handleDragDrop}
             />
           )}
         </div>
