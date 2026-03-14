@@ -425,7 +425,7 @@ function DashboardContent() {
                   variant="outline" 
                   size="sm"
                   onClick={() => window.print()}
-                  className="gap-2 h-9 px-3"
+                  className="gap-2 h-10 rounded-[12px] px-4 border border-slate-200 hover:bg-slate-50"
                 >
                   <Printer className="w-4 h-4" />
                   הדפס
