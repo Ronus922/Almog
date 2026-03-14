@@ -526,8 +526,7 @@ export default function Tasks() {
                 </table>
               </div>
             }
-          </CardContent>
-        </Card>
+        </div>
       </div>
 
       <TaskFormDialog
