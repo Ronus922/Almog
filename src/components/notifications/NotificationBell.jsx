@@ -137,7 +137,7 @@ export default function NotificationBell({ currentUser }) {
                       navigate('/Tasks');
                     }
                   }}
-                  className={`px-4 py-3 border-b border-slate-50 cursor-pointer hover:bg-slate-50 transition-colors ${!n.is_read ? 'bg-blue-50/60' : ''}`}
+                  className={`px-4 py-3 border-b border-slate-50 cursor-pointer hover:bg-slate-50 transition-colors group ${!n.is_read ? 'bg-blue-50/60' : ''}`}
                 >
                   <div className="flex items-start gap-2">
                     <span className="text-base mt-0.5">{typeIcon(n.type)}</span>
@@ -147,6 +147,13 @@ export default function NotificationBell({ currentUser }) {
                       </p>
                       <p className="text-xs text-slate-400 mt-1">{formatDate(n.created_date)}</p>
                     </div>
+                    <button
+                      onClick={(e) => deleteNotification(n.id, e)}
+                      className="text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 flex-shrink-0"
+                      title="מחק הודעה"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
                     {!n.is_read && (
                       <div className="w-2 h-2 bg-blue-500 rounded-full mt-1.5 flex-shrink-0" />
                     )}
