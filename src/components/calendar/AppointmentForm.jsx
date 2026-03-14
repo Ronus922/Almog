@@ -72,6 +72,12 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
   useEffect(() => {
     if (appointment) {
+      // נטפל בשני פורמטים: מחרוזות (legacy) ואובייקטים (חדש)
+      const normalizedAttendees = (appointment.attendees_users || []).map(attendee => {
+        if (typeof attendee === 'object') return attendee;
+        return { id: attendee, name: attendee, email: '' };
+      });
+
       setFormData(prev => ({
         ...prev,
         title: appointment.title || '',
@@ -86,7 +92,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         event_color: appointment.event_color || '#3B82F6',
         is_recurring: appointment.is_recurring || false,
         recurrence_pattern: appointment.recurrence_pattern || '',
-        attendees_users: appointment.attendees_users || [],
+        attendees_users: normalizedAttendees,
         attendees_contacts: appointment.attendees_contacts || [],
         attachments: appointment.attachments || [],
       }));
@@ -530,18 +536,22 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         {/* Selected Users Tags */}
         {formData.attendees_users.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-2 justify-end">
-            {formData.attendees_users.map((attendee) => (
-              <div key={attendee.id} className="flex items-center gap-1.5 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200">
-                <span>{attendee.name}</span>
-                <button
-                  type="button"
-                  onClick={() => handleUserToggle(attendee.id)}
-                  className="text-slate-500 hover:text-slate-700"
-                >
-                  <X className="w-3 h-3" />
-                </button>
-              </div>
-            ))}
+            {formData.attendees_users.map((attendee) => {
+              const displayName = typeof attendee === 'object' ? attendee.name : attendee;
+              const attendeeId = typeof attendee === 'object' ? attendee.id : attendee;
+              return (
+                <div key={attendeeId} className="flex items-center gap-1.5 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200">
+                  <span>{displayName}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleUserToggle(attendeeId)}
+                    className="text-slate-500 hover:text-slate-700"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
