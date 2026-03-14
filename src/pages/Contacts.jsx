@@ -232,85 +232,87 @@ export default function Contacts() {
       </Card>
 
       {/* Table */}
-      <div className={tableStyles.wrapper}>
-        {isLoading ? (
-          <div className={tableStyles.loadingContainer}>
-            <div className={tableStyles.loadingSpinner}></div>
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className={tableStyles.emptyContainer}>
-            <div>
-              <p className="font-medium">אין דירות</p>
-              <p className="text-sm mt-1">הוסף ידנית או ייבא מ-Excel</p>
-            </div>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <Table>
-              <TableHeader>
-                <TableRow className={tableStyles.headerRow}>
-                  <TableHead className={`${tableStyles.headerCell}`}>דירה</TableHead>
-                  <TableHead className={`${tableStyles.headerCell}`}>בעל הדירה</TableHead>
-                  <TableHead className={`${tableStyles.headerCell} w-32`}>טלפון בעל</TableHead>
-                  <TableHead className={`${tableStyles.headerCell} hidden md:table-cell`}>השוכר</TableHead>
-                  <TableHead className={`${tableStyles.headerCell} hidden md:table-cell w-32`}>טלפון שוכר</TableHead>
-                  <TableHead className={`${tableStyles.headerCell} hidden md:table-cell`}>דמי ניהול</TableHead>
-                  <TableHead className={`${tableStyles.headerCell}`}>פעולות</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map(contact => (
-                   <TableRow key={contact.id} className={tableStyles.bodyRow} onClick={() => {setEditContact(contact); setFormOpen(true);}}>
-                     <TableCell className={`${tableStyles.bodyCell} font-bold text-blue-600`}>{contact.apartment_number}</TableCell>
-                     <TableCell className={tableStyles.bodyCell}>{contact.owner_name || "—"}</TableCell>
-                     <TableCell className={`${tableStyles.bodyCell} w-32`} dir="ltr">{contact.owner_phone || "—"}</TableCell>
-                     <TableCell className={`${tableStyles.bodyCell} hidden md:table-cell`}>{contact.tenant_name || "—"}</TableCell>
-                     <TableCell className={`${tableStyles.bodyCell} hidden md:table-cell w-32`} dir="ltr">{contact.tenant_phone || "—"}</TableCell>
-                     <TableCell className={`${tableStyles.bodyCell} hidden md:table-cell`}>
-                       {contact.management_fees ? (
-                         <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                           ₪{contact.management_fees}
-                         </Badge>
-                       ) : (
-                         <span className="text-slate-400 text-sm">—</span>
-                       )}
-                     </TableCell>
-                     <TableCell className={tableStyles.bodyCell}>
-                       <div className="flex gap-0.5 justify-center">
-                         <Button
-                           variant="ghost"
-                           size="sm"
-                           className={`${tableStyles.actionButton} ${tableStyles.actionButtonGreen}`}
-                           onClick={(e) => {
-                             e.stopPropagation();
-                             setSelected([contact.id]);
-                             setSendOpen(true);
-                           }}
-                           title="שלח וואטסאפ"
-                         >
-                           <Send className="w-4 h-4" />
-                         </Button>
-                         <Button
-                           variant="ghost"
-                           size="sm"
-                           className={`${tableStyles.actionButton} ${tableStyles.actionButtonRed}`}
-                           onClick={(e) => {
-                             e.stopPropagation();
-                             handleDelete(contact);
-                           }}
-                           title="מחיקה"
-                         >
-                           <Trash2 className="w-4 h-4" />
-                         </Button>
-                       </div>
-                     </TableCell>
+       <Card>
+         <CardContent className={`p-0 ${!isLoading && filtered.length > 0 ? '' : 'overflow-x-auto'}`}>
+           {isLoading ? (
+             <div className={tableStyles.loadingContainer}>
+               <div className={tableStyles.loadingSpinner}></div>
+             </div>
+           ) : filtered.length === 0 ? (
+             <div className={tableStyles.emptyContainer}>
+               <div>
+                 <p className="font-medium">אין דירות</p>
+                 <p className="text-sm mt-1">הוסף ידנית או ייבא מ-Excel</p>
+               </div>
+             </div>
+           ) : (
+             <div className="overflow-x-auto">
+               <Table>
+                 <TableHeader>
+                   <TableRow className={tableStyles.headerRow}>
+                     <TableHead className={`${tableStyles.headerCell}`}>דירה</TableHead>
+                     <TableHead className={`${tableStyles.headerCell}`}>בעל הדירה</TableHead>
+                     <TableHead className={`${tableStyles.headerCell} w-32`}>טלפון בעל</TableHead>
+                     <TableHead className={`${tableStyles.headerCell} hidden md:table-cell`}>השוכר</TableHead>
+                     <TableHead className={`${tableStyles.headerCell} hidden md:table-cell w-32`}>טלפון שוכר</TableHead>
+                     <TableHead className={`${tableStyles.headerCell} hidden md:table-cell`}>דמי ניהול</TableHead>
+                     <TableHead className={`${tableStyles.headerCell}`}>פעולות</TableHead>
                    </TableRow>
-                 ))}
-              </TableBody>
-            </Table>
-          </div>
-        )}
-      </div>
+                 </TableHeader>
+                 <TableBody>
+                   {filtered.map(contact => (
+                      <TableRow key={contact.id} className={tableStyles.bodyRow} onClick={() => {setEditContact(contact); setFormOpen(true);}}>
+                        <TableCell className={`${tableStyles.bodyCell} font-bold text-blue-600`}>{contact.apartment_number}</TableCell>
+                        <TableCell className={tableStyles.bodyCell}>{contact.owner_name || "—"}</TableCell>
+                        <TableCell className={`${tableStyles.bodyCell} w-32`} dir="ltr">{contact.owner_phone || "—"}</TableCell>
+                        <TableCell className={`${tableStyles.bodyCell} hidden md:table-cell`}>{contact.tenant_name || "—"}</TableCell>
+                        <TableCell className={`${tableStyles.bodyCell} hidden md:table-cell w-32`} dir="ltr">{contact.tenant_phone || "—"}</TableCell>
+                        <TableCell className={`${tableStyles.bodyCell} hidden md:table-cell`}>
+                          {contact.management_fees ? (
+                            <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                              ₪{contact.management_fees}
+                            </Badge>
+                          ) : (
+                            <span className="text-slate-400 text-sm">—</span>
+                          )}
+                        </TableCell>
+                        <TableCell className={tableStyles.bodyCell}>
+                          <div className="flex gap-0.5 justify-center">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className={`${tableStyles.actionButton} ${tableStyles.actionButtonGreen}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelected([contact.id]);
+                                setSendOpen(true);
+                              }}
+                              title="שלח וואטסאפ"
+                            >
+                              <Send className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              className={`${tableStyles.actionButton} ${tableStyles.actionButtonRed}`}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDelete(contact);
+                              }}
+                              title="מחיקה"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                 </TableBody>
+               </Table>
+             </div>
+           )}
+         </CardContent>
+       </Card>
 
       <ContactFormDialog
         open={formOpen}
