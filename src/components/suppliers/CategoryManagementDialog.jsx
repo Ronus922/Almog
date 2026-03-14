@@ -185,14 +185,6 @@ export default function CategoryManagementDialog({ isOpen, onClose }) {
           {/* Add New Category */}
           <div className="mb-4 pb-4 border-b border-slate-200">
             <div className="flex gap-2">
-              <Button
-                onClick={handleAddCategory}
-                disabled={!newCategoryName.trim() || createMutation.isPending}
-                size="sm"
-                className="h-8 w-8 p-0 bg-blue-600 hover:bg-blue-700 text-white flex-shrink-0"
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
               <Input
                 placeholder="שם קטגוריה חדשה..."
                 value={newCategoryName}
@@ -202,9 +194,17 @@ export default function CategoryManagementDialog({ isOpen, onClose }) {
                     handleAddCategory();
                   }
                 }}
-                className="h-8 text-right text-sm"
+                className="h-8 text-right text-sm flex-1"
                 dir="rtl"
               />
+              <Button
+                onClick={handleAddCategory}
+                disabled={!newCategoryName.trim() || createMutation.isPending}
+                size="sm"
+                className="h-8 w-8 p-0 bg-blue-600 hover:bg-blue-700 text-white flex-shrink-0"
+              >
+                <Plus className="w-4 h-4" />
+              </Button>
             </div>
           </div>
 
