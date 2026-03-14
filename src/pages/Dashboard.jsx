@@ -514,8 +514,8 @@ function DashboardContent() {
           settings={settings} />
 
       </div>
-    </div>);
-
+    </div>
+  );
 }
 
 export default function Dashboard() {
