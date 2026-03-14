@@ -417,7 +417,7 @@ export default function Tasks() {
             <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="bg-slate-50 border-b border-slate-200">
+                    <tr className="sys-table-header-row">
                       <th className="text-right px-4 py-3 font-semibold text-slate-600 w-10"></th>
                       <SortableHeader label="תיאור המשימה" field="task_type" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                       <SortableHeader label="עובד" field="assigned" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
