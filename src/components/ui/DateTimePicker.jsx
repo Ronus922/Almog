@@ -19,9 +19,8 @@ function getFirstDayOfWeek(year, month) {
 // ─── TimeColumn ───────────────────────────────────────────────────────────────
 function TimeColumn({ selectedHour, selectedMinute, onSelect }) {
   const MINUTES = [0, 15, 30, 45];
-  // שעות: 1,2,...,23,0 (00 בסוף)
   const HOURS = [...Array.from({ length: 23 }, (_, i) => i + 1), 0];
-  const listRef = useRef(null);
+  const containerRef = useRef(null);
   const activeRef = useRef(null);
 
   useEffect(() => {
@@ -42,16 +41,15 @@ function TimeColumn({ selectedHour, selectedMinute, onSelect }) {
           ref={active ? activeRef : null}
           onClick={() => onSelect(h, m)}
           style={{
-            display:"flex", height:30, alignItems:"center", cursor:"pointer",
+            height:32, display:"flex", alignItems:"center", justifyContent:"center",
+            cursor:"pointer", borderRadius:6, margin:"1px 4px",
             background: active ? "#3b82f6" : "transparent",
-            borderRadius: active ? 6 : 0,
-            margin: active ? "0 4px" : 0,
-            width: active ? "calc(100% - 8px)" : "100%",
             transition: "background 0.1s",
           }}
         >
-          <span style={{ flex:1, textAlign:"center", fontSize:13, fontWeight: active ? 600 : 400, color: active ? "#fff" : "#1e293b" }}>{pad(m)}</span>
-          <span style={{ flex:1, textAlign:"center", fontSize:13, fontWeight: active ? 600 : 400, color: active ? "#dbeafe" : "#475569" }}>{pad(h)}</span>
+          <span style={{ fontSize:13, fontWeight: active ? 700 : 400, color: active ? "#fff" : "#1e293b", letterSpacing:"0.04em" }}>
+            {pad(h)}:{pad(m)}
+          </span>
         </div>
       );
     }
@@ -59,13 +57,11 @@ function TimeColumn({ selectedHour, selectedMinute, onSelect }) {
 
   return (
     <div
-      ref={listRef}
+      ref={containerRef}
       style={{ width: 120, height: 280, overflowY: "auto", borderRight: "1px solid #e5e7eb", flexShrink: 0 }}
     >
-      {/* header: דקות מימין, שעה משמאל */}
-      <div style={{ display:"flex", height:32, alignItems:"center", borderBottom:"1px solid #e5e7eb", background:"#f8fafc", position:"sticky", top:0, zIndex:1 }}>
-        <span style={{ flex:1, textAlign:"center", fontSize:11, fontWeight:600, color:"#64748b" }}>דקות</span>
-        <span style={{ flex:1, textAlign:"center", fontSize:11, fontWeight:600, color:"#64748b" }}>שעה</span>
+      <div style={{ height:32, display:"flex", alignItems:"center", justifyContent:"center", borderBottom:"1px solid #e5e7eb", background:"#f8fafc", position:"sticky", top:0, zIndex:1 }}>
+        <span style={{ fontSize:11, fontWeight:600, color:"#64748b" }}>שעה</span>
       </div>
       {rows}
     </div>
