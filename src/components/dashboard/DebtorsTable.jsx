@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow } from
 "@/components/ui/table";
-import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X, Download, FileText, Printer } from "lucide-react";
 import WhatsAppDialog from '../whatsapp/WhatsAppDialog';
 import QuickCommentDialog from './QuickCommentDialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
