@@ -860,12 +860,14 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           {/* Legal management section */}
           {isAdmin && (
           <div className="rounded-[22px] border border-slate-200/80 bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
-              <h3 className="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2 md:gap-3 text-right">
-                <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-blue-100 flex items-center justify-center">
-                  <Scale className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
+              <div className="mb-5 flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#eef4ff] text-[#3b82f6]">
+                    <Scale className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-[34px] leading-none font-black tracking-[-0.02em] text-[#253b5b]">ניהול משפטי</h3>
                 </div>
-                ניהול משפטי
-              </h3>
+              </div>
 
               <div className="text-right">
                 <Label className="text-sm font-bold text-slate-700 mb-2 block">סטטוס משפטי</Label>
