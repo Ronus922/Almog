@@ -50,6 +50,7 @@ export default function DebtorsTable({
   showArchived = false
 }) {
   const { currentUser } = useAuth();
+const { useState, useEffect, useMemo } = require('react');
   const [search, setSearch] = useState('');
   const [apartmentSearch, setApartmentSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
