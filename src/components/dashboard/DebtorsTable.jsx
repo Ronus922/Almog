@@ -333,14 +333,10 @@ export default function DebtorsTable({
     <div className="rounded-[22px] border border-[rgba(227,232,247,0.98)] bg-[rgba(255,255,255,0.91)] shadow-[0_18px_42px_rgba(122,140,210,0.10),inset_0_1px_0_rgba(255,255,255,0.98)] overflow-hidden">
       {/* Toolbar */}
       <div className="flex min-h-[58px] flex-wrap items-center justify-between gap-3 border-b border-[rgba(231,236,248,0.96)] bg-[linear-gradient(180deg,rgba(252,253,255,0.98)_0%,rgba(246,248,255,0.98)_100%)] px-[18px] py-2">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <CardTitle className="text-[22px] md:text-[26px] font-[700] text-slate-800">טבלת חייבים</CardTitle>
-              <p className="text-sm text-slate-600 mt-1 font-medium">
-                סה״כ רשומות: <span className="font-bold text-blue-600">{filteredRecords.length}</span>
-              </p>
-            </div>
+        <div className="flex items-center gap-2">
+          <span className="text-[12px] font-bold text-[#5f698d]">טבלה</span>
+          <span className="text-[11px] font-medium text-[#9aa5c9]">סה״כ: {filteredRecords.length} רשומות</span>
+        </div>
             
             {/* Mobile filters */}
             <div className="flex lg:hidden gap-2">
