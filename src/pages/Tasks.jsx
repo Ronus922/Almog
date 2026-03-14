@@ -161,22 +161,13 @@ export default function Tasks() {
       });
     }
 
-    // שלב ב: activeKpiFilter
-    if (activeKpiFilter === "open") {
+    // ברירת מחדל: פתוחה + בטיפול (רק אם אין פילטרים ידניים)
+    if (!hasManualFilters) {
       result = result.filter(t => t.status === "פתוחה" || t.status === "בטיפול");
-    } else if (activeKpiFilter === "today") {
-      result = result.filter(t => t.status !== "הושלמה" && t.status !== "בוטלה" && isTodayByDateOnly(t.due_date));
-    } else if (activeKpiFilter === "overdue") {
-      result = result.filter(t => t.status !== "הושלמה" && t.status !== "בוטלה" && isOverdueByDateOnly(t.due_date));
-    } else {
-      // null = ברירת מחדל: פתוחה + בטיפול (רק אם אין פילטרים ידניים)
-      if (!hasManualFilters) {
-        result = result.filter(t => t.status === "פתוחה" || t.status === "בטיפול");
-      }
     }
 
     return result;
-  }, [myTasks, filterStatus, filterPriority, filterAssigned, filterDueDate, filterTaskType, search, activeKpiFilter]);
+  }, [myTasks, filterStatus, filterPriority, filterAssigned, filterDueDate, filterTaskType, search]);
 
   const isOverdue = (task) => {
     if (task.status === "הושלמה" || task.status === "בוטלה") return false;
