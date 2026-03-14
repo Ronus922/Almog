@@ -191,7 +191,12 @@ function DashboardContent() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50" dir="rtl">
+    <div className="relative min-h-screen overflow-hidden" dir="rtl" style={{background: 'linear-gradient(180deg,#f8fbff 0%,#f3f7ff 45%,#eef2ff 100%)'}}>
+      {/* Decorative glow elements */}
+      <div className="absolute top-0 right-0 w-96 h-96 bg-blue-300/20 rounded-full blur-3xl pointer-events-none" style={{opacity: 0.3}}></div>
+      <div className="absolute bottom-20 left-0 w-80 h-80 bg-indigo-300/20 rounded-full blur-3xl pointer-events-none" style={{opacity: 0.2}}></div>
+      
+      <div className="relative" dir="rtl">
       <style>{`
         @media print {
           body * {
