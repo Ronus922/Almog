@@ -603,9 +603,9 @@ export default function DebtorsTable({
                     מס׳ דירה
                   </div>
                 </TableHead>
-                <TableHead className="text-right font-semibold text-slate-600 text-[13px] px-4 md:px-5 py-4">שם בעל הדירה</TableHead>
-                <TableHead className="text-right font-semibold text-slate-600 text-[13px] px-4 md:px-5 py-4">טלפון</TableHead>
-                <TableHead className="text-right font-semibold text-slate-600 text-[13px] px-4 md:px-5 py-4 cursor-pointer hover:text-slate-800" onClick={() => toggleSort('totalDebt')}>
+                <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be]">שם בעלים</TableHead>
+                <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be]">טלפון</TableHead>
+                <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('totalDebt')}>
                   <div className="flex items-center gap-2 justify-end">
                     <ArrowUpDown className={`w-5 h-5 ${sortField === 'totalDebt' ? 'text-blue-600' : 'text-slate-400'}`} />
                     סה״כ חוב
