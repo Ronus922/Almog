@@ -19,25 +19,32 @@ export default function RecurrenceDeleteDialog({ isOpen, onClose, onDelete, appo
 
         <div className="flex flex-col gap-2 px-6 pb-6 border-t border-slate-200">
           <Button
-            onClick={() => onDelete('single')}
+            onClick={() => onDelete('this-only')}
             variant="outline"
             className="w-full justify-center h-10 font-semibold text-slate-900 hover:bg-slate-50"
           >
             רק את האירוע הזה
           </Button>
           <Button
-            onClick={() => onDelete('following')}
+            onClick={() => onDelete('this-and-future')}
             variant="destructive"
             className="w-full justify-center h-10 font-semibold"
           >
-            את כל האירועים העתידיים
+            את זה וכל האירועים העתידיים
+          </Button>
+          <Button
+            onClick={() => onDelete('entire-series')}
+            variant="destructive"
+            className="w-full justify-center h-10 font-semibold bg-red-700 hover:bg-red-800"
+          >
+            את כל הסדרה
           </Button>
           <Button
             onClick={onClose}
             variant="ghost"
             className="w-full justify-center h-10 font-semibold text-slate-600"
           >
-            חזור
+            ביטול
           </Button>
         </div>
       </DialogContent>
