@@ -464,46 +464,48 @@ function DashboardContent() {
         }
 
         {/* טבלה במיכל פרימיום */}
-        <div className="rounded-[24px] bg-white/90 backdrop-blur shadow-[0_18px_40px_rgba(15,23,42,0.09)] border border-white/70 overflow-hidden">
-          {(activeTab === 'debtors' || !isAdmin) &&
-          <DebtorsTable
-            records={debtorRecords}
-            onRowClick={handleRowClick}
-            isAdmin={isAdmin}
-            settings={settings}
-            initialFilterKey={filterKeyFromUrl}
-            initialStatusFilter={statusFilterFromUrl}
-            initialAutoStatusFilter={autoStatusFilter}
-            allStatuses={allStatuses}
-            onFilteredDataChange={setFilteredDataset}
-            onRecordUpdate={handleRecordUpdate}
-            showArchived={false} />
-          }
+        <>
+          <div className="rounded-[24px] bg-white/90 backdrop-blur shadow-[0_18px_40px_rgba(15,23,42,0.09)] border border-white/70 overflow-hidden">
+            {(activeTab === 'debtors' || !isAdmin) &&
+            <DebtorsTable
+              records={debtorRecords}
+              onRowClick={handleRowClick}
+              isAdmin={isAdmin}
+              settings={settings}
+              initialFilterKey={filterKeyFromUrl}
+              initialStatusFilter={statusFilterFromUrl}
+              initialAutoStatusFilter={autoStatusFilter}
+              allStatuses={allStatuses}
+              onFilteredDataChange={setFilteredDataset}
+              onRecordUpdate={handleRecordUpdate}
+              showArchived={false} />
+            }
 
-          {isAdmin && activeTab === 'archived' &&
-          <DebtorsTable
-            records={archivedRecords}
-            onRowClick={handleRowClick}
-            isAdmin={isAdmin}
-            settings={settings}
-            initialFilterKey={null}
-            initialStatusFilter={null}
-            initialAutoStatusFilter={null}
-            allStatuses={allStatuses}
-            onFilteredDataChange={setFilteredDataset}
-            onRecordUpdate={handleRecordUpdate}
-            showArchived={true} />
-          }
-        </div>
+            {isAdmin && activeTab === 'archived' &&
+            <DebtorsTable
+              records={archivedRecords}
+              onRowClick={handleRowClick}
+              isAdmin={isAdmin}
+              settings={settings}
+              initialFilterKey={null}
+              initialStatusFilter={null}
+              initialAutoStatusFilter={null}
+              allStatuses={allStatuses}
+              onFilteredDataChange={setFilteredDataset}
+              onRecordUpdate={handleRecordUpdate}
+              showArchived={true} />
+            }
+          </div>
 
-        {/* מודל פרטי דירה */}
-        <ApartmentDetailModal
-          record={selectedRecord}
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSave={handleSaveRecord}
-          isAdmin={isAdmin}
-          settings={settings} />
+          {/* מודל פרטי דירה */}
+          <ApartmentDetailModal
+            record={selectedRecord}
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSave={handleSaveRecord}
+            isAdmin={isAdmin}
+            settings={settings} />
+        </>
 
       </div>
     </div>
