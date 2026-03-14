@@ -192,7 +192,7 @@ export default function CalendarGrid({
 
                     {/* Time and Location (compact) */}
                     <div className="text-xs opacity-90 truncate">
-                      {apt.start_datetime && format(new Date(apt.start_datetime), 'HH:mm')}
+                      {apt.start_time && apt.start_time}
                       {apt.location && ` • ${apt.location}`}
                     </div>
 
@@ -200,9 +200,9 @@ export default function CalendarGrid({
                     <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block bg-white text-slate-900 text-xs p-4 rounded-lg shadow-md whitespace-normal w-56 z-50 border border-slate-200" dir="rtl">
                       <div className="font-bold text-sm mb-3 text-slate-900">{apt.title}</div>
                       
-                      {apt.start_datetime && (
+                      {apt.start_time && (
                         <div className="text-slate-700 text-xs mb-2">
-                          🕐 {format(new Date(apt.start_datetime), 'HH:mm')} {apt.end_datetime && `- ${format(new Date(apt.end_datetime), 'HH:mm')}`}
+                          🕐 {apt.start_time} {apt.end_time && `- ${apt.end_time}`}
                         </div>
                       )}
                       
@@ -249,9 +249,9 @@ export default function CalendarGrid({
                       <div className="absolute bottom-full right-0 mb-2 md:hidden bg-white text-slate-900 text-xs p-4 rounded-lg shadow-md whitespace-normal w-60 z-50 border border-slate-200" dir="rtl">
                         <div className="font-bold text-sm mb-3 text-slate-900">{apt.title}</div>
                         
-                        {apt.start_datetime && (
+                        {apt.start_time && (
                           <div className="text-slate-700 text-xs mb-2">
-                            🕐 {format(new Date(apt.start_datetime), 'HH:mm')} {apt.end_datetime && `- ${format(new Date(apt.end_datetime), 'HH:mm')}`}
+                            🕐 {apt.start_time} {apt.end_time && `- ${apt.end_time}`}
                           </div>
                         )}
                         
