@@ -13,24 +13,32 @@ import {
   Mail
 } from "lucide-react";
 
-const KPICard = ({ title, value, icon: Icon, color, subtext, onClick, isClickable, bgColor }) => (
-  <Card 
-    className={`rounded-[22px] border border-white/70 bg-white/85 backdrop-blur-[6px] shadow-[0_12px_30px_rgba(15,23,42,0.08)] px-5 md:px-6 py-4 md:py-5 min-h-[110px] transition-all duration-200 group ${isClickable ? 'cursor-pointer hover:-translate-y-[2px]' : ''}`}
+const KPICard = ({ title, value, icon: Icon, color, colorAccent, subtext, onClick, isClickable, bgColor }) => (
+  <div 
+    className={`relative min-h-[108px] overflow-hidden rounded-[20px] border border-[rgba(225,231,248,0.96)] bg-[rgba(255,255,255,0.90)] px-[18px] pt-4 pb-[14px] backdrop-blur-[12px] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] ${isClickable ? 'cursor-pointer transition-all duration-150 hover:-translate-y-[1px] hover:shadow-[0_20px_40px_rgba(95,110,180,0.14)]' : ''}`}
     onClick={onClick}
   >
-    <div className="flex items-center justify-between gap-4 h-full">
-      <div className="flex-1 min-w-0">
-        <p className="text-[12px] font-medium text-slate-500 mb-2">{title}</p>
-        <div className="flex items-baseline gap-2">
-          <p className={`text-[28px] md:text-[30px] font-[700] leading-none ${bgColor ? 'text-[#ff8080]' : color}`} title={value}>{value}</p>
-          {subtext && <p className="text-[12px] text-slate-500 font-medium whitespace-nowrap">{subtext}</p>}
+    <div className="pointer-events-none absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.72)_0%,rgba(255,255,255,0.10)_100%)]" />
+    
+    <div className="relative z-[1]">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-[10px] font-bold uppercase tracking-[0.04em] text-[#a0aacb]">{title}</p>
+        <div className={`inline-flex h-7 w-7 items-center justify-center rounded-full ${colorAccent}`}>
+          <Icon className={`h-4 w-4`} />
         </div>
       </div>
-      <div className={`h-11 w-11 rounded-[14px] flex items-center justify-center flex-shrink-0 ${bgColor ? 'bg-red-100' : `${color.replace('text-', 'bg-').replace('-600', '-100').replace('-700', '-100')}`}`}>
-           <Icon className={`w-6 h-6 ${color}`} />
+      
+      <div className="mt-2">
+        <p className={`text-[35px] font-extrabold leading-none ${color}`} title={value}>{value}</p>
       </div>
+      
+      {subtext && (
+        <div className="mt-3 inline-flex h-7 items-center rounded-full border border-[rgba(226,232,248,0.96)] bg-[#f7f9ff] px-[14px] text-[11px] font-semibold text-[#8f99bd]">
+          {subtext}
+        </div>
+      )}
     </div>
-  </Card>
+  </div>
 );
 
 export default function KPICards({ records, settings, allStatuses = [] }) {
