@@ -679,19 +679,19 @@ function DashboardContent() {
                 showArchived={true} />
               }
             </div>
-          </div>
+            </div>
 
-          {/* מודל פרטי דירה */}
-          <ApartmentDetailModal
+            {/* מודל פרטי דירה */}
+            <ApartmentDetailModal
             record={selectedRecord}
             isOpen={isModalOpen}
             onClose={() => setIsModalOpen(false)}
             onSave={handleSaveRecord}
             isAdmin={isAdmin}
             settings={settings} />
-          </div>
-          </TooltipProvider>
-          );
+            </div>
+            </TooltipProvider>
+            );
 }
 
 export default function Dashboard() {
