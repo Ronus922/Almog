@@ -10,7 +10,7 @@ import { useAuth } from "@/components/auth/AuthContext";
 import { isManagerRole } from "@/components/utils/roles";
 import { StatusBadge } from "@/components/tasks/TaskBadge";
 import TaskFormDialog from "@/components/tasks/TaskFormDialog";
-import { format, isPast, isToday, addDays } from "date-fns";
+import { format, isPast, isToday } from "date-fns";
 
 function SortableHeader({ label, field, sortField, sortDir, onSort }) {
   const active = sortField === field;
@@ -362,9 +362,9 @@ export default function Tasks() {
                   </thead>
                   <tbody className="divide-y divide-slate-100">
                     {sorted.map((task) =>
-                  <tr
+                    <tr
                     key={task.id}
-                    className="hover:bg-blue-50/40 transition-colors cursor-pointer"
+                    className={`transition-colors cursor-pointer ${isOverdue(task) ? "bg-[#fdecec] hover:bg-[#fbd9d9]" : "hover:bg-blue-50/40"}`}
                     onClick={() => {setEditTask(task);setShowDialog(true);}}>
 
                         <td className="px-4 py-3">
