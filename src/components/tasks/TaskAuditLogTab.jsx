@@ -12,6 +12,14 @@ const FIELD_LABELS = {
   assigned_to_name: "הוקצה ל",
   description: "תיאור",
   completion_notes: "הערות סגירה",
+  file_name: "קובץ",
+};
+
+const ACTION_LABELS = {
+  created: { label: "משימה נוצרה", color: "bg-green-100 text-green-700" },
+  updated: { label: "עדכון", color: "bg-blue-100 text-blue-700" },
+  attachment_added: { label: "קובץ צורף", color: "bg-purple-100 text-purple-700" },
+  attachment_deleted: { label: "קובץ נמחק", color: "bg-red-100 text-red-700" },
 };
 
 function parseChanges(changesStr) {
