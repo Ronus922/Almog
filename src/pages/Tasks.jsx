@@ -470,6 +470,22 @@ export default function Tasks() {
                         <td className="px-4 py-3 text-slate-500">
                           {formatDateTime(task.created_date)}
                         </td>
+                        <td className="px-4 py-3 text-left" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center gap-2 justify-end">
+                            <button
+                              onClick={() => {setEditTask(task);setShowDialog(true);}}
+                              className="text-slate-400 hover:text-blue-600 transition-colors">
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            {(task.assigned_by === currentUser?.username || task.assigned_by === currentUser?.email) &&
+                              <button
+                                onClick={() => {if (window.confirm("למחוק משימה זו?")) deleteMutation.mutate(task.id);}}
+                                className="text-slate-300 hover:text-red-500 transition-colors">
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            }
+                          </div>
+                        </td>
                       </tr>
                   )}
                   </tbody>
