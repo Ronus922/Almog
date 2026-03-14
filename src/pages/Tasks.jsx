@@ -317,8 +317,7 @@ export default function Tasks() {
         )}
 
         {/* Filters */}
-        <Card className="border-0 shadow-sm bg-white">
-          <CardContent className="p-4 space-y-3">
+        <div className="sys-card p-4 space-y-3">
             <div className="flex flex-wrap gap-3 items-center">
               <div className="relative flex-1 min-w-48">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
