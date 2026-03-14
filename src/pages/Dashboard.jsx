@@ -29,7 +29,7 @@ function DashboardContent() {
   // Fetch records
   const { data: records = [] } = useQuery({
     queryKey: ['debtorRecords'],
-    queryFn: () => base44.entities.DebtorRecord.list(),
+    queryFn: () => base44.entities.DebtorRecord.list()
   });
 
   // Fetch settings
@@ -38,13 +38,13 @@ function DashboardContent() {
     queryFn: async () => {
       const settingsList = await base44.entities.Settings.list();
       return settingsList[0] || {};
-    },
+    }
   });
 
   // Fetch statuses
   const { data: allStatuses = [] } = useQuery({
     queryKey: ['allStatuses'],
-    queryFn: () => base44.entities.Status.list(),
+    queryFn: () => base44.entities.Status.list()
   });
 
   // Parse URL filters on mount
@@ -76,11 +76,11 @@ function DashboardContent() {
 
   // Separate archived and debtor records
   const debtorRecords = useMemo(() => {
-    return records.filter(r => !r.isArchived);
+    return records.filter((r) => !r.isArchived);
   }, [records]);
 
   const archivedRecords = useMemo(() => {
-    return records.filter(r => r.isArchived);
+    return records.filter((r) => r.isArchived);
   }, [records]);
 
   const handleRowClick = (record) => {
@@ -153,25 +153,25 @@ function DashboardContent() {
         <section className="relative m-6 rounded-3xl bg-gradient-to-b from-[#f5f7ff] to-[#edf2ff] border border-[rgba(184,198,245,0.60)] shadow-[0_24px_70px_rgba(109,132,220,0.14),0_8px_24px_rgba(160,180,255,0.10),inset_0_1px_0_rgba(255,255,255,0.95)] overflow-hidden">
           
           {/* HEADER */}
-          <header className="h-[68px] flex items-center justify-between px-7 bg-[rgba(255,255,255,0.70)] backdrop-blur-[12px] border-b border-[rgba(225,230,247,0.92)]">
-            <div className="flex items-center gap-4">
-              <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-br from-blue-500 to-blue-600 border-2 border-[rgba(255,255,255,0.95)] shadow-[0_6px_18px_rgba(95,110,180,0.16)]"></div>
-              <div>
-                <p className="text-[14px] font-bold text-[#2f3969]">{currentUser?.username || 'משתמש'}</p>
-                <p className="text-[11px] text-[#9aa5c9]">{currentUser?.role === 'ADMIN' ? 'מנהל' : 'צופה'}</p>
-              </div>
-            </div>
-            
-            <nav className="hidden md:flex items-center gap-[22px]">
-              <span className="text-[11px] font-semibold text-[#8e98bb] cursor-pointer hover:text-[#6b77a6]">דשבורד</span>
-              <span className="text-[11px] font-semibold text-[#8e98bb] cursor-pointer hover:text-[#6b77a6]">דוחות</span>
-              <span className="text-[11px] font-semibold text-[#8e98bb] cursor-pointer hover:text-[#6b77a6]">הגדרות</span>
-            </nav>
+          
 
-            <div className="flex items-center gap-2">
-              <span className="text-[11px] font-semibold text-[#8e98bb]">≡</span>
-            </div>
-          </header>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
           {/* HERO SECTION */}
           <div className="relative min-h-[148px] pt-5 pr-[34px] pl-[34px] pb-[26px] bg-gradient-to-br from-[rgba(187,234,255,0.40)] via-[rgba(217,230,255,0.33)] to-[rgba(239,230,255,0.28)] overflow-hidden">
@@ -231,7 +231,7 @@ function DashboardContent() {
                 <p className="text-[10px] font-bold uppercase text-[#a0aacb]">לגבייה</p>
                 <div>
                   <p className="text-[32px] font-black leading-none text-[#ff5a9c]">
-                    {records.filter(r => (r.totalDebt || 0) > 0).length}
+                    {records.filter((r) => (r.totalDebt || 0) > 0).length}
                   </p>
                   <div className="mt-3 h-7 rounded-full bg-[#f7f9ff] border border-[rgba(226,232,248,0.96)] px-3.5 flex items-center">
                     <span className="text-[11px] font-semibold text-[#8f99bd]">דירות</span>
@@ -323,22 +323,22 @@ function DashboardContent() {
             <button
               onClick={() => setActiveTab('debtors')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
-                activeTab === 'debtors'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-              }`}
-            >
+              activeTab === 'debtors' ?
+              'bg-blue-600 text-white' :
+              'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`
+              }>
+
               <Users className="w-4 h-4" />
               חייבים ({debtorRecords.length})
             </button>
             <button
               onClick={() => setActiveTab('archived')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
-                activeTab === 'archived'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-              }`}
-            >
+              activeTab === 'archived' ?
+              'bg-blue-600 text-white' :
+              'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`
+              }>
+
               <Archive className="w-4 h-4" />
               ארכיון ({archivedRecords.length})
             </button>
@@ -358,8 +358,8 @@ function DashboardContent() {
             allStatuses={allStatuses}
             onFilteredDataChange={setFilteredDataset}
             onRecordUpdate={handleRecordUpdate}
-            showArchived={false}
-          />
+            showArchived={false} />
+
           }
 
           {isAdmin && activeTab === 'archived' &&
@@ -371,8 +371,8 @@ function DashboardContent() {
             allStatuses={allStatuses}
             onFilteredDataChange={setFilteredDataset}
             onRecordUpdate={handleRecordUpdate}
-            showArchived={true}
-          />
+            showArchived={true} />
+
           }
 
           {/* Modal */}
@@ -382,12 +382,12 @@ function DashboardContent() {
             onClose={() => setIsModalOpen(false)}
             onSave={handleSaveRecord}
             isAdmin={isAdmin}
-            settings={settings}
-          />
+            settings={settings} />
+
         </div>
       </div>
-    </TooltipProvider>
-  );
+    </TooltipProvider>);
+
 }
 
 export default function Dashboard() {
