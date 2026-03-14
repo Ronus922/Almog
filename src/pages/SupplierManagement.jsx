@@ -12,14 +12,16 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Plus, MessageCircle, Phone, Edit2, Trash2 } from 'lucide-react';
+import { Plus, MessageCircle, Phone, Edit2, Trash2, Tag } from 'lucide-react';
 import SupplierFormDialog from '@/components/suppliers/SupplierFormDialog';
+import CategoryManagementDialog from '@/components/suppliers/CategoryManagementDialog';
 import { useAlert } from '@/components/notifications/AlertContext';
 
 export default function SupplierManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingSupplier, setEditingSupplier] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
   const { showAlert } = useAlert();
   const queryClient = useQueryClient();
 
@@ -150,13 +152,22 @@ export default function SupplierManagement() {
             <h1 className="text-3xl font-bold text-slate-900">ספקים</h1>
             <p className="text-slate-600 text-sm mt-1">ניהול בסיס הנתונים של ספקים ושירותים</p>
           </div>
-          <Button
-            onClick={handleNewSupplier}
-            className="h-10 bg-blue-600 hover:bg-blue-700 text-white gap-2"
-          >
-            <Plus className="w-5 h-5" />
-            ספק חדש
-          </Button>
+          <div className="flex gap-2">
+            <Button
+              onClick={() => setIsCategoryDialogOpen(true)}
+              className="h-10 bg-slate-600 hover:bg-slate-700 text-white gap-2"
+            >
+              <Tag className="w-5 h-5" />
+              הוסף תחום עיסוק
+            </Button>
+            <Button
+              onClick={handleNewSupplier}
+              className="h-10 bg-blue-600 hover:bg-blue-700 text-white gap-2"
+            >
+              <Plus className="w-5 h-5" />
+              ספק חדש
+            </Button>
+          </div>
         </div>
 
         {/* Search */}
@@ -253,7 +264,7 @@ export default function SupplierManagement() {
           )}
         </div>
 
-        {/* Dialog */}
+        {/* Dialogs */}
         <SupplierFormDialog
           isOpen={isDialogOpen}
           onClose={() => {
@@ -262,6 +273,10 @@ export default function SupplierManagement() {
           }}
           supplier={editingSupplier}
           onSave={handleSave}
+        />
+        <CategoryManagementDialog
+          isOpen={isCategoryDialogOpen}
+          onClose={() => setIsCategoryDialogOpen(false)}
         />
       </div>
     </div>
