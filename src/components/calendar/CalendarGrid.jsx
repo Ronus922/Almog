@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSaturday, isFriday, getDay } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Repeat2, Info } from 'lucide-react';
+import { base44 } from '@/api/base44Client';
 
 export default function CalendarGrid({ 
   currentMonth, 
@@ -16,6 +17,23 @@ export default function CalendarGrid({
   onDragEnd = null,
 }) {
   const [mobileTooltipId, setMobileTooltipId] = useState(null);
+  const [contacts, setContacts] = useState({});
+
+  React.useEffect(() => {
+    const loadContacts = async () => {
+      try {
+        const list = await base44.entities.Contact.list();
+        const map = {};
+        list.forEach(c => {
+          map[c.id] = `דירה ${c.apartment_number} - ${c.owner_name || c.tenant_name || ''}`.trim();
+        });
+        setContacts(map);
+      } catch (error) {
+        console.error('Failed to load contacts:', error);
+      }
+    };
+    loadContacts();
+  }, []);
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
 
@@ -234,12 +252,9 @@ export default function CalendarGrid({
                           ))}
                           {apt.attendees_contacts?.slice(0, 3).map((contactId, idx) => (
                             <div key={`contact-${idx}`} className="text-slate-600 mr-2">
-                              🏠 דירה {contactId}
+                              🏠 {contacts[contactId] || `דירה ${contactId}`}
                             </div>
                           ))}
-                          {((apt.attendees_users?.length || 0) + (apt.attendees_contacts?.length || 0) > 3) && (
-                            <div className="text-slate-600 mr-2 text-xs">ועוד {((apt.attendees_users?.length || 0) + (apt.attendees_contacts?.length || 0)) - 3}</div>
-                          )}
                         </div>
                       )}
                     </div>
@@ -282,18 +297,15 @@ export default function CalendarGrid({
                           <div className="text-slate-700 text-xs">
                             <div className="font-medium mb-1">משתתפים:</div>
                             {apt.attendees_users?.slice(0, 3).map((attendee, idx) => (
-                              <div key={`user-${idx}`} className="text-slate-600 mr-2">
-                                👤 {typeof attendee === 'object' ? attendee.name : attendee}
-                              </div>
-                            ))}
-                            {apt.attendees_contacts?.slice(0, 3).map((contactId, idx) => (
-                              <div key={`contact-${idx}`} className="text-slate-600 mr-2">
-                                🏠 דירה {contactId}
-                              </div>
-                            ))}
-                            {((apt.attendees_users?.length || 0) + (apt.attendees_contacts?.length || 0) > 3) && (
-                              <div className="text-slate-600 mr-2 text-xs">ועוד {((apt.attendees_users?.length || 0) + (apt.attendees_contacts?.length || 0)) - 3}</div>
-                            )}
+                               <div key={`user-${idx}`} className="text-slate-600 mr-2">
+                                 👤 {typeof attendee === 'object' ? attendee.name : attendee}
+                               </div>
+                             ))}
+                             {apt.attendees_contacts?.slice(0, 3).map((contactId, idx) => (
+                               <div key={`contact-${idx}`} className="text-slate-600 mr-2">
+                                 🏠 {contacts[contactId] || `דירה ${contactId}`}
+                               </div>
+                             ))}
                           </div>
                         )}
                       </div>
@@ -301,9 +313,16 @@ export default function CalendarGrid({
                   </div>
                 ))}
                 {dayAppointments.length > 2 &&
-                <div className="text-xs text-blue-600 px-2 font-semibold">
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    // Show all appointments for this day by opening the day view or modal
+                  }}
+                  className="text-xs text-blue-600 px-2 font-semibold hover:text-blue-800 transition-colors"
+                >
                     +{dayAppointments.length - 2} עוד
-                  </div>
+                  </button>
                 }
               </div>
             </div>);
