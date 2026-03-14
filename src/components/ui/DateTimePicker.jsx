@@ -255,8 +255,8 @@ export default function DateTimePicker({ value, onChange, placeholder }) {
         >
           <DateTimeHeader value={internal} open={true} onToggle={() => setOpen(false)} />
 
-          {/* body: time left | calendar right */}
-          <div style={{ display:"flex", flexDirection:"row-reverse", height:260 }}>
+          {/* body: calendar right | time left */}
+          <div style={{ display:"flex", flexDirection:"row", height:260 }}>
             <CalendarPanel selectedDate={internal} onSelectDay={handleSelectDay} />
             <TimeColumn selectedHour={internal.getHours()} onSelectHour={handleSelectHour} />
           </div>
