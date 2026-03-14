@@ -44,14 +44,14 @@ export default function AppModal({
             {/* Close button */}
             <button
               onClick={onHeaderClose || onClose}
-              className="absolute left-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-[14px] border border-white/20 bg-white/10 text-white shadow-sm backdrop-blur-sm transition hover:bg-white/20 z-10"
+              className="absolute right-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-[12px] border border-white/20 bg-white/10 text-white shadow-sm backdrop-blur-sm transition hover:bg-white/20 z-10"
             >
               <X className="h-5 w-5" />
               <span className="sr-only">סגור</span>
             </button>
 
             {/* Header content */}
-            <div className="relative z-10 flex items-start justify-between gap-4">
+            <div className="relative z-10 flex items-start justify-end gap-4" dir="rtl">
               <div className="flex-1 text-right">
                 <h2 className="text-[34px] leading-none font-black tracking-[-0.02em] text-white">{title}</h2>
                 {subtitle && (
@@ -62,11 +62,11 @@ export default function AppModal({
 
             {/* Status pill row */}
             {statusPill && (
-              <div className="relative z-10 mt-4 flex items-center justify-between gap-3">
-                <span className="text-[13px] font-semibold text-white/80">סטטוס משפטי:</span>
+              <div className="relative z-10 mt-4 flex items-center justify-end gap-3" dir="rtl">
                 <span className="inline-flex h-9 items-center rounded-full bg-[#ff6b63] px-5 text-[13px] font-bold text-white shadow-[0_8px_18px_rgba(255,107,99,0.35)]">
                   {statusPill.text.replace('סטטוס משפטי: ', '')}
                 </span>
+                <span className="text-[13px] font-semibold text-white/80">סטטוס משפטי:</span>
               </div>
             )}
           </div>
