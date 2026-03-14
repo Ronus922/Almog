@@ -137,7 +137,7 @@ export default function Calendar() {
 
   const { data: calendarEvents = [], isLoading: eventsLoading } = useQuery({
     queryKey: ['calendarEvents'],
-    queryFn: () => base44.entities.CalendarEvent.list('-event_date'),
+    queryFn: () => base44.entities.Appointment.list('-date'),
   });
 
   // Filter appointments and events based on quick filters
@@ -196,45 +196,45 @@ export default function Calendar() {
 
   // Calendar Events Mutations
   const createEventMutation = useMutation({
-   mutationFn: (data) => base44.entities.CalendarEvent.create(data),
-   onSuccess: () => {
-     queryClient.invalidateQueries({ queryKey: ['calendarEvents'] });
-     setShowForm(false);
-     setSelectedAppointment(null);
-     toast({
-       title: '✅ נוצרה בהצלחה',
-       description: 'פגישה חדשה נוספה ליומן',
-       duration: 2000,
-     });
-   },
+    mutationFn: (data) => base44.entities.Appointment.create(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['calendarEvents'] });
+      setShowForm(false);
+      setSelectedAppointment(null);
+      toast({
+        title: '✅ נוצרה בהצלחה',
+        description: 'פגישה חדשה נוספה ליומן',
+        duration: 2000,
+      });
+    },
   });
 
   const updateEventMutation = useMutation({
-   mutationFn: ({ id, data }) => base44.entities.CalendarEvent.update(id, data),
-   onSuccess: () => {
-     queryClient.invalidateQueries({ queryKey: ['calendarEvents'] });
-     setShowForm(false);
-     setSelectedAppointment(null);
-     toast({
-       title: '✅ עודכן בהצלחה',
-       description: 'פרטי הפגישה נשמרו',
-       duration: 2000,
-     });
-   },
+    mutationFn: ({ id, data }) => base44.entities.Appointment.update(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['calendarEvents'] });
+      setShowForm(false);
+      setSelectedAppointment(null);
+      toast({
+        title: '✅ עודכן בהצלחה',
+        description: 'פרטי הפגישה נשמרו',
+        duration: 2000,
+      });
+    },
   });
 
   const deleteEventMutation = useMutation({
-   mutationFn: (id) => base44.entities.CalendarEvent.delete(id),
-   onSuccess: () => {
-     queryClient.invalidateQueries({ queryKey: ['calendarEvents'] });
-     setShowDeleteDialog(false);
-     setSelectedAppointment(null);
-     toast({
-       title: '✅ נמחקה',
-       description: 'הפגישה הוסרה מיומן',
-       duration: 2000,
-     });
-   },
+    mutationFn: (id) => base44.entities.Appointment.delete(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['calendarEvents'] });
+      setShowDeleteDialog(false);
+      setSelectedAppointment(null);
+      toast({
+        title: '✅ נמחקה',
+        description: 'הפגישה הוסרה מיומן',
+        duration: 2000,
+      });
+    },
   });
 
   const handleNavigate = (direction) => {
