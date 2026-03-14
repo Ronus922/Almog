@@ -87,7 +87,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         reminder_method: appointment.reminder_method || 'none',
         event_color: appointment.event_color || '#3B82F6',
         is_recurring: appointment.is_recurring || false,
-        recurrence_pattern: appointment.recurrence_pattern || 'weekly',
+        recurrence_pattern: appointment.recurrence_pattern || '',
         attendees_users: appointment.attendees_users || [],
         attendees_contacts: appointment.attendees_contacts || [],
         attachments: appointment.attachments || [],
