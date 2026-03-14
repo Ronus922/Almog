@@ -175,6 +175,7 @@ import Contacts from "./pages/Contacts.jsx";
 import WhatsAppChat from "./pages/WhatsAppChat.jsx";
 import Calendar from "./pages/Calendar.jsx";
 import Documents from "./pages/Documents.jsx";
+import Suppliers from "./pages/Suppliers.jsx";
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -232,6 +233,7 @@ const AuthenticatedApp = () => {
       <Route path="/WhatsAppChat" element={<LayoutWrapper currentPageName="WhatsAppChat"><WhatsAppChat /></LayoutWrapper>} />
       <Route path="/Calendar" element={<LayoutWrapper currentPageName="Calendar"><Calendar /></LayoutWrapper>} />
       <Route path="/Documents" element={<LayoutWrapper currentPageName="Documents"><Documents /></LayoutWrapper>} />
+      <Route path="/Suppliers" element={<LayoutWrapper currentPageName="Suppliers"><Suppliers /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
