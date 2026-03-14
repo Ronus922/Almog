@@ -10,7 +10,7 @@ import { useAuth } from "@/components/auth/AuthContext";
 import { isManagerRole } from "@/components/utils/roles";
 import { StatusBadge } from "@/components/tasks/TaskBadge";
 import TaskFormDialog from "@/components/tasks/TaskFormDialog";
-import { format, isPast, isToday } from "date-fns";
+import { format } from "date-fns";
 
 function SortableHeader({ label, field, sortField, sortDir, onSort }) {
   const active = sortField === field;
