@@ -135,15 +135,16 @@ export default function Tasks() {
     return names.sort();
   }, [myTasks]);
 
-  // KPI counts — מחושב תמיד על כל המשימות של המשתמש
+  // KPI counts — נגזר מ-myTasks בלבד, ללא תלות ב-activeKpiFilter
   const kpiCounts = useMemo(() => ({
-    open: myTasks.filter(t => t.status === "פתוחה" || t.status === "בטיפול").length,
-    today: myTasks.filter(t => t.status !== "הושלמה" && t.status !== "בוטלה" && isTodayByDateOnly(t.due_date)).length,
-    overdue: myTasks.filter(t => t.status !== "הושלמה" && t.status !== "בוטלה" && isOverdueByDateOnly(t.due_date)).length,
+    open: myTasks.filter(isTaskOpen).length,
+    today: myTasks.filter(isTaskToday).length,
+    overdue: myTasks.filter(isTaskOverdue).length,
   }), [myTasks]);
 
-  // סינון מרוכז: פילטרים ידניים → activeKpiFilter
-  const filtered = useMemo(() => {
+  // visibleTasks — מקור אמת יחיד לטבלה
+  // סדר: א. פילטרים ידניים → ב. activeKpiFilter → ג. ברירת מחדל
+  const visibleTasks = useMemo(() => {
     let result = myTasks;
 
     // שלב א: פילטרים ידניים
@@ -156,7 +157,7 @@ export default function Tasks() {
         if (filterPriority !== "הכל" && t.priority !== filterPriority) return false;
         if (filterAssigned !== "הכל" && (t.assigned_to_name || t.assigned_to) !== filterAssigned) return false;
         if (filterTaskType !== "הכל" && t.task_type !== filterTaskType) return false;
-        if (filterDueDate && t.due_date?.slice(0,10) !== filterDueDate) return false;
+        if (filterDueDate && t.due_date?.slice(0, 10) !== filterDueDate) return false;
         if (search) {
           const s = search.toLowerCase();
           return (
@@ -171,13 +172,22 @@ export default function Tasks() {
       });
     }
 
-    // ברירת מחדל: פתוחה + בטיפול (רק אם אין פילטרים ידניים)
-    if (!hasManualFilters) {
-      result = result.filter(t => t.status === "פתוחה" || t.status === "בטיפול");
+    // שלב ב: activeKpiFilter — שכבת סינון נוספת מעל הפילטרים הידניים
+    if (activeKpiFilter === "open") {
+      result = result.filter(isTaskOpen);
+    } else if (activeKpiFilter === "today") {
+      result = result.filter(isTaskToday);
+    } else if (activeKpiFilter === "overdue") {
+      result = result.filter(isTaskOverdue);
+    } else {
+      // שלב ג: ברירת מחדל (null) — רק אם אין פילטרים ידניים
+      if (!hasManualFilters) {
+        result = result.filter(isTaskOpen);
+      }
     }
 
     return result;
-  }, [myTasks, filterStatus, filterPriority, filterAssigned, filterDueDate, filterTaskType, search]);
+  }, [myTasks, filterStatus, filterPriority, filterAssigned, filterDueDate, filterTaskType, search, activeKpiFilter]);
 
   const isOverdue = (task) => {
     if (task.status === "הושלמה" || task.status === "בוטלה") return false;
