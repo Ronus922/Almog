@@ -332,34 +332,208 @@ export default function DebtorsTable({
           />
         )}
         <Card className="rounded-[24px] border border-white/80 bg-white/88 backdrop-blur-[8px] shadow-[0_18px_40px_rgba(15,23,42,0.09)] overflow-hidden">
-      <CardHeader className="bg-slate-50/90 pt-4 pb-4 p-6 flex flex-col space-y-1.5 md:pb-6 md:pt-6 border-b border-slate-200/80">
-        <div className="flex flex-col gap-4">
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div>
-              <CardTitle className="text-[22px] md:text-[26px] font-[700] text-slate-800">טבלת חייבים</CardTitle>
-              <p className="text-sm text-slate-600 mt-1 font-medium">
-                סה״כ רשומות: <span className="font-bold text-blue-600">{filteredRecords.length}</span>
-              </p>
-            </div>
-            
-            {/* Mobile filters */}
-            <div className="flex lg:hidden gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input
-                    placeholder="מספר דירה..."
-                    value={apartmentSearch}
-                    onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
-                    className="pr-10 h-10 rounded-xl border-slate-300 text-sm"
-                    inputMode="numeric" />
+          <CardHeader className="bg-slate-50/90 pt-4 pb-4 p-6 flex flex-col space-y-1.5 md:pb-6 md:pt-6 border-b border-slate-200/80">
+            <div className="flex flex-col gap-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div>
+                  <CardTitle className="text-[22px] md:text-[26px] font-[700] text-slate-800">טבלת חייבים</CardTitle>
+                  <p className="text-sm text-slate-600 mt-1 font-medium">
+                    סה״כ רשומות: <span className="font-bold text-blue-600">{filteredRecords.length}</span>
+                  </p>
+                </div>
+                
+                {/* Mobile filters */}
+                <div className="flex lg:hidden gap-2">
+                  <div className="relative flex-1">
+                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                    <Input
+                        placeholder="מספר דירה..."
+                        value={apartmentSearch}
+                        onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
+                        className="pr-10 h-10 rounded-xl border-slate-300 text-sm"
+                        inputMode="numeric" />
 
-              </div>
-              <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-                <SheetTrigger asChild>
+                  </div>
+                  <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+                    <SheetTrigger asChild>
+                      <Button
+                          variant="outline"
+                          size="sm"
+                          className="h-10 px-3 rounded-xl"
+                          style={{
+                            fontSize: '15px',
+                            fontWeight: 800,
+                            letterSpacing: 0,
+                            minHeight: '40px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px'
+                          }}>
+
+                        <SlidersHorizontal className="w-4 h-4" />
+                        חיפוש מורחב
+                        {(hasActiveFilters || hasAdvancedFilters) &&
+                          <span className="mr-1 w-2 h-2 bg-blue-600 rounded-full"></span>
+                          }
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="w-80 overflow-y-auto" dir="rtl">
+                      <SheetHeader>
+                        <SheetTitle className="text-right">חיפוש מורחב</SheetTitle>
+                      </SheetHeader>
+                      <div className="mt-6 space-y-4">
+                        <div>
+                          <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">מספר דירה</label>
+                          <Input
+                              placeholder="חפש מספר דירה..."
+                              value={apartmentSearch}
+                              onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
+                              className="h-11 rounded-xl text-right"
+                              dir="rtl"
+                              inputMode="numeric" />
+
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">שם בעלים</label>
+                          <Input
+                              placeholder="חיפוש לפי שם"
+                              value={ownerNameFilter}
+                              onChange={(e) => {setOwnerNameFilter(e.target.value);setPage(1);}}
+                              className="h-11 rounded-xl text-right"
+                              dir="rtl" />
+
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">טלפון</label>
+                          <Input
+                              placeholder="חיפוש לפי טלפון"
+                              value={phoneFilter}
+                              onChange={(e) => {setPhoneFilter(e.target.value);setPage(1);}}
+                              className="h-11 rounded-xl text-right"
+                              dir="rtl" />
+
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">טווח סכום חוב</label>
+                          <div className="flex gap-2" dir="rtl">
+                            <Input
+                                type="number"
+                                placeholder="מסכום"
+                                value={minDebt}
+                                onChange={(e) => {setMinDebt(e.target.value);setPage(1);}}
+                                className="h-11 rounded-xl text-right flex-1"
+                                dir="rtl" />
+
+                            <Input
+                                type="number"
+                                placeholder="עד סכום"
+                                value={maxDebt}
+                                onChange={(e) => {setMaxDebt(e.target.value);setPage(1);}}
+                                className="h-11 rounded-xl text-right flex-1"
+                                dir="rtl" />
+
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">סטטוס חוב</label>
+                          <Select value={statusFilter} onValueChange={(v) => {setStatusFilter(v);setPage(1);}}>
+                            <SelectTrigger className="w-full h-11 rounded-xl">
+                              <SelectValue placeholder="כל הסטטוסים" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-xl">
+                              <SelectItem value="all">כל הסטטוסים</SelectItem>
+                              <SelectItem value="תקין">תקין</SelectItem>
+                              <SelectItem value="לגבייה מיידית">לגבייה מיידית</SelectItem>
+                              <SelectItem value="חריגה מופרזת">חריגה מופרזת</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        {!hideStatusFilter &&
+                          <div>
+                            <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">מצב משפטי</label>
+                            <Select value={legalStatusFilter} onValueChange={(v) => {setLegalStatusFilter(v);setPage(1);}}>
+                              <SelectTrigger className="w-full h-11 rounded-xl">
+                                <SelectValue placeholder="כל המצבים" />
+                              </SelectTrigger>
+                              <SelectContent className="rounded-xl">
+                                <SelectItem value="all">כל המצבים</SelectItem>
+                                <SelectItem value="null">ללא סטטוס</SelectItem>
+                                {activeLegalStatuses.map((status) =>
+                                <SelectItem key={status.id} value={status.id}>
+                                    {status.name}
+                                  </SelectItem>
+                                )}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          }
+
+                        <div className="pt-4 flex gap-2">
+                          <Button
+                              variant="outline"
+                              className="flex-1 rounded-xl"
+                              onClick={clearFilters}>
+
+                            <X className="w-4 h-4 ml-1" />
+                            נקה פילטרים
+                          </Button>
+                          <Button
+                              className="flex-1 rounded-xl"
+                              onClick={() => setIsFilterOpen(false)}>
+
+                            סגור
+                          </Button>
+                        </div>
+                      </div>
+                    </SheetContent>
+                  </Sheet>
+                </div>
+
+                {/* Desktop filters */}
+                <div className="hidden lg:flex flex-wrap items-center gap-3">
+                  <div className="relative">
+                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <Input
+                        placeholder="מספר דירה..."
+                        value={apartmentSearch}
+                        onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
+                        className="pr-12 w-40 h-11 rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                        inputMode="numeric" />
+
+                  </div>
+
+                  <div className="relative">
+                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <Input
+                        placeholder="חיפוש שם או טלפון..."
+                        value={search}
+                        onChange={(e) => {setSearch(e.target.value);setPage(1);}}
+                        className="pr-12 w-52 h-11 rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500" />
+
+                  </div>
+
+                  <Select value={statusFilter} onValueChange={(v) => {setStatusFilter(v);setPage(1);}}>
+                    <SelectTrigger className="w-44 h-11 rounded-xl border-slate-300">
+                      <SelectValue placeholder="כל הסטטוסים" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl">
+                      <SelectItem value="all">כל הסטטוסים</SelectItem>
+                      <SelectItem value="תקין">תקין</SelectItem>
+                      <SelectItem value="לגבייה מיידית">לגבייה מיידית</SelectItem>
+                      <SelectItem value="חריגה מופרזת">חריגה מופרזת</SelectItem>
+                    </SelectContent>
+                  </Select>
+
                   <Button
-                      variant="outline"
+                      variant={showAdvancedFilters ? "default" : "outline"}
                       size="sm"
-                      className="h-10 px-3 rounded-xl"
+                      onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                      className="h-11 rounded-xl px-4"
                       style={{
                         fontSize: '15px',
                         fontWeight: 800,
@@ -372,482 +546,308 @@ export default function DebtorsTable({
 
                     <SlidersHorizontal className="w-4 h-4" />
                     חיפוש מורחב
-                    {(hasActiveFilters || hasAdvancedFilters) &&
-                      <span className="mr-1 w-2 h-2 bg-blue-600 rounded-full"></span>
+                    {hasAdvancedFilters &&
+                      <span className="mr-2 w-2 h-2 bg-white rounded-full"></span>
                       }
                   </Button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-80 overflow-y-auto" dir="rtl">
-                  <SheetHeader>
-                    <SheetTitle className="text-right">חיפוש מורחב</SheetTitle>
-                  </SheetHeader>
-                  <div className="mt-6 space-y-4">
-                    <div>
-                      <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">מספר דירה</label>
-                      <Input
-                          placeholder="חפש מספר דירה..."
+
+                  {(hasActiveFilters || hasAdvancedFilters) &&
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearFilters}
+                      className="h-11 rounded-xl">
+
+                      <X className="w-4 h-4 ml-1" />
+                      נקה הכל
+                    </Button>
+                    }
+                </div>
+              </div>
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-0">
+            {/* Mobile Card View */}
+            <div className="block lg:hidden p-4 space-y-3">
+              {paginatedRecords.length === 0 ?
+                <div className="text-center py-12">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center">
+                      <Filter className="w-8 h-8 text-slate-400" />
+                    </div>
+                    <p className="text-slate-600 font-semibold text-lg">לא נמצאו רשומות</p>
+                    <p className="text-sm text-slate-400">נסה לשנות את הפילטרים או את החיפוש</p>
+                  </div>
+                </div> :
+
+                paginatedRecords.map((record) =>
+                <DebtorCard
+                  key={record.id}
+                  record={record}
+                  onClick={onRowClick}
+                  settings={settings}
+                  isAdmin={isAdmin}
+                  showArchived={showArchived}
+                  onArchiveToggle={(rec) => handleArchiveToggle(rec, { stopPropagation: () => {} })}
+                  allStatuses={allStatuses} />
+
+                )
+                }
+            </div>
+
+            {/* Desktop Table View */}
+            <div className="hidden lg:block overflow-x-auto">
+              <Table className="border-separate border-spacing-y-2 border-spacing-x-0">
+                <TableHeader>
+                  <TableRow className="bg-transparent border-b border-0">
+                    <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('apartmentNumber')}>
+                      <div className="flex items-center gap-2 justify-end">
+                        <ArrowUpDown className={`w-5 h-5 ${sortField === 'apartmentNumber' ? 'text-blue-600' : 'text-slate-400'}`} />
+                        מס׳ דירה
+                      </div>
+                    </TableHead>
+                    <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be]">שם בעל הדירה</TableHead>
+                    <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be]">טלפון</TableHead>
+                    <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('totalDebt')}>
+                       <div className="flex items-center gap-2 justify-end">
+                        <ArrowUpDown className={`w-4 h-4 ${sortField === 'totalDebt' ? 'text-blue-600' : 'text-slate-400'}`} />
+                        סה״כ חוב
+                       </div>
+                     </TableHead>
+                     <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('monthlyDebt')}>
+                       <div className="flex items-center gap-2 justify-end">
+                        <ArrowUpDown className={`w-4 h-4 ${sortField === 'monthlyDebt' ? 'text-blue-600' : 'text-slate-400'}`} />
+                        דמי ניהול
+                       </div>
+                     </TableHead>
+                     <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('specialDebt')}>
+                       <div className="flex items-center gap-2 justify-end">
+                        <ArrowUpDown className={`w-4 h-4 ${sortField === 'specialDebt' ? 'text-blue-600' : 'text-slate-400'}`} />
+                        מים חמים
+                       </div>
+                     </TableHead>
+
+                     <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('legal_status_id')}>
+                       <div className="flex items-center gap-2 justify-end">
+                        <ArrowUpDown className={`w-4 h-4 ${sortField === 'legal_status_id' ? 'text-blue-600' : 'text-slate-400'}`} />
+                        מצב משפטי
+                       </div>
+                     </TableHead>
+                     <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-center text-[11px] font-bold text-[#8f99be]" style={{ width: '120px' }}>פעולות</TableHead>
+                  </TableRow>
+                  
+                  {/* Advanced Filter Row */}
+                  {showAdvancedFilters &&
+                    <TableRow className="bg-blue-50/50 border-b-2 border-blue-200">
+                      <TableHead className="py-3 px-4">
+                        <Input
+                          placeholder="מספר דירה"
                           value={apartmentSearch}
                           onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
-                          className="h-11 rounded-xl text-right"
+                          className="h-9 rounded-lg text-sm text-right"
                           dir="rtl"
                           inputMode="numeric" />
 
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">שם בעלים</label>
-                      <Input
-                          placeholder="חיפוש לפי שם"
+                      </TableHead>
+                      <TableHead className="py-3 px-4">
+                        <Input
+                          placeholder="שם בעלים"
                           value={ownerNameFilter}
                           onChange={(e) => {setOwnerNameFilter(e.target.value);setPage(1);}}
-                          className="h-11 rounded-xl text-right"
+                          className="h-9 rounded-lg text-sm text-right"
                           dir="rtl" />
 
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">טלפון</label>
-                      <Input
-                          placeholder="חיפוש לפי טלפון"
+                      </TableHead>
+                      <TableHead className="py-3 px-4">
+                        <Input
+                          placeholder="טלפון"
                           value={phoneFilter}
                           onChange={(e) => {setPhoneFilter(e.target.value);setPage(1);}}
-                          className="h-11 rounded-xl text-right"
+                          className="h-9 rounded-lg text-sm text-right"
                           dir="rtl" />
 
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">טווח סכום חוב</label>
-                      <div className="flex gap-2" dir="rtl">
-                        <Input
+                      </TableHead>
+                      <TableHead className="py-3 px-4">
+                        <div className="flex gap-2 items-center justify-end" dir="rtl">
+                          <Input
                             type="number"
                             placeholder="מסכום"
                             value={minDebt}
                             onChange={(e) => {setMinDebt(e.target.value);setPage(1);}}
-                            className="h-11 rounded-xl text-right flex-1"
+                            className="h-9 rounded-lg text-sm w-20 text-right"
                             dir="rtl" />
 
-                        <Input
+                          <span className="text-xs text-slate-500">-</span>
+                          <Input
                             type="number"
-                            placeholder="עד סכום"
+                            placeholder="עד"
                             value={maxDebt}
                             onChange={(e) => {setMaxDebt(e.target.value);setPage(1);}}
-                            className="h-11 rounded-xl text-right flex-1"
+                            className="h-9 rounded-lg text-sm w-20 text-right"
                             dir="rtl" />
 
-                      </div>
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">סטטוס חוב</label>
-                      <Select value={statusFilter} onValueChange={(v) => {setStatusFilter(v);setPage(1);}}>
-                        <SelectTrigger className="w-full h-11 rounded-xl">
-                          <SelectValue placeholder="כל הסטטוסים" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-xl">
-                          <SelectItem value="all">כל הסטטוסים</SelectItem>
-                          <SelectItem value="תקין">תקין</SelectItem>
-                          <SelectItem value="לגבייה מיידית">לגבייה מיידית</SelectItem>
-                          <SelectItem value="חריגה מופרזת">חריגה מופרזת</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    {!hideStatusFilter &&
-                      <div>
-                        <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">מצב משפטי</label>
+                        </div>
+                      </TableHead>
+                      <TableHead className="py-3 px-4"></TableHead>
+                      <TableHead className="py-3 px-4"></TableHead>
+                      <TableHead className="py-3 px-4">
+                        {!hideStatusFilter &&
                         <Select value={legalStatusFilter} onValueChange={(v) => {setLegalStatusFilter(v);setPage(1);}}>
-                          <SelectTrigger className="w-full h-11 rounded-xl">
-                            <SelectValue placeholder="כל המצבים" />
-                          </SelectTrigger>
-                          <SelectContent className="rounded-xl">
-                            <SelectItem value="all">כל המצבים</SelectItem>
-                            <SelectItem value="null">ללא סטטוס</SelectItem>
-                            {activeLegalStatuses.map((status) =>
+                            <SelectTrigger className="h-9 rounded-lg text-sm">
+                              <SelectValue placeholder="הכל" />
+                            </SelectTrigger>
+                            <SelectContent className="rounded-lg">
+                              <SelectItem value="all">הכל</SelectItem>
+                              <SelectItem value="null">ללא סטטוס</SelectItem>
+                              {activeLegalStatuses.map((status) =>
                             <SelectItem key={status.id} value={status.id}>
-                                {status.name}
-                              </SelectItem>
+                                  {status.name}
+                                </SelectItem>
                             )}
-                          </SelectContent>
-                        </Select>
-                      </div>
-                      }
-
-                    <div className="pt-4 flex gap-2">
-                      <Button
-                          variant="outline"
-                          className="flex-1 rounded-xl"
-                          onClick={clearFilters}>
-
-                        <X className="w-4 h-4 ml-1" />
-                        נקה פילטרים
-                      </Button>
-                      <Button
-                          className="flex-1 rounded-xl"
-                          onClick={() => setIsFilterOpen(false)}>
-
-                        סגור
-                      </Button>
-                    </div>
-                  </div>
-                </SheetContent>
-              </Sheet>
-            </div>
-
-            {/* Desktop filters */}
-            <div className="hidden lg:flex flex-wrap items-center gap-3">
-              <div className="relative">
-                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <Input
-                    placeholder="מספר דירה..."
-                    value={apartmentSearch}
-                    onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
-                    className="pr-12 w-40 h-11 rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500"
-                    inputMode="numeric" />
-
-              </div>
-
-              <div className="relative">
-                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                <Input
-                    placeholder="חיפוש שם או טלפון..."
-                    value={search}
-                    onChange={(e) => {setSearch(e.target.value);setPage(1);}}
-                    className="pr-12 w-52 h-11 rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500" />
-
-              </div>
-
-              <Select value={statusFilter} onValueChange={(v) => {setStatusFilter(v);setPage(1);}}>
-                <SelectTrigger className="w-44 h-11 rounded-xl border-slate-300">
-                  <SelectValue placeholder="כל הסטטוסים" />
-                </SelectTrigger>
-                <SelectContent className="rounded-xl">
-                  <SelectItem value="all">כל הסטטוסים</SelectItem>
-                  <SelectItem value="תקין">תקין</SelectItem>
-                  <SelectItem value="לגבייה מיידית">לגבייה מיידית</SelectItem>
-                  <SelectItem value="חריגה מופרזת">חריגה מופרזת</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Button
-                  variant={showAdvancedFilters ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                  className="h-11 rounded-xl px-4"
-                  style={{
-                    fontSize: '15px',
-                    fontWeight: 800,
-                    letterSpacing: 0,
-                    minHeight: '40px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px'
-                  }}>
-
-                <SlidersHorizontal className="w-4 h-4" />
-                חיפוש מורחב
-                {hasAdvancedFilters &&
-                  <span className="mr-2 w-2 h-2 bg-white rounded-full"></span>
-                  }
-              </Button>
-
-              {(hasActiveFilters || hasAdvancedFilters) &&
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={clearFilters}
-                  className="h-11 rounded-xl">
-
-                  <X className="w-4 h-4 ml-1" />
-                  נקה הכל
-                </Button>
-                }
-            </div>
-          </div>
-        </div>
-      </CardHeader>
-
-      <CardContent className="p-0">
-        {/* Mobile Card View */}
-        <div className="block lg:hidden p-4 space-y-3">
-          {paginatedRecords.length === 0 ?
-            <div className="text-center py-12">
-              <div className="flex flex-col items-center gap-3">
-                <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center">
-                  <Filter className="w-8 h-8 text-slate-400" />
-                </div>
-                <p className="text-slate-600 font-semibold text-lg">לא נמצאו רשומות</p>
-                <p className="text-sm text-slate-400">נסה לשנות את הפילטרים או את החיפוש</p>
-              </div>
-            </div> :
-
-            paginatedRecords.map((record) =>
-            <DebtorCard
-              key={record.id}
-              record={record}
-              onClick={onRowClick}
-              settings={settings}
-              isAdmin={isAdmin}
-              showArchived={showArchived}
-              onArchiveToggle={(rec) => handleArchiveToggle(rec, { stopPropagation: () => {} })}
-              allStatuses={allStatuses} />
-
-            )
-            }
-        </div>
-
-        {/* Desktop Table View */}
-        <div className="hidden lg:block overflow-x-auto">
-          <Table className="border-separate border-spacing-y-2 border-spacing-x-0">
-            <TableHeader>
-              <TableRow className="bg-transparent border-b border-0">
-                <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('apartmentNumber')}>
-                  <div className="flex items-center gap-2 justify-end">
-                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'apartmentNumber' ? 'text-blue-600' : 'text-slate-400'}`} />
-                    מס׳ דירה
-                  </div>
-                </TableHead>
-                <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be]">שם בעל הדירה</TableHead>
-                <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be]">טלפון</TableHead>
-                <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('totalDebt')}>
-                   <div className="flex items-center gap-2 justify-end">
-                    <ArrowUpDown className={`w-4 h-4 ${sortField === 'totalDebt' ? 'text-blue-600' : 'text-slate-400'}`} />
-                    סה״כ חוב
-                   </div>
-                 </TableHead>
-                 <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('monthlyDebt')}>
-                   <div className="flex items-center gap-2 justify-end">
-                    <ArrowUpDown className={`w-4 h-4 ${sortField === 'monthlyDebt' ? 'text-blue-600' : 'text-slate-400'}`} />
-                    דמי ניהול
-                   </div>
-                 </TableHead>
-                 <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('specialDebt')}>
-                   <div className="flex items-center gap-2 justify-end">
-                    <ArrowUpDown className={`w-4 h-4 ${sortField === 'specialDebt' ? 'text-blue-600' : 'text-slate-400'}`} />
-                    מים חמים
-                   </div>
-                 </TableHead>
-
-                 <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('legal_status_id')}>
-                   <div className="flex items-center gap-2 justify-end">
-                    <ArrowUpDown className={`w-4 h-4 ${sortField === 'legal_status_id' ? 'text-blue-600' : 'text-slate-400'}`} />
-                    מצב משפטי
-                   </div>
-                 </TableHead>
-                 <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-center text-[11px] font-bold text-[#8f99be]" style={{ width: '120px' }}>פעולות</TableHead>
-              </TableRow>
-              
-              {/* Advanced Filter Row */}
-              {showAdvancedFilters &&
-                <TableRow className="bg-blue-50/50 border-b-2 border-blue-200">
-                  <TableHead className="py-3 px-4">
-                    <Input
-                      placeholder="מספר דירה"
-                      value={apartmentSearch}
-                      onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
-                      className="h-9 rounded-lg text-sm text-right"
-                      dir="rtl"
-                      inputMode="numeric" />
-
-                  </TableHead>
-                  <TableHead className="py-3 px-4">
-                    <Input
-                      placeholder="שם בעלים"
-                      value={ownerNameFilter}
-                      onChange={(e) => {setOwnerNameFilter(e.target.value);setPage(1);}}
-                      className="h-9 rounded-lg text-sm text-right"
-                      dir="rtl" />
-
-                  </TableHead>
-                  <TableHead className="py-3 px-4">
-                    <Input
-                      placeholder="טלפון"
-                      value={phoneFilter}
-                      onChange={(e) => {setPhoneFilter(e.target.value);setPage(1);}}
-                      className="h-9 rounded-lg text-sm text-right"
-                      dir="rtl" />
-
-                  </TableHead>
-                  <TableHead className="py-3 px-4">
-                    <div className="flex gap-2 items-center justify-end" dir="rtl">
-                      <Input
-                        type="number"
-                        placeholder="מסכום"
-                        value={minDebt}
-                        onChange={(e) => {setMinDebt(e.target.value);setPage(1);}}
-                        className="h-9 rounded-lg text-sm w-20 text-right"
-                        dir="rtl" />
-
-                      <span className="text-xs text-slate-500">-</span>
-                      <Input
-                        type="number"
-                        placeholder="עד"
-                        value={maxDebt}
-                        onChange={(e) => {setMaxDebt(e.target.value);setPage(1);}}
-                        className="h-9 rounded-lg text-sm w-20 text-right"
-                        dir="rtl" />
-
-                    </div>
-                  </TableHead>
-                  <TableHead className="py-3 px-4"></TableHead>
-                  <TableHead className="py-3 px-4"></TableHead>
-                  <TableHead className="py-3 px-4">
-                    {!hideStatusFilter &&
-                    <Select value={legalStatusFilter} onValueChange={(v) => {setLegalStatusFilter(v);setPage(1);}}>
-                        <SelectTrigger className="h-9 rounded-lg text-sm">
-                          <SelectValue placeholder="הכל" />
-                        </SelectTrigger>
-                        <SelectContent className="rounded-lg">
-                          <SelectItem value="all">הכל</SelectItem>
-                          <SelectItem value="null">ללא סטטוס</SelectItem>
-                          {activeLegalStatuses.map((status) =>
-                        <SelectItem key={status.id} value={status.id}>
-                              {status.name}
-                            </SelectItem>
-                        )}
-                        </SelectContent>
-                      </Select>
+                            </SelectContent>
+                          </Select>
+                        }
+                        </TableHead>
+                        <TableHead className="py-3 px-4"></TableHead>
+                         </TableRow>
                     }
-                    </TableHead>
-                    <TableHead className="py-3 px-4"></TableHead>
-                     </TableRow>
-                }
-              
-              {/* Filter Actions Row */}
-              {showAdvancedFilters &&
-                <TableRow className="bg-blue-50/30 border-b border-blue-200">
-                   <TableHead colSpan={8} className="py-3 px-6">
-                    <div className="flex items-center justify-end" dir="rtl">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={clearAdvancedFilters}
-                        className="h-9 rounded-lg">
+                  
+                  {/* Filter Actions Row */}
+                  {showAdvancedFilters &&
+                    <TableRow className="bg-blue-50/30 border-b border-blue-200">
+                       <TableHead colSpan={8} className="py-3 px-6">
+                        <div className="flex items-center justify-end" dir="rtl">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={clearAdvancedFilters}
+                            className="h-9 rounded-lg">
 
-                        <X className="w-4 h-4 ml-1" />
-                        נקה פילטרים
-                      </Button>
-                    </div>
-                  </TableHead>
-                </TableRow>
-                }
-            </TableHeader>
-            <TableBody>
-              {paginatedRecords.length === 0 ?
-                <TableRow>
-                   <TableCell colSpan={8} className="text-center py-12">
-                    <div className="flex flex-col items-center gap-3">
-                      <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center">
-                        <Filter className="w-8 h-8 text-slate-400" />
-                      </div>
-                      <p className="text-slate-600 font-semibold text-lg">לא נמצאו רשומות</p>
-                      <p className="text-sm text-slate-400">נסה לשנות את הפילטרים או את החיפוש</p>
-                    </div>
-                  </TableCell>
-                </TableRow> :
-
-                paginatedRecords.map((record, idx) =>
-                <TableRow
-                  key={record.id}
-                  className={`group transition-all duration-150 cursor-pointer`}
-                  onClick={() => onRowClick(record)}>
-
-                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] rounded-r-[14px] group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
-                      {record.apartmentNumber}
-                    </TableCell>
-                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
-                      <div className="line-clamp-2 break-words">
-                        {record.ownerName ? (
-                          <>
-                            {record.ownerName.split(/[\/,]/)[0]?.trim() || record.ownerName}
-                            {(record.ownerName.includes('/') || record.ownerName.includes(',')) && (
-                              <span> (שוכר)</span>
-                            )}
-                          </>
-                        ) : '-'}
-                      </div>
-                    </TableCell>
-                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-right group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]" dir="rtl">
-                      {formatPhoneForDisplay(getPhonePrimaryForTable(record))}
-                    </TableCell>
-                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-center group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
-                      <span className="font-bold text-[13px] text-[#ff5d8f] tabular-nums">{formatCurrency(record.totalDebt)}</span>
-                    </TableCell>
-                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-center group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
-                      <span className="font-bold text-[13px] text-[#8b5cff] tabular-nums">{formatCurrency(record.monthlyDebt)}</span>
-                    </TableCell>
-                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-center group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
-                      <span className="font-bold text-[13px] text-[#f5a623] tabular-nums">{formatCurrency(record.specialDebt)}</span>
-                    </TableCell>
-
-                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-center group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)] rounded-l-[14px]">
-                      {(() => {
-                      const legalStatus = getLegalStatusForRecord(record);
-
-                      return legalStatus ?
-                      <Badge className={`${legalStatus.color} rounded-full min-w-[74px] inline-flex items-center justify-center px-[10px] h-6 text-[11px] font-bold transition-all duration-200 hover:opacity-80`}>
-                            {legalStatus.name}
-                          </Badge> :
-
-                      <Badge className="bg-[rgba(148,151,175,0.12)] text-[#7581a8] rounded-full min-w-[74px] inline-flex items-center justify-center px-[10px] h-6 text-[11px] font-bold transition-all duration-200">
-                            לא הוגדר
-                          </Badge>;
-
-                    })()}
-                    </TableCell>
-                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-center group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]" onClick={(e) => e.stopPropagation()}>
-                       <TableActionsCell
-                         record={record}
-                         isAdmin={isAdmin}
-                         showArchived={showArchived}
-                         archivingRecords={archivingRecords}
-                         onCommentClick={() => setCommentRecord(record)}
-                         onWhatsAppClick={() => setWhatsappRecord(record)}
-                         onArchiveToggle={handleArchiveToggle}
-                       />
-                      </TableCell>
+                            <X className="w-4 h-4 ml-1" />
+                            נקה פילטרים
+                          </Button>
+                        </div>
+                      </TableHead>
                     </TableRow>
-                )
-                }
-                    </TableBody>
-                    </Table>
-                    </div>
+                    }
+                </TableHeader>
+                <TableBody>
+                  {paginatedRecords.length === 0 ?
+                    <TableRow>
+                       <TableCell colSpan={8} className="text-center py-12">
+                        <div className="flex flex-col items-center gap-3">
+                          <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center">
+                            <Filter className="w-8 h-8 text-slate-400" />
+                          </div>
+                          <p className="text-slate-600 font-semibold text-lg">לא נמצאו רשומות</p>
+                          <p className="text-sm text-slate-400">נסה לשנות את הפילטרים או את החיפוש</p>
+                        </div>
+                      </TableCell>
+                    </TableRow> :
 
-        {totalPages > 1 &&
-          <div className="flex flex-col md:flex-row items-center justify-between gap-3 px-4 md:px-6 py-4 border-t border-slate-200/80 bg-white">
-            <p className="text-sm text-slate-600 font-medium">
-              מציג {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, filteredRecords.length)} מתוך {filteredRecords.length} רשומות
-            </p>
-            <div className="flex items-center gap-2 md:gap-3">
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-[10px] h-9 min-w-[36px] border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page === 1}>
+                    paginatedRecords.map((record, idx) =>
+                    <TableRow
+                      key={record.id}
+                      className={`group transition-all duration-150 cursor-pointer`}
+                      onClick={() => onRowClick(record)}>
 
-                 <ChevronRight className="w-4 h-4 ml-1" />
-                 <span className="hidden sm:inline">הקודם</span>
-               </Button>
-               <span className="text-sm font-bold text-slate-700 bg-white border border-slate-200 px-3 py-2 rounded-[10px] whitespace-nowrap">
-                 {page} / {totalPages}
-               </span>
-               <Button
-                 variant="outline"
-                 size="sm"
-                 className="rounded-[10px] h-9 min-w-[36px] border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                 disabled={page === totalPages}>
+                        <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] rounded-r-[14px] group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
+                          {record.apartmentNumber}
+                        </TableCell>
+                        <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
+                          <div className="line-clamp-2 break-words">
+                            {record.ownerName ? (
+                              <>
+                                {record.ownerName.split(/[\/,]/)[0]?.trim() || record.ownerName}
+                                {(record.ownerName.includes('/') || record.ownerName.includes(',')) && (
+                                  <span> (שוכר)</span>
+                                )}
+                              </>
+                            ) : '-'}
+                          </div>
+                        </TableCell>
+                        <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-right group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]" dir="rtl">
+                          {formatPhoneForDisplay(getPhonePrimaryForTable(record))}
+                        </TableCell>
+                        <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-center group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
+                          <span className="font-bold text-[13px] text-[#ff5d8f] tabular-nums">{formatCurrency(record.totalDebt)}</span>
+                        </TableCell>
+                        <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-center group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
+                          <span className="font-bold text-[13px] text-[#8b5cff] tabular-nums">{formatCurrency(record.monthlyDebt)}</span>
+                        </TableCell>
+                        <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-center group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
+                          <span className="font-bold text-[13px] text-[#f5a623] tabular-nums">{formatCurrency(record.specialDebt)}</span>
+                        </TableCell>
 
-                 <span className="hidden sm:inline">הבא</span>
-                 <ChevronLeft className="w-4 h-4 mr-1" />
-               </Button>
-            </div>
-          </div>
-        }
-      </CardContent>
-      </Card>
+                        <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-center group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)] rounded-l-[14px]">
+                          {(() => {
+                          const legalStatus = getLegalStatusForRecord(record);
+
+                          return legalStatus ?
+                          <Badge className={`${legalStatus.color} rounded-full min-w-[74px] inline-flex items-center justify-center px-[10px] h-6 text-[11px] font-bold transition-all duration-200 hover:opacity-80`}>
+                                {legalStatus.name}
+                              </Badge> :
+
+                          <Badge className="bg-[rgba(148,151,175,0.12)] text-[#7581a8] rounded-full min-w-[74px] inline-flex items-center justify-center px-[10px] h-6 text-[11px] font-bold transition-all duration-200">
+                                לא הוגדר
+                              </Badge>;
+
+                        })()}
+                        </TableCell>
+                        <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-center group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]" onClick={(e) => e.stopPropagation()}>
+                           <TableActionsCell
+                             record={record}
+                             isAdmin={isAdmin}
+                             showArchived={showArchived}
+                             archivingRecords={archivingRecords}
+                             onCommentClick={() => setCommentRecord(record)}
+                             onWhatsAppClick={() => setWhatsappRecord(record)}
+                             onArchiveToggle={handleArchiveToggle}
+                           />
+                          </TableCell>
+                        </TableRow>
+                    )
+                    }
+                        </TableBody>
+                        </Table>
+                        </div>
+
+            {totalPages > 1 &&
+              <div className="flex flex-col md:flex-row items-center justify-between gap-3 px-4 md:px-6 py-4 border-t border-slate-200/80 bg-white">
+                <p className="text-sm text-slate-600 font-medium">
+                  מציג {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, filteredRecords.length)} מתוך {filteredRecords.length} רשומות
+                </p>
+                <div className="flex items-center gap-2 md:gap-3">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-[10px] h-9 min-w-[36px] border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    disabled={page === 1}>
+
+                     <ChevronRight className="w-4 h-4 ml-1" />
+                     <span className="hidden sm:inline">הקודם</span>
+                   </Button>
+                   <span className="text-sm font-bold text-slate-700 bg-white border border-slate-200 px-3 py-2 rounded-[10px] whitespace-nowrap">
+                     {page} / {totalPages}
+                   </span>
+                   <Button
+                     variant="outline"
+                     size="sm"
+                     className="rounded-[10px] h-9 min-w-[36px] border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                     disabled={page === totalPages}>
+
+                     <span className="hidden sm:inline">הבא</span>
+                     <ChevronLeft className="w-4 h-4 mr-1" />
+                   </Button>
+                </div>
+              </div>
+            }
+          </CardContent>
+        </Card>
       </div>
-      </TooltipProvider>
-      );
-      }
+    </TooltipProvider>
+  );
+}
