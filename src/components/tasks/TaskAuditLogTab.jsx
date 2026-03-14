@@ -68,10 +68,15 @@ export default function TaskAuditLogTab({ taskId }) {
             </div>
 
             <div className="text-xs">
-              {log.action === "created" ? (
-                <span className="inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
-                  משימה נוצרה
-                </span>
+              {(log.action === "created" || log.action === "attachment_added" || log.action === "attachment_deleted") ? (
+                <div className="flex items-center gap-2">
+                  <span className={`inline-flex items-center px-2 py-0.5 rounded-full font-medium ${(ACTION_LABELS[log.action] || ACTION_LABELS.updated).color}`}>
+                    {(ACTION_LABELS[log.action] || { label: log.action }).label}
+                  </span>
+                  {(log.action === "attachment_added" || log.action === "attachment_deleted") && changes?.file_name && (
+                    <span className="text-slate-500">{changes.file_name}</span>
+                  )}
+                </div>
               ) : (
                 changes && Object.keys(changes).length > 0 ? (
                   <div className="space-y-1">
