@@ -44,8 +44,8 @@ export default function AppModal({
             {/* Close button */}
             <button
               onClick={onHeaderClose || onClose}
-              className="absolute left-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-[14px] border border-white/20 bg-white/10 text-white shadow-sm backdrop-blur-sm transition hover:bg-white/20 z-10"
-            >
+              className="absolute left-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-[14px] border border-white/20 bg-white/10 text-white shadow-sm backdrop-blur-sm transition hover:bg-white/20 z-10">
+
               <X className="h-5 w-5" />
               <span className="sr-only">סגור</span>
             </button>
@@ -54,21 +54,21 @@ export default function AppModal({
             <div className="relative z-10 flex items-start justify-between gap-4">
               <div className="flex-1 text-right">
                 <h2 className="text-[34px] leading-none font-black tracking-[-0.02em] text-white">{title}</h2>
-                {subtitle && (
-                  <p className="mt-2 text-[13px] font-medium text-white/75">{subtitle}</p>
-                )}
+                {subtitle &&
+                <p className="mt-2 text-[13px] font-medium text-white/75">{subtitle}</p>
+                }
               </div>
             </div>
 
             {/* Status pill row */}
-            {statusPill && (
-              <div className="relative z-10 mt-4 flex items-center justify-between gap-3">
-                <span className="text-[13px] font-semibold text-white/80">סטטוס משפטי:</span>
+            {statusPill &&
+            <div className="relative z-10 mt-4 flex items-center justify-between gap-3">
+                
                 <span className="inline-flex h-9 items-center rounded-full bg-[#ff6b63] px-5 text-[13px] font-bold text-white shadow-[0_8px_18px_rgba(255,107,99,0.35)]">
                   {statusPill.text.replace('סטטוס משפטי: ', '')}
                 </span>
               </div>
-            )}
+            }
           </div>
 
           {/* Body - Scrollable */}
@@ -77,15 +77,15 @@ export default function AppModal({
           </div>
 
           {/* Footer */}
-          {footer && (
-            <div className="shrink-0 border-t border-slate-200 bg-[#f8fbff] px-4 py-4">
+          {footer &&
+          <div className="shrink-0 border-t border-slate-200 bg-[#f8fbff] px-4 py-4">
               <div className="flex flex-wrap items-center justify-between gap-3">
                 {footer}
               </div>
             </div>
-          )}
+          }
         </DialogContent>
       </DialogPortal>
-    </Dialog>
-  );
+    </Dialog>);
+
 }
