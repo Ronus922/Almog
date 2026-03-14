@@ -167,55 +167,61 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
     setSaving(true);
     const changer = getChangerInfo();
 
-    if (isEdit) {
-      const updateData = { ...finalForm };
-      if (finalForm.status === "הושלמה" && !task.completed_at) {
-        updateData.completed_at = new Date().toISOString();
-      }
-      await base44.entities.Task.update(task.id, updateData);
-
-      // Build changes diff
-      const changes = {};
-      TRACKED_FIELDS.forEach((field) => {
-        const oldVal = task[field] || "";
-        const newVal = finalForm[field] || "";
-        if (oldVal !== newVal) {
-          changes[field] = { from: oldVal, to: newVal };
+    try {
+      if (isEdit) {
+        const updateData = { ...finalForm };
+        if (finalForm.status === "הושלמה" && !task.completed_at) {
+          updateData.completed_at = new Date().toISOString();
         }
-      });
+        await base44.entities.Task.update(task.id, updateData);
 
-      await base44.entities.TaskAuditLog.create({
-        task_id: task.id,
-        action: "updated",
-        changed_by_username: changer.username,
-        changed_by_name: changer.name,
-        changes: JSON.stringify(changes)
-      });
-    } else {
-      const newTask = await base44.entities.Task.create(finalForm);
-      await base44.entities.TaskAuditLog.create({
-        task_id: newTask.id,
-        action: "created",
-        changed_by_username: changer.username,
-        changed_by_name: changer.name,
-        changes: "{}"
-      });
-      // שליחת התראה לנמען המשימה
-      if (finalForm.assigned_to) {
-        await base44.entities.Notification.create({
-          user_username: finalForm.assigned_to,
-          type: "task_assigned",
-          message: `הוקצתה לך משימה: ${finalForm.task_type}${finalForm.owner_name ? ` – דירה ${finalForm.apartment_number}` : ""}`,
-          task_id: newTask.id,
-          task_type: finalForm.task_type,
-          assigner_name: changer.name || changer.username,
-          is_read: false
+        // Build changes diff
+        const changes = {};
+        TRACKED_FIELDS.forEach((field) => {
+          const oldVal = task[field] || "";
+          const newVal = finalForm[field] || "";
+          if (oldVal !== newVal) {
+            changes[field] = { from: oldVal, to: newVal };
+          }
         });
+
+        await base44.entities.TaskAuditLog.create({
+          task_id: task.id,
+          action: "updated",
+          changed_by_username: changer.username,
+          changed_by_name: changer.name,
+          changes: JSON.stringify(changes)
+        });
+      } else {
+        const newTask = await base44.entities.Task.create(finalForm);
+        await base44.entities.TaskAuditLog.create({
+          task_id: newTask.id,
+          action: "created",
+          changed_by_username: changer.username,
+          changed_by_name: changer.name,
+          changes: "{}"
+        });
+        // שליחת התראה לנמען המשימה
+        if (finalForm.assigned_to) {
+          await base44.entities.Notification.create({
+            user_username: finalForm.assigned_to,
+            type: "task_assigned",
+            message: `הוקצתה לך משימה: ${finalForm.task_type}${finalForm.owner_name ? ` – דירה ${finalForm.apartment_number}` : ""}`,
+            task_id: newTask.id,
+            task_type: finalForm.task_type,
+            assigner_name: changer.name || changer.username,
+            is_read: false
+          });
+        }
       }
+      setSaving(false);
+      onSaved();
+      onClose();
+    } catch (error) {
+      setSaving(false);
+      console.error('Error saving task:', error);
+      alert('שגיאה בשמירת המשימה. אנא נסה שוב.');
     }
-    setSaving(false);
-    onSaved();
-    onClose();
   };
 
   return (

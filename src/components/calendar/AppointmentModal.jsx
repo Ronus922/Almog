@@ -16,17 +16,12 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
     const loadAttendeeNames = async () => {
       try {
         if (appointment.attendees_users?.length > 0) {
-          const users = await base44.entities.AppUser.list();
           const names = {};
           appointment.attendees_users.forEach(attendee => {
-            // Handle both formats: old string IDs and new objects with {id, name, email}
-            const userId = typeof attendee === 'object' ? attendee.id : attendee;
-            const displayName = typeof attendee === 'object' 
-              ? attendee.name 
-              : users.find(u => u.id === userId)?.first_name && users.find(u => u.id === userId)?.last_name
-                ? `${users.find(u => u.id === userId).first_name} ${users.find(u => u.id === userId).last_name}`
-                : users.find(u => u.id === userId)?.username || userId;
-            names[userId] = displayName;
+            // Handle both formats: objects with {id, name, email} or old string IDs
+            if (typeof attendee === 'object' && attendee.id && attendee.name) {
+              names[attendee.id] = attendee.name;
+            }
           });
           setUserNames(names);
         }

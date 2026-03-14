@@ -16,7 +16,13 @@ export default function DayView({
   onDragDrop,
 }) {
   if (!appointments) return null;
-  const dayAppointments = appointments.filter(apt => isSameDay(new Date(apt.event_date), currentDate));
+  const dayAppointments = appointments
+    .filter(apt => isSameDay(new Date(apt.event_date), currentDate))
+    .sort((a, b) => {
+      const aStart = a.start_datetime || '';
+      const bStart = b.start_datetime || '';
+      return aStart.localeCompare(bStart);
+    });
 
   const getAppointmentStyle = (apt) => {
     const [startHour, startMin] = apt.start_datetime.split('T')[1].split(':').map(Number);

@@ -20,7 +20,13 @@ export default function WeekView({
   const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
   const getAppointmentsForDay = (day) => {
-    return appointments.filter(apt => isSameDay(new Date(apt.event_date), day));
+    return appointments
+      .filter(apt => isSameDay(new Date(apt.event_date), day))
+      .sort((a, b) => {
+        const aStart = a.start_datetime || '';
+        const bStart = b.start_datetime || '';
+        return aStart.localeCompare(bStart);
+      });
   };
 
   const getAppointmentStyle = (apt) => {

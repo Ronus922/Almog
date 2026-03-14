@@ -32,7 +32,13 @@ export default function CalendarGrid({
   const weekDays = ['יום א׳', 'יום ב׳', 'יום ג׳', 'יום ד׳', 'יום ה׳', 'יום ו׳', 'שבת'];
 
   const getAppointmentsForDay = (date) => {
-    return appointments.filter((apt) => isSameDay(new Date(apt.date), date));
+    return appointments
+      .filter((apt) => isSameDay(new Date(apt.date), date))
+      .sort((a, b) => {
+        const aStart = a.start_time || '';
+        const bStart = b.start_time || '';
+        return aStart.localeCompare(bStart);
+      });
   };
 
   const isCurrentMonth = (date) => {
