@@ -779,7 +779,7 @@ export default function DebtorsTable({
                       <span className="font-medium text-[14px] text-purple-600 tabular-nums">{formatCurrency(record.specialDebt)}</span>
                     </TableCell>
 
-                    <TableCell className="py-4 px-4 md:px-5 align-middle text-center">
+                    <TableCell className="py-4 px-5 align-middle text-center">
                       {(() => {
                       const legalStatus = getLegalStatusForRecord(record);
 
@@ -794,7 +794,7 @@ export default function DebtorsTable({
 
                     })()}
                     </TableCell>
-                    <TableCell className="py-4 px-4 md:px-5 align-middle text-center" onClick={(e) => e.stopPropagation()}>
+                    <TableCell className="py-4 px-5 align-middle text-center" onClick={(e) => e.stopPropagation()}>
                        <div className="flex items-center justify-center gap-2">
                         <Tooltip>
                           <TooltipTrigger asChild>
