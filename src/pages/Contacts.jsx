@@ -21,7 +21,6 @@ import ContactImportDialog from "@/components/contacts/ContactImportDialog";
 import OperatorManagementDialog from "@/components/contacts/OperatorManagementDialog";
 import { useAlert } from "@/components/notifications/AlertContext";
 import { tableStyles } from '@/components/tables/DataTableStyles';
-import { useState, useMemo } from "react";
 
 export default function Contacts() {
   const queryClient = useQueryClient();
