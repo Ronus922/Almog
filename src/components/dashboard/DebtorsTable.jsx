@@ -847,8 +847,7 @@ export default function DebtorsTable({
         }
       </CardContent>
       </Card>
-    </div>
-    </TooltipProvider>
-  );
-
+      </div>
+      </TooltipProvider>
+      );
       }
