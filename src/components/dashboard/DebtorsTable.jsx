@@ -600,7 +600,7 @@ export default function DebtorsTable({
           <Table className="border-separate border-spacing-y-2 border-spacing-x-0">
             <TableHeader>
               <TableRow className="bg-transparent border-b border-0">
-                <TableHead className="text-right font-semibold text-slate-600 text-[13px] px-4 md:px-5 py-4 cursor-pointer hover:text-slate-800" onClick={() => toggleSort('apartmentNumber')}>
+                <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('apartmentNumber')}>
                   <div className="flex items-center gap-2 justify-end">
                     <ArrowUpDown className={`w-5 h-5 ${sortField === 'apartmentNumber' ? 'text-blue-600' : 'text-slate-400'}`} />
                     מס׳ דירה
