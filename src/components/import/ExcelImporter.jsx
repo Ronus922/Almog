@@ -14,6 +14,13 @@ import * as XLSX from 'xlsx';
 import { useImport } from './ImportContext';
 import { normalizeApartmentNumber } from '../utils/apartmentNormalizer';
 import { toast } from 'sonner';
+import { 
+  buildSafePatch, 
+  isEmpty as isEmptyValue,
+  buildImportPreview,
+  ALLOWED_UPDATE_FIELDS,
+  PROTECTED_FIELDS 
+} from './ImportProtectionRules';
 
 // ═══════════════════════════════════════════════════════════
 // CONSTANTS - LOCKED (אסור לשנות)
@@ -543,65 +550,52 @@ export default function ExcelImporter({ onImportComplete }) {
         };
 
         if (existing) {
-          // UPDATE
-          const patch = {
+          // UPDATE - שימוש בהגנה קשיחה
+          // בנה patch בטוח: רק שדות מורשים, לא לדרוס ערכים קיימים ריקים
+          const excelData = {
             apartmentNumber: apartmentKey,
+            owner_name: ownerNameRaw.split(/[\/,]/)[0]?.trim() || '',
             totalDebt,
             monthlyDebt,
             specialDebt: hotWaterDebt,
             debt_status_auto,
-            detailsMonthly: detailsMonthlyRaw,
-            importedThisRun: true,
-            lastImportRunId: importRunId,
-            lastImportAt: importTimestamp,
-            flaggedAsCleared: false,
-            clearedAt: null
+            detailsMonthly: detailsMonthlyRaw
           };
-
-          // managementMonthsRaw: רק אם ריק (השלמה בלבד)
-          if (isEmpty(existing.managementMonthsRaw) && managementMonthsRaw) {
-            patch.managementMonthsRaw = managementMonthsRaw;
+          
+          // managementMonthsRaw: רק אם ריק
+          if (isEmptyValue(existing.managementMonthsRaw) && managementMonthsRaw) {
+            excelData.managementMonthsRaw = managementMonthsRaw;
           }
           
-          if (ownerNameRaw && ownerNameRaw.trim() !== '') {
-            patch.ownerName = ownerNameRaw.split(/[\/,]/)[0]?.trim() || '';
+          const patch = buildSafePatch(
+            excelData,
+            existing,
+            importRunId,
+            importTimestamp
+          );
+          
+          // הגנה כפולה: אל תכנס לטלפונים, הערות, operator_id וכו'
+          // זה מוגן ב-PROTECTED_FIELDS
+          for (const protectedField of Object.keys(PROTECTED_FIELDS)) {
+            if (protectedField in patch) {
+              console.warn(`[Import Safety] Skipping protected field: ${protectedField}`);
+              delete patch[protectedField];
+            }
           }
           
-          // Phone logic: respect manual override
-          if (existing.phonesManualOverride) {
-            // Don't update phones if manually overridden
-            // Keep existing values
-          } else {
-            // Update phonesRaw only if empty
-            if (isEmpty(existing.phonesRaw) && phonesRaw) {
-              patch.phonesRaw = phonesRaw;
-              patch.phoneOwner = phoneOwner;
-              patch.phoneTenant = phoneTenant;
-              patch.phonePrimary = phonePrimary;
-            }
-          }
-
-          // שמירת שדות קיימים
-          patch.notes = existing.notes;
-          patch.lastContactDate = existing.lastContactDate;
-          patch.nextActionDate = existing.nextActionDate;
-
-          // לוגיקת עדכון סטטוס משפטי:
-          // עדכן רק אם לא נעול ולא דרוס ידנית
-          if (!existing.legal_status_lock && !existing.legal_status_overridden) {
-            if (recommendedLegalStatusId) {
-              patch.legal_status_id = recommendedLegalStatusId;
-              patch.legal_status_updated_at = importTimestamp;
-              patch.legal_status_source = 'IMPORT';
-            }
-          } else {
-            // שמירת ערכים קיימים
+          // שמור סטטוס משפטי אם נעול
+          if (existing.legal_status_lock || existing.legal_status_overridden) {
             patch.legal_status_id = existing.legal_status_id;
             patch.legal_status_overridden = existing.legal_status_overridden;
             patch.legal_status_lock = existing.legal_status_lock;
             patch.legal_status_updated_at = existing.legal_status_updated_at;
             patch.legal_status_updated_by = existing.legal_status_updated_by;
             patch.legal_status_source = existing.legal_status_source;
+          } else if (recommendedLegalStatusId) {
+            // עדכן סטטוס משפטי רק אם לא נעול
+            patch.legal_status_id = recommendedLegalStatusId;
+            patch.legal_status_updated_at = importTimestamp;
+            patch.legal_status_source = 'IMPORT';
           }
           
           updatesQueue.push({ id: existing.id, patch, aptKey: apartmentKey });
