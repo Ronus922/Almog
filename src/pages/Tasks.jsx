@@ -31,13 +31,28 @@ function SortableHeader({ label, field, sortField, sortDir, onSort }) {
 
 }
 
+// פונקציות עזר להשוואת תאריכים לפי יום בלבד
+function getTodayStr() {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function isTodayByDateOnly(dateStr) {
+  if (!dateStr) return false;
+  return dateStr.slice(0,10) === getTodayStr();
+}
+function isOverdueByDateOnly(dateStr) {
+  if (!dateStr) return false;
+  return dateStr.slice(0,10) < getTodayStr();
+}
+
 export default function Tasks() {
   const { currentUser } = useAuth();
   const isAdmin = isManagerRole(currentUser);
   const queryClient = useQueryClient();
 
+  const [activeKpiFilter, setActiveKpiFilter] = useState(null); // null | "open" | "today" | "overdue"
   const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState("פתוחה");
+  const [filterStatus, setFilterStatus] = useState("הכל");
   const [filterPriority, setFilterPriority] = useState("הכל");
   const [filterAssigned, setFilterAssigned] = useState("הכל");
   const [filterDueDate, setFilterDueDate] = useState("");
@@ -47,6 +62,10 @@ export default function Tasks() {
   const [editTask, setEditTask] = useState(null);
   const [sortField, setSortField] = useState("priority");
   const [sortDir, setSortDir] = useState("asc");
+
+  const handleKpiClick = (key) => {
+    setActiveKpiFilter(prev => prev === key ? null : key);
+  };
 
   const handleSort = (field) => {
     if (sortField === field) {
