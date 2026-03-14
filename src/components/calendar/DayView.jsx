@@ -5,21 +5,29 @@ import { isSameDay } from 'date-fns';
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
-export default function DayView({ currentDate, appointments, onDateClick, onAppointmentClick }) {
-  // Placeholder - will be updated to match new design
+export default function DayView({ 
+  currentDate, 
+  appointments, 
+  onDateClick, 
+  onAppointmentClick,
+  draggedAppointment,
+  onDragStart,
+  onDragEnd,
+  onDragDrop,
+}) {
   if (!appointments) return null;
-  const dayAppointments = appointments.filter(apt => isSameDay(new Date(apt.date), currentDate));
+  const dayAppointments = appointments.filter(apt => isSameDay(new Date(apt.event_date), currentDate));
 
   const getAppointmentStyle = (apt) => {
-    const [startHour, startMin] = apt.start_time.split(':').map(Number);
-    const [endHour, endMin] = apt.end_time.split(':').map(Number);
+    const [startHour, startMin] = apt.start_datetime.split('T')[1].split(':').map(Number);
+    const [endHour, endMin] = apt.end_datetime.split('T')[1].split(':').map(Number);
     const startPercent = ((startHour + startMin / 60) / 24) * 100;
     const heightPercent = (((endHour + endMin / 60) - (startHour + startMin / 60)) / 24) * 100;
     
     return {
       top: `${startPercent}%`,
       height: `${Math.max(heightPercent, 3)}%`,
-      backgroundColor: apt.event_color || '#3B82F6',
+      backgroundColor: apt.color_key || '#3B82F6',
     };
   };
 
@@ -57,18 +65,28 @@ export default function DayView({ currentDate, appointments, onDateClick, onAppo
           ))}
 
           {/* Appointments */}
-          {dayAppointments.map((apt) => (
-            <div
-              key={apt.id}
-              className="absolute inset-x-2 p-2 rounded text-white text-sm overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
-              style={getAppointmentStyle(apt)}
-              onClick={() => onAppointmentClick(apt)}
-            >
-              <div className="font-bold truncate">{apt.title}</div>
-              <div className="text-xs opacity-90">{apt.start_time} - {apt.end_time}</div>
-              {apt.location && <div className="text-xs opacity-75 truncate">📍 {apt.location}</div>}
-            </div>
-          ))}
+           {dayAppointments.map((apt) => (
+             <div
+               key={apt.id}
+               draggable={!!onDragDrop}
+               onDragStart={(e) => {
+                 if (onDragStart) onDragStart(e, apt);
+               }}
+               onDragEnd={(e) => {
+                 if (onDragEnd) onDragEnd(e);
+               }}
+               className="absolute inset-x-2 p-2 rounded text-white text-sm overflow-hidden cursor-grab active:cursor-grabbing hover:shadow-lg transition-all hover:opacity-90"
+               style={{
+                 ...getAppointmentStyle(apt),
+                 opacity: draggedAppointment?.id === apt.id ? 0.5 : 1,
+               }}
+               onClick={() => onAppointmentClick(apt)}
+             >
+               <div className="font-bold truncate">{apt.title}</div>
+               <div className="text-xs opacity-90">{apt.start_datetime.split('T')[1].slice(0, 5)} - {apt.end_datetime.split('T')[1].slice(0, 5)}</div>
+               {apt.location && <div className="text-xs opacity-75 truncate">📍 {apt.location}</div>}
+             </div>
+           ))}
         </div>
       </div>
     </div>
