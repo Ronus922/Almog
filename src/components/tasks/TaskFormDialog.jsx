@@ -267,8 +267,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
             task?.assigned_to === currentUser?.username
           }
         />
-        ) :
-
+        ) : (
         <>
             <div className="space-y-4 mt-2 max-h-[60vh] overflow-y-auto px-6 pt-4">
               <div className="grid grid-cols-2 gap-4">
