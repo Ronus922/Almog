@@ -506,7 +506,6 @@ function DashboardContent() {
           settings={settings} />
 
       </div>
-      </div>
     </div>
   );
 }
