@@ -139,13 +139,21 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
   );
 
   const handleUserToggle = useCallback((userId) => {
-    setFormData(prev => ({
-      ...prev,
-      attendees_users: prev.attendees_users.includes(userId)
-        ? prev.attendees_users.filter(u => u !== userId)
-        : [...prev.attendees_users, userId],
-    }));
-  }, []);
+   const user = users.find(u => u.id === userId);
+   setFormData(prev => {
+     const exists = prev.attendees_users.some(u => u.id === userId);
+     return {
+       ...prev,
+       attendees_users: exists
+         ? prev.attendees_users.filter(u => u.id !== userId)
+         : [...prev.attendees_users, {
+             id: userId,
+             name: formatUserLabel(user),
+             email: user.email || ''
+           }],
+     };
+   });
+  }, [users, formatUserLabel]);
 
   const handleContactToggle = useCallback((contactId) => {
     setFormData(prev => ({
@@ -505,7 +513,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
                       dir="rtl"
                     >
                       <Checkbox
-                        checked={formData.attendees_users.includes(user.id)}
+                        checked={formData.attendees_users.some(u => u.id === user.id)}
                         onCheckedChange={() => handleUserToggle(user.id)}
                       />
                       <span className="text-sm text-slate-700">{formatUserLabel(user)}</span>
@@ -522,21 +530,18 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         {/* Selected Users Tags */}
         {formData.attendees_users.length > 0 && (
           <div className="flex flex-wrap gap-2 mt-2 justify-end">
-            {formData.attendees_users.map((userId) => {
-              const user = users.find(u => u.id === userId);
-              return user ? (
-                <div key={userId} className="flex items-center gap-1.5 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200">
-                  <span>{formatUserLabel(user)}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleUserToggle(userId)}
-                    className="text-slate-500 hover:text-slate-700"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              ) : null;
-            })}
+            {formData.attendees_users.map((attendee) => (
+              <div key={attendee.id} className="flex items-center gap-1.5 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200">
+                <span>{attendee.name}</span>
+                <button
+                  type="button"
+                  onClick={() => handleUserToggle(attendee.id)}
+                  className="text-slate-500 hover:text-slate-700"
+                >
+                  <X className="w-3 h-3" />
+                </button>
+              </div>
+            ))}
           </div>
         )}
       </div>

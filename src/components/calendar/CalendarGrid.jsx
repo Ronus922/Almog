@@ -221,8 +221,10 @@ export default function CalendarGrid({
                       {apt.attendees_users?.length > 0 && (
                         <div className="text-slate-700 text-xs">
                           <div className="font-medium mb-1">משתתפים:</div>
-                          {apt.attendees_users.slice(0, 3).map((user, idx) => (
-                            <div key={idx} className="text-slate-600 mr-2">{user}</div>
+                          {apt.attendees_users.slice(0, 3).map((attendee, idx) => (
+                            <div key={idx} className="text-slate-600 mr-2">
+                              {typeof attendee === 'object' ? attendee.name : attendee}
+                            </div>
                           ))}
                           {apt.attendees_users.length > 3 && (
                             <div className="text-slate-600 mr-2 text-xs">ועוד {apt.attendees_users.length - 3}</div>
@@ -268,8 +270,10 @@ export default function CalendarGrid({
                         {apt.attendees_users?.length > 0 && (
                           <div className="text-slate-700 text-xs">
                             <div className="font-medium mb-1">משתתפים:</div>
-                            {apt.attendees_users.slice(0, 3).map((user, idx) => (
-                              <div key={idx} className="text-slate-600 mr-2">{user}</div>
+                            {apt.attendees_users.slice(0, 3).map((attendee, idx) => (
+                              <div key={idx} className="text-slate-600 mr-2">
+                                {typeof attendee === 'object' ? attendee.name : attendee}
+                              </div>
                             ))}
                             {apt.attendees_users.length > 3 && (
                               <div className="text-slate-600 mr-2 text-xs">ועוד {apt.attendees_users.length - 3}</div>
