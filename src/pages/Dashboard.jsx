@@ -7,7 +7,7 @@ import { useAuth } from '@/components/auth/AuthContext';
 import { Button } from "@/components/ui/button";
 import AppButton from "@/components/ui/app-button";
 import { Loader2, Building2, RefreshCw, X, Users, Archive, Download, Printer, FileText } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { Tooltip, TooltipContent, TooltipTrigger, TooltipProvider } from "@/components/ui/tooltip";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { isManagerRole } from '@/components/utils/roles';
 import { toast } from 'sonner';
