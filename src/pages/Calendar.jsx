@@ -14,6 +14,7 @@ import RecurrenceDeleteDialog from '@/components/calendar/RecurrenceDeleteDialog
 import RecurrenceEditDialog from '@/components/calendar/RecurrenceEditDialog';
 import CalendarHeader from '@/components/calendar/CalendarHeader';
 import DateRangePickerDialog from '@/components/calendar/DateRangePickerDialog';
+import CalendarQuickFilters from '@/components/calendar/CalendarQuickFilters';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const HEBREW_HOLIDAYS = [
@@ -57,12 +58,65 @@ export default function Calendar() {
   const [editMode, setEditMode] = useState(null);
   const [showDateRangePicker, setShowDateRangePicker] = useState(false);
   const [customDateRange, setCustomDateRange] = useState(null);
+  const [meetingTypeFilter, setMeetingTypeFilter] = useState('');
+  const [userFilter, setUserFilter] = useState('');
   const queryClient = useQueryClient();
 
-  const { data: appointments = [] } = useQuery({
+  // Persist filters to localStorage
+  React.useEffect(() => {
+    const saved = localStorage.getItem('calendarFilters');
+    if (saved) {
+      const { meetingType, user } = JSON.parse(saved);
+      setMeetingTypeFilter(meetingType || '');
+      setUserFilter(user || '');
+    }
+  }, []);
+
+  const saveFilters = (mt, u) => {
+    localStorage.setItem('calendarFilters', JSON.stringify({
+      meetingType: mt,
+      user: u,
+    }));
+  };
+
+  const { data: appointments = [], isLoading: appointmentsLoading } = useQuery({
     queryKey: ['appointments'],
     queryFn: () => base44.entities.Appointment.list('-date'),
   });
+
+  const { data: calendarEvents = [], isLoading: eventsLoading } = useQuery({
+    queryKey: ['calendarEvents'],
+    queryFn: () => base44.entities.CalendarEvent.list('-event_date'),
+  });
+
+  // Filter appointments and events based on quick filters
+  const filteredAppointments = useMemo(() => {
+    let result = appointments;
+    
+    if (meetingTypeFilter) {
+      result = result.filter(a => a.appointment_type === meetingTypeFilter);
+    }
+    
+    if (userFilter) {
+      result = result.filter(a => a.attendees_users?.includes(userFilter));
+    }
+    
+    return result;
+  }, [appointments, meetingTypeFilter, userFilter]);
+
+  const filteredEvents = useMemo(() => {
+    let result = calendarEvents;
+    
+    if (meetingTypeFilter) {
+      result = result.filter(e => e.meeting_type === meetingTypeFilter);
+    }
+    
+    if (userFilter) {
+      result = result.filter(e => e.owner_user_id === userFilter);
+    }
+    
+    return result;
+  }, [calendarEvents, meetingTypeFilter, userFilter]);
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Appointment.create(data),
@@ -276,6 +330,25 @@ export default function Calendar() {
           </Button>
         </div>
 
+        {/* Quick Filters */}
+        <CalendarQuickFilters
+          meetingTypeFilter={meetingTypeFilter}
+          userFilter={userFilter}
+          onMeetingTypeChange={(type) => {
+            setMeetingTypeFilter(type);
+            saveFilters(type, userFilter);
+          }}
+          onUserChange={(user) => {
+            setUserFilter(user);
+            saveFilters(meetingTypeFilter, user);
+          }}
+          onClearAll={() => {
+            setMeetingTypeFilter('');
+            setUserFilter('');
+            saveFilters('', '');
+          }}
+        />
+
         {/* Calendar Header */}
         <CalendarHeader
           currentDate={currentMonth}
@@ -291,7 +364,7 @@ export default function Calendar() {
           {viewMode === 'month' && (
             <CalendarGrid
               currentMonth={currentMonth}
-              appointments={appointments}
+              appointments={filteredAppointments}
               onDateClick={handleDateClick}
               onAppointmentClick={handleAppointmentClick}
               isHoliday={isHoliday}
@@ -301,7 +374,7 @@ export default function Calendar() {
           {viewMode === 'week' && (
             <WeekView
               currentDate={currentMonth}
-              appointments={appointments}
+              appointments={filteredAppointments}
               onDateClick={handleDateClick}
               onAppointmentClick={handleAppointmentClick}
             />
@@ -309,7 +382,7 @@ export default function Calendar() {
           {viewMode === 'day' && (
             <DayView
               currentDate={currentMonth}
-              appointments={appointments}
+              appointments={filteredAppointments}
               onDateClick={handleDateClick}
               onAppointmentClick={handleAppointmentClick}
             />
