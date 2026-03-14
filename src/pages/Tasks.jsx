@@ -393,7 +393,7 @@ export default function Tasks() {
                     {sorted.map((task) =>
                     <tr
                     key={task.id}
-                    className={`transition-colors cursor-pointer ${isOverdue(task) ? "bg-[#fdecec] hover:bg-[#fbd9d9]" : "hover:bg-blue-50/40"}`}
+                    className={`transition-colors cursor-pointer ${isTaskOverdue(task) ? "bg-[#fdecec] hover:bg-[#fbd9d9]" : "hover:bg-blue-50/40"}`}
                     onClick={() => {setEditTask(task);setShowDialog(true);}}>
 
                         <td className="px-4 py-3">
