@@ -117,6 +117,13 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
     setIsSaving(true);
     await onSave(editedRecord);
+    
+    // עדכן את ה-cache של הדשבורד
+    queryClient.setQueryData(['debtorRecords'], (old) => {
+      if (!old) return old;
+      return old.map((r) => r.id === record.id ? editedRecord : r);
+    });
+    
     setIsSaving(false);
   };
 
@@ -702,7 +709,14 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           </Button>
           <Button
             variant="outline"
-            onClick={onClose}
+            onClick={() => {
+              // עדכן את ה-cache לפני סגירה כדי להצמיד כל שינויים
+              queryClient.setQueryData(['debtorRecords'], (old) => {
+                if (!old) return old;
+                return old.map((r) => r.id === record.id ? editedRecord : r);
+              });
+              onClose();
+            }}
             className="h-10 min-w-[90px] rounded-[14px] border border-slate-200 bg-white px-3 text-[14px] font-bold text-[#243858] shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition hover:bg-slate-50"
           >
             סגור
