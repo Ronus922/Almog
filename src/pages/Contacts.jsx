@@ -232,21 +232,20 @@ export default function Contacts() {
       </Card>
 
       {/* Table */}
-       <Card>
-         <CardContent className={`p-0 ${!isLoading && filtered.length > 0 ? '' : 'overflow-x-auto'}`}>
-           {isLoading ? (
-             <div className={tableStyles.loadingContainer}>
-               <div className={tableStyles.loadingSpinner}></div>
+       <div className={tableStyles.wrapper}>
+         {isLoading ? (
+           <div className={tableStyles.loadingContainer}>
+             <div className={tableStyles.loadingSpinner}></div>
+           </div>
+         ) : filtered.length === 0 ? (
+           <div className={tableStyles.emptyContainer}>
+             <div>
+               <p className="font-medium">אין דירות</p>
+               <p className="text-sm mt-1">הוסף ידנית או ייבא מ-Excel</p>
              </div>
-           ) : filtered.length === 0 ? (
-             <div className={tableStyles.emptyContainer}>
-               <div>
-                 <p className="font-medium">אין דירות</p>
-                 <p className="text-sm mt-1">הוסף ידנית או ייבא מ-Excel</p>
-               </div>
-             </div>
-           ) : (
-             <div className="overflow-x-auto">
+           </div>
+         ) : (
+           <div className="overflow-x-auto">
                <Table>
                  <TableHeader>
                    <TableRow className={tableStyles.headerRow}>
@@ -311,8 +310,7 @@ export default function Contacts() {
                </Table>
              </div>
            )}
-         </CardContent>
-       </Card>
+       </div>
 
       <ContactFormDialog
         open={formOpen}
