@@ -28,7 +28,10 @@ export default function CategorySelect({ value, onChange, onCategoryCreated }) {
     },
   });
 
-  const activeCats = useMemo(() => categories.filter(c => c.is_active), [categories]);
+  const activeCats = useMemo(() => {
+    if (!Array.isArray(categories)) return [];
+    return categories.filter(c => c.is_active);
+  }, [categories]);
 
   const matchedCats = useMemo(() => {
     if (!searchInput.trim()) return activeCats;
