@@ -19,7 +19,7 @@ export default function RecurrenceEditDialog({ isOpen, onClose, onEdit, appointm
 
         <div className="flex flex-col gap-2 px-6 pb-6 border-t border-slate-200">
           <Button
-            onClick={() => onEdit('single')}
+            onClick={() => onEdit('this-only')}
             variant="outline"
             className="w-full justify-center h-10 font-semibold text-slate-900 hover:bg-slate-50"
           >
@@ -28,7 +28,7 @@ export default function RecurrenceEditDialog({ isOpen, onClose, onEdit, appointm
           {!isException && (
             <>
               <Button
-                onClick={() => onEdit('following')}
+                onClick={() => onEdit('this-and-future')}
                 variant="outline"
                 className="w-full justify-center h-10 font-semibold text-slate-900 hover:bg-slate-50"
               >
@@ -37,7 +37,7 @@ export default function RecurrenceEditDialog({ isOpen, onClose, onEdit, appointm
             </>
           )}
           <Button
-            onClick={() => onEdit('all')}
+            onClick={() => onEdit('entire-series')}
             variant="outline"
             className="w-full justify-center h-10 font-semibold text-slate-900 hover:bg-slate-50"
           >
@@ -48,7 +48,7 @@ export default function RecurrenceEditDialog({ isOpen, onClose, onEdit, appointm
             variant="ghost"
             className="w-full justify-center h-10 font-semibold text-slate-600"
           >
-            חזור
+            ביטול
           </Button>
         </div>
       </DialogContent>
