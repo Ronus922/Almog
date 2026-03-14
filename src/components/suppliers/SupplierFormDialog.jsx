@@ -95,7 +95,7 @@ export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
         className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] max-w-lg bg-background shadow-lg border overflow-hidden flex flex-col sm:rounded-lg p-0"
-        style={{ maxWidth: "552px", maxHeight: "85vh", height: "auto", width: "100%" }}
+        style={{ maxWidth: "552px", height: "500px", width: "100%" }}
         dir="rtl" 
         aria-describedby={undefined}
       >
@@ -117,7 +117,7 @@ export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
-          <Tabs defaultValue="documents" className="w-full">
+          <Tabs defaultValue="business" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
               <TabsTrigger value="documents" className="text-sm">פרטים כלליים</TabsTrigger>
               <TabsTrigger value="business" className="text-sm">פרטי העסק</TabsTrigger>
@@ -159,18 +159,6 @@ export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }
               </div>
 
               <div>
-                <Label htmlFor="company_phone" className="text-right block mb-1">טלפון החברה</Label>
-                <Input
-                  id="company_phone"
-                  placeholder="הזן מספר טלפון"
-                  value={form.company_phone}
-                  onChange={(e) => handleChange('company_phone', e.target.value)}
-                  className="h-9 text-right"
-                  dir="rtl"
-                />
-              </div>
-
-              <div>
                 <Label htmlFor="contact_person_name" className="text-right block mb-1">שם איש קשר 1</Label>
                 <Input
                   id="contact_person_name"
@@ -189,6 +177,18 @@ export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }
                   placeholder="הזן מספר טלפון נייד"
                   value={form.contact_mobile_whatsapp}
                   onChange={(e) => handleChange('contact_mobile_whatsapp', e.target.value)}
+                  className="h-9 text-right"
+                  dir="rtl"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="company_phone" className="text-right block mb-1">טלפון במשרד / קווי</Label>
+                <Input
+                  id="company_phone"
+                  placeholder="הזן מספר טלפון קווי"
+                  value={form.company_phone}
+                  onChange={(e) => handleChange('company_phone', e.target.value)}
                   className="h-9 text-right"
                   dir="rtl"
                 />
