@@ -877,11 +877,11 @@ const { useState, useEffect, useMemo } = require('react');
                </Button>
             </div>
           </div>
-          }
-          </CardContent>
-          </Card>
-          </TooltipProvider>
-          </div>
-          );
+        }
+      </CardContent>
+      </Card>
+    </TooltipProvider>
+    </div>
+  );
 
       }
