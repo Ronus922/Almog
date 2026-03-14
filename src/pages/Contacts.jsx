@@ -19,6 +19,7 @@ import ContactFormDialog from "@/components/contacts/ContactFormDialog";
 import SendWhatsAppBulkDialog from "@/components/contacts/SendWhatsAppBulkDialog";
 import ContactImportDialog from "@/components/contacts/ContactImportDialog";
 import { useAlert } from "@/components/notifications/AlertContext";
+import { tableStyles } from '@/components/tables/DataTableStyles';
 
 export default function Contacts() {
   const queryClient = useQueryClient();
@@ -231,37 +232,41 @@ export default function Contacts() {
       </Card>
 
       {/* Table */}
-      <Card>
-        <CardContent className="p-0 overflow-x-auto">
-          {isLoading ? (
-            <div className="text-center py-12 text-slate-400">טוען...</div>
-          ) : filtered.length === 0 ? (
-            <div className="text-center py-16 text-slate-400">
+      <div className={tableStyles.wrapper}>
+        {isLoading ? (
+          <div className={tableStyles.loadingContainer}>
+            <div className={tableStyles.loadingSpinner}></div>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className={tableStyles.emptyContainer}>
+            <div>
               <p className="font-medium">אין דירות</p>
               <p className="text-sm mt-1">הוסף ידנית או ייבא מ-Excel</p>
             </div>
-          ) : (
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="bg-blue-50">
-                  <TableHead className="text-right font-bold text-slate-700">דירה</TableHead>
-                  <TableHead className="text-right font-bold text-slate-700">בעל הדירה</TableHead>
-                  <TableHead className="text-right font-bold text-slate-700 w-32">טלפון בעל</TableHead>
-                  <TableHead className="hidden md:table-cell text-right font-bold text-slate-700">השוכר</TableHead>
-                  <TableHead className="hidden md:table-cell text-right font-bold text-slate-700 w-32">טלפון שוכר</TableHead>
-                  <TableHead className="text-right hidden md:table-cell font-bold text-slate-700">דמי ניהול</TableHead>
-                  <TableHead className="text-center font-bold text-slate-700">פעולות</TableHead>
+                <TableRow className={tableStyles.headerRow}>
+                  <TableHead className={`${tableStyles.headerCell}`}>דירה</TableHead>
+                  <TableHead className={`${tableStyles.headerCell}`}>בעל הדירה</TableHead>
+                  <TableHead className={`${tableStyles.headerCell} w-32`}>טלפון בעל</TableHead>
+                  <TableHead className={`${tableStyles.headerCell} hidden md:table-cell`}>השוכר</TableHead>
+                  <TableHead className={`${tableStyles.headerCell} hidden md:table-cell w-32`}>טלפון שוכר</TableHead>
+                  <TableHead className={`${tableStyles.headerCell} hidden md:table-cell`}>דמי ניהול</TableHead>
+                  <TableHead className={`${tableStyles.headerCell}`}>פעולות</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.map(contact => (
-                   <TableRow key={contact.id} className="group cursor-pointer">
-                     <TableCell className="font-bold text-blue-600 group-hover:bg-blue-100" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.apartment_number}</TableCell>
-                     <TableCell className="text-sm group-hover:bg-blue-100" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.owner_name || "—"}</TableCell>
-                     <TableCell className="text-sm text-right w-32 group-hover:bg-blue-100" dir="ltr" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.owner_phone || "—"}</TableCell>
-                     <TableCell className="hidden md:table-cell text-sm group-hover:bg-blue-100" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.tenant_name || "—"}</TableCell>
-                     <TableCell className="hidden md:table-cell text-sm text-right w-32 group-hover:bg-blue-100" dir="ltr" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.tenant_phone || "—"}</TableCell>
-                     <TableCell className="hidden md:table-cell text-right group-hover:bg-blue-100" onClick={() => {setEditContact(contact); setFormOpen(true);}}>
+                   <TableRow key={contact.id} className={tableStyles.bodyRow} onClick={() => {setEditContact(contact); setFormOpen(true);}}>
+                     <TableCell className={`${tableStyles.bodyCell} font-bold text-blue-600`}>{contact.apartment_number}</TableCell>
+                     <TableCell className={tableStyles.bodyCell}>{contact.owner_name || "—"}</TableCell>
+                     <TableCell className={`${tableStyles.bodyCell} w-32`} dir="ltr">{contact.owner_phone || "—"}</TableCell>
+                     <TableCell className={`${tableStyles.bodyCell} hidden md:table-cell`}>{contact.tenant_name || "—"}</TableCell>
+                     <TableCell className={`${tableStyles.bodyCell} hidden md:table-cell w-32`} dir="ltr">{contact.tenant_phone || "—"}</TableCell>
+                     <TableCell className={`${tableStyles.bodyCell} hidden md:table-cell`}>
                        {contact.management_fees ? (
                          <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
                            ₪{contact.management_fees}
@@ -270,13 +275,14 @@ export default function Contacts() {
                          <span className="text-slate-400 text-sm">—</span>
                        )}
                      </TableCell>
-                     <TableCell className="w-min px-2 group-hover:bg-blue-100">
+                     <TableCell className={tableStyles.bodyCell}>
                        <div className="flex gap-0.5 justify-center">
                          <Button
                            variant="ghost"
                            size="sm"
-                           className="text-green-600 hover:bg-green-50"
-                           onClick={() => {
+                           className={`${tableStyles.actionButton} ${tableStyles.actionButtonGreen}`}
+                           onClick={(e) => {
+                             e.stopPropagation();
                              setSelected([contact.id]);
                              setSendOpen(true);
                            }}
@@ -287,8 +293,11 @@ export default function Contacts() {
                          <Button
                            variant="ghost"
                            size="sm"
-                           className="text-red-500 hover:bg-red-50"
-                           onClick={() => handleDelete(contact)}
+                           className={`${tableStyles.actionButton} ${tableStyles.actionButtonRed}`}
+                           onClick={(e) => {
+                             e.stopPropagation();
+                             handleDelete(contact);
+                           }}
                            title="מחיקה"
                          >
                            <Trash2 className="w-4 h-4" />
@@ -299,9 +308,9 @@ export default function Contacts() {
                  ))}
               </TableBody>
             </Table>
-          )}
-        </CardContent>
-      </Card>
+          </div>
+        )}
+      </div>
 
       <ContactFormDialog
         open={formOpen}
