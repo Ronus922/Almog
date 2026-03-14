@@ -46,7 +46,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
     attachments: [],
   });
 
-  const [openDatePicker, setOpenDatePicker] = useState(false);
+
 
   useEffect(() => {
     const handleEscape = (e) => {
