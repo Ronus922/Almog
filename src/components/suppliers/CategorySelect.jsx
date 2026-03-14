@@ -50,55 +50,29 @@ export default function CategorySelect({ value, onChange, onCategoryCreated }) {
   const selectedCat = activeCats.find(c => c.id === value);
 
   return (
-    <div dir="rtl" className="w-full">
-      <Select value={value || ''} onOpenChange={setIsOpen}>
-        <SelectTrigger className="h-9 text-right border border-slate-200 rounded-lg">
-          <SelectValue placeholder="בחר קטגוריה" />
-        </SelectTrigger>
-        {isOpen && (
-          <SelectContent className="w-full">
-            {matchedCats.map(cat => (
-              <SelectItem key={cat.id} value={cat.id} className="text-right">
-                {cat.name}
-              </SelectItem>
-            ))}
-            {searchInput.trim() && !categoryExists && (
-              <div className="p-2 border-t border-slate-200">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={handleCreateNew}
-                  disabled={createCategoryMutation.isPending}
-                  className="w-full text-right text-xs"
-                >
-                  {createCategoryMutation.isPending ? 'יוצר...' : `צור קטגוריה חדשה: ${searchInput}`}
-                </Button>
-              </div>
-            )}
-          </SelectContent>
-        )}
-      </Select>
-      <input
-        type="text"
-        value={searchInput}
-        onChange={(e) => setSearchInput(e.target.value)}
-        placeholder="חפש או הזן קטגוריה חדשה"
-        className="hidden"
-      />
-      {/* Simple searchable dropdown overlay */}
+    <div dir="rtl" className="w-full relative">
+      <button
+        onClick={() => setIsOpen(!isOpen)}
+        className="h-9 w-full px-3 border border-slate-200 rounded-lg text-right bg-white hover:bg-slate-50 transition flex items-center justify-between text-sm"
+      >
+        <span className="text-slate-600 text-sm">{selectedCat ? selectedCat.name : 'בחר קטגוריה'}</span>
+        <span className="text-slate-400">▼</span>
+      </button>
+
       {isOpen && (
-        <div className="absolute top-full mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg z-50 text-right p-2">
-          <input
-            autoFocus
-            type="text"
-            placeholder="חפש או הזן קטגוריה"
-            value={searchInput}
-            onChange={(e) => setSearchInput(e.target.value)}
-            className="w-full h-8 px-3 border border-slate-200 rounded text-sm mb-2 text-right"
-            dir="rtl"
-          />
-          <div className="max-h-48 overflow-y-auto space-y-1">
+        <div className="absolute top-full mt-1 w-full bg-white border border-slate-200 rounded-lg shadow-lg z-50 text-right">
+          <div className="p-2 border-b border-slate-200">
+            <input
+              autoFocus
+              type="text"
+              placeholder="חפש או הזן קטגוריה"
+              value={searchInput}
+              onChange={(e) => setSearchInput(e.target.value)}
+              className="w-full h-8 px-3 border border-slate-200 rounded text-sm text-right"
+              dir="rtl"
+            />
+          </div>
+          <div className="max-h-48 overflow-y-auto space-y-1 p-2">
             {matchedCats.length === 0 && !searchInput.trim() && (
               <div className="text-slate-500 text-sm p-2">אין קטגוריות</div>
             )}
