@@ -227,17 +227,17 @@ function DashboardContent() {
               </div>
 
               {/* KPI 4 */}
-              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between">
-                <p className="text-[10px] font-bold uppercase text-[#a0aacb]">לגבייה</p>
-                <div>
-                  <p className="text-[32px] font-black leading-none text-[#ff5a9c]">
-                    {records.filter((r) => (r.totalDebt || 0) > 0).length}
-                  </p>
-                  
+              
 
 
-                </div>
-              </div>
+
+
+
+
+
+
+
+
 
               {/* KPI 5 - לגבייה מיידית */}
               <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all" onClick={() => {
