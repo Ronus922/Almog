@@ -136,11 +136,39 @@ export default function Calendar() {
   });
 
   const deleteMutation = useMutation({
-    mutationFn: (id) => base44.entities.Appointment.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['appointments'] });
-      setSelectedAppointment(null);
-    },
+   mutationFn: (id) => base44.entities.Appointment.delete(id),
+   onSuccess: () => {
+     queryClient.invalidateQueries({ queryKey: ['appointments'] });
+     setSelectedAppointment(null);
+   },
+  });
+
+  // Calendar Events Mutations
+  const createEventMutation = useMutation({
+   mutationFn: (data) => base44.entities.CalendarEvent.create(data),
+   onSuccess: () => {
+     queryClient.invalidateQueries({ queryKey: ['calendarEvents'] });
+     setShowForm(false);
+     setSelectedAppointment(null);
+   },
+  });
+
+  const updateEventMutation = useMutation({
+   mutationFn: ({ id, data }) => base44.entities.CalendarEvent.update(id, data),
+   onSuccess: () => {
+     queryClient.invalidateQueries({ queryKey: ['calendarEvents'] });
+     setShowForm(false);
+     setSelectedAppointment(null);
+   },
+  });
+
+  const deleteEventMutation = useMutation({
+   mutationFn: (id) => base44.entities.CalendarEvent.delete(id),
+   onSuccess: () => {
+     queryClient.invalidateQueries({ queryKey: ['calendarEvents'] });
+     setShowDeleteDialog(false);
+     setSelectedAppointment(null);
+   },
   });
 
   const handleNavigate = (direction) => {
