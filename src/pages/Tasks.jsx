@@ -235,14 +235,14 @@ export default function Tasks() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-6" dir="rtl">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div className="page-root" dir="rtl">
+      <div className="page-inner">
 
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="page-header">
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">משימות לטיפול</h1>
-            <p className="text-sm text-slate-500 mt-1">{kpiCounts.open} משימות פתוחות</p>
+            <h1 className="page-title">משימות לטיפול</h1>
+            <p className="page-subtitle">{kpiCounts.open} משימות פתוחות</p>
           </div>
         </div>
 
