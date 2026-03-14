@@ -79,6 +79,7 @@ function LayoutContent({ children, currentPageName }) {
   { name: 'Import', label: 'ייבוא', icon: Upload, adminOnly: true },
   { name: 'Tasks', label: 'משימות', icon: ClipboardList, adminOnly: false },
   { name: 'Calendar', label: 'יומן', icon: ClipboardList, adminOnly: false },
+  { name: 'Documents', label: 'מסמכים', icon: Upload, adminOnly: false },
   { name: 'Contacts', label: 'אנשי קשר', icon: ContactRound, adminOnly: false },
   { name: 'WhatsAppTemplates', label: 'תבניות וואטסאפ', icon: MessageCircle, adminOnly: true },
   { name: 'WhatsAppChat', label: 'צ\'אט וואטסאפ', icon: MessageCircle, adminOnly: false },
