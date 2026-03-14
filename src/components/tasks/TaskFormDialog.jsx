@@ -37,11 +37,12 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
     completion_notes: ""
   });
   const [saving, setSaving] = useState(false);
-  const [activeTab, setActiveTab] = useState("form");
-  
-  const [showUserDropdown, setShowUserDropdown] = useState(false);
-  const [userSearchTerm, setUserSearchTerm] = useState("");
-  const userDropdownRef = useRef(null);
+   const [activeTab, setActiveTab] = useState("form");
+   const [viewedTasks, setViewedTasks] = useState(new Set());
+
+   const [showUserDropdown, setShowUserDropdown] = useState(false);
+   const [userSearchTerm, setUserSearchTerm] = useState("");
+   const userDropdownRef = useRef(null);
 
   const { data: appUsers = [] } = useQuery({
     queryKey: ["appUsers"],
@@ -77,11 +78,12 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
   }, []);
 
   useEffect(() => {
-    if (open) {
-      setActiveTab("form");
-      setShowUserDropdown(false);
-      setUserSearchTerm("");
-      if (isEdit) {
+     if (open) {
+       setActiveTab("form");
+       setShowUserDropdown(false);
+       setUserSearchTerm("");
+       if (isEdit && task?.id) {
+         setViewedTasks(prev => new Set(prev).add(task.id));
         setForm(prev => ({
           ...task,
           task_type: task.task_type || "שיחת טלפון",
