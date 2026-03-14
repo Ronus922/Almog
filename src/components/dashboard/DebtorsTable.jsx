@@ -822,9 +822,9 @@ export default function DebtorsTable({
                           <Tooltip>
                             <TooltipTrigger asChild>
                               <button
-                                onClick={(e) => handleArchiveToggle(record, e)}
-                                disabled={archivingRecords.has(record.id)}
-                                className="inline-flex items-center justify-center text-slate-600 hover:text-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors">
+                                 onClick={(e) => handleArchiveToggle(record, e)}
+                                 disabled={archivingRecords.has(record.id)}
+                                 className="h-8 w-8 rounded-lg flex items-center justify-center text-slate-500 hover:bg-slate-100 disabled:opacity-50 disabled:cursor-not-allowed transition-all">
                                 {showArchived ?
                                   <Undo2 className="w-4 h-4" strokeWidth={2} /> :
                                   <Archive className="w-4 h-4" strokeWidth={2} />
