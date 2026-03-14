@@ -251,7 +251,7 @@ export default function UserManagement() {
                 {users.map((user) => (
                   <TableRow 
                     key={user.id}
-                    className="hover:bg-slate-50 cursor-pointer"
+                    className="sys-table-row"
                     onClick={() => handleEditUser(user)}
                   >
                     <TableCell className="font-medium">
