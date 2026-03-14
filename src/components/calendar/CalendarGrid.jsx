@@ -218,16 +218,21 @@ export default function CalendarGrid({
                         </div>
                       )}
                       
-                      {apt.attendees_users?.length > 0 && (
+                      {(apt.attendees_users?.length > 0 || apt.attendees_contacts?.length > 0) && (
                         <div className="text-slate-700 text-xs">
                           <div className="font-medium mb-1">משתתפים:</div>
-                          {apt.attendees_users.slice(0, 3).map((attendee, idx) => (
-                            <div key={idx} className="text-slate-600 mr-2">
-                              {typeof attendee === 'object' ? attendee.name : attendee}
+                          {apt.attendees_users?.slice(0, 3).map((attendee, idx) => (
+                            <div key={`user-${idx}`} className="text-slate-600 mr-2">
+                              👤 {typeof attendee === 'object' ? attendee.name : attendee}
                             </div>
                           ))}
-                          {apt.attendees_users.length > 3 && (
-                            <div className="text-slate-600 mr-2 text-xs">ועוד {apt.attendees_users.length - 3}</div>
+                          {apt.attendees_contacts?.slice(0, 3).map((contactId, idx) => (
+                            <div key={`contact-${idx}`} className="text-slate-600 mr-2">
+                              🏠 דירה {contactId}
+                            </div>
+                          ))}
+                          {((apt.attendees_users?.length || 0) + (apt.attendees_contacts?.length || 0) > 3) && (
+                            <div className="text-slate-600 mr-2 text-xs">ועוד {((apt.attendees_users?.length || 0) + (apt.attendees_contacts?.length || 0)) - 3}</div>
                           )}
                         </div>
                       )}
@@ -267,16 +272,21 @@ export default function CalendarGrid({
                           </div>
                         )}
                         
-                        {apt.attendees_users?.length > 0 && (
+                        {(apt.attendees_users?.length > 0 || apt.attendees_contacts?.length > 0) && (
                           <div className="text-slate-700 text-xs">
                             <div className="font-medium mb-1">משתתפים:</div>
-                            {apt.attendees_users.slice(0, 3).map((attendee, idx) => (
-                              <div key={idx} className="text-slate-600 mr-2">
-                                {typeof attendee === 'object' ? attendee.name : attendee}
+                            {apt.attendees_users?.slice(0, 3).map((attendee, idx) => (
+                              <div key={`user-${idx}`} className="text-slate-600 mr-2">
+                                👤 {typeof attendee === 'object' ? attendee.name : attendee}
                               </div>
                             ))}
-                            {apt.attendees_users.length > 3 && (
-                              <div className="text-slate-600 mr-2 text-xs">ועוד {apt.attendees_users.length - 3}</div>
+                            {apt.attendees_contacts?.slice(0, 3).map((contactId, idx) => (
+                              <div key={`contact-${idx}`} className="text-slate-600 mr-2">
+                                🏠 דירה {contactId}
+                              </div>
+                            ))}
+                            {((apt.attendees_users?.length || 0) + (apt.attendees_contacts?.length || 0) > 3) && (
+                              <div className="text-slate-600 mr-2 text-xs">ועוד {((apt.attendees_users?.length || 0) + (apt.attendees_contacts?.length || 0)) - 3}</div>
                             )}
                           </div>
                         )}
