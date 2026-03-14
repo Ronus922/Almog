@@ -62,10 +62,6 @@ export default function Tasks() {
   const [sortField, setSortField] = useState("priority");
   const [sortDir, setSortDir] = useState("asc");
 
-  const handleKpiClick = (key) => {
-    setActiveKpiFilter(prev => prev === key ? null : key);
-  };
-
   const handleSort = (field) => {
     if (sortField === field) {
       setSortDir((d) => d === "asc" ? "desc" : "asc");
