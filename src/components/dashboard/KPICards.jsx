@@ -15,20 +15,19 @@ import {
 
 const KPICard = ({ title, value, icon: Icon, color, subtext, onClick, isClickable, bgColor }) => (
   <Card 
-    className={`p-4 md:p-5 bg-white/90 backdrop-blur-sm border border-slate-200/50 shadow-md hover:shadow-xl transition-all duration-300 rounded-2xl group ${isClickable ? 'cursor-pointer hover:scale-105 hover:-translate-y-1 hover:border-blue-300' : 'hover:scale-102'}`}
-    style={{ height: '100px' }}
+    className={`rounded-[22px] border border-white/70 bg-white/85 backdrop-blur-[6px] shadow-[0_12px_30px_rgba(15,23,42,0.08)] px-5 md:px-6 py-4 md:py-5 min-h-[110px] transition-all duration-200 group ${isClickable ? 'cursor-pointer hover:-translate-y-[2px]' : ''}`}
     onClick={onClick}
   >
-    <div className="flex items-center gap-3 md:gap-4 h-full">
-      <div className={`flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm group-hover:shadow-md`} style={bgColor ? { backgroundColor: bgColor } : {}} className={bgColor ? 'flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm group-hover:shadow-md' : `flex-shrink-0 w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center ${color.replace('text-', 'bg-').replace('-600', '-100').replace('-700', '-100')} group-hover:scale-110 transition-transform shadow-sm group-hover:shadow-md`}>
-         <Icon className={`w-6 h-6 md:w-7 md:h-7 ${color}`} />
-      </div>
+    <div className="flex items-center justify-between gap-4 h-full">
       <div className="flex-1 min-w-0">
-        <p className="text-xs md:text-sm text-slate-700 font-bold tracking-tight line-clamp-2 mb-1">{title}</p>
+        <p className="text-[12px] font-medium text-slate-500 mb-2">{title}</p>
         <div className="flex items-baseline gap-2">
-          <p className={`text-lg md:text-2xl font-black ${bgColor ? 'text-[#ff8080]' : color} leading-tight`} title={value}>{value}</p>
-          {subtext && <p className="text-[10px] md:text-xs text-slate-500 font-semibold whitespace-nowrap">{subtext}</p>}
+          <p className={`text-[28px] md:text-[30px] font-[700] leading-none ${bgColor ? 'text-[#ff8080]' : color}`} title={value}>{value}</p>
+          {subtext && <p className="text-[12px] text-slate-500 font-medium whitespace-nowrap">{subtext}</p>}
         </div>
+      </div>
+      <div className={`h-11 w-11 rounded-[14px] flex items-center justify-center flex-shrink-0 ${bgColor ? 'bg-red-100' : `${color.replace('text-', 'bg-').replace('-600', '-100').replace('-700', '-100')}`}`}>
+           <Icon className={`w-6 h-6 ${color}`} />
       </div>
     </div>
   </Card>
