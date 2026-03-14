@@ -269,7 +269,7 @@ export default function DateTimePicker({ value, onChange, placeholder }) {
           {/* body: calendar right | time left */}
           <div style={{ display:"flex", flexDirection:"row", height:280 }}>
             <CalendarPanel selectedDate={internal} onSelectDay={handleSelectDay} />
-            <TimeColumn selectedHour={internal.getHours()} selectedMinute={Math.round(internal.getMinutes() / 10) * 10 % 60} onSelect={handleSelectTime} />
+            <TimeColumn selectedHour={internal.getHours()} selectedMinute={Math.round(internal.getMinutes() / 15) * 15 % 60} onSelect={handleSelectTime} />
           </div>
 
           <DateTimeFooter onConfirm={handleConfirm} />
