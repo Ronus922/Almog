@@ -751,10 +751,10 @@ export default function DebtorsTable({
                   className={`text-[14px] text-slate-700 border-b border-slate-100 hover:bg-[#f5f8ff] transition-all cursor-pointer ${idx % 2 === 0 ? 'bg-white' : 'bg-[#fcfdff]'}`}
                   onClick={() => onRowClick(record)}>
 
-                    <TableCell className="font-semibold text-slate-800 text-[14px] py-4 px-4 md:px-5 align-middle">
+                    <TableCell className="font-semibold text-slate-800 text-[14px] py-4 px-5 align-middle">
                       {record.apartmentNumber}
                     </TableCell>
-                    <TableCell className="text-slate-700 text-[14px] py-4 px-4 md:px-5 align-middle">
+                    <TableCell className="text-slate-700 text-[14px] py-4 px-5 align-middle">
                       <div className="line-clamp-2 break-words">
                         {record.ownerName ? (
                           <>
@@ -766,16 +766,16 @@ export default function DebtorsTable({
                         ) : '-'}
                       </div>
                     </TableCell>
-                    <TableCell className="text-[14px] font-medium text-slate-600 py-4 px-4 md:px-5 align-middle text-right" dir="rtl">
+                    <TableCell className="text-[14px] font-medium text-slate-600 py-4 px-5 align-middle text-right" dir="rtl">
                       {formatPhoneForDisplay(getPhonePrimaryForTable(record))}
                     </TableCell>
-                    <TableCell className="py-4 px-4 md:px-5 align-middle text-center">
+                    <TableCell className="py-4 px-5 align-middle text-center">
                       <span className="font-medium text-[14px] text-rose-600 tabular-nums">{formatCurrency(record.totalDebt)}</span>
                     </TableCell>
-                    <TableCell className="py-4 px-4 md:px-5 align-middle text-center">
+                    <TableCell className="py-4 px-5 align-middle text-center">
                       <span className="font-medium text-[14px] text-amber-600 tabular-nums">{formatCurrency(record.monthlyDebt)}</span>
                     </TableCell>
-                    <TableCell className="py-4 px-4 md:px-5 align-middle text-center">
+                    <TableCell className="py-4 px-5 align-middle text-center">
                       <span className="font-medium text-[14px] text-purple-600 tabular-nums">{formatCurrency(record.specialDebt)}</span>
                     </TableCell>
 
