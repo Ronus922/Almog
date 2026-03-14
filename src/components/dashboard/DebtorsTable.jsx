@@ -784,11 +784,11 @@ export default function DebtorsTable({
                       const legalStatus = getLegalStatusForRecord(record);
 
                       return legalStatus ?
-                      <Badge className={`${legalStatus.color} rounded-full px-3 py-1 text-[12px] font-medium inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 hover:opacity-80`}>
+                      <Badge className={`${legalStatus.color} rounded-full min-w-[74px] inline-flex items-center justify-center px-[10px] h-6 text-[11px] font-bold transition-all duration-200 hover:opacity-80`}>
                             {legalStatus.name}
                           </Badge> :
 
-                      <Badge className="bg-slate-100 text-slate-600 rounded-full px-3 py-1 text-[12px] font-medium inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 hover:opacity-80">
+                      <Badge className="bg-[rgba(148,151,175,0.12)] text-[#7581a8] rounded-full min-w-[74px] inline-flex items-center justify-center px-[10px] h-6 text-[11px] font-bold transition-all duration-200">
                             לא הוגדר
                           </Badge>;
 
