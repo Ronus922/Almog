@@ -389,49 +389,47 @@ function DashboardContent() {
 
         {/* כותרת */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
-          <div className="flex items-center gap-3 md:gap-4">
-            <div>
-              <div className="flex items-center gap-2">
-                <h1 className="text-[30px] md:text-[34px] font-[700] tracking-tight text-slate-800">
-                  שלום, {currentUser.firstName || currentUser.username}
-                </h1>
-                {currentUser?.isBase44Admin &&
-                <span className="text-xs bg-gradient-to-l from-purple-600 to-purple-700 text-white px-2 py-1 rounded-lg font-bold">
-                    Base44 Super Admin
-                  </span>
-                }
-              </div>
-              <p className="text-sm text-slate-500 mt-1">
-                {settings.buildingName || 'דשבורד חייבים'} • {settings.buildingAddress || ''}
-              </p>
+          <div>
+            <div className="flex items-center gap-2 mb-2">
+              <h1 className="text-3xl font-bold text-slate-900">
+                שלום, {currentUser.firstName || currentUser.username}
+              </h1>
+              {currentUser?.isBase44Admin &&
+              <span className="text-xs bg-gradient-to-l from-purple-600 to-purple-700 text-white px-2.5 py-1 rounded-lg font-bold">
+                Base44 Super Admin
+              </span>
+              }
             </div>
+            <p className="text-sm text-slate-500">
+              {settings.buildingName || 'דשבורד חייבים'} • {settings.buildingAddress || ''}
+            </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2 md:gap-3">
+          <div className="flex flex-wrap items-center gap-2">
             {!isAdmin &&
             <div className="text-sm rounded-[12px] border border-slate-200 bg-white px-4 py-2.5 text-slate-600 font-medium shadow-sm">
-                צפייה בלבד
-              </div>
+              צפייה בלבד
+            </div>
             }
             {isAdmin &&
             <>
-                <ExcelExporter records={filteredDataset.length > 0 ? filteredDataset : records} statuses={allStatuses} />
-                <PDFExporter records={filteredDataset.length > 0 ? filteredDataset : records} statuses={allStatuses} settings={settings} />
-                <Button 
-                  variant="outline" 
-                  size="sm"
-                  onClick={() => window.print()}
-                  className="gap-2 h-10 rounded-[12px] px-4 border border-slate-200 hover:bg-slate-50"
-                >
-                  <Printer className="w-4 h-4" />
-                  הדפס
-                </Button>
-              </>
+              <ExcelExporter records={filteredDataset.length > 0 ? filteredDataset : records} statuses={allStatuses} />
+              <PDFExporter records={filteredDataset.length > 0 ? filteredDataset : records} statuses={allStatuses} settings={settings} />
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => window.print()}
+                className="gap-2 h-10 rounded-[12px] px-4 border border-slate-200 hover:bg-slate-50"
+              >
+                <Printer className="w-4 h-4" />
+                הדפס
+              </Button>
+            </>
             }
             <AppButton variant="outline" size="md" icon={RefreshCw} onClick={handleRefresh} className="hover:text-slate-900">
               רענן נתונים
             </AppButton>
-            </div>
-            </div>
+          </div>
+        </div>
 
         {/* כרטיסי KPI - מבוסס על כל הרשומות כולל ארכיון */}
         <KPICards records={allRecords} settings={settings} allStatuses={allStatuses} />
