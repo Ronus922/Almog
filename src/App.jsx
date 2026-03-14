@@ -15,6 +15,7 @@ import WhatsAppTemplates from "./pages/WhatsAppTemplates";
 import Contacts from "./pages/Contacts.jsx";
 import WhatsAppChat from "./pages/WhatsAppChat.jsx";
 import Calendar from "./pages/Calendar.jsx";
+import Documents from "./pages/Documents.jsx";
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
 const MainPage = mainPageKey ? Pages[mainPageKey] : <></>;
@@ -70,6 +71,7 @@ const AuthenticatedApp = () => {
       <Route path="/Contacts" element={<LayoutWrapper currentPageName="Contacts"><Contacts /></LayoutWrapper>} />
       <Route path="/WhatsAppChat" element={<LayoutWrapper currentPageName="WhatsAppChat"><WhatsAppChat /></LayoutWrapper>} />
       <Route path="/Calendar" element={<LayoutWrapper currentPageName="Calendar"><Calendar /></LayoutWrapper>} />
+      <Route path="/Documents" element={<LayoutWrapper currentPageName="Documents"><Documents /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
