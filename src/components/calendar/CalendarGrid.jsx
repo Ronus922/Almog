@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSaturday, isFriday, getDay } from 'date-fns';
 import { he } from 'date-fns/locale';
-import { Repeat2 } from 'lucide-react';
+import { Repeat2, Info } from 'lucide-react';
 
 export default function CalendarGrid({ 
   currentMonth, 
@@ -15,6 +15,7 @@ export default function CalendarGrid({
   onDragStart = null,
   onDragEnd = null,
 }) {
+  const [mobileTooltipId, setMobileTooltipId] = useState(null);
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
 
@@ -206,7 +207,7 @@ export default function CalendarGrid({
                       {apt.location && ` • ${apt.location}`}
                     </div>
 
-                    {/* Tooltip */}
+                        {/* Desktop Tooltip */}
                     <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block bg-slate-900 text-white text-xs p-3 rounded-lg shadow-lg whitespace-normal w-48 z-50 border border-slate-700">
                       <div className="font-bold mb-1">{apt.title}</div>
                       {apt.start_datetime && (
@@ -220,6 +221,34 @@ export default function CalendarGrid({
                         <div className="text-slate-300 text-xs mt-1">👥 {apt.attendees_users.length} משתתפים</div>
                       )}
                     </div>
+
+                    {/* Mobile Info Icon */}
+                    <div 
+                      className="absolute top-1 left-1 md:hidden cursor-pointer"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setMobileTooltipId(mobileTooltipId === apt.id ? null : apt.id);
+                      }}
+                    >
+                      <Info className="w-3 h-3 text-white" />
+                    </div>
+
+                    {/* Mobile Tooltip */}
+                    {mobileTooltipId === apt.id && (
+                      <div className="absolute bottom-full right-0 mb-2 md:hidden bg-slate-900 text-white text-xs p-3 rounded-lg shadow-lg whitespace-normal w-56 z-50 border border-slate-700" dir="rtl">
+                        <div className="font-bold mb-1">{apt.title}</div>
+                        {apt.start_datetime && (
+                          <div className="text-slate-300">
+                            {format(new Date(apt.start_datetime), 'HH:mm')} - {apt.end_datetime && format(new Date(apt.end_datetime), 'HH:mm')}
+                          </div>
+                        )}
+                        {apt.location && <div className="text-slate-300">📍 {apt.location}</div>}
+                        {apt.description && <div className="text-slate-300 mt-1">{apt.description}</div>}
+                        {apt.attendees_users?.length > 0 && (
+                          <div className="text-slate-300 text-xs mt-1">👥 {apt.attendees_users.length} משתתפים</div>
+                        )}
+                      </div>
+                    )}
                   </div>
                 ))}
                 {dayAppointments.length > 2 &&
