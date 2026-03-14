@@ -5,11 +5,10 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import KPICards from '@/components/dashboard/KPICards';
 import DebtorsTable from '@/components/dashboard/DebtorsTable';
 import ApartmentDetailModal from '@/components/dashboard/ApartmentDetailModal';
-import { Users, Archive, X, RefreshCw } from "lucide-react";
+import { Users, Archive, X } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import LastImportIndicator from '@/components/dashboard/LastImportIndicator';
 
@@ -57,7 +56,6 @@ function DashboardContent() {
 
     if (reportKey) {
       setFilterKeyFromUrl(reportKey);
-      // Set display name based on report key
       const displayNames = {
         'IMMEDIATE_COLLECTION': 'לגבייה מיידית',
         'REQUIRES_LEGAL_ACTION': 'חריגה מופרזת',
@@ -105,16 +103,12 @@ function DashboardContent() {
     queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
   };
 
-  const handleRefresh = async () => {
-    await queryClient.refetchQueries({ queryKey: ['debtorRecords'] });
-  };
-
   return (
     <TooltipProvider>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 p-6" dir="rtl">
-        <div className="max-w-full mx-auto">
+        <div className="max-w-full mx-auto space-y-6">
           {/* Header */}
-          <div className="flex flex-col gap-4 mb-8">
+          <div className="flex flex-col gap-4">
             <div>
               <h1 className="text-4xl font-bold text-slate-900">דשבורד חייבים</h1>
               <p className="text-slate-600 mt-2">ניהול וניטור חייבים הישראליים</p>
@@ -126,13 +120,13 @@ function DashboardContent() {
 
           {/* Filter indicators */}
           {filterKeyFromUrl &&
-          <Alert className="rounded-[18px] border border-white/70 bg-white/85 backdrop-blur-[6px] shadow-[0_10px_26px_rgba(15,23,42,0.06)] px-5 md:px-6 py-4 mb-6">
-              <AlertDescription className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-blue-900">מציג:</span>
-                  <span className="text-blue-700">{filterDisplayName}</span>
-                </div>
-                <Button
+          <Alert className="rounded-lg border border-blue-200 bg-blue-50 px-6 py-4">
+            <AlertDescription className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-blue-900">מציג:</span>
+                <span className="text-blue-700">{filterDisplayName}</span>
+              </div>
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => {
@@ -141,22 +135,21 @@ function DashboardContent() {
                   window.history.pushState({}, '', window.location.pathname);
                 }}
                 className="text-blue-700 hover:text-blue-900 hover:bg-blue-100">
-
-                  <X className="w-4 h-4 ml-1" />
-                  נקה פילטר
-                </Button>
-              </AlertDescription>
-            </Alert>
+                <X className="w-4 h-4 ml-1" />
+                נקה פילטר
+              </Button>
+            </AlertDescription>
+          </Alert>
           }
 
           {statusFilterFromUrl && !filterKeyFromUrl &&
-          <Alert className="rounded-[18px] border border-white/70 bg-white/85 backdrop-blur-[6px] shadow-[0_10px_26px_rgba(15,23,42,0.06)] px-5 md:px-6 py-4 mb-6">
-              <AlertDescription className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-blue-900">מסונן לפי סטטוס משפטי:</span>
-                  <span className="text-blue-700">{statusFilterFromUrl}</span>
-                </div>
-                <Button
+          <Alert className="rounded-lg border border-blue-200 bg-blue-50 px-6 py-4">
+            <AlertDescription className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-blue-900">מסונן לפי סטטוס משפטי:</span>
+                <span className="text-blue-700">{statusFilterFromUrl}</span>
+              </div>
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => {
@@ -164,22 +157,21 @@ function DashboardContent() {
                   window.history.pushState({}, '', window.location.pathname);
                 }}
                 className="text-blue-700 hover:text-blue-900 hover:bg-blue-100">
-
-                  <X className="w-4 h-4 ml-1" />
-                  נקה פילטר
-                </Button>
-              </AlertDescription>
-            </Alert>
+                <X className="w-4 h-4 ml-1" />
+                נקה פילטר
+              </Button>
+            </AlertDescription>
+          </Alert>
           }
 
           {autoStatusFilter && !filterKeyFromUrl &&
-          <Alert className="rounded-[18px] border border-white/70 bg-white/85 backdrop-blur-[6px] shadow-[0_10px_26px_rgba(15,23,42,0.06)] px-5 md:px-6 py-4 mb-6">
-              <AlertDescription className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <span className="font-bold text-orange-900">מסונן לפי סטטוס אוטומטי:</span>
-                  <span className="text-orange-700">{autoStatusFilter}</span>
-                </div>
-                <Button
+          <Alert className="rounded-lg border border-orange-200 bg-orange-50 px-6 py-4">
+            <AlertDescription className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <span className="font-bold text-orange-900">מסונן לפי סטטוס אוטומטי:</span>
+                <span className="text-orange-700">{autoStatusFilter}</span>
+              </div>
+              <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => {
@@ -187,20 +179,19 @@ function DashboardContent() {
                   window.history.pushState({}, '', window.location.pathname);
                 }}
                 className="text-orange-700 hover:text-orange-900 hover:bg-orange-100">
-
-                  <X className="w-4 h-4 ml-1" />
-                  נקה פילטר
-                </Button>
-              </AlertDescription>
-            </Alert>
+                <X className="w-4 h-4 ml-1" />
+                נקה פילטר
+              </Button>
+            </AlertDescription>
+          </Alert>
           }
 
           {/* Last Import Indicator */}
           <LastImportIndicator lastImportAt={settings?.last_import_at} isAdmin={isAdmin} />
 
-          {/* Tabs - Debtors / Archive (admin only) */}
+          {/* Tabs */}
           {isAdmin &&
-          <div className="flex gap-2 mb-6">
+          <div className="flex gap-2">
             <button
               onClick={() => setActiveTab('debtors')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
@@ -226,7 +217,7 @@ function DashboardContent() {
           </div>
           }
 
-          {/* Debtors Table */}
+          {/* Tables */}
           {(activeTab === 'debtors' || !isAdmin) &&
           <DebtorsTable
             records={debtorRecords}
@@ -243,16 +234,12 @@ function DashboardContent() {
           />
           }
 
-          {/* Archived Table */}
           {isAdmin && activeTab === 'archived' &&
           <DebtorsTable
             records={archivedRecords}
             onRowClick={handleRowClick}
             isAdmin={isAdmin}
             settings={settings}
-            initialFilterKey={null}
-            initialStatusFilter={null}
-            initialAutoStatusFilter={null}
             allStatuses={allStatuses}
             onFilteredDataChange={setFilteredDataset}
             onRecordUpdate={handleRecordUpdate}
@@ -260,17 +247,18 @@ function DashboardContent() {
           />
           }
 
-        {/* Detail Modal */}
-        <ApartmentDetailModal
-          record={selectedRecord}
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onSave={handleSaveRecord}
-          isAdmin={isAdmin}
-          settings={settings}
-        />
+          {/* Modal */}
+          <ApartmentDetailModal
+            record={selectedRecord}
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSave={handleSaveRecord}
+            isAdmin={isAdmin}
+            settings={settings}
+          />
         </div>
-      </TooltipProvider>
+      </div>
+    </TooltipProvider>
   );
 }
 
