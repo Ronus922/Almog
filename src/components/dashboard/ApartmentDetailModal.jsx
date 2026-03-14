@@ -663,40 +663,47 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       open={isOpen}
       onClose={onClose}
       title={`פרטי דירה ${record.apartmentNumber}`}
-      subtitle={`${record.ownerName || 'ללא שם בעלים'} • ${displayPhone ? `טלפון: ${formatPhone(displayPhone)}` : 'ללא טלפון'}`}
+      subtitle={`${record.ownerName || 'ללא שם בעלים'} • ${displayPhone ? formatPhone(displayPhone) : 'ללא טלפון'}`}
       statusPill={{
-        text: `סטטוס משפטי: ${currentStatusLabel}`,
+        text: currentStatusLabel,
         color: `${currentStatusColor} border`
       }}
       footer={
-      <>
-          <Button variant="outline" onClick={onClose} className="rounded-xl h-11 px-6 font-semibold">
-            <X className="w-5 h-5 ml-2" />
-            סגור
-          </Button>
-          <Button
-          variant="outline"
-          onClick={handlePrint}
-          className="rounded-xl h-11 px-6 font-semibold">
-
-            <Printer className="w-5 h-5 ml-2" />
-            הדפס
-          </Button>
-          <Button
-          variant="outline"
-          onClick={handleExportPDF}
-          disabled={isExporting}
-          className="rounded-xl h-11 px-6 font-semibold">
-
-            <FileDown className="w-5 h-5 ml-2" />
-            {isExporting ? 'מייצא...' : 'יצא ל-PDF'}
-          </Button>
-          {isAdmin &&
-        <Button onClick={handleSave} disabled={isSaving} className="rounded-xl h-11 px-6 font-semibold bg-gradient-to-l from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
-              <Save className="w-5 h-5 ml-2" />
+        <>
+          {isAdmin && (
+            <Button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="h-12 min-w-[180px] rounded-[16px] border-0 bg-[linear-gradient(180deg,#2d6cff_0%,#1f5cf2_100%)] px-6 text-[17px] font-black text-white shadow-[0_14px_28px_rgba(37,99,235,0.35)] transition hover:brightness-[1.04]"
+            >
+              <Save className="mr-2 h-4 w-4" />
               {isSaving ? 'שומר...' : 'שמור שינויים'}
             </Button>
-        }
+          )}
+          <Button
+            variant="outline"
+            onClick={handleExportPDF}
+            disabled={isExporting}
+            className="h-12 min-w-[122px] rounded-[16px] border border-slate-200 bg-white px-5 text-[16px] font-bold text-[#243858] shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition hover:bg-slate-50"
+          >
+            <FileDown className="mr-2 h-4 w-4" />
+            {isExporting ? 'מייצא...' : 'PDF'}
+          </Button>
+          <Button
+            variant="outline"
+            onClick={handlePrint}
+            className="h-12 min-w-[122px] rounded-[16px] border border-slate-200 bg-white px-5 text-[16px] font-bold text-[#243858] shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition hover:bg-slate-50"
+          >
+            <Printer className="mr-2 h-4 w-4" />
+            הדפסה
+          </Button>
+          <Button
+            variant="outline"
+            onClick={onClose}
+            className="h-12 min-w-[122px] rounded-[16px] border border-slate-200 bg-white px-5 text-[16px] font-bold text-[#243858] shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition hover:bg-slate-50"
+          >
+            סגור
+          </Button>
         </>
       }>
 
