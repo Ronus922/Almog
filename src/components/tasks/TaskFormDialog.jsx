@@ -14,6 +14,7 @@ import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { Search, ChevronDown } from "lucide-react";
 import TaskAuditLogTab from "@/components/tasks/TaskAuditLogTab";
+import TaskAttachmentsTab from "@/components/tasks/TaskAttachmentsTab";
 
 const TRACKED_FIELDS = ["task_type", "status", "priority", "due_date", "assigned_to_name", "description", "completion_notes"];
 
