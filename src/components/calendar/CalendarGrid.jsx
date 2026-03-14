@@ -51,7 +51,10 @@ export default function CalendarGrid({
 
   const getAppointmentsForDay = (date) => {
     return appointments
-      .filter((apt) => isSameDay(new Date(apt.date), date))
+      .filter((apt) => {
+        const aptDate = apt.event_date || apt.date;
+        return isSameDay(new Date(aptDate), date);
+      })
       .sort((a, b) => {
         const aStart = a.start_time || '';
         const bStart = b.start_time || '';
