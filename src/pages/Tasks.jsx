@@ -215,7 +215,7 @@ export default function Tasks() {
       if (av > bv) return sortDir === "asc" ? 1 : -1;
       return 0;
     });
-  }, [filtered, sortField, sortDir]);
+  }, [visibleTasks, sortField, sortDir]);
 
 
 
