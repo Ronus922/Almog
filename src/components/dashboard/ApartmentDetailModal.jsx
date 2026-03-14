@@ -676,6 +676,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         text: currentStatusLabel,
         color: `${currentStatusColor} border`
       }}
+      onHeaderClose={onClose}
       footer={
         <>
           {isAdmin && (
