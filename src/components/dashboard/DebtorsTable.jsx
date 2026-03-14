@@ -754,7 +754,7 @@ export default function DebtorsTable({
                     <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] rounded-r-[14px] group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
                       {record.apartmentNumber}
                     </TableCell>
-                    <TableCell className="text-slate-700 text-[14px] py-4 px-5 align-middle">
+                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
                       <div className="line-clamp-2 break-words">
                         {record.ownerName ? (
                           <>
@@ -766,20 +766,20 @@ export default function DebtorsTable({
                         ) : '-'}
                       </div>
                     </TableCell>
-                    <TableCell className="text-[14px] font-medium text-slate-600 py-4 px-5 align-middle text-right" dir="rtl">
+                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-right group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]" dir="rtl">
                       {formatPhoneForDisplay(getPhonePrimaryForTable(record))}
                     </TableCell>
-                    <TableCell className="py-4 px-5 align-middle text-center">
+                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-center group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
                       <span className="font-bold text-[13px] text-[#ff5d8f] tabular-nums">{formatCurrency(record.totalDebt)}</span>
                     </TableCell>
-                    <TableCell className="py-4 px-5 align-middle text-center">
+                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-center group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
                       <span className="font-bold text-[13px] text-[#8b5cff] tabular-nums">{formatCurrency(record.monthlyDebt)}</span>
                     </TableCell>
-                    <TableCell className="py-4 px-5 align-middle text-center">
+                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-center group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
                       <span className="font-bold text-[13px] text-[#f5a623] tabular-nums">{formatCurrency(record.specialDebt)}</span>
                     </TableCell>
 
-                    <TableCell className="py-4 px-5 align-middle text-center">
+                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-center group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)] rounded-l-[14px]">
                       {(() => {
                       const legalStatus = getLegalStatusForRecord(record);
 
