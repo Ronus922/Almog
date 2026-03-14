@@ -869,28 +869,27 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 </div>
               </div>
 
-              <div className="text-right">
-                <Label className="text-sm font-bold text-slate-700 mb-2 block">סטטוס משפטי</Label>
-                <Select
-              value={selectedLegalStatusId}
-              onValueChange={handleLegalStatusChange}
-              disabled={!editedRecord || activeLegalStatuses.length === 0 || savingStatus}>
-
-                  <SelectTrigger className="mt-2 h-12 rounded-xl text-right">
-                    <SelectValue placeholder={activeLegalStatuses.length === 0 ? "אין סטטוסים זמינים" : "בחר סטטוס משפטי"} />
-                  </SelectTrigger>
-                  <SelectContent className="rounded-xl z-[9999]" position="popper">
-                    {activeLegalStatuses.map((status) =>
-                <SelectItem key={status.id} value={String(status.id)}>
-                        <div className="flex items-center gap-2">
-                          <Badge className={`${status.color} text-xs transition-all duration-200 hover:opacity-80`}>
+              <div className="space-y-4 text-right">
+                <div>
+                  <p className="mb-2 text-[14px] font-semibold text-[#7f8ea5]">סטטוס משפטי</p>
+                  <Select
+                    value={selectedLegalStatusId}
+                    onValueChange={handleLegalStatusChange}
+                    disabled={!editedRecord || activeLegalStatuses.length === 0 || savingStatus}
+                  >
+                    <SelectTrigger className="flex min-h-[58px] items-center rounded-[18px] border border-slate-200 bg-[#fbfdff] px-4 shadow-[inset_0_1px_0_rgba(255,255,255,0.65)] h-[58px] text-[16px] font-semibold text-[#223755]">
+                      <SelectValue placeholder={activeLegalStatuses.length === 0 ? "אין סטטוסים זמינים" : "בחר סטטוס משפטי"} />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-xl z-[9999]" position="popper">
+                      {activeLegalStatuses.map((status) => (
+                        <SelectItem key={status.id} value={String(status.id)}>
+                          <div className="inline-flex h-9 items-center rounded-full bg-[#ff6b63] px-4 text-[13px] font-bold text-white shadow-[0_6px_14px_rgba(255,107,99,0.22)]">
                             {status.name}
-                          </Badge>
-                        </div>
-                      </SelectItem>
-                )}
-                  </SelectContent>
-                </Select>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
 
                 {/* סטטוס נוכחי + מידע Audit */}
                 <div className="mt-3 space-y-2">
@@ -936,17 +935,18 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
 
 
-              <div className="text-right">
-                <Label className="text-sm font-bold text-slate-700 mb-2 flex items-center gap-2">
-                  <MessageSquare className="w-4 h-4 text-blue-600" />
-                  הערות ותיעוד
-                </Label>
-                <CommentsSection
-              debtorRecordId={record.id}
-              apartmentNumber={record.apartmentNumber}
-              currentUser={currentUser}
-              isAdmin={isAdmin} />
-
+                <div>
+                  <div className="mb-2 flex items-center gap-2 text-[14px] font-bold text-[#253b5b]">
+                    <MessageSquare className="w-4 h-4" />
+                    הערות ותיעוד
+                  </div>
+                  <CommentsSection
+                    debtorRecordId={record.id}
+                    apartmentNumber={record.apartmentNumber}
+                    currentUser={currentUser}
+                    isAdmin={isAdmin}
+                  />
+                </div>
               </div>
             </div>
         }
