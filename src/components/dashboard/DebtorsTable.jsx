@@ -129,10 +129,6 @@ export default function DebtorsTable({
       );
     }
 
-    if (statusFilter !== 'all') {
-      result = result.filter((r) => r.debt_status_auto === statusFilter);
-    }
-
     if (autoStatusFilter !== 'all') {
       result = result.filter((r) => r.debt_status_auto === autoStatusFilter);
     }
