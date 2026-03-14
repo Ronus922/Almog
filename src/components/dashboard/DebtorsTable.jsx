@@ -14,7 +14,7 @@ import {
   TableHeader,
   TableRow } from
 "@/components/ui/table";
-import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X, Download, FileText, Printer } from "lucide-react";
+import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X, Download, FileText, Printer, MessageCircle, MessageSquare } from "lucide-react";
 import WhatsAppDialog from '../whatsapp/WhatsAppDialog';
 import QuickCommentDialog from './QuickCommentDialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -300,6 +300,30 @@ export default function DebtorsTable({
 
                   </div>
 
+                  {/* Owner Name Search */}
+                  <div className="relative">
+                    <Search className="absolute right-3 top-2.5 w-4 h-4 text-slate-400" />
+                    <Input
+                      placeholder="שם בעלים..."
+                      value={ownerNameFilter}
+                      onChange={(e) => {setOwnerNameFilter(e.target.value);setPage(1);}}
+                      className="pr-10 w-40 h-10 rounded-lg border-slate-300" />
+
+                  </div>
+
+                  {/* Auto Status Filter */}
+                  <Select value={autoStatusFilter} onValueChange={(v) => {setAutoStatusFilter(v);setPage(1);}}>
+                    <SelectTrigger className="w-44 h-10 rounded-lg border-slate-300">
+                      <SelectValue placeholder="כל המצבים" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-lg">
+                      <SelectItem value="all">כל המצבים</SelectItem>
+                      <SelectItem value="תקין">תקין</SelectItem>
+                      <SelectItem value="לגבייה מיידית">לגבייה מיידית</SelectItem>
+                      <SelectItem value="חריגה מופרזת">חריגה מופרזת</SelectItem>
+                    </SelectContent>
+                  </Select>
+
                   {/* Min/Max Debt */}
                   
 
@@ -330,19 +354,8 @@ export default function DebtorsTable({
                     </SelectContent>
                   </Select>
 
-                  {/* Phone Filter */}
-                  <div className="relative">
-                    <Search className="absolute right-3 top-2.5 w-4 h-4 text-slate-400" />
-                    <Input
-                      placeholder="חיפוש טלפון..."
-                      value={phoneFilter}
-                      onChange={(e) => {setPhoneFilter(e.target.value);setPage(1);}}
-                      className="pr-10 w-40 h-10 rounded-lg border-slate-300" />
-
-                  </div>
-
                   {/* Clear Button */}
-                  {(search || apartmentSearch || minDebt || maxDebt || legalStatusFilter !== 'all' || phoneFilter) &&
+                  {(apartmentSearch || ownerNameFilter || autoStatusFilter !== 'all' || minDebt || maxDebt || legalStatusFilter !== 'all') &&
                   <Button
                     variant="ghost"
                     size="sm"
@@ -421,18 +434,22 @@ export default function DebtorsTable({
                     <TableHead className="px-4 py-3 text-right text-sm font-semibold text-slate-700 cursor-pointer hover:bg-slate-100" onClick={() => toggleSort('apartmentNumber')}>
                       מס׳ דירה {sortField === 'apartmentNumber' && <ArrowUpDown className="w-4 h-4 inline ml-1" />}
                     </TableHead>
-                    <TableHead className="px-4 py-3 text-right text-sm font-semibold text-slate-700">שם בעל הדירה</TableHead>
+                    <TableHead className="px-4 py-3 text-right text-sm font-semibold text-slate-700 cursor-pointer hover:bg-slate-100" onClick={() => toggleSort('ownerName')}>
+                      שם בעל הדירה {sortField === 'ownerName' && <ArrowUpDown className="w-4 h-4 inline ml-1" />}
+                    </TableHead>
                     <TableHead className="px-4 py-3 text-right text-sm font-semibold text-slate-700">טלפון</TableHead>
-                    <TableHead className="px-4 py-3 text-center text-sm font-semibold text-slate-700 cursor-pointer hover:bg-slate-100" onClick={() => toggleSort('totalDebt')}>
+                    <TableHead className="px-4 py-3 text-center text-sm font-semibold text-red-600 cursor-pointer hover:bg-slate-100" onClick={() => toggleSort('totalDebt')}>
                       סה״כ חוב {sortField === 'totalDebt' && <ArrowUpDown className="w-4 h-4 inline ml-1" />}
                     </TableHead>
-                    <TableHead className="px-4 py-3 text-center text-sm font-semibold text-slate-700 cursor-pointer hover:bg-slate-100" onClick={() => toggleSort('monthlyDebt')}>
+                    <TableHead className="px-4 py-3 text-center text-sm font-semibold text-orange-600 cursor-pointer hover:bg-slate-100" onClick={() => toggleSort('monthlyDebt')}>
                       דמי ניהול {sortField === 'monthlyDebt' && <ArrowUpDown className="w-4 h-4 inline ml-1" />}
                     </TableHead>
-                    <TableHead className="px-4 py-3 text-center text-sm font-semibold text-slate-700 cursor-pointer hover:bg-slate-100" onClick={() => toggleSort('specialDebt')}>
+                    <TableHead className="px-4 py-3 text-center text-sm font-semibold text-purple-600 cursor-pointer hover:bg-slate-100" onClick={() => toggleSort('specialDebt')}>
                       מים חמים {sortField === 'specialDebt' && <ArrowUpDown className="w-4 h-4 inline ml-1" />}
                     </TableHead>
-                    <TableHead className="px-4 py-3 text-center text-sm font-semibold text-slate-700">מצב משפטי</TableHead>
+                    <TableHead className="px-4 py-3 text-center text-sm font-semibold text-slate-700 cursor-pointer hover:bg-slate-100" onClick={() => toggleSort('legal_status_id')}>
+                      מצב משפטי {sortField === 'legal_status_id' && <ArrowUpDown className="w-4 h-4 inline ml-1" />}
+                    </TableHead>
                     <TableHead className="px-4 py-3 text-center text-sm font-semibold text-slate-700">פעולות</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -449,13 +466,13 @@ export default function DebtorsTable({
                     className="border-b border-slate-200 hover:bg-slate-50 cursor-pointer"
                     onClick={() => onRowClick(record)}>
                        <TableCell className="px-4 py-3 text-sm text-slate-700 font-semibold">{record.apartmentNumber}</TableCell>
-                      <TableCell className="px-4 py-3 text-sm text-slate-700">
-                        {record.ownerName?.split(/[\/,]/)[0]?.trim() || '-'}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-sm text-slate-700">{formatPhoneForDisplay(getPhonePrimaryForTable(record))}</TableCell>
-                      <TableCell className="px-4 py-3 text-sm font-semibold text-slate-900 text-center">{formatCurrency(record.totalDebt)}</TableCell>
-                      <TableCell className="px-4 py-3 text-sm font-semibold text-slate-900 text-center">{formatCurrency(record.monthlyDebt)}</TableCell>
-                      <TableCell className="px-4 py-3 text-sm font-semibold text-slate-900 text-center">{formatCurrency(record.specialDebt)}</TableCell>
+                       <TableCell className="px-4 py-3 text-sm text-slate-700">
+                         {record.ownerName?.split(/[\/,]/)[0]?.trim() || '-'}
+                       </TableCell>
+                       <TableCell className="px-4 py-3 text-sm text-slate-700">{formatPhoneForDisplay(getPhonePrimaryForTable(record))}</TableCell>
+                       <TableCell className="px-4 py-3 text-sm font-semibold text-red-600 text-center">{formatCurrency(record.totalDebt)}</TableCell>
+                       <TableCell className="px-4 py-3 text-sm font-semibold text-orange-600 text-center">{formatCurrency(record.monthlyDebt)}</TableCell>
+                       <TableCell className="px-4 py-3 text-sm font-semibold text-purple-600 text-center">{formatCurrency(record.specialDebt)}</TableCell>
                       <TableCell className="px-4 py-3 text-sm text-center">
                         {(() => {
                         const legalStatus = getLegalStatusForRecord(record);
@@ -469,14 +486,20 @@ export default function DebtorsTable({
                       })()}
                       </TableCell>
                       <TableCell className="px-4 py-3 text-center" onClick={(e) => e.stopPropagation()}>
-                        <TableActionsCell
-                        record={record}
-                        isAdmin={isAdmin}
-                        showArchived={showArchived}
-                        archivingRecords={archivingRecords}
-                        onCommentClick={() => setCommentRecord(record)}
-                        onWhatsAppClick={() => setWhatsappRecord(record)}
-                        onArchiveToggle={handleArchiveToggle} />
+                        <div className="flex items-center justify-center gap-2">
+                          <button
+                            onClick={() => setWhatsappRecord(record)}
+                            className="p-1.5 hover:bg-green-50 rounded-lg transition-colors"
+                            title="שלח הודעת וואטסאפ">
+                            <MessageCircle className="w-4 h-4 text-green-600" />
+                          </button>
+                          <button
+                            onClick={() => setCommentRecord(record)}
+                            className="p-1.5 hover:bg-blue-50 rounded-lg transition-colors"
+                            title="הערות">
+                            <MessageSquare className="w-4 h-4 text-blue-600" />
+                          </button>
+                        </div>
 
                       </TableCell>
                     </TableRow>
