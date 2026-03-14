@@ -74,12 +74,15 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
       <DialogContent className="max-w-lg max-h-[92vh] overflow-hidden flex flex-col rounded-lg" dir="rtl" aria-describedby={undefined}>
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-lg text-white relative">
-          <DialogClose className="absolute left-4 top-4 rounded-lg bg-white/20 hover:bg-white/40 transition-all p-1.5 focus:outline-none">
+          <button
+            onClick={onClose}
+            className="absolute left-4 top-4 rounded-lg bg-white/20 hover:bg-white/40 transition-all p-1.5 focus:outline-none"
+          >
             <X className="h-5 w-5 text-white" />
             <span className="sr-only">סגור</span>
-          </DialogClose>
+          </button>
           <DialogHeader dir="rtl">
-            <DialogTitle className="text-right text-lg font-bold text-white pr-10">{contact ? "עריכת איש קשר" : "איש קשר חדש"}</DialogTitle>
+            <DialogTitle className="text-right text-lg font-bold text-white">{contact ? "עריכת איש קשר" : "איש קשר חדש"}</DialogTitle>
             <DialogDescription className="sr-only">טופס {contact ? "עריכת" : "הוספת"} פרטי איש קשר</DialogDescription>
           </DialogHeader>
         </div>
@@ -93,7 +96,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
               <Input
                 value={form.apartment_number}
                 onChange={e => setForm(f => ({ ...f, apartment_number: e.target.value }))}
-                className="h-9 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className="h-9 px-3 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
                 dir="rtl"
                 disabled={contact !== null}
                 placeholder="הכנס מספר דירה"
@@ -102,7 +105,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
             <div className="space-y-2">
               <Label className="text-right block text-sm font-semibold text-slate-700">איש קשר ראשי</Label>
               <Select value={form.contact_type} onValueChange={v => setForm(f => ({ ...f, contact_type: v }))}>
-                <SelectTrigger className="h-9 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500" dir="rtl">
+                <SelectTrigger className="h-9 px-3 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm" dir="rtl">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -123,7 +126,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
                 <Input
                   value={form.owner_name}
                   onChange={e => setForm(f => ({ ...f, owner_name: e.target.value }))}
-                  className="h-9 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="h-9 px-3 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
                   dir="rtl"
                   placeholder="שם בעל הדירה"
                 />
@@ -133,21 +136,21 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
                 <Input
                   value={form.owner_phone}
                   onChange={e => setForm(f => ({ ...f, owner_phone: e.target.value }))}
-                  className="h-9 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="h-9 px-3 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
                   dir="ltr"
                   placeholder="מספר טלפון"
                 />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-right block text-sm font-semibold text-slate-700">מייל</Label>
-                <Input
-                  value={form.owner_email}
-                  onChange={e => setForm(f => ({ ...f, owner_email: e.target.value }))}
-                  className="h-9 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                  dir="ltr"
-                  type="email"
-                  placeholder="דוא״ל"
-                />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-right block text-sm font-semibold text-slate-700">מייל</Label>
+                  <Input
+                    value={form.owner_email}
+                    onChange={e => setForm(f => ({ ...f, owner_email: e.target.value }))}
+                    className="h-9 px-3 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    dir="ltr"
+                    type="email"
+                    placeholder="דוא״ל"
+                  />
               </div>
             </div>
           </div>
@@ -161,31 +164,31 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
                 <Input
                   value={form.tenant_name}
                   onChange={e => setForm(f => ({ ...f, tenant_name: e.target.value }))}
-                  className="h-9 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="h-9 px-3 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
                   dir="rtl"
                   placeholder="שם השוכר"
                 />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-right block text-sm font-semibold text-slate-700">טלפון</Label>
-                <Input
-                  value={form.tenant_phone}
-                  onChange={e => setForm(f => ({ ...f, tenant_phone: e.target.value }))}
-                  className="h-9 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                  dir="ltr"
-                  placeholder="מספר טלפון"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label className="text-right block text-sm font-semibold text-slate-700">מייל</Label>
-                <Input
-                  value={form.tenant_email}
-                  onChange={e => setForm(f => ({ ...f, tenant_email: e.target.value }))}
-                  className="h-9 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                  dir="ltr"
-                  type="email"
-                  placeholder="דוא״ל"
-                />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-right block text-sm font-semibold text-slate-700">טלפון</Label>
+                  <Input
+                    value={form.tenant_phone}
+                    onChange={e => setForm(f => ({ ...f, tenant_phone: e.target.value }))}
+                    className="h-9 px-3 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    dir="ltr"
+                    placeholder="מספר טלפון"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-right block text-sm font-semibold text-slate-700">מייל</Label>
+                  <Input
+                    value={form.tenant_email}
+                    onChange={e => setForm(f => ({ ...f, tenant_email: e.target.value }))}
+                    className="h-9 px-3 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
+                    dir="ltr"
+                    type="email"
+                    placeholder="דוא״ל"
+                  />
               </div>
             </div>
           </div>
@@ -197,7 +200,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
               <Input
                 value={form.address}
                 onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
-                className="h-9 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                className="h-9 px-3 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
                 dir="rtl"
                 placeholder="כתובת מגורים (אופציונלי)"
               />
@@ -208,7 +211,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
               <Textarea
                 value={form.notes}
                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                className="border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 resize-none"
+                className="px-3 py-2 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 resize-none text-sm"
                 dir="rtl"
                 rows={3}
                 placeholder="הערות נוספות..."
@@ -218,7 +221,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
             <div className="space-y-2">
               <Label className="text-right block text-sm font-semibold text-slate-700">תגיות</Label>
               <div className="flex gap-2 flex-row-reverse">
-                <Button variant="outline" size="icon" onClick={addTag} className="h-9 w-9">
+                <Button variant="outline" size="icon" onClick={addTag} className="h-9 w-9 flex-shrink-0">
                   <Plus className="w-4 h-4" />
                 </Button>
                 <Input
@@ -227,7 +230,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
                   onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addTag())}
                   placeholder="הוסף תגית..."
                   dir="rtl"
-                  className="h-9 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  className="h-9 px-3 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 text-sm"
                 />
               </div>
               {form.tags.length > 0 && (
