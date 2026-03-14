@@ -418,13 +418,13 @@ export default function Tasks() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="sys-table-header-row">
-                      <th className="text-right px-4 py-3 font-semibold text-slate-600 w-10"></th>
+                      <th className="sys-table-header-cell w-10"></th>
                       <SortableHeader label="תיאור המשימה" field="task_type" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                       <SortableHeader label="עובד" field="assigned" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                       <SortableHeader label="תאריך לביצוע" field="due_date" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                       <SortableHeader label="עדיפות" field="priority" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
                       <SortableHeader label="סטטוס" field="status" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
-                      <th className="text-right px-4 py-3 font-semibold text-slate-600">תאריך יצירה</th>
+                      <th className="sys-table-header-cell">תאריך יצירה</th>
                     </tr>
                   </thead>
                   <tbody>
