@@ -22,8 +22,9 @@ export default function AppModal({
       <DialogPortal>
         <DialogOverlay className="fixed inset-0 z-50 bg-slate-900/45 backdrop-blur-[2px]" />
         <DialogContent
-          className="fixed left-1/2 top-1/2 z-50 w-[min(96vw,870px)] h-[92vh] max-h-[920px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[22px] border border-slate-200 bg-[#eef3f8] shadow-[0_30px_80px_rgba(15,23,42,0.24)] flex flex-col p-0 gap-0 [&>button]:hidden"
+          className="fixed left-1/2 top-1/2 z-50 w-[min(96vw,870px)] h-[92vh] max-h-[920px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[22px] border border-slate-200 bg-[#eef3f8] shadow-[0_30px_80px_rgba(15,23,42,0.24)] flex flex-col p-0 gap-0"
           style={{ maxWidth: '672px' }}
+          aria-describedby="modal-description"
           onPointerDownOutside={(e) => {
             if (dangerous) {
               e.preventDefault();
