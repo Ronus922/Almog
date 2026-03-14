@@ -880,8 +880,8 @@ const { useState, useEffect, useMemo } = require('react');
         }
       </CardContent>
       </Card>
-    </TooltipProvider>
     </div>
+    </TooltipProvider>
   );
 
       }
