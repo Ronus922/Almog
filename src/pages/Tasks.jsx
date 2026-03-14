@@ -244,36 +244,43 @@ export default function Tasks() {
           </div>
         </div>
 
-        {/* KPI */}
+        {/* KPI — לחיצה מפעילה activeKpiFilter */}
         <div className="grid grid-cols-3 gap-4">
-          <Card className="border-0 shadow-sm bg-white">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 bg-blue-50 rounded-lg"><ClipboardList className="w-5 h-5 text-blue-600" /></div>
-              <div>
-                <p className="text-2xl font-bold text-slate-800">{kpiCounts.open}</p>
-                <p className="text-xs text-slate-500">משימות פתוחות</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="border-0 shadow-sm bg-white">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 bg-red-50 rounded-lg"><AlertTriangle className="w-5 h-5 text-red-500" /></div>
-              <div>
-                <p className="text-2xl font-bold text-red-600">{kpiCounts.overdue}</p>
-                <p className="text-xs text-slate-500">באיחור</p>
-              </div>
-            </CardContent>
-          </Card>
-          <Card className="border-0 shadow-sm bg-white">
-            <CardContent className="p-4 flex items-center gap-3">
-              <div className="p-2 bg-orange-50 rounded-lg"><Clock className="w-5 h-5 text-orange-500" /></div>
-              <div>
-                <p className="text-2xl font-bold text-orange-600">{kpiCounts.today}</p>
-                <p className="text-xs text-slate-500">ליום זה</p>
-              </div>
-            </CardContent>
-          </Card>
+          {[
+            { key: "open",    count: kpiCounts.open,    label: "משימות פתוחות", icon: <ClipboardList className="w-5 h-5 text-blue-600" />,    iconBg: "bg-blue-50",   activeBg: "bg-blue-50",   activeBorder: "border-blue-500",   countColor: "text-slate-800" },
+            { key: "overdue", count: kpiCounts.overdue, label: "באיחור",         icon: <AlertTriangle className="w-5 h-5 text-red-500" />,      iconBg: "bg-red-50",    activeBg: "bg-red-50",    activeBorder: "border-red-500",    countColor: "text-red-600" },
+            { key: "today",   count: kpiCounts.today,   label: "ליום זה",        icon: <Clock className="w-5 h-5 text-orange-500" />,           iconBg: "bg-orange-50", activeBg: "bg-orange-50", activeBorder: "border-orange-500", countColor: "text-orange-600" },
+          ].map(({ key, count, label, icon, iconBg, activeBg, activeBorder, countColor }) => {
+            const isActive = activeKpiFilter === key;
+            return (
+              <button
+                key={key}
+                onClick={() => handleKpiClick(key)}
+                className={`text-right rounded-xl p-4 flex items-center gap-3 transition-all border-2 shadow-sm bg-white w-full
+                  ${isActive ? `${activeBorder} ${activeBg} shadow-md` : "border-transparent hover:border-slate-200 hover:shadow-md"}`}
+              >
+                <div className={`p-2 rounded-lg ${iconBg}`}>{icon}</div>
+                <div>
+                  <p className={`text-2xl font-bold ${countColor}`}>{count}</p>
+                  <p className="text-xs text-slate-500">{label}</p>
+                </div>
+              </button>
+            );
+          })}
         </div>
+
+        {/* כפתור איפוס סינון KPI */}
+        {activeKpiFilter && (
+          <div className="flex justify-end">
+            <button
+              onClick={() => setActiveKpiFilter(null)}
+              className="flex items-center gap-1.5 text-sm text-slate-500 hover:text-slate-700 border border-slate-200 rounded-lg px-3 py-1.5 bg-white hover:bg-slate-50 transition-all"
+            >
+              <X className="w-3.5 h-3.5" />
+              איפוס סינון
+            </button>
+          </div>
+        )}
 
         {/* Filters */}
         <Card className="border-0 shadow-sm bg-white">
