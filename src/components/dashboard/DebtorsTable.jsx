@@ -760,22 +760,22 @@ export default function DebtorsTable({
                       {formatCurrency(record.specialDebt)}
                     </TableCell>
 
-                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-center shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] rounded-l-[14px] group-hover:-translate-y-px group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]" onClick={(e) => e.stopPropagation()}>
+                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-center shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] group-hover:-translate-y-px group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
                       {(() => {
                       const legalStatus = getLegalStatusForRecord(record);
 
                       return legalStatus ?
-                      <Badge className={`${legalStatus.color} rounded-full px-3 py-1 text-[12px] font-medium inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 hover:opacity-80`}>
+                      <Badge className={`${legalStatus.color} rounded-full px-3 py-1 text-[11px] font-bold inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 hover:opacity-80`}>
                             {legalStatus.name}
                           </Badge> :
 
-                      <Badge className="bg-slate-100 text-slate-600 rounded-full px-3 py-1 text-[12px] font-medium inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 hover:opacity-80">
+                      <Badge className="bg-[rgba(226,232,248,0.96)] text-[#8f99bd] rounded-full px-3 py-1 text-[11px] font-bold inline-flex items-center justify-center whitespace-nowrap transition-all duration-200 hover:opacity-80">
                             לא הוגדר
                           </Badge>;
 
                     })()}
                     </TableCell>
-                    <TableCell className="py-4 px-5 align-middle text-center" onClick={(e) => e.stopPropagation()}>
+                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-center shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] rounded-l-[14px] group-hover:-translate-y-px group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]" onClick={(e) => e.stopPropagation()}>
                        <div className="flex items-center justify-center gap-2">
                         <Tooltip>
                           <TooltipTrigger asChild>
