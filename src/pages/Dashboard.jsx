@@ -186,10 +186,9 @@ function DashboardContent() {
           <p className="text-lg font-semibold text-slate-700">טוען נתונים...</p>
           <p className="text-sm text-slate-500 mt-1">אנא המתן</p>
         </div>
-        </div>
-        </div>);
-
-        }
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen overflow-hidden" dir="rtl" style={{background: 'linear-gradient(180deg,#f8fbff 0%,#f3f7ff 45%,#eef2ff 100%)'}}>
