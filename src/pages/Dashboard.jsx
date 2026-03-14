@@ -269,8 +269,8 @@ function DashboardContent() {
           isAdmin={isAdmin}
           settings={settings}
         />
-      </div>
-    </TooltipProvider>
+        </div>
+      </TooltipProvider>
   );
 }
 
