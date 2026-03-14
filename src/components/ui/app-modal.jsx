@@ -62,11 +62,11 @@ export default function AppModal({
 
             {/* Status pill row */}
             {statusPill &&
-            <div className="relative z-10 mt-4 flex items-center justify-between gap-3">
-                
+            <div className="relative z-10 mt-4 flex items-center justify-end gap-3">
                 <span className="inline-flex h-9 items-center rounded-full bg-[#ff6b63] px-5 text-[13px] font-bold text-white shadow-[0_8px_18px_rgba(255,107,99,0.35)]">
                   {statusPill.text.replace('סטטוס משפטי: ', '')}
                 </span>
+                <span className="text-[13px] font-semibold text-white/80">סטטוס משפטי:</span>
               </div>
             }
           </div>
