@@ -478,7 +478,6 @@ export default function UserManagement() {
           onSave={handleSaveEditedUser}
           existingUsernames={users.map(u => u.username)}
         />
-        </div>
       </div>
     </div>
   );
