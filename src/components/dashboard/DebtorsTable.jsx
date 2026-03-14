@@ -337,9 +337,9 @@ export default function DebtorsTable({
           <span className="text-[12px] font-bold text-[#5f698d]">טבלה</span>
           <span className="text-[11px] font-medium text-[#9aa5c9]">סה״כ: {filteredRecords.length} רשומות</span>
         </div>
-            
-            {/* Mobile filters */}
-            <div className="flex lg:hidden gap-2">
+
+        {/* Mobile filters */}
+        <div className="flex lg:hidden gap-2">
               <div className="relative flex-1">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                 <Input
