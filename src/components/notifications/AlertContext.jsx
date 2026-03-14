@@ -6,8 +6,12 @@ export function AlertProvider({ children }) {
   const [alert, setAlert] = useState(null); // { message, type }
   const [confirm, setConfirm] = useState(null); // { message, onConfirm }
 
-  const showAlert = useCallback((message, type = 'success') => {
-    setAlert({ message, type });
+  const showAlert = useCallback((messageOrObject, type = 'success') => {
+    // תמיכה בשני פורמטים: showAlert('msg', 'type') או showAlert({ message, type })
+    const alertData = typeof messageOrObject === 'string' 
+      ? { message: messageOrObject, type }
+      : messageOrObject;
+    setAlert(alertData);
     const timer = setTimeout(() => setAlert(null), 6000);
     return () => clearTimeout(timer);
   }, []);
