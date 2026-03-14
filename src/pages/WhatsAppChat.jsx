@@ -207,77 +207,64 @@ export default function WhatsAppChat() {
         }
 
         // Step 1: Try GetAvatar (primary method)
-        const chatId = `${primaryPhone.replace(/\D/g, '')}@c.us`;
-        
+        let hasUsefulImage = false;
+        const updateData = {
+          whatsapp_profile_last_synced_at: new Date().toISOString()
+        };
+
         try {
           const avatarResponse = await base44.functions.invoke('getWhatsAppAvatar', {
             phoneNumber: primaryPhone
           });
 
-          const updateData = {
-            whatsapp_profile_last_synced_at: new Date().toISOString()
-          };
-
           if (avatarResponse?.available === true && avatarResponse?.urlAvatar) {
-            // Avatar exists and has URL
+            // Avatar exists and has useful URL
             updateData.whatsapp_profile_image_url = avatarResponse.urlAvatar;
             updateData.whatsapp_profile_sync_status = 'synced';
             updateData.whatsapp_profile_sync_error = null;
-          } else if (avatarResponse?.available === true && !avatarResponse?.urlAvatar) {
-            // Avatar exists but no URL
-            updateData.whatsapp_profile_sync_status = 'no_avatar';
-            updateData.whatsapp_profile_sync_error = null;
-          } else if (avatarResponse?.available === false) {
-            // Avatar not available
-            updateData.whatsapp_profile_sync_status = 'unavailable';
-            updateData.whatsapp_profile_sync_error = null;
+            hasUsefulImage = true;
+          } else {
+            // No useful image from GetAvatar
+            hasUsefulImage = false;
           }
 
-          // Update contact with GetAvatar result
-          await base44.entities.Contact.update(selectedContact.id, updateData);
-          
-          // Invalidate queries to refresh UI
-          queryClient.invalidateQueries({ queryKey: ['contacts'] });
-          queryClient.invalidateQueries({ queryKey: ['chatMessages', selectedContact.id] });
-
         } catch (avatarError) {
-          // Step 2: Fallback to GetContactInfo if GetAvatar fails
-          console.log('[WhatsApp] GetAvatar failed, trying GetContactInfo fallback');
-          
+          console.log('[WhatsApp] GetAvatar error, will try fallback');
+          hasUsefulImage = false;
+        }
+
+        // Step 2: Fallback to GetContactInfo if no useful image from GetAvatar
+        if (!hasUsefulImage) {
           try {
             const contactInfoResponse = await base44.functions.invoke('getWhatsAppContactInfo', {
               phoneNumber: primaryPhone
             });
-
-            const updateData = {
-              whatsapp_profile_last_synced_at: new Date().toISOString()
-            };
 
             if (contactInfoResponse?.avatar) {
               // GetContactInfo has avatar
               updateData.whatsapp_profile_image_url = contactInfoResponse.avatar;
               updateData.whatsapp_profile_sync_status = 'synced';
               updateData.whatsapp_profile_sync_error = null;
-            } else {
-              // GetContactInfo has no avatar
-              updateData.whatsapp_profile_sync_status = 'no_avatar';
-              updateData.whatsapp_profile_sync_error = null;
+              hasUsefulImage = true;
             }
 
-            await base44.entities.Contact.update(selectedContact.id, updateData);
-            queryClient.invalidateQueries({ queryKey: ['contacts'] });
-            queryClient.invalidateQueries({ queryKey: ['chatMessages', selectedContact.id] });
-
           } catch (contactInfoError) {
-            // Both methods failed
-            console.error('[WhatsApp] Both GetAvatar and GetContactInfo failed');
-            await base44.entities.Contact.update(selectedContact.id, {
-              whatsapp_profile_sync_status: 'failed',
-              whatsapp_profile_sync_error: 'סנכרון תמונת פרופיל נכשל',
-              whatsapp_profile_last_synced_at: new Date().toISOString()
-            });
+            console.log('[WhatsApp] GetContactInfo fallback also failed');
           }
         }
+
+        // Set final status if no useful image found
+        if (!hasUsefulImage && !updateData.whatsapp_profile_image_url) {
+          updateData.whatsapp_profile_sync_status = 'no_avatar';
+          updateData.whatsapp_profile_sync_error = null;
+        }
+
+        // Update contact with result
+        await base44.entities.Contact.update(selectedContact.id, updateData);
+        
+        // Invalidate queries to refresh UI
+        queryClient.invalidateQueries({ queryKey: ['contacts'] });
+        queryClient.invalidateQueries({ queryKey: ['chatMessages', selectedContact.id] });
 
       } catch (error) {
         console.error('[WhatsApp] Profile sync error:', error);
