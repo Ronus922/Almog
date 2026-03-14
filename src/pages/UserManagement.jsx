@@ -451,14 +451,15 @@ export default function UserManagement() {
                     setNewUser({ first_name: '', last_name: '', username: '', email: '', password: '', role: 'VIEWER' });
                     setFormError('');
                   }}
-                  className="flex-1 rounded-xl"
+                  className="flex-1 rounded-lg h-10"
                 >
                   ביטול
                 </Button>
                 <Button
                   onClick={handleCreateUser}
                   disabled={createUserMutation.isPending}
-                  className="flex-1 rounded-xl bg-blue-600 hover:bg-blue-700"
+                  className="flex-1 rounded-lg h-10 text-white"
+                  style={{ backgroundColor: 'var(--color-primary)' }}
                 >
                   {createUserMutation.isPending ? 'יוצר...' : 'צור משתמש'}
                 </Button>
