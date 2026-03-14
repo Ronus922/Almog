@@ -427,7 +427,7 @@ export default function Tasks() {
                       <th className="text-right px-4 py-3 font-semibold text-slate-600">תאריך יצירה</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-slate-100">
+                  <tbody>
                     {sorted.map((task) =>
                     <tr
                     key={task.id}
