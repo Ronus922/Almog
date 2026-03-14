@@ -748,10 +748,10 @@ export default function DebtorsTable({
                 paginatedRecords.map((record, idx) =>
                 <TableRow
                   key={record.id}
-                  className={`text-[14px] text-slate-700 border-b border-slate-100 hover:bg-[#f5f8ff] transition-all cursor-pointer ${idx % 2 === 0 ? 'bg-white' : 'bg-[#fcfdff]'}`}
+                  className={`group transition-all duration-150 cursor-pointer`}
                   onClick={() => onRowClick(record)}>
 
-                    <TableCell className="font-semibold text-slate-800 text-[14px] py-4 px-5 align-middle">
+                    <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] rounded-r-[14px] group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
                       {record.apartmentNumber}
                     </TableCell>
                     <TableCell className="text-slate-700 text-[14px] py-4 px-5 align-middle">
