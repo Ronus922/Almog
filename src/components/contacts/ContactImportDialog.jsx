@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { base44 } from "@/api/base44Client";
@@ -226,13 +226,14 @@ export default function ContactImportDialog({ open, onClose, onImported }) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl" dir="rtl">
-        <DialogHeader className="border-b pb-4">
-          <DialogTitle className="flex items-center gap-2 text-xl">
-            <FileUp className="w-5 h-5 text-blue-600" />
-            יובאו דוחות חייבים מאקסל
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="max-w-2xl" dir="rtl" aria-describedby={undefined}>
+         <DialogHeader className="border-b pb-4">
+           <DialogTitle className="flex items-center gap-2 text-xl">
+             <FileUp className="w-5 h-5 text-blue-600" />
+             יובאו דוחות חייבים מאקסל
+           </DialogTitle>
+           <DialogDescription className="sr-only">יובא רשימת אנשי קשר מקובץ Excel</DialogDescription>
+         </DialogHeader>
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-12 px-6">
