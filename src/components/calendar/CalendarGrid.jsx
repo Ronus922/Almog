@@ -4,7 +4,18 @@ import { he } from 'date-fns/locale';
 import { Repeat2 } from 'lucide-react';
 import React from 'react';
 
-export default function CalendarGrid({ currentMonth, appointments, onDateClick, onAppointmentClick, isHoliday, getHolidayName }) {
+export default function CalendarGrid({ 
+  currentMonth, 
+  appointments, 
+  onDateClick, 
+  onAppointmentClick, 
+  isHoliday, 
+  getHolidayName,
+  onDragDrop = null,
+  draggedAppointment = null,
+  onDragStart = null,
+  onDragEnd = null,
+}) {
   const monthStart = startOfMonth(currentMonth);
   const monthEnd = endOfMonth(currentMonth);
 
@@ -110,6 +121,22 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
             <div
               key={idx}
               className={getDayStyles(date)}
+              draggable={false}
+              onDragOver={(e) => {
+                e.preventDefault();
+                if (draggedAppointment && onDragDrop) {
+                  e.currentTarget.classList.add('bg-blue-100');
+                }
+              }}
+              onDragLeave={(e) => {
+                e.currentTarget.classList.remove('bg-blue-100');
+              }}
+              onDrop={(e) => {
+                e.currentTarget.classList.remove('bg-blue-100');
+                if (draggedAppointment && onDragDrop) {
+                  onDragDrop(e, date);
+                }
+              }}
               onClick={() => {
                 if (!isPast) {
                   onDateClick(date);
@@ -145,10 +172,22 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
                 {dayAppointments.slice(0, 2).map((apt) => (
                   <div
                     key={apt.id}
-                    className="text-xs p-2 rounded text-white cursor-pointer hover:shadow-lg transition-shadow font-medium border border-opacity-20 border-white flex flex-col gap-0.5 group relative"
+                    draggable={!isPast && !!onDragDrop}
+                    onDragStart={(e) => {
+                      if (onDragStart) {
+                        onDragStart(e, apt);
+                      }
+                    }}
+                    onDragEnd={(e) => {
+                      if (onDragEnd) {
+                        onDragEnd(e);
+                      }
+                    }}
+                    className="text-xs p-2 rounded text-white cursor-pointer hover:shadow-lg transition-all font-medium border border-opacity-20 border-white flex flex-col gap-0.5 group relative"
                     style={{
                       backgroundColor: apt.event_color || '#3B82F6',
-                      opacity: isPast ? 0.6 : 1
+                      opacity: draggedAppointment?.id === apt.id ? 0.5 : isPast ? 0.6 : 1,
+                      cursor: !isPast && onDragDrop ? 'grab' : 'pointer',
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
