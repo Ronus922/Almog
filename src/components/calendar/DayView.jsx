@@ -15,12 +15,30 @@ export default function DayView({
   onDragEnd,
   onDragDrop,
 }) {
-  if (!appointments) return null;
+  if (!appointments || appointments.length === 0) {
+    return (
+      <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden p-8 text-center">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-slate-200 rounded-t-lg text-center mb-6">
+          <div className="text-sm font-semibold text-slate-600">
+            {format(currentDate, 'EEEE', { locale: he })}
+          </div>
+          <div className="text-2xl font-bold text-slate-900">
+            {format(currentDate, 'd MMMM yyyy', { locale: he })}
+          </div>
+        </div>
+        <p className="text-slate-500 font-medium">אין אירועים בתאריך זה</p>
+      </div>
+    );
+  }
+  
   const dayAppointments = appointments
-    .filter(apt => isSameDay(new Date(apt.event_date), currentDate))
+    .filter(apt => {
+      const aptDate = apt.event_date || apt.date;
+      return isSameDay(new Date(aptDate), currentDate);
+    })
     .sort((a, b) => {
-      const aStart = a.start_datetime || '';
-      const bStart = b.start_datetime || '';
+      const aStart = a.start_time || a.start_datetime || '';
+      const bStart = b.start_time || b.start_datetime || '';
       return aStart.localeCompare(bStart);
     });
 
