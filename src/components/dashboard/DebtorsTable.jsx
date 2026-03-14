@@ -794,8 +794,8 @@ export default function DebtorsTable({
 
                     })()}
                     </TableCell>
-                    <TableCell className="py-6 px-2 align-middle text-center" onClick={(e) => e.stopPropagation()}>
-                      <div className="flex items-center justify-center gap-2">
+                    <TableCell className="py-4 px-4 md:px-5 align-middle text-center" onClick={(e) => e.stopPropagation()}>
+                       <div className="flex items-center justify-center gap-2">
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <button
