@@ -2,7 +2,6 @@ import React from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSaturday, isFriday, getDay } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Repeat2 } from 'lucide-react';
-import React from 'react';
 
 export default function CalendarGrid({ 
   currentMonth, 
