@@ -282,53 +282,56 @@ export default function DebtorsTable({
             isAdmin={isAdmin}
           />
         )}
-        <Card className="rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
-          <CardHeader className="bg-slate-50 border-b border-slate-200 p-6">
-            <div className="flex flex-col gap-4">
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div>
-                  <CardTitle className="text-2xl font-bold text-slate-800">טבלת חייבים</CardTitle>
-                  <p className="text-sm text-slate-600 mt-1">
-                    סה״כ {filteredRecords.length} רשומות
-                  </p>
-                </div>
+        <Card className="rounded-xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+          {/* TOOLBAR HEADER */}
+          <div className="min-h-[58px] flex flex-col md:flex-row md:items-center md:justify-between md:gap-3 px-[18px] py-2 bg-gradient-to-b from-[rgba(252,253,255,0.98)] to-[rgba(246,248,255,0.98)] border-b border-[rgba(231,236,248,0.96)]">
+            {/* Title */}
+            <div className="hidden md:flex flex-col gap-0.5">
+              <p className="text-[12px] font-bold text-[#5f698d]">טבלת חייבים</p>
+              <p className="text-[11px] font-medium text-[#9aa5c9]">סה״כ {filteredRecords.length} רשומות</p>
+            </div>
 
-                {/* Search and Filters */}
-                <div className="hidden lg:flex flex-wrap items-center gap-3">
-                  <div className="relative">
-                    <Search className="absolute right-3 top-2.5 w-4 h-4 text-slate-400" />
-                    <Input
-                      placeholder="מספר דירה..."
-                      value={apartmentSearch}
-                      onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
-                      className="pr-10 w-40 h-10 rounded-lg border-slate-300"
-                    />
-                  </div>
-
-                  <Select value={statusFilter} onValueChange={(v) => {setStatusFilter(v);setPage(1);}}>
-                    <SelectTrigger className="w-44 h-10 rounded-lg border-slate-300">
-                      <SelectValue placeholder="כל הסטטוסים" />
-                    </SelectTrigger>
-                    <SelectContent className="rounded-lg">
-                      <SelectItem value="all">כל הסטטוסים</SelectItem>
-                      <SelectItem value="תקין">תקין</SelectItem>
-                      <SelectItem value="לגבייה מיידית">לגבייה מיידית</SelectItem>
-                      <SelectItem value="חריגה מופרזת">חריגה מופרזת</SelectItem>
-                    </SelectContent>
-                  </Select>
-
-                  {(statusFilter !== 'all' || search || apartmentSearch) &&
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={clearFilters}
-                      className="h-10">
-                      <X className="w-4 h-4 ml-1" />
-                      נקה
-                    </Button>
-                  }
-                </div>
+            {/* Filters Wrapper */}
+            <div className="hidden lg:flex items-center gap-2 flex-wrap">
+              {/* Apartment Search */}
+              <div className="relative">
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#a2abc8]" />
+                <Input
+                  placeholder="מספר דירה..."
+                  value={apartmentSearch}
+                  onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
+                  className="pr-9 w-28 h-[34px] text-[12px] rounded-[10px] border border-[rgba(224,230,246,0.96)] bg-white text-[#687395] placeholder-[#a2abc8] font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] focus:border-[#cfd8ff] outline-none"
+                />
               </div>
+
+              {/* Status Filter */}
+              <Select value={statusFilter} onValueChange={(v) => {setStatusFilter(v);setPage(1);}}>
+                <SelectTrigger className="w-28 h-[34px] text-[12px] rounded-[10px] border border-[rgba(224,230,246,0.96)] bg-white text-[#687395] font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.9)]">
+                  <SelectValue placeholder="סטטוס" />
+                </SelectTrigger>
+                <SelectContent className="rounded-[10px]">
+                  <SelectItem value="all">כל הסטטוסים</SelectItem>
+                  <SelectItem value="תקין">תקין</SelectItem>
+                  <SelectItem value="לגבייה מיידית">לגבייה מיידית</SelectItem>
+                  <SelectItem value="חריגה מופרזת">חריגה מופרזת</SelectItem>
+                </SelectContent>
+              </Select>
+
+              {/* Clear Button */}
+              {(statusFilter !== 'all' || search || apartmentSearch) &&
+                <button
+                  onClick={clearFilters}
+                  className="h-[34px] px-3 rounded-[10px] border border-[rgba(224,230,246,0.96)] bg-white text-[#687395] font-semibold text-[12px] hover:bg-[#f8f9fb] transition-colors">
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              }
+            </div>
+          </div>
+
+          {/* TABLE HEADER - DESKTOP ONLY */}
+          <CardHeader className="hidden lg:block bg-white border-b border-[rgba(231,236,248,0.96)] p-0">
+            <div className="flex items-center justify-between px-6 py-4">
+              <div></div>
             </div>
           </CardHeader>
 
