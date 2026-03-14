@@ -255,7 +255,7 @@ export default function DateTimePicker({ value, onChange, placeholder }) {
         <div
           style={{
             position:"absolute", top:"calc(100% + 6px)", right:0, zIndex:9999,
-            width:480, maxWidth:480, background:"#fff",
+            width:400, maxWidth:400, background:"#fff",
             borderRadius:10, border:"1px solid #e2e8f0",
             boxShadow:"0 8px 24px rgba(0,0,0,0.10), 0 2px 6px rgba(0,0,0,0.06)",
             overflow:"hidden",
