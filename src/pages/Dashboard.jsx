@@ -191,7 +191,7 @@ function DashboardContent() {
               <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between">
                 <p className="text-[10px] font-bold uppercase letter-spacing text-[#a0aacb]">סה״כ חוב</p>
                 <div>
-                  <p className="text-[32px] font-black leading-none text-[#2bc9a8]">
+                  <p className="text-[18px] font-black leading-none text-[#1d5bbd]" style={{ fontSize: '18px', fontWeight: 800, color: '#1d5bbd' }}>
                     {new Intl.NumberFormat('he-IL', { notation: 'compact', maximumFractionDigits: 0 }).format(records.reduce((sum, r) => sum + (r.totalDebt || 0), 0))}
                   </p>
                   
@@ -204,7 +204,7 @@ function DashboardContent() {
               <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between">
                 <p className="text-[10px] font-bold uppercase text-[#a0aacb]">דמי ניהול</p>
                 <div>
-                  <p className="text-[32px] font-black leading-none text-[#6270ff]">
+                  <p className="text-[18px] font-black leading-none text-[#1d5bbd]" style={{ fontSize: '18px', fontWeight: 800, color: '#1d5bbd' }}>
                     {new Intl.NumberFormat('he-IL', { notation: 'compact', maximumFractionDigits: 0 }).format(records.reduce((sum, r) => sum + (r.monthlyDebt || 0), 0))}
                   </p>
                   
@@ -217,7 +217,7 @@ function DashboardContent() {
               <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between">
                 <p className="text-[10px] font-bold uppercase text-[#a0aacb]">מים חמים</p>
                 <div>
-                  <p className="text-[32px] font-black leading-none text-[#f5a623]">
+                  <p className="text-[18px] font-black leading-none text-[#1d5bbd]" style={{ fontSize: '18px', fontWeight: 800, color: '#1d5bbd' }}>
                     {new Intl.NumberFormat('he-IL', { notation: 'compact', maximumFractionDigits: 0 }).format(records.reduce((sum, r) => sum + (r.specialDebt || 0), 0))}
                   </p>
                   
@@ -247,7 +247,7 @@ function DashboardContent() {
               }}>
                 <p className="text-[10px] font-bold uppercase text-[#a0aacb]">לגבייה מיידית</p>
                 <div>
-                  <p className="text-[32px] font-black leading-none text-[#ff7a5c]">
+                  <p className="text-[18px] font-black leading-none text-[#1d5bbd]" style={{ fontSize: '18px', fontWeight: 800, color: '#1d5bbd' }}>
                     {records.filter((r) => r.debt_status_auto === 'לגבייה מיידית').length}
                   </p>
                   
@@ -264,7 +264,7 @@ function DashboardContent() {
               }}>
                 <p className="text-[10px] font-bold uppercase text-[#a0aacb]">חריגה מופרזת</p>
                 <div>
-                  <p className="text-[32px] font-black leading-none text-[#ff3b3b]">
+                  <p className="text-[18px] font-black leading-none text-[#1d5bbd]" style={{ fontSize: '18px', fontWeight: 800, color: '#1d5bbd' }}>
                     {records.filter((r) => r.debt_status_auto === 'חריגה מופרזת').length}
                   </p>
                   
@@ -281,7 +281,7 @@ function DashboardContent() {
               }}>
                 <p className="text-[10px] font-bold uppercase text-[#a0aacb]">מכתבי התראה</p>
                 <div>
-                  <p className="text-[32px] font-black leading-none text-[#ffa500]">
+                  <p className="text-[18px] font-black leading-none text-[#1d5bbd]" style={{ fontSize: '18px', fontWeight: 800, color: '#1d5bbd' }}>
                     {allStatuses.find((s) => s.type === 'LEGAL' && s.name === 'מכתב התראה') ? records.filter((r) => r.legal_status_id === allStatuses.find((s) => s.type === 'LEGAL' && s.name === 'מכתב התראה')?.id).length : 0}
                   </p>
                   
@@ -301,7 +301,7 @@ function DashboardContent() {
               }}>
                 <p className="text-[10px] font-bold uppercase text-[#a0aacb]">לטיפול משפטי</p>
                 <div>
-                  <p className="text-[32px] font-black leading-none text-[#5b6cff]">
+                  <p className="text-[18px] font-black leading-none text-[#1d5bbd]" style={{ fontSize: '18px', fontWeight: 800, color: '#1d5bbd' }}>
                     {records.filter((r) => !r.legal_status_id && r.debt_status_auto === 'חריגה מופרזת').length}
                   </p>
                   
@@ -318,7 +318,7 @@ function DashboardContent() {
               }}>
                 <p className="text-[10px] font-bold uppercase text-[#a0aacb]">בהליך משפטי</p>
                 <div>
-                  <p className="text-[32px] font-black leading-none text-[#2bc9a8]">
+                  <p className="text-[18px] font-black leading-none text-[#1d5bbd]" style={{ fontSize: '18px', fontWeight: 800, color: '#1d5bbd' }}>
                     {allStatuses.find((s) => s.type === 'LEGAL' && s.name === 'תביעה משפטית') ? records.filter((r) => r.legal_status_id === allStatuses.find((s) => s.type === 'LEGAL' && s.name === 'תביעה משפטית')?.id).length : 0}
                   </p>
                   
