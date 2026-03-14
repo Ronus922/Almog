@@ -184,6 +184,29 @@ export default function Calendar() {
     setSelectedAppointment(appointment);
   };
 
+  const handleSaveEvent = async (formData) => {
+    try {
+      if (selectedAppointment?.id) {
+        // Update existing
+        await updateEventMutation.mutateAsync({
+          id: selectedAppointment.id,
+          data: formData,
+        });
+      } else {
+        // Create new
+        await createEventMutation.mutateAsync(formData);
+      }
+    } catch (error) {
+      console.error('Failed to save event:', error);
+    }
+  };
+
+  const handleDeleteEvent = async () => {
+    if (selectedAppointment?.id) {
+      await deleteEventMutation.mutateAsync(selectedAppointment.id);
+    }
+  };
+
   const handleSaveAppointment = async (data) => {
     if (selectedAppointment) {
       if (selectedAppointment.series_id) {
