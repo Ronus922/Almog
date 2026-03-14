@@ -562,7 +562,8 @@ export default function DebtorsTable({
         </div>
       </CardHeader>
 
-      <CardContent className="p-0">
+      {/* Table Content */}
+      <div className="p-0">
         {/* Mobile Card View */}
         <div className="block lg:hidden p-4 space-y-3">
           {paginatedRecords.length === 0 ?
