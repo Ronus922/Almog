@@ -117,13 +117,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
     setIsSaving(true);
     await onSave(editedRecord);
-    
-    // עדכן את ה-cache של הדשבורד
-    queryClient.setQueryData(['debtorRecords'], (old) => {
-      if (!old) return old;
-      return old.map((r) => r.id === record.id ? editedRecord : r);
-    });
-    
+    queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
     setIsSaving(false);
   };
 
@@ -158,6 +152,9 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
     // Server update
     await base44.entities.DebtorRecord.update(record.id, updatePayload);
+
+    // רענן את ה-cache מהשרת
+    queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
 
     showAlert(`${fieldName === 'phoneOwner' ? 'טלפון בעלים' : fieldName === 'phoneTenant' ? 'טלפון שוכר' : fieldName === 'phonePrimary' ? 'טלפון להצגה' : 'שדה'} עודכן בהצלחה`, 'success');
   };
@@ -710,11 +707,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           <Button
             variant="outline"
             onClick={() => {
-              // עדכן את ה-cache לפני סגירה כדי להצמיד כל שינויים
-              queryClient.setQueryData(['debtorRecords'], (old) => {
-                if (!old) return old;
-                return old.map((r) => r.id === record.id ? editedRecord : r);
-              });
+              queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
               onClose();
             }}
             className="h-10 min-w-[90px] rounded-[14px] border border-slate-200 bg-white px-3 text-[14px] font-bold text-[#243858] shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition hover:bg-slate-50"
@@ -960,14 +953,14 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                       <SelectValue placeholder={activeLegalStatuses.length === 0 ? "אין סטטוסים זמינים" : "בחר סטטוס משפטי"} />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl z-[9999]" position="popper">
-                      {activeLegalStatuses.map((status) => (
-                        <SelectItem key={status.id} value={String(status.id)}>
-                          <div className="inline-flex h-9 items-center rounded-full bg-[#ff6b63] px-4 text-[13px] font-bold text-white shadow-[0_6px_14px_rgba(255,107,99,0.22)]">
-                            {status.name}
-                          </div>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
+                       {activeLegalStatuses.map((status) => (
+                         <SelectItem key={status.id} value={String(status.id)}>
+                           <span className={`inline-flex items-center rounded-full px-3 py-0.5 text-[12px] font-semibold ${status.color || 'bg-slate-100 text-slate-700'}`}>
+                             {status.name}
+                           </span>
+                         </SelectItem>
+                       ))}
+                     </SelectContent>
                   </Select>
 
                 {/* סטטוס נוכחי + מידע Audit */}
