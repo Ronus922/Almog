@@ -691,7 +691,7 @@ function DashboardContent() {
               settings={settings} />
               </div>
               </TooltipProvider>
-            );
+              );
 }
 
 export default function Dashboard() {
