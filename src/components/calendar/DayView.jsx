@@ -43,15 +43,18 @@ export default function DayView({
     });
 
   const getAppointmentStyle = (apt) => {
-    const [startHour, startMin] = apt.start_datetime.split('T')[1].split(':').map(Number);
-    const [endHour, endMin] = apt.end_datetime.split('T')[1].split(':').map(Number);
+    const startTime = apt.start_time || apt.start_datetime?.split('T')[1] || '10:00';
+    const endTime = apt.end_time || apt.end_datetime?.split('T')[1] || '11:00';
+    
+    const [startHour, startMin] = startTime.split(':').map(Number);
+    const [endHour, endMin] = endTime.split(':').map(Number);
     const startPercent = ((startHour + startMin / 60) / 24) * 100;
     const heightPercent = (((endHour + endMin / 60) - (startHour + startMin / 60)) / 24) * 100;
     
     return {
       top: `${startPercent}%`,
       height: `${Math.max(heightPercent, 3)}%`,
-      backgroundColor: apt.color_key || '#3B82F6',
+      backgroundColor: apt.event_color || '#3B82F6',
     };
   };
 
