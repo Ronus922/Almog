@@ -10,26 +10,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { X } from 'lucide-react';
+import CategorySelect from './CategorySelect';
+import DocumentUploadSection from './DocumentUploadSection';
 
 export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }) {
   const [form, setForm] = useState({
-    supplier_name: '',
-    occupation_description: '',
+    company_name: '',
+    category_id: '',
+    company_phone: '',
     contact_person_name: '',
-    phone: '',
-    whatsapp_phone: '',
+    contact_mobile_whatsapp: '',
     email: '',
-    address: '',
-    notes: '',
-    status: 'active',
+    full_address: '',
+    business_description: '',
   });
 
   const [errors, setErrors] = useState({});
@@ -39,15 +34,14 @@ export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }
       setForm(supplier);
     } else {
       setForm({
-        supplier_name: '',
-        occupation_description: '',
+        company_name: '',
+        category_id: '',
+        company_phone: '',
         contact_person_name: '',
-        phone: '',
-        whatsapp_phone: '',
+        contact_mobile_whatsapp: '',
         email: '',
-        address: '',
-        notes: '',
-        status: 'active',
+        full_address: '',
+        business_description: '',
       });
     }
     setErrors({});
@@ -72,12 +66,12 @@ export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }
   const validate = () => {
     const newErrors = {};
 
-    if (!form.supplier_name.trim()) {
-      newErrors.supplier_name = 'שם הספק חובה';
+    if (!form.company_name.trim()) {
+      newErrors.company_name = 'שם החברה חובה';
     }
 
-    if (!form.occupation_description.trim()) {
-      newErrors.occupation_description = 'תיאור העיסוק חובה';
+    if (!form.category_id) {
+      newErrors.category_id = 'קטגוריה חובה';
     }
 
     if (form.email && !validateEmail(form.email)) {
@@ -101,12 +95,18 @@ export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
         className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] max-w-lg bg-background shadow-lg border overflow-hidden flex flex-col sm:rounded-lg p-0"
-        style={{ maxWidth: "552px", maxHeight: "820px", height: "92vh", width: "100%" }}
+        style={{ maxWidth: "552px", maxHeight: "85vh", height: "auto", width: "100%" }}
         dir="rtl" 
         aria-describedby={undefined}
       >
         {/* Header */}
         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 flex-shrink-0">
+          <button
+            onClick={onClose}
+            className="absolute left-4 top-4 rounded-lg bg-white/20 hover:bg-white/40 p-1.5 focus:outline-none transition-colors"
+          >
+            <X className="h-5 w-5 text-white" />
+          </button>
           <DialogTitle className="text-white text-lg font-bold">
             {supplier ? 'עדכן ספק' : 'ספק חדש'}
           </DialogTitle>
@@ -117,70 +117,50 @@ export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
-          <Tabs defaultValue="occupation" className="w-full">
+          <Tabs defaultValue="general" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="occupation" className="text-sm">פרטי עיסוק</TabsTrigger>
-              <TabsTrigger value="contact" className="text-sm">יצירת קשר</TabsTrigger>
+              <TabsTrigger value="general" className="text-sm">פרטים כלליים</TabsTrigger>
+              <TabsTrigger value="business" className="text-sm">פרטי העסק</TabsTrigger>
             </TabsList>
 
-            {/* Tab 1: פרטי עיסוק */}
-            <TabsContent value="occupation" className="space-y-4">
+            {/* Tab 1: פרטים כלליים */}
+            <TabsContent value="general" className="space-y-4">
               <div>
-                <Label htmlFor="supplier_name" className="text-right block mb-1">שם ספק *</Label>
+                <Label htmlFor="company_name" className="text-right block mb-1">שם החברה *</Label>
                 <Input
-                  id="supplier_name"
-                  placeholder="הזן שם ספק"
-                  value={form.supplier_name}
-                  onChange={(e) => handleChange('supplier_name', e.target.value)}
-                  className={`h-9 text-right ${errors.supplier_name ? 'border-red-500' : ''}`}
+                  id="company_name"
+                  placeholder="הזן שם חברה"
+                  value={form.company_name}
+                  onChange={(e) => handleChange('company_name', e.target.value)}
+                  className={`h-9 text-right ${errors.company_name ? 'border-red-500' : ''}`}
                   dir="rtl"
                 />
-                {errors.supplier_name && <span className="text-red-500 text-xs mt-1 block">{errors.supplier_name}</span>}
+                {errors.company_name && <span className="text-red-500 text-xs mt-1 block">{errors.company_name}</span>}
               </div>
 
               <div>
-                <Label htmlFor="occupation_description" className="text-right block mb-1">תיאור עיסוק *</Label>
-                <Textarea
-                  id="occupation_description"
-                  placeholder="תאר את שירות/עיסוק הספק"
-                  value={form.occupation_description}
-                  onChange={(e) => handleChange('occupation_description', e.target.value)}
-                  className={`h-24 text-right resize-none ${errors.occupation_description ? 'border-red-500' : ''}`}
-                  dir="rtl"
+                <Label htmlFor="category_id" className="text-right block mb-1">קטגוריה *</Label>
+                <CategorySelect
+                  value={form.category_id}
+                  onChange={(value) => handleChange('category_id', value)}
                 />
-                {errors.occupation_description && <span className="text-red-500 text-xs mt-1 block">{errors.occupation_description}</span>}
+                {errors.category_id && <span className="text-red-500 text-xs mt-1 block">{errors.category_id}</span>}
               </div>
 
               <div>
-                <Label htmlFor="status" className="text-right block mb-1">סטטוס</Label>
-                <Select value={form.status} onValueChange={(value) => handleChange('status', value)}>
-                  <SelectTrigger className="h-9 text-right">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="active">פעיל</SelectItem>
-                    <SelectItem value="inactive">לא פעיל</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
-                <Label htmlFor="notes" className="text-right block mb-1">הערות</Label>
-                <Textarea
-                  id="notes"
-                  placeholder="הערות כלליות"
-                  value={form.notes}
-                  onChange={(e) => handleChange('notes', e.target.value)}
-                  className="h-20 text-right resize-none"
+                <Label htmlFor="company_phone" className="text-right block mb-1">טלפון החברה</Label>
+                <Input
+                  id="company_phone"
+                  placeholder="הזן מספר טלפון"
+                  value={form.company_phone}
+                  onChange={(e) => handleChange('company_phone', e.target.value)}
+                  className="h-9 text-right"
                   dir="rtl"
                 />
               </div>
-            </TabsContent>
 
-            {/* Tab 2: יצירת קשר */}
-            <TabsContent value="contact" className="space-y-4">
               <div>
-                <Label htmlFor="contact_person_name" className="text-right block mb-1">איש קשר</Label>
+                <Label htmlFor="contact_person_name" className="text-right block mb-1">שם איש קשר</Label>
                 <Input
                   id="contact_person_name"
                   placeholder="שם איש קשר"
@@ -192,24 +172,12 @@ export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }
               </div>
 
               <div>
-                <Label htmlFor="phone" className="text-right block mb-1">טלפון</Label>
+                <Label htmlFor="contact_mobile_whatsapp" className="text-right block mb-1">טלפון נייד / וואטסאפ</Label>
                 <Input
-                  id="phone"
-                  placeholder="הזן מספר טלפון"
-                  value={form.phone}
-                  onChange={(e) => handleChange('phone', e.target.value)}
-                  className="h-9 text-right"
-                  dir="rtl"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="whatsapp_phone" className="text-right block mb-1">וואטסאפ</Label>
-                <Input
-                  id="whatsapp_phone"
-                  placeholder="הזן מספר וואטסאפ"
-                  value={form.whatsapp_phone}
-                  onChange={(e) => handleChange('whatsapp_phone', e.target.value)}
+                  id="contact_mobile_whatsapp"
+                  placeholder="הזן מספר טלפון נייד"
+                  value={form.contact_mobile_whatsapp}
+                  onChange={(e) => handleChange('contact_mobile_whatsapp', e.target.value)}
                   className="h-9 text-right"
                   dir="rtl"
                 />
@@ -228,18 +196,46 @@ export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }
                 />
                 {errors.email && <span className="text-red-500 text-xs mt-1 block">{errors.email}</span>}
               </div>
+            </TabsContent>
 
+            {/* Tab 2: פרטי העסק */}
+            <TabsContent value="business" className="space-y-4">
               <div>
-                <Label htmlFor="address" className="text-right block mb-1">כתובת</Label>
+                <Label htmlFor="full_address" className="text-right block mb-1">כתובת מלאה</Label>
                 <Input
-                  id="address"
+                  id="full_address"
                   placeholder="הזן כתובת"
-                  value={form.address}
-                  onChange={(e) => handleChange('address', e.target.value)}
+                  value={form.full_address}
+                  onChange={(e) => handleChange('full_address', e.target.value)}
                   className="h-9 text-right"
                   dir="rtl"
                 />
               </div>
+
+              <div>
+                <Label htmlFor="business_description" className="text-right block mb-1">תיאור העסק</Label>
+                <Textarea
+                  id="business_description"
+                  placeholder="תאר את העסק וההיצע"
+                  value={form.business_description}
+                  onChange={(e) => handleChange('business_description', e.target.value)}
+                  className="h-24 text-right resize-none"
+                  dir="rtl"
+                />
+              </div>
+
+              {/* Documents Section */}
+              {supplier?.id && (
+                <div className="border-t border-slate-100 pt-4 mt-6">
+                  <Label className="text-right block mb-3 font-semibold">מסמכים וקבצים</Label>
+                  <DocumentUploadSection supplierId={supplier.id} />
+                </div>
+              )}
+              {!supplier && (
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700 text-right">
+                  שמור את הספק תחילה כדי להעלות מסמכים
+                </div>
+              )}
             </TabsContent>
           </Tabs>
         </div>
@@ -251,7 +247,7 @@ export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }
           </Button>
           <Button
             onClick={handleSave}
-            disabled={!form.supplier_name || !form.occupation_description}
+            disabled={!form.company_name || !form.category_id}
             className="h-9 bg-[#3563d0] text-white px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90"
           >
             {supplier ? 'שמור שינויים' : 'הוסף ספק'}
