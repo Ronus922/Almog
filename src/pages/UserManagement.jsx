@@ -211,41 +211,40 @@ export default function UserManagement() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50 p-4 md:p-8" dir="rtl">
-      <div className="max-w-6xl mx-auto space-y-6">
-        <div className="flex items-center justify-between">
+    <div className="page-root" dir="rtl">
+      <div className="page-inner" style={{ maxWidth: '72rem' }}>
+        <div className="page-header">
           <div>
-            <h1 className="text-3xl font-bold text-slate-800">ניהול משתמשים</h1>
-            <p className="text-slate-600 mt-1">ניהול משתמשי המערכת והרשאות גישה</p>
+            <h1 className="page-title">ניהול משתמשים</h1>
+            <p className="page-subtitle">ניהול משתמשי המערכת והרשאות גישה</p>
           </div>
           <Button
             onClick={() => setIsAddDialogOpen(true)}
-            className="bg-blue-600 hover:bg-blue-700 rounded-xl"
+            className="h-10 rounded-lg text-white gap-2"
+            style={{ backgroundColor: 'var(--color-primary)' }}
           >
-            <Plus className="w-4 h-4 ml-2" />
+            <Plus className="w-4 h-4" />
             משתמש חדש
           </Button>
         </div>
 
         {/* Users Table */}
-        <Card className="border-0 shadow-lg rounded-2xl">
-          <CardHeader className="bg-gradient-to-l from-white to-slate-50">
-            <CardTitle className="flex items-center gap-3 text-right">
-              <Users className="w-5 h-5 text-blue-600" />
-              משתמשי המערכת ({users.length})
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="p-0">
+        <div className="sys-card">
+          <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
+            <Users className="w-5 h-5 text-blue-600" />
+            <span className="font-semibold text-slate-700">משתמשי המערכת ({users.length})</span>
+          </div>
+          <div className="overflow-x-auto">
             <Table>
               <TableHeader>
-                <TableRow className="bg-slate-50">
-                  <TableHead className="text-right font-bold">שם פרטי</TableHead>
-                  <TableHead className="text-right font-bold">שם משפחה</TableHead>
-                  <TableHead className="text-right font-bold">שם משתמש</TableHead>
-                  <TableHead className="text-right font-bold">אימייל</TableHead>
-                  <TableHead className="text-right font-bold">תפקיד</TableHead>
-                  <TableHead className="text-right font-bold">סטטוס</TableHead>
-                  <TableHead className="text-right font-bold">פעולות</TableHead>
+                <TableRow className="sys-table-header-row">
+                  <TableHead className="sys-table-header-cell">שם פרטי</TableHead>
+                  <TableHead className="sys-table-header-cell">שם משפחה</TableHead>
+                  <TableHead className="sys-table-header-cell">שם משתמש</TableHead>
+                  <TableHead className="sys-table-header-cell">אימייל</TableHead>
+                  <TableHead className="sys-table-header-cell">תפקיד</TableHead>
+                  <TableHead className="sys-table-header-cell">סטטוס</TableHead>
+                  <TableHead className="sys-table-header-cell">פעולות</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
