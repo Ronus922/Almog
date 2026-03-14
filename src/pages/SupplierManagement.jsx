@@ -204,7 +204,7 @@ export default function SupplierManagement() {
                     <TableHead className="text-right w-20">טלפון נייד</TableHead>
                     <TableHead className="text-right w-20">טלפון חברה</TableHead>
                     <TableHead className="text-right w-24">אימייל</TableHead>
-                    <TableHead className="text-right w-28">פעולות</TableHead>
+                    <TableHead className="text-right w-28 sticky left-0 bg-white border-l border-slate-200 z-10">פעולות</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -226,7 +226,7 @@ export default function SupplierManagement() {
                       </TableCell>
                       <TableCell className="text-right text-sm">{supplier.company_phone || '-'}</TableCell>
                       <TableCell className="text-right text-sm text-slate-600 truncate">{supplier.email || '-'}</TableCell>
-                      <TableCell className="text-right text-sm">
+                      <TableCell className="text-right text-sm sticky left-0 bg-white border-l border-slate-200 z-10">
                         <div className="flex gap-1 justify-end">
                           {supplier.contact_mobile_whatsapp && (
                             <button
