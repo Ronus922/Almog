@@ -200,6 +200,11 @@ export default function Calendar() {
      queryClient.invalidateQueries({ queryKey: ['calendarEvents'] });
      setShowForm(false);
      setSelectedAppointment(null);
+     toast({
+       title: '✅ נוצרה בהצלחה',
+       description: 'פגישה חדשה נוספה ליומן',
+       duration: 2000,
+     });
    },
   });
 
@@ -209,6 +214,11 @@ export default function Calendar() {
      queryClient.invalidateQueries({ queryKey: ['calendarEvents'] });
      setShowForm(false);
      setSelectedAppointment(null);
+     toast({
+       title: '✅ עודכן בהצלחה',
+       description: 'פרטי הפגישה נשמרו',
+       duration: 2000,
+     });
    },
   });
 
@@ -218,6 +228,11 @@ export default function Calendar() {
      queryClient.invalidateQueries({ queryKey: ['calendarEvents'] });
      setShowDeleteDialog(false);
      setSelectedAppointment(null);
+     toast({
+       title: '✅ נמחקה',
+       description: 'הפגישה הוסרה מיומן',
+       duration: 2000,
+     });
    },
   });
 
