@@ -448,6 +448,9 @@ export default function DebtorsTable({
                     <TableHead className="px-4 py-3 text-center text-sm font-semibold text-slate-700 cursor-pointer hover:bg-slate-100" onClick={() => toggleSort('monthlyDebt')}>
                       דמי ניהול {sortField === 'monthlyDebt' && <ArrowUpDown className="w-4 h-4 inline ml-1" />}
                     </TableHead>
+                    <TableHead className="px-4 py-3 text-center text-sm font-semibold text-slate-700 cursor-pointer hover:bg-slate-100" onClick={() => toggleSort('specialDebt')}>
+                      מים חמים {sortField === 'specialDebt' && <ArrowUpDown className="w-4 h-4 inline ml-1" />}
+                    </TableHead>
                     <TableHead className="px-4 py-3 text-center text-sm font-semibold text-slate-700">מצב משפטי</TableHead>
                     <TableHead className="px-4 py-3 text-center text-sm font-semibold text-slate-700">פעולות</TableHead>
                   </TableRow>
