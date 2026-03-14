@@ -182,20 +182,8 @@ export default function Calendar() {
    },
   });
 
-  // Calendar Events Mutations
-  const createEventMutation = useMutation({
-    mutationFn: (data) => base44.entities.Appointment.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['calendarEvents'] });
-      setShowForm(false);
-      setSelectedAppointment(null);
-      toast({
-        title: '✅ נוצרה בהצלחה',
-        description: 'פגישה חדשה נוספה ליומן',
-        duration: 2000,
-      });
-    },
-  });
+  // Remove duplicate createEventMutation - use createMutation instead
+  // createEventMutation removed - use createMutation
 
   const updateEventMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Appointment.update(id, data),
@@ -227,19 +215,8 @@ export default function Calendar() {
     },
   });
 
-  const deleteEventMutation = useMutation({
-    mutationFn: (id) => base44.entities.Appointment.delete(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['calendarEvents'] });
-      setShowDeleteDialog(false);
-      setSelectedAppointment(null);
-      toast({
-        title: '✅ נמחקה',
-        description: 'הפגישה הוסרה מיומן',
-        duration: 2000,
-      });
-    },
-  });
+  // Remove duplicate deleteEventMutation - use deleteMutation instead
+  // deleteEventMutation removed - use deleteMutation
 
   const handleNavigate = (direction) => {
     if (viewMode === 'month') {
@@ -292,7 +269,7 @@ export default function Calendar() {
         });
       } else {
         // Create new
-        await createEventMutation.mutateAsync(formData);
+        await createMutation.mutateAsync(formData);
       }
     } catch (error) {
       console.error('Failed to save event:', error);
@@ -301,7 +278,7 @@ export default function Calendar() {
 
   const handleDeleteEvent = async () => {
     if (selectedAppointment?.id) {
-      await deleteEventMutation.mutateAsync(selectedAppointment.id);
+      await deleteMutation.mutateAsync(selectedAppointment.id);
     }
   };
 
@@ -344,10 +321,10 @@ export default function Calendar() {
         }
         
         for (const instance of instances) {
-          await createEventMutation.mutateAsync(instance);
+          await createMutation.mutateAsync(instance);
         }
       } else if (!data.is_recurring) {
-        await createEventMutation.mutateAsync(data);
+        await createMutation.mutateAsync(data);
       }
     }
   };
@@ -408,7 +385,7 @@ export default function Calendar() {
       );
       
       for (const event of toDelete) {
-        await deleteEventMutation.mutateAsync(event.id);
+        await deleteMutation.mutateAsync(event.id);
       }
     } else if (mode === 'entire-series') {
       // מחק את כל הסדרה
@@ -417,7 +394,7 @@ export default function Calendar() {
       );
       
       for (const event of seriesEvents) {
-        await deleteEventMutation.mutateAsync(event.id);
+        await deleteMutation.mutateAsync(event.id);
       }
     }
     setShowDeleteDialog(false);
@@ -565,7 +542,7 @@ export default function Calendar() {
           onClose={() => setSelectedAppointment(null)}
           onEdit={() => setShowForm(true)}
           onDelete={handleDeleteAppointment}
-          isDeleting={deleteMutation.isPending}
+          isDeleting={deleteMutation.isPending || false}
         />
       )}
 
