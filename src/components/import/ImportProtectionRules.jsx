@@ -16,13 +16,13 @@ export const ALLOWED_UPDATE_FIELDS = {
   management_fees: true,     // מורשה לעדכון
   address: true,             // מורשה לעדכון
   
-  // שדות חישוביים (אקסל -> DebtorRecord)
-  totalDebt: true,           // מחושב מאקסל
-  monthlyDebt: true,         // מחושב מאקסל
-  specialDebt: true,         // מחושב מאקסל
-  detailsMonthly: true,      // מאקסל
-  managementMonthsRaw: true, // מאקסל (רק אם ריק)
-  debt_status_auto: true,    // מחושב אוטומטי
+  // שדות חישוביים (אקסל -> Contact/DebtorRecord)
+  totalDebt: true,           // מחושב מאקסל (DebtorRecord)
+  monthlyDebt: true,         // מחושב מאקסל (DebtorRecord)
+  specialDebt: true,         // מחושב מאקסל (DebtorRecord)
+  detailsMonthly: true,      // מאקסל (DebtorRecord)
+  managementMonthsRaw: true, // מאקסל (רק אם ריק) (DebtorRecord)
+  debt_status_auto: true,    // מחושב אוטומטי (DebtorRecord)
   
   // עדכון מערכת
   importedThisRun: true,
@@ -36,7 +36,7 @@ export const ALLOWED_UPDATE_FIELDS = {
 // BLACKLIST: שדות מוגנים שאסור לדרוס מיבוא
 // ═══════════════════════════════════════════════════════════
 export const PROTECTED_FIELDS = {
-  // שדות Operator (ניהול מפעיל)
+  // שדות Operator (ניהול מפעיל) - אסור לדרוס
   operator_id: true,
   
   // פרטי קשר ידניים (אסור לדרוס)
@@ -50,12 +50,12 @@ export const PROTECTED_FIELDS = {
   phonePrimary: true,
   phonesManualOverride: true,
   
-  // סימוני אנשי קשר ראשיים (אסור לדרוס)
+  // סימוני מגורים ומקבלי הודעות (אסור לדרוס)
+  resident_type: true,
   owner_is_primary_contact: true,
   tenant_is_primary_contact: true,
   operator_is_primary_contact: true,
   contact_type: true,
-  resident_type: true,
   
   // נתונים ידניים/הערות (אסור לדרוס)
   notes: true,
@@ -70,7 +70,6 @@ export const PROTECTED_FIELDS = {
   last_whatsapp_sent_at: true,
   
   // פרטי Audit / System (אסור לדרוס)
-  notes: true,
   lastContactDate: true,
   nextActionDate: true,
   
