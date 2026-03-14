@@ -341,21 +341,8 @@ export default function DebtorsTable({
 
                   </div>
 
-                  {/* Status Auto Filter */}
-                  <Select value={statusFilter} onValueChange={(v) => {setStatusFilter(v);setPage(1);}}>
-                    <SelectTrigger className="w-44 h-10 rounded-lg border-slate-300">
-                      <SelectValue placeholder="כל הסטטוסים" />
-                    </SelectTrigger>
-                    <SelectContent className="rounded-lg">
-                      <SelectItem value="all">כל הסטטוסים</SelectItem>
-                      <SelectItem value="תקין">תקין</SelectItem>
-                      <SelectItem value="לגבייה מיידית">לגבייה מיידית</SelectItem>
-                      <SelectItem value="חריגה מופרזת">חריגה מופרזת</SelectItem>
-                    </SelectContent>
-                  </Select>
-
                   {/* Clear Button */}
-                  {(statusFilter !== 'all' || search || apartmentSearch || minDebt || maxDebt || legalStatusFilter !== 'all' || phoneFilter) &&
+                  {(search || apartmentSearch || minDebt || maxDebt || legalStatusFilter !== 'all' || phoneFilter) &&
                   <Button
                     variant="ghost"
                     size="sm"
