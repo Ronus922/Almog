@@ -91,80 +91,35 @@ export default function KPICards({ records, settings, allStatuses = [] }) {
       title: "סה״כ חובות", 
       value: formatCurrency(totalDebt), 
       icon: Wallet, 
-      color: "text-rose-600",
+      color: "text-[#2bc9a8]",
+      colorAccent: "bg-[rgba(43,201,168,0.14)] text-[#2bc9a8]",
       isClickable: false
     },
     { 
       title: "דמי ניהול", 
       value: formatCurrency(totalMonthlyDebt), 
       icon: Calendar, 
-      color: "text-amber-600",
+      color: "text-[#6270ff]",
+      colorAccent: "bg-[rgba(98,112,255,0.14)] text-[#6270ff]",
       isClickable: false
     },
     { 
       title: "מים חמים", 
       value: formatCurrency(totalSpecialDebt), 
       icon: AlertTriangle, 
-      color: "text-purple-600",
+      color: "text-[#f5a623]",
+      colorAccent: "bg-[rgba(245,166,35,0.14)] text-[#f5a623]",
       isClickable: false
     },
-    // { 
-    //   title: "דירות חייבות", 
-    //   value: debtorCount, 
-    //   icon: Home, 
-    //   color: "text-blue-600",
-    //   subtext: "מתוך 298 דירות",
-    //   isClickable: false
-    // },
     { 
       title: "לגבייה מיידית", 
       value: statusCounts['לגבייה מיידית'], 
       icon: Clock, 
-      color: "text-orange-600",
+      color: "text-[#ff5a9c]",
+      colorAccent: "bg-[rgba(255,90,156,0.14)] text-[#ff5a9c]",
       isClickable: true,
       onClick: () => handleCardClick('IMMEDIATE_COLLECTION')
-    },
-    { 
-      title: "חריגה מופרזת", 
-      value: statusCounts['חריגה מופרזת'], 
-      icon: ShieldAlert, 
-      color: "text-white",
-      bgColor: "#ff8080",
-      isClickable: true,
-      onClick: () => handleCardClick('REQUIRES_LEGAL_ACTION')
-    },
-    ...(legalLawsuitStatus ? [{
-      title: "בהליך משפטי",
-      value: inLegalProcessCount,
-      icon: Gavel,
-      color: "text-red-600",
-      isClickable: true,
-      onClick: () => handleCardClick('LEGAL_PROCESS')
-    }] : []),
-    ...(legalWarningStatus ? [{
-      title: "מכתבי התראה",
-      value: warningLettersSentCount,
-      icon: Mail,
-      color: "text-yellow-600",
-      isClickable: true,
-      onClick: () => handleCardClick('WARNING_LETTER')
-    }] : []),
-    ...(legalTreatmentStatus ? [{
-      title: "לטיפול משפטי",
-      value: inLegalTreatmentCount,
-      icon: Gavel,
-      color: "text-indigo-600",
-      isClickable: true,
-      onClick: () => navigate(`${createPageUrl('LinkedRecords')}?statusId=${legalTreatmentStatus.id}&statusName=${encodeURIComponent('לטיפול משפטי')}`)
-    }] : []),
-    ...(legalProceedingsStatus ? [{
-      title: "בהליך משפטי",
-      value: inLegalProceedingsCount,
-      icon: Gavel,
-      color: "text-teal-600",
-      isClickable: true,
-      onClick: () => navigate(`${createPageUrl('LinkedRecords')}?statusId=${legalProceedingsStatus.id}&statusName=${encodeURIComponent('בהליך משפטי')}`)
-    }] : [])
+    }
   ];
 
   return (
