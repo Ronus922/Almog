@@ -402,12 +402,10 @@ export default function Tasks() {
               }
               </div>
             }
-          </CardContent>
-        </Card>
+        </div>
 
         {/* Table */}
-        <Card className="border-0 shadow-sm bg-white overflow-hidden">
-          <CardContent className="p-0">
+        <div className="sys-card overflow-hidden">
             {isLoading ?
             <div className="py-16 text-center text-slate-400">טוען משימות...</div> :
             sorted.length === 0 ?
