@@ -372,7 +372,7 @@ export default function Calendar() {
   const handleDeleteRecurring = async (mode) => {
     if (mode === 'this-only') {
       // מחק רק את המופע הספציפי
-      await deleteEventMutation.mutateAsync(selectedAppointment.id);
+      await deleteMutation.mutateAsync(selectedAppointment.id);
     } else if (mode === 'this-and-future') {
       // מחק את האירוע הנוכחי וכל האירועים העתידיים באותה סדרה
       const seriesEvents = calendarEvents.filter(
