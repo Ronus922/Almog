@@ -31,18 +31,23 @@ function SortableHeader({ label, field, sortField, sortDir, onSort }) {
 
 }
 
-// פונקציות עזר להשוואת תאריכים לפי יום בלבד
+// פונקציות עזר — מקור אמת יחיד לכל השוואות תאריך
 function getTodayStr() {
   const d = new Date();
   return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
-function isTodayByDateOnly(dateStr) {
-  if (!dateStr) return false;
-  return dateStr.slice(0,10) === getTodayStr();
+function isTaskOpen(task) {
+  return task.status === "פתוחה" || task.status === "בטיפול";
 }
-function isOverdueByDateOnly(dateStr) {
-  if (!dateStr) return false;
-  return dateStr.slice(0,10) < getTodayStr();
+function isTaskToday(task) {
+  if (task.status === "הושלמה" || task.status === "בוטלה") return false;
+  if (!task.due_date) return false;
+  return task.due_date.slice(0, 10) === getTodayStr();
+}
+function isTaskOverdue(task) {
+  if (task.status === "הושלמה" || task.status === "בוטלה") return false;
+  if (!task.due_date) return false;
+  return task.due_date.slice(0, 10) < getTodayStr();
 }
 
 export default function Tasks() {
