@@ -312,6 +312,7 @@ export default function DebtorsTable({
   };
 
   return (
+    <TooltipProvider>
     <>
     {whatsappRecord && (
       <WhatsAppDialog
@@ -329,7 +330,6 @@ export default function DebtorsTable({
         isAdmin={isAdmin}
       />
     )}
-    <TooltipProvider>
     <Card className="rounded-[24px] border border-white/80 bg-white/88 backdrop-blur-[8px] shadow-[0_18px_40px_rgba(15,23,42,0.09)] overflow-hidden">
       <CardHeader className="bg-slate-50/90 pt-4 pb-4 p-6 flex flex-col space-y-1.5 md:pb-6 md:pt-6 border-b border-slate-200/80">
         <div className="flex flex-col gap-4">
