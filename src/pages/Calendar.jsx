@@ -71,6 +71,8 @@ export default function Calendar() {
   const handleDragDrop = async (e, newDate, newTime = null) => {
     if (!draggedAppointment) return;
     
+    const originalAppointment = draggedAppointment;
+    
     try {
       const updatedData = {
         ...draggedAppointment,
@@ -86,22 +88,21 @@ export default function Calendar() {
         id: draggedAppointment.id,
         data: updatedData,
       });
+      // הודעת ההצלחה תוצג דרך updateEventMutation.onSuccess בלבד
+    } catch (error) {
+      // revert state - החזר לחזרה למקום הקודם
+      setDraggedAppointment(originalAppointment);
       
       toast({
-        title: '✅ נשמר בהצלחה',
-        description: `הפגישה "${draggedAppointment.title}" הועברה`,
-        duration: 3000,
-      });
-    } catch (error) {
-      toast({
-        title: '❌ שגיאה',
-        description: 'לא הצלחנו לשמור את השינוי',
+        title: '❌ שגיאה בשמירה',
+        description: 'לא הצלחנו להעביר את הפגישה',
         variant: 'destructive',
-        duration: 3000,
+        duration: 2500,
       });
+      console.error('Drag & Drop error:', error);
+    } finally {
+      setDraggedAppointment(null);
     }
-    
-    setDraggedAppointment(null);
   };
 
   const handleDragStart = (e, appointment) => {
@@ -135,10 +136,8 @@ export default function Calendar() {
     queryFn: () => base44.entities.Appointment.list('-date'),
   });
 
-  const { data: calendarEvents = [], isLoading: eventsLoading } = useQuery({
-    queryKey: ['calendarEvents'],
-    queryFn: () => base44.entities.Appointment.list('-date'),
-  });
+  // calendarEvents משתמש באותה query כמו appointments
+  const calendarEvents = appointments;
 
   // Filter appointments and events based on quick filters
   const filteredAppointments = useMemo(() => {
@@ -155,19 +154,8 @@ export default function Calendar() {
     return result;
   }, [appointments, meetingTypeFilter, userFilter]);
 
-  const filteredEvents = useMemo(() => {
-    let result = calendarEvents;
-    
-    if (meetingTypeFilter) {
-      result = result.filter(e => e.meeting_type === meetingTypeFilter);
-    }
-    
-    if (userFilter) {
-      result = result.filter(e => e.owner_user_id === userFilter);
-    }
-    
-    return result;
-  }, [calendarEvents, meetingTypeFilter, userFilter]);
+  // filteredEvents משתמש באותה כמו filteredAppointments
+  const filteredEvents = filteredAppointments;
 
   const createMutation = useMutation({
     mutationFn: (data) => base44.entities.Appointment.create(data),
@@ -211,15 +199,31 @@ export default function Calendar() {
 
   const updateEventMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.Appointment.update(id, data),
-    onSuccess: () => {
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ['appointments'] });
       queryClient.invalidateQueries({ queryKey: ['calendarEvents'] });
+      
+      // הצג הודעה רק אם זה לא drag & drop (drag & drop עם עדכון תאריך בלבד)
+      const isDragDrop = variables.data && Object.keys(variables.data).length <= 2 && 
+                         (variables.data.event_date || variables.data.start_datetime);
+      
+      if (!isDragDrop) {
+        toast({
+          title: '✅ עודכן בהצלחה',
+          description: 'פרטי הפגישה נשמרו',
+          duration: 2000,
+        });
+      } else {
+        // drag & drop הצלחה ושקטה
+        toast({
+          title: '✅ הועברה',
+          description: variables.data.event_date ? 'הפגישה הועברה לתאריך חדש' : 'הפגישה הועברה לשעה חדשה',
+          duration: 2000,
+        });
+      }
+      
       setShowForm(false);
       setSelectedAppointment(null);
-      toast({
-        title: '✅ עודכן בהצלחה',
-        description: 'פרטי הפגישה נשמרו',
-        duration: 2000,
-      });
     },
   });
 
