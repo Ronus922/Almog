@@ -317,9 +317,11 @@ export default function CalendarGrid({
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    // Show all appointments for this day by opening the day view or modal
+                    // Trigger event to show all appointments for this day
+                    const event = new CustomEvent('showDayView', { detail: { date } });
+                    window.dispatchEvent(event);
                   }}
-                  className="text-xs text-blue-600 px-2 font-semibold hover:text-blue-800 transition-colors"
+                  className="text-xs text-blue-600 px-2 font-semibold hover:text-blue-800 hover:underline transition-colors cursor-pointer"
                 >
                     +{dayAppointments.length - 2} עוד
                   </button>
