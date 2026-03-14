@@ -365,7 +365,7 @@ export default function Calendar() {
     if (selectedAppointment && selectedAppointment.parent_series_id) {
       setShowDeleteDialog(true);
     } else if (selectedAppointment) {
-      await deleteEventMutation.mutateAsync(selectedAppointment.id);
+      await deleteMutation.mutateAsync(selectedAppointment.id);
     }
   };
 
