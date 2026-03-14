@@ -29,7 +29,7 @@ function TimeColumn({ selectedHour, onSelectHour }) {
   return (
     <div
       ref={listRef}
-      style={{ width: 120, height: 260, overflowY: "auto", borderLeft: "1px solid #e5e7eb", flexShrink: 0 }}
+      style={{ width: 120, height: 260, overflowY: "auto", borderRight: "1px solid #e5e7eb", flexShrink: 0 }}
     >
       {/* header */}
       <div style={{ display:"flex", height:32, alignItems:"center", borderBottom:"1px solid #e5e7eb", background:"#f8fafc", position:"sticky", top:0, zIndex:1 }}>
