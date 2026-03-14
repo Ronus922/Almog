@@ -683,12 +683,12 @@ function DashboardContent() {
 
             {/* מודל פרטי דירה */}
             <ApartmentDetailModal
-              record={selectedRecord}
-              isOpen={isModalOpen}
-              onClose={() => setIsModalOpen(false)}
-              onSave={handleSaveRecord}
-              isAdmin={isAdmin}
-              settings={settings} />
+            record={selectedRecord}
+            isOpen={isModalOpen}
+            onClose={() => setIsModalOpen(false)}
+            onSave={handleSaveRecord}
+            isAdmin={isAdmin}
+            settings={settings} />
             </div>
             </TooltipProvider>
             );
