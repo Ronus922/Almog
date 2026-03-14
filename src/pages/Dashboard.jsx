@@ -555,36 +555,129 @@ function DashboardContent() {
 
         {/* טבלה במיכל פרימיום */}
         <>
-          <div className="rounded-[24px] bg-white/90 backdrop-blur shadow-[0_18px_40px_rgba(15,23,42,0.09)] border border-white/70 overflow-hidden">
-            {(activeTab === 'debtors' || !isAdmin) &&
-            <DebtorsTable
-              records={debtorRecords}
-              onRowClick={handleRowClick}
-              isAdmin={isAdmin}
-              settings={settings}
-              initialFilterKey={filterKeyFromUrl}
-              initialStatusFilter={statusFilterFromUrl}
-              initialAutoStatusFilter={autoStatusFilter}
-              allStatuses={allStatuses}
-              onFilteredDataChange={setFilteredDataset}
-              onRecordUpdate={handleRecordUpdate}
-              showArchived={false} />
-            }
+          {/* Table Module Card */}
+          <div className="mx-[26px] mt-[18px] mb-7 overflow-hidden rounded-[22px] border border-[rgba(227,232,247,0.98)] bg-[rgba(255,255,255,0.91)] shadow-[0_18px_42px_rgba(122,140,210,0.10),inset_0_1px_0_rgba(255,255,255,0.98)]">
+            
+            {/* Toolbar */}
+            <div className="flex min-h-[58px] flex-wrap items-center justify-between gap-3 border-b border-[rgba(231,236,248,0.96)] bg-[linear-gradient(180deg,rgba(252,253,255,0.98)_0%,rgba(246,248,255,0.98)_100%)] px-[18px] py-2">
+              {/* Title Section */}
+              <div>
+                <p className="text-[12px] font-bold text-[#5f698d]">טבלת חייבים</p>
+                <p className="text-[11px] font-medium text-[#9aa5c9]">סה״כ {filteredDataset.length > 0 ? filteredDataset.length : records.length} רשומות</p>
+              </div>
 
-            {isAdmin && activeTab === 'archived' &&
-            <DebtorsTable
-              records={archivedRecords}
-              onRowClick={handleRowClick}
-              isAdmin={isAdmin}
-              settings={settings}
-              initialFilterKey={null}
-              initialStatusFilter={null}
-              initialAutoStatusFilter={null}
-              allStatuses={allStatuses}
-              onFilteredDataChange={setFilteredDataset}
-              onRecordUpdate={handleRecordUpdate}
-              showArchived={true} />
-            }
+              {/* Actions Section */}
+              <div className="flex items-center gap-2">
+                {isAdmin && (
+                  <>
+                    {/* PDF Download */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          aria-label="הורד PDF"
+                          onClick={() => {
+                            const pdfExporter = document.querySelector('[data-pdf-export]');
+                            if (pdfExporter) pdfExporter.click();
+                          }}
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-[10px] border border-[rgba(224,230,246,0.96)] bg-white text-[#8f99be] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] transition-all hover:border-[#d7def8] hover:bg-[#f8faff] hover:text-[#5f6fff]"
+                        >
+                          <FileText className="w-5 h-5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent><p>הורד PDF</p></TooltipContent>
+                    </Tooltip>
+
+                    {/* Excel Download */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          aria-label="הורד אקסל"
+                          onClick={() => {
+                            const excelExporter = document.querySelector('[data-excel-export]');
+                            if (excelExporter) excelExporter.click();
+                          }}
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-[10px] border border-[rgba(224,230,246,0.96)] bg-white text-[#8f99be] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] transition-all hover:border-[#d7def8] hover:bg-[#f8faff] hover:text-[#5f6fff]"
+                        >
+                          <Download className="w-5 h-5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent><p>הורד אקסל</p></TooltipContent>
+                    </Tooltip>
+
+                    {/* Print */}
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button
+                          aria-label="הדפס"
+                          onClick={() => window.print()}
+                          className="inline-flex h-9 w-9 items-center justify-center rounded-[10px] border border-[rgba(224,230,246,0.96)] bg-white text-[#8f99be] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] transition-all hover:border-[#d7def8] hover:bg-[#f8faff] hover:text-[#5f6fff]"
+                        >
+                          <Printer className="w-5 h-5" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent><p>הדפס</p></TooltipContent>
+                    </Tooltip>
+                  </>
+                )}
+
+                {/* Refresh */}
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <button
+                      aria-label="רענן"
+                      onClick={handleRefresh}
+                      className="inline-flex h-9 w-9 items-center justify-center rounded-[10px] border border-[rgba(224,230,246,0.96)] bg-white text-[#8f99be] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] transition-all hover:border-[#d7def8] hover:bg-[#f8faff] hover:text-[#5f6fff]"
+                    >
+                      <RefreshCw className="w-5 h-5" />
+                    </button>
+                  </TooltipTrigger>
+                  <TooltipContent><p>רענן</p></TooltipContent>
+                </Tooltip>
+              </div>
+            </div>
+
+            {/* Hidden Export Components */}
+            <div className="hidden">
+              <div data-pdf-export>
+                <PDFExporter records={filteredDataset.length > 0 ? filteredDataset : records} statuses={allStatuses} settings={settings} />
+              </div>
+              <div data-excel-export>
+                <ExcelExporter records={filteredDataset.length > 0 ? filteredDataset : records} statuses={allStatuses} />
+              </div>
+            </div>
+
+            {/* Table Content */}
+            <div className="overflow-x-auto px-[14px] pt-3 pb-4">
+              {(activeTab === 'debtors' || !isAdmin) &&
+              <DebtorsTable
+                records={debtorRecords}
+                onRowClick={handleRowClick}
+                isAdmin={isAdmin}
+                settings={settings}
+                initialFilterKey={filterKeyFromUrl}
+                initialStatusFilter={statusFilterFromUrl}
+                initialAutoStatusFilter={autoStatusFilter}
+                allStatuses={allStatuses}
+                onFilteredDataChange={setFilteredDataset}
+                onRecordUpdate={handleRecordUpdate}
+                showArchived={false} />
+              }
+
+              {isAdmin && activeTab === 'archived' &&
+              <DebtorsTable
+                records={archivedRecords}
+                onRowClick={handleRowClick}
+                isAdmin={isAdmin}
+                settings={settings}
+                initialFilterKey={null}
+                initialStatusFilter={null}
+                initialAutoStatusFilter={null}
+                allStatuses={allStatuses}
+                onFilteredDataChange={setFilteredDataset}
+                onRecordUpdate={handleRecordUpdate}
+                showArchived={true} />
+              }
+            </div>
           </div>
 
           {/* מודל פרטי דירה */}
