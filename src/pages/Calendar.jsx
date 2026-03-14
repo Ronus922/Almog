@@ -61,6 +61,7 @@ export default function Calendar() {
   const [editMode, setEditMode] = useState(null);
   const [showDateRangePicker, setShowDateRangePicker] = useState(false);
   const [customDateRange, setCustomDateRange] = useState(null);
+  const [itemTypeFilter, setItemTypeFilter] = useState('הכל');
   const [meetingTypeFilter, setMeetingTypeFilter] = useState('');
   const [userFilter, setUserFilter] = useState('');
   const queryClient = useQueryClient();
@@ -118,14 +119,20 @@ export default function Calendar() {
   React.useEffect(() => {
     const saved = localStorage.getItem('calendarFilters');
     if (saved) {
-      const { meetingType, user } = JSON.parse(saved);
-      setMeetingTypeFilter(meetingType || '');
-      setUserFilter(user || '');
+      try {
+        const parsed = JSON.parse(saved);
+        setItemTypeFilter(parsed.itemType || 'הכל');
+        setMeetingTypeFilter(parsed.meetingType || '');
+        setUserFilter(parsed.user || '');
+      } catch (e) {
+        // ignore corrupted localStorage
+      }
     }
   }, []);
 
-  const saveFilters = (mt, u) => {
+  const saveFilters = (itemType, mt, u) => {
     localStorage.setItem('calendarFilters', JSON.stringify({
+      itemType: itemType,
       meetingType: mt,
       user: u,
     }));
@@ -143,18 +150,35 @@ export default function Calendar() {
   const filteredAppointments = useMemo(() => {
     let result = appointments;
     
-    if (meetingTypeFilter) {
-      result = result.filter(a => a.appointment_type === meetingTypeFilter);
+    // 1. Filter by item type (פריט סוג)
+    if (itemTypeFilter === 'משימות') {
+      result = result.filter(a => a.appointment_type === 'משימה');
+    } else if (itemTypeFilter === 'פגישות') {
+      result = result.filter(a => a.appointment_type === 'פגישה');
+    }
+    // itemTypeFilter === 'הכל' shows all
+    
+    // 2. Filter by meeting type (only applies to meetings)
+    if (meetingTypeFilter && result.length > 0) {
+      result = result.filter(a => {
+        if (a.appointment_type !== 'פגישה') return true; // non-meetings pass through
+        return a.appointment_type === meetingTypeFilter;
+      });
     }
     
+    // 3. Filter by user (matches attendees_users objects with id property)
     if (userFilter) {
-      result = result.filter(a => a.attendees_users?.includes(userFilter));
+      result = result.filter(a => {
+        const attendees = a.attendees_users || [];
+        return attendees.some(att => 
+          (typeof att === 'object' ? att.id : att) === userFilter
+        );
+      });
     }
     
     return result;
-  }, [appointments, meetingTypeFilter, userFilter]);
+  }, [appointments, itemTypeFilter, meetingTypeFilter, userFilter]);
 
-  // filteredEvents משתמש באותה כמו filteredAppointments
   const filteredEvents = filteredAppointments;
 
   const createMutation = useMutation({
@@ -440,20 +464,26 @@ export default function Calendar() {
 
         {/* Quick Filters */}
         <CalendarQuickFilters
+          itemTypeFilter={itemTypeFilter}
           meetingTypeFilter={meetingTypeFilter}
           userFilter={userFilter}
+          onItemTypeChange={(type) => {
+            setItemTypeFilter(type);
+            saveFilters(type, meetingTypeFilter, userFilter);
+          }}
           onMeetingTypeChange={(type) => {
             setMeetingTypeFilter(type);
-            saveFilters(type, userFilter);
+            saveFilters(itemTypeFilter, type, userFilter);
           }}
           onUserChange={(user) => {
             setUserFilter(user);
-            saveFilters(meetingTypeFilter, user);
+            saveFilters(itemTypeFilter, meetingTypeFilter, user);
           }}
           onClearAll={() => {
+            setItemTypeFilter('הכל');
             setMeetingTypeFilter('');
             setUserFilter('');
-            saveFilters('', '');
+            saveFilters('הכל', '', '');
           }}
         />
 
