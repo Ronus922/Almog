@@ -406,7 +406,7 @@ function DashboardContent() {
                   </span>
                 }
               </div>
-              <p className="text-xs md:text-sm text-slate-600 font-medium mt-0.5 md:mt-1">
+              <p className="text-sm text-slate-500 mt-1">
                 {settings.buildingName || 'דשבורד חייבים'} • {settings.buildingAddress || ''}
               </p>
             </div>
