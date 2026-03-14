@@ -707,130 +707,159 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         </>
       }>
 
-        {!isAdmin &&
-      <Alert className="bg-gradient-to-l from-blue-50 to-blue-100 border-blue-300 rounded-xl mb-6" dir="rtl">
+        {!isAdmin && (
+          <div className="rounded-[20px] border border-slate-200/80 bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.05)] mb-5" dir="rtl">
             <div className="flex items-center gap-3">
               <Lock className="w-5 h-5 text-blue-600" />
-              <AlertDescription className="text-blue-800 font-semibold">
-                אתה מחובר כצופה - לא ניתן לערוך נתונים
+              <AlertDescription className="text-blue-700 font-semibold">
+                אתה מחובר כצופה — לא ניתן לערוך נתונים
               </AlertDescription>
             </div>
-          </Alert>
-      }
+          </div>
+        )}
 
-        <div className="space-y-2 md:space-y-3 py-1" dir="rtl">
-          {/* פרטים כלליים */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
-            <div className="space-y-1 bg-slate-50/50 rounded-2xl p-3 md:p-4">
-              <h3 className="font-bold text-slate-800 pb-2 border-b-2 border-blue-200 text-right flex items-center gap-2 text-sm md:text-base mb-2">
-                <Home className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
-                פרטים עיקריים
-              </h3>
-              <InfoRow icon={Home} label="מספר דירה" value={editedRecord?.apartmentNumber} />
-              <InfoRow icon={User} label="בעל דירה" value={editedRecord?.ownerName || 'לא צוין'} />
-            </div>
-            
-            <div className="space-y-1 bg-slate-50/50 rounded-2xl p-3 md:p-4">
-              <h3 className="font-bold text-slate-800 pb-2 md:pb-3 border-b-2 border-amber-200 text-right flex items-center gap-2 text-sm md:text-base">
-                <FileText className="w-4 h-4 md:w-5 md:h-5 text-amber-600" />
-                מידע נוסף
-              </h3>
-              <InfoRow
-              icon={FileText}
-              label="פרטים מהייבוא"
-              value={editedRecord?.detailsMonthly || 'אין נתונים'} />
-
-              
-              <div className="flex items-start gap-3 md:gap-4 py-2 md:py-3" dir="rtl">
-                <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-slate-100 flex items-center justify-center">
-                  <Calendar className="w-4 h-4 md:w-5 md:h-5 text-slate-600" />
+        <div className="space-y-5" dir="rtl">
+          {/* Two main info cards */}
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            {/* Right card: Main apartment details */}
+            <div className="rounded-[20px] border border-slate-200/80 bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[#f5f8fc] text-[#7f95b5]">
+                  <Home className="w-5 h-5" />
                 </div>
-                <div className="flex-1 text-right">
-                  <p className="text-xs text-slate-500 font-semibold mb-1">דמי ניהול לחודשים:</p>
-                  <div className="text-sm text-slate-700 bg-white rounded-lg p-3 border border-slate-200">
-                    {editedRecord?.managementMonthsRaw ?
-                  <div className="space-y-1">
-                        {editedRecord.managementMonthsRaw.split(/[,،\n]/).map((item, idx) => {
-                      const trimmed = item.trim();
-                      return trimmed ?
-                      <div key={idx} className="flex items-start gap-2">
-                              <span className="text-blue-600 font-bold">•</span>
-                              <span className="flex-1">{trimmed}</span>
-                            </div> :
-                      null;
-                    })}
-                      </div> :
+                <h3 className="text-[30px] leading-none font-black tracking-[-0.02em] text-[#253b5b] text-right flex-1">פרטים עיקריים</h3>
+              </div>
+              <div className="grid grid-cols-[1fr_auto] items-start gap-x-4 gap-y-3 py-2">
+                <div>
+                  <p className="text-[13px] font-semibold text-[#95a3b8]">מספר דירה</p>
+                  <p className="text-[31px] leading-[1.2] font-black text-[#233754]">{editedRecord?.apartmentNumber}</p>
+                </div>
+                <div className="flex h-9 w-9 items-center justify-center rounded-[11px] bg-[#f7f9fc] text-[#93a4bc]">
+                  <Home className="w-4 h-4" />
+                </div>
+              </div>
+              <div className="grid grid-cols-[1fr_auto] items-start gap-x-4 gap-y-3 py-2">
+                <div>
+                  <p className="text-[13px] font-semibold text-[#95a3b8]">בעל הדירה</p>
+                  <p className="text-[27px] leading-[1.28] font-black text-[#233754]">{editedRecord?.ownerName || 'לא צוין'}</p>
+                </div>
+                <div className="flex h-9 w-9 items-center justify-center rounded-[11px] bg-[#f7f9fc] text-[#93a4bc]">
+                  <User className="w-4 h-4" />
+                </div>
+              </div>
+            </div>
 
-                  <span className="text-slate-500">אין נתונים</span>
-                  }
+            {/* Left card: Additional info */}
+            <div className="rounded-[20px] border border-slate-200/80 bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
+              <div className="mb-4 flex items-center justify-between gap-3">
+                <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[#f5f8fc] text-[#7f95b5]">
+                  <FileText className="w-5 h-5" />
+                </div>
+                <h3 className="text-[30px] leading-none font-black tracking-[-0.02em] text-[#253b5b] text-right flex-1">מידע נוסף</h3>
+              </div>
+              <div className="space-y-3">
+                {editedRecord?.detailsMonthly && (
+                  <div className="grid grid-cols-[1fr_auto] items-start gap-x-4 gap-y-1 py-2">
+                    <div>
+                      <p className="text-[13px] font-semibold text-[#95a3b8]">פרטים מהייבוא</p>
+                      <p className="text-[15px] leading-[1.3] font-semibold text-[#233754]">{editedRecord.detailsMonthly}</p>
+                    </div>
+                    <div className="flex h-9 w-9 items-center justify-center rounded-[11px] bg-[#f7f9fc] text-[#93a4bc]">
+                      <FileText className="w-4 h-4" />
+                    </div>
+                  </div>
+                )}
+                {editedRecord?.managementMonthsRaw && (
+                  <div className="space-y-2">
+                    <p className="text-[13px] font-semibold text-[#95a3b8]">דמי ניהול לחודשים:</p>
+                    <div className="space-y-1 rounded-[16px] border border-slate-200 bg-[#fbfdff] px-4 py-3">
+                      {editedRecord.managementMonthsRaw.split(/[,،\n]/).map((item, idx) => {
+                        const trimmed = item.trim();
+                        return trimmed ? (
+                          <div key={idx} className="flex items-start gap-2 text-[13px] text-[#233754]">
+                            <span className="flex-shrink-0 text-blue-600 font-bold">•</span>
+                            <span className="flex-1">{trimmed}</span>
+                          </div>
+                        ) : null;
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Contact row */}
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="rounded-[18px] border border-slate-200/80 bg-white px-5 py-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-[#7f93b0]">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#f7f9fc] text-[#8ea0b8]">
+                    <Phone className="w-4 h-4" />
                   </div>
                 </div>
+                <div className="space-y-1 text-right">
+                  <p className="text-[13px] font-semibold text-[#95a3b8]">טלפון בעלים</p>
+                  <p className="text-[32px] leading-none font-black text-[#233754]">{formatPhone(editedRecord?.phoneOwner || record.phoneOwner || 'אין')}</p>
+                </div>
+              </div>
+            </div>
+            <div className="rounded-[18px] border border-slate-200/80 bg-white px-5 py-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-[#7f93b0]">
+                  <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#f7f9fc] text-[#8ea0b8]">
+                    <Phone className="w-4 h-4" />
+                  </div>
+                </div>
+                <div className="space-y-1 text-right">
+                  <p className="text-[13px] font-semibold text-[#95a3b8]">טלפון שוכר</p>
+                  <p className="text-[32px] leading-none font-black text-[#233754]">{formatPhone(editedRecord?.phoneTenant || record.phoneTenant || 'אין')}</p>
+                </div>
               </div>
             </div>
           </div>
 
-          <Separator className="my-1 md:my-2" />
-
-          {/* טלפונים */}
-          <div className="bg-slate-50/50 rounded-2xl p-3 md:p-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
-              <InlineEditableField
-              icon={Phone}
-              label="טלפון בעלים"
-              value={editedRecord?.phoneOwner}
-              recordId={record.id}
-              fieldName="phoneOwner"
-              isAdmin={isAdmin}
-              onSave={handleFieldSave}
-              formatDisplay={formatPhone}
-              validate={validatePhone} />
-
-
-              <InlineEditableField
-              icon={Phone}
-              label="טלפון שוכר"
-              value={editedRecord?.phoneTenant}
-              recordId={record.id}
-              fieldName="phoneTenant"
-              isAdmin={isAdmin}
-              onSave={handleFieldSave}
-              formatDisplay={formatPhone}
-              validate={validatePhone} />
-
+          {/* Debt summary section */}
+          <div className="rounded-[22px] border border-slate-200/80 bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
+            <div className="mb-5 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#fff1f2] text-[#ff5b6e]">
+                  <Wallet className="w-6 h-6" />
+                </div>
+                <h3 className="text-[34px] leading-none font-black tracking-[-0.02em] text-[#253b5b]">פירוט חובות</h3>
+              </div>
             </div>
-          </div>
-
-          <Separator className="my-1 md:my-2" />
-
-          {/* נתוני חוב */}
-          <div className="bg-gradient-to-l from-slate-50 to-slate-100 rounded-2xl p-3 md:p-4">
-            <h3 className="text-base md:text-lg font-bold text-slate-800 mb-2 md:mb-3 flex items-center gap-2 md:gap-3 text-right">
-              <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-rose-100 flex items-center justify-center">
-                <Wallet className="w-4 h-4 md:w-5 md:h-5 text-rose-600" />
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+              {/* Total debt KPI */}
+              <div className="relative overflow-hidden rounded-[20px] border border-slate-200/80 bg-[#fffefe] px-5 py-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+                <div className="absolute inset-y-0 right-0 w-[5px] rounded-r-[20px] bg-[#ff4d6d]" />
+                <div className="space-y-2 text-right">
+                  <p className="text-[14px] font-semibold text-[#97a6bb]">סה״כ חוב</p>
+                  <p className="text-[36px] leading-none font-black tracking-[-0.03em] text-[#ff4d6d]">{formatCurrency(record.totalDebt)}</p>
+                </div>
               </div>
-              פירוט חובות
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
-              <div className="text-center p-4 md:p-5 bg-white rounded-xl md:rounded-2xl shadow-sm border-r-4 border-rose-500">
-                <p className="text-xs text-slate-500 font-bold mb-1 md:mb-2">סה״כ חוב</p>
-                <p className="text-sm md:text-base font-bold text-rose-600">{formatCurrency(record.totalDebt)}</p>
+              {/* Management fees KPI */}
+              <div className="relative overflow-hidden rounded-[20px] border border-slate-200/80 bg-[#fffefe] px-5 py-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+                <div className="absolute inset-y-0 right-0 w-[5px] rounded-r-[20px] bg-[#f5a623]" />
+                <div className="space-y-2 text-right">
+                  <p className="text-[14px] font-semibold text-[#97a6bb]">דמי ניהול</p>
+                  <p className="text-[36px] leading-none font-black tracking-[-0.03em] text-[#f59e0b]">{formatCurrency(record.monthlyDebt)}</p>
+                </div>
               </div>
-              <div className="text-center p-4 md:p-5 bg-white rounded-xl md:rounded-2xl shadow-sm border-r-4 border-amber-500">
-                <p className="text-xs text-slate-500 font-bold mb-1 md:mb-2">דמי ניהול</p>
-                <p className="text-sm md:text-base font-bold text-amber-600">{formatCurrency(record.monthlyDebt)}</p>
-              </div>
-              <div className="text-center p-4 md:p-5 bg-white rounded-xl md:rounded-2xl shadow-sm border-r-4 border-purple-500">
-                <p className="text-xs text-slate-500 font-bold mb-1 md:mb-2">מים חמים</p>
-                <p className="text-sm md:text-base font-bold text-purple-600">{formatCurrency(record.specialDebt)}</p>
+              {/* Water fees KPI */}
+              <div className="relative overflow-hidden rounded-[20px] border border-slate-200/80 bg-[#fffefe] px-5 py-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
+                <div className="absolute inset-y-0 right-0 w-[5px] rounded-r-[20px] bg-[#8b5cf6]" />
+                <div className="space-y-2 text-right">
+                  <p className="text-[14px] font-semibold text-[#97a6bb]">מים חמים</p>
+                  <p className="text-[36px] leading-none font-black tracking-[-0.03em] text-[#8b5cf6]">{formatCurrency(record.specialDebt)}</p>
+                </div>
               </div>
             </div>
           </div>
 
-          <Separator className="my-1 md:my-2" />
-
-          {/* שדות עריכה למנהל */}
-          {isAdmin &&
-        <div className="space-y-2 md:space-y-3 bg-blue-50/30 rounded-2xl p-3 md:p-4">
+          {/* Legal management section */}
+          {isAdmin && (
+          <div className="rounded-[22px] border border-slate-200/80 bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
               <h3 className="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2 md:gap-3 text-right">
                 <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-blue-100 flex items-center justify-center">
                   <Scale className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
