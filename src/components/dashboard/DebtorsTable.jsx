@@ -46,7 +46,6 @@ export default function DebtorsTable({
   const { currentUser } = useAuth();
   const [search, setSearch] = useState('');
   const [apartmentSearch, setApartmentSearch] = useState('');
-  const [statusFilter, setStatusFilter] = useState('all');
   const [autoStatusFilter, setAutoStatusFilter] = useState('all');
   const [sortField, setSortField] = useState('totalDebt');
   const [sortDir, setSortDir] = useState('desc');
