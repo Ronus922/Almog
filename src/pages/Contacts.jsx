@@ -276,7 +276,7 @@ export default function Contacts() {
                         <TableCell className={tableStyles.bodyCell}>
                           {contact.resident_type === 'tenant' && <Badge className="bg-purple-100 text-purple-700">שוכר</Badge>}
                           {contact.resident_type === 'operator' && <Badge className="bg-orange-100 text-orange-700">מפעיל</Badge>}
-                          {contact.resident_type === 'owner' && <span className="text-slate-400 text-sm">—</span>}
+                          {contact.resident_type === 'owner' && <Badge className="bg-blue-100 text-blue-700">בעלים</Badge>}
                         </TableCell>
                         <TableCell className={`${tableStyles.bodyCell} w-32`} dir="ltr">{contact.owner_phone || "—"}</TableCell>
                         <TableCell className={`${tableStyles.bodyCell} hidden md:table-cell`}>{contact.tenant_name || "—"}</TableCell>
