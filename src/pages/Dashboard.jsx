@@ -387,127 +387,72 @@ function DashboardContent() {
           </div>
 
           {/* Filter Alerts */}
-          <div className="mx-[26px] mt-6 space-y-2">
-        {/* Filter indicators */}
-        {filterKeyFromUrl &&
-        <Alert className="rounded-[18px] border border-white/70 bg-white/85 backdrop-blur-[6px] shadow-[0_10px_26px_rgba(15,23,42,0.06)] px-5 md:px-6 py-4">
-            <AlertDescription className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-blue-900">מציג:</span>
-                <span className="text-blue-700">{filterDisplayName}</span>
-              </div>
-              <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setFilterKeyFromUrl(null);
-                setFilterDisplayName('');
-                window.history.pushState({}, '', window.location.pathname);
-              }}
-              className="text-blue-700 hover:text-blue-900 hover:bg-blue-100">
+          {filterKeyFromUrl &&
+            <Alert className="mx-[26px] rounded-[18px] border border-white/70 bg-white/85 backdrop-blur-[6px] shadow-[0_10px_26px_rgba(15,23,42,0.06)] px-5 md:px-6 py-4">
+              <AlertDescription className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-blue-900">מציג:</span>
+                  <span className="text-blue-700">{filterDisplayName}</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setFilterKeyFromUrl(null);
+                    setFilterDisplayName('');
+                    window.history.pushState({}, '', window.location.pathname);
+                  }}
+                  className="text-blue-700 hover:text-blue-900 hover:bg-blue-100">
+                  <X className="w-4 h-4 ml-1" />
+                  נקה פילטר
+                </Button>
+              </AlertDescription>
+            </Alert>
+          }
 
-                <X className="w-4 h-4 ml-1" />
-                נקה פילטר
-              </Button>
-            </AlertDescription>
-          </Alert>
-        }
+          {statusFilterFromUrl && !filterKeyFromUrl &&
+            <Alert className="mx-[26px] rounded-[18px] border border-white/70 bg-white/85 backdrop-blur-[6px] shadow-[0_10px_26px_rgba(15,23,42,0.06)] px-5 md:px-6 py-4">
+              <AlertDescription className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-blue-900">מסונן לפי סטטוס משפטי:</span>
+                  <span className="text-blue-700">{statusFilterFromUrl}</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setStatusFilterFromUrl(null);
+                    window.history.pushState({}, '', window.location.pathname);
+                  }}
+                  className="text-blue-700 hover:text-blue-900 hover:bg-blue-100">
+                  <X className="w-4 h-4 ml-1" />
+                  נקה פילטר
+                </Button>
+              </AlertDescription>
+            </Alert>
+          }
 
-        {statusFilterFromUrl && !filterKeyFromUrl &&
-        <Alert className="rounded-[18px] border border-white/70 bg-white/85 backdrop-blur-[6px] shadow-[0_10px_26px_rgba(15,23,42,0.06)] px-5 md:px-6 py-4">
-            <AlertDescription className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-blue-900">מסונן לפי סטטוס משפטי:</span>
-                <span className="text-blue-700">{statusFilterFromUrl}</span>
-              </div>
-              <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setStatusFilterFromUrl(null);
-                window.history.pushState({}, '', window.location.pathname);
-              }}
-              className="text-blue-700 hover:text-blue-900 hover:bg-blue-100">
-
-                <X className="w-4 h-4 ml-1" />
-                נקה פילטר
-              </Button>
-            </AlertDescription>
-          </Alert>
-        }
-
-        {autoStatusFilter && !filterKeyFromUrl &&
-        <Alert className="rounded-[18px] border border-white/70 bg-white/85 backdrop-blur-[6px] shadow-[0_10px_26px_rgba(15,23,42,0.06)] px-5 md:px-6 py-4">
-            <AlertDescription className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-orange-900">מסונן לפי סטטוס אוטומטי:</span>
-                <span className="text-orange-700">{autoStatusFilter}</span>
-              </div>
-              <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => {
-                setAutoStatusFilter(null);
-                window.history.pushState({}, '', window.location.pathname);
-              }}
-              className="text-orange-700 hover:text-orange-900 hover:bg-orange-100">
-
-                <X className="w-4 h-4 ml-1" />
-                נקה פילטר
-              </Button>
-            </AlertDescription>
-          </Alert>
-        }
-
-        {/* כותרת */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <h1 className="text-3xl font-bold text-slate-900">
-                שלום, {currentUser.firstName || currentUser.username}
-              </h1>
-              {currentUser?.isBase44Admin &&
-              <span className="text-xs bg-gradient-to-l from-purple-600 to-purple-700 text-white px-2.5 py-1 rounded-lg font-bold">
-                Base44 Super Admin
-              </span>
-              }
-            </div>
-            <p className="text-sm text-slate-500">
-              {settings.buildingName || 'דשבורד חייבים'} • {settings.buildingAddress || ''}
-            </p>
-          </div>
-          <div className="flex flex-wrap items-center gap-2">
-            {!isAdmin &&
-            <div className="text-sm rounded-[12px] border border-slate-200 bg-white px-4 py-2.5 text-slate-600 font-medium shadow-sm">
-              צפייה בלבד
-            </div>
-            }
-            {isAdmin &&
-            <>
-              <ExcelExporter records={filteredDataset.length > 0 ? filteredDataset : records} statuses={allStatuses} />
-              <PDFExporter records={filteredDataset.length > 0 ? filteredDataset : records} statuses={allStatuses} settings={settings} />
-              <Button 
-                variant="outline" 
-                size="sm"
-                onClick={() => window.print()}
-                className="gap-2 h-10 rounded-[12px] px-4 border border-slate-200 hover:bg-slate-50"
-              >
-                <Printer className="w-4 h-4" />
-                הדפס
-              </Button>
-            </>
-            }
-            <AppButton variant="outline" size="md" icon={RefreshCw} onClick={handleRefresh} className="hover:text-slate-900">
-              רענן נתונים
-            </AppButton>
-          </div>
-        </div>
-
-        {/* כרטיסי KPI - מבוסס על כל הרשומות כולל ארכיון */}
-        <KPICards records={allRecords} settings={settings} allStatuses={allStatuses} />
-
-        {/* אינדיקציית ייבוא אחרון - בין KPI לטבלה */}
-        <LastImportIndicator lastImportAt={settings?.last_import_at} isAdmin={isAdmin} />
+          {autoStatusFilter && !filterKeyFromUrl &&
+            <Alert className="mx-[26px] rounded-[18px] border border-white/70 bg-white/85 backdrop-blur-[6px] shadow-[0_10px_26px_rgba(15,23,42,0.06)] px-5 md:px-6 py-4">
+              <AlertDescription className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="font-bold text-orange-900">מסונן לפי סטטוס אוטומטי:</span>
+                  <span className="text-orange-700">{autoStatusFilter}</span>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => {
+                    setAutoStatusFilter(null);
+                    window.history.pushState({}, '', window.location.pathname);
+                  }}
+                  className="text-orange-700 hover:text-orange-900 hover:bg-orange-100">
+                  <X className="w-4 h-4 ml-1" />
+                  נקה פילטר
+                </Button>
+              </AlertDescription>
+            </Alert>
+          }
 
         {/* טאבים - חייבים / ארכיון (רק למנהלים) */}
         {isAdmin &&
