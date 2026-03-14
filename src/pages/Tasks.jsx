@@ -219,9 +219,7 @@ export default function Tasks() {
     });
   }, [filtered, sortField, sortDir]);
 
-  const openTasks = myTasks.filter((t) => t.status === "פתוחה" || t.status === "בטיפול");
-  const overdue = openTasks.filter((t) => t.due_date && isPast(new Date(t.due_date)) && !isToday(new Date(t.due_date)));
-  const dueToday = openTasks.filter((t) => t.due_date && isToday(new Date(t.due_date)));
+
 
   const getDueDateStyle = (task) => {
     if (task.status === "הושלמה" || task.status === "בוטלה") return "text-slate-400";
