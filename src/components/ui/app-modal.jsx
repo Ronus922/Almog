@@ -43,9 +43,8 @@ export default function AppModal({
 
             {/* Close button */}
             <button
-              onClick={onHeaderClose || onClose}
+              onClick={() => (onHeaderClose ? onHeaderClose() : onClose())}
               className="absolute left-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-[14px] border border-white/20 bg-white/10 text-white shadow-sm backdrop-blur-sm transition hover:bg-white/20 z-10">
-
               <X className="h-5 w-5" />
               <span className="sr-only">סגור</span>
             </button>
