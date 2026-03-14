@@ -335,7 +335,7 @@ export default function DebtorsTable({
         <div className="flex flex-col gap-4">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div>
-              <CardTitle className="text-xl md:text-2xl font-bold text-slate-800">טבלת חייבים</CardTitle>
+              <CardTitle className="text-[22px] md:text-[26px] font-[700] text-slate-800">טבלת חייבים</CardTitle>
               <p className="text-sm text-slate-600 mt-1 font-medium">
                 סה״כ רשומות: <span className="font-bold text-blue-600">{filteredRecords.length}</span>
               </p>
