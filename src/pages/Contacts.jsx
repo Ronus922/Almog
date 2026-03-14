@@ -317,6 +317,7 @@ export default function Contacts() {
         onClose={() => setImportOpen(false)}
         onImported={() => queryClient.invalidateQueries({ queryKey: ["contacts"] })}
       />
+      </div>
     </div>
   );
 }
