@@ -284,42 +284,18 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       </div>
 
       {/* Date and Time */}
-       <div className="grid grid-cols-3 gap-4">
-         <div>
-           <Label className="block mb-2 font-bold text-slate-900 text-sm">תאריך *</Label>
-           <Popover open={openDatePicker} onOpenChange={setOpenDatePicker}>
-             <PopoverTrigger asChild>
-               <Button variant="outline" className="w-full justify-start text-left font-normal h-10 bg-white hover:bg-slate-50 border-slate-200">
-                 {formData.date ? format(new Date(formData.date + "T00:00:00"), "dd MMMM yyyy", { locale: he }) : "בחר תאריך"}
-               </Button>
-             </PopoverTrigger>
-             <PopoverContent className="w-auto p-0" align="start" dir="rtl">
-               <Calendar
-                 mode="single"
-                 selected={formData.date ? new Date(formData.date + "T00:00:00") : undefined}
-                 onSelect={(date) => {
-                   if (date) {
-                     handleChange('date', format(date, "yyyy-MM-dd"));
-                     setOpenDatePicker(false);
-                   }
-                 }}
-                 disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                 locale={he}
-                 className="text-lg"
-               />
-             </PopoverContent>
-           </Popover>
-         </div>
+      <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="start_time" className="block mb-2 font-bold text-slate-900 text-sm">שעת התחלה *</Label>
-          <Input
-            id="start_time"
-            type="time"
-            value={formData.start_time}
-            onChange={(e) => handleChange('start_time', e.target.value)}
-            required
-            dir="rtl"
-            className="h-10"
+          <Label className="block mb-2 font-bold text-slate-900 text-sm">תאריך ושעת התחלה *</Label>
+          <DateTimePicker
+            value={formData.date && formData.start_time ? new Date(`${formData.date}T${formData.start_time}`) : null}
+            onChange={(dt) => {
+              if (dt) {
+                handleChange('date', format(dt, 'yyyy-MM-dd'));
+                handleChange('start_time', format(dt, 'HH:mm'));
+              }
+            }}
+            placeholder="בחר תאריך ושעת התחלה"
           />
         </div>
         <div>
