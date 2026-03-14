@@ -20,6 +20,7 @@ import InlineEditableField from './InlineEditableField';
 import DebtSeverityBadge from './DebtSeverityBadge';
 import { calculateDebtStatusDebug } from '../utils/debtStatusCalculator';
 import CommentsSection from '../comments/CommentsSection';
+import { getPhonePrimaryForTable } from '../utils/phoneDisplay';
 
 export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin, settings }) {
   const { currentUser } = useAuth();
@@ -82,8 +83,8 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     return phone;
   };
 
-  // Computed phone for display - choose first available
-  const displayPhone = editedRecord?.phoneOwner || editedRecord?.phoneTenant || record.phoneOwner || record.phoneTenant;
+  // Computed phone for display - same logic as table
+  const displayPhone = getPhonePrimaryForTable(editedRecord || record);
 
   const handleSave = async () => {
     setLastContactDateError('');
