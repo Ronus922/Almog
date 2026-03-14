@@ -6,12 +6,9 @@ import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-  DialogDescription
+  DialogClose
 } from "@/components/ui/dialog";
-import { Send, X } from "lucide-react";
+import { Send, X, MessageSquare } from "lucide-react";
 import { toast } from 'sonner';
 
 export default function QuickCommentDialog({ 
@@ -90,25 +87,36 @@ export default function QuickCommentDialog({
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent dir="rtl" className="max-w-lg">
-        <DialogHeader>
-          <DialogTitle className="text-right">
-            הערות לדירה {record.apartmentNumber}
-          </DialogTitle>
-          <DialogDescription className="text-right">
-            {record.ownerName || 'ללא שם'}
-          </DialogDescription>
-        </DialogHeader>
+      <DialogContent 
+        className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] max-w-lg w-full p-0 overflow-hidden flex flex-col border shadow-lg rounded-lg bg-background"
+        style={{ maxHeight: '90vh', maxWidth: '472px' }}
+        dir="rtl"
+      >
+        {/* כפתור סגירה */}
+        <DialogClose className="absolute left-4 top-4 rounded-lg bg-white/20 p-1.5 hover:bg-white/40 transition-colors z-10">
+          <X className="h-5 w-5 text-white" />
+          <span className="sr-only">סגור</span>
+        </DialogClose>
 
-        <div className="space-y-4">
+        {/* כותרת */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-lg flex items-center gap-3">
+          <MessageSquare className="w-5 h-5 text-white" />
+          <div>
+            <div className="text-white text-lg font-bold">הערות לדירה {record.apartmentNumber}</div>
+            <p className="text-blue-100 text-sm mt-1">{record.ownerName || 'ללא שם'}</p>
+          </div>
+        </div>
+
+        {/* תוכן ראשי */}
+        <div className="space-y-4 flex-1 overflow-y-auto px-6 pt-4 pb-6">
           {/* ההערה האחרונה */}
           {lastComment && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs text-slate-500">הערה אחרונה</span>
+                <span className="text-xs font-semibold text-blue-600">הערה אחרונה</span>
                 <span className="font-bold text-sm text-blue-700">{lastComment.author_name}</span>
               </div>
-              <p className="text-sm text-slate-700 whitespace-pre-wrap mb-2">
+              <p className="text-sm text-slate-700 whitespace-pre-wrap mb-3">
                 {lastComment.content}
               </p>
               <span className="text-xs text-slate-500">
@@ -127,8 +135,8 @@ export default function QuickCommentDialog({
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 placeholder="כתוב הערה..."
-                className="rounded-lg text-right resize-none bg-white"
-                rows={3}
+                className="rounded-lg text-sm resize-none border-slate-200 bg-white"
+                rows={4}
                 dir="rtl"
                 disabled={isSubmitting}
                 onKeyDown={(e) => {
@@ -144,26 +152,27 @@ export default function QuickCommentDialog({
           )}
         </div>
 
-        <DialogFooter className="gap-2">
+        {/* כפתורי פעולה */}
+        <div className="flex justify-end gap-2 px-6 py-4 border-t border-slate-100 bg-white flex-shrink-0">
           <Button
             variant="outline"
             onClick={onClose}
-            className="rounded-lg h-10"
+            disabled={isSubmitting}
+            className="rounded-lg h-9"
           >
-            <X className="w-4 h-4 ml-2" />
             סגור
           </Button>
           {isAdmin && (
             <Button
               onClick={handleSubmit}
               disabled={isSubmitting || !comment.trim()}
-              className="bg-blue-600 hover:bg-blue-700 rounded-lg h-10"
+              className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg h-9 gap-2"
             >
-              <Send className="w-4 h-4 ml-2" />
+              <Send className="w-4 h-4" />
               {isSubmitting ? 'שולח...' : 'הוסף הערה'}
             </Button>
           )}
-        </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );
