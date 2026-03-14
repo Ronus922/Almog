@@ -15,6 +15,7 @@ import RecurrenceEditDialog from '@/components/calendar/RecurrenceEditDialog';
 import CalendarHeader from '@/components/calendar/CalendarHeader';
 import DateRangePickerDialog from '@/components/calendar/DateRangePickerDialog';
 import CalendarQuickFilters from '@/components/calendar/CalendarQuickFilters';
+import { useCalendarDragDrop } from '@/components/calendar/useCalendarDragDrop';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 const HEBREW_HOLIDAYS = [
@@ -61,6 +62,25 @@ export default function Calendar() {
   const [meetingTypeFilter, setMeetingTypeFilter] = useState('');
   const [userFilter, setUserFilter] = useState('');
   const queryClient = useQueryClient();
+
+  // Drag & Drop
+  const handleDragDrop = async (e, newDate) => {
+    if (!draggedAppointment) return;
+    await updateEventMutation.mutateAsync({
+      id: draggedAppointment.id,
+      data: {
+        ...draggedAppointment,
+        event_date: format(newDate, 'yyyy-MM-dd'),
+      },
+    });
+    setDraggedAppointment(null);
+  };
+
+  const {
+    draggedAppointment,
+    handleDragStart,
+    handleDragEnd,
+  } = useCalendarDragDrop(handleDragDrop);
 
   // Persist filters to localStorage
   React.useEffect(() => {
@@ -420,6 +440,10 @@ export default function Calendar() {
               onAppointmentClick={handleAppointmentClick}
               isHoliday={isHoliday}
               getHolidayName={getHolidayName}
+              draggedAppointment={draggedAppointment}
+              onDragStart={handleDragStart}
+              onDragEnd={handleDragEnd}
+              onDragDrop={handleDragDrop}
             />
           )}
           {viewMode === 'week' && (
