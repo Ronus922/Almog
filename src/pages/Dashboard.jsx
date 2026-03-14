@@ -191,7 +191,7 @@ function DashboardContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#f8fbff_0%,#f2f6ff_45%,#eef2ff_100%)]" dir="rtl">
+    <div className="min-h-screen bg-[linear-gradient(180deg,#f5f7ff_0%,#edf2ff_100%)] px-[18px] pt-[22px] pb-10" dir="rtl">
       <style>{`
         @media print {
           body * {
@@ -315,7 +315,114 @@ function DashboardContent() {
           .tab-pill { flex: 1; min-width: 0; }
         }
       `}</style>
-      <div className="max-w-[1400px] mx-auto px-6 md:px-8 pt-6 pb-12 space-y-6">
+
+      {/* Main Shell */}
+      <div className="relative mx-auto w-full max-w-[1365px] overflow-hidden rounded-[24px] border border-[rgba(184,198,245,0.60)] bg-[linear-gradient(180deg,rgba(255,255,255,0.94)_0%,rgba(245,248,255,0.98)_100%)] shadow-[0_24px_70px_rgba(109,132,220,0.14),0_8px_24px_rgba(160,180,255,0.10),inset_0_1px_0_rgba(255,255,255,0.95)]">
+        
+        {/* Glow Layer */}
+        <div 
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            background: `
+              radial-gradient(circle at 10% 16%, rgba(109,223,255,0.22) 0%, rgba(109,223,255,0) 30%),
+              radial-gradient(circle at 86% 14%, rgba(196,165,255,0.18) 0%, rgba(196,165,255,0) 32%),
+              radial-gradient(circle at 50% -10%, rgba(255,255,255,0.80) 0%, rgba(255,255,255,0) 45%)
+            `
+          }}
+        />
+
+        {/* Header */}
+        <div className="relative z-[2] flex h-[68px] items-center justify-between border-b border-[rgba(225,230,247,0.92)] bg-[rgba(255,255,255,0.70)] px-7 backdrop-blur-[12px]">
+          {/* Left - Nav (Hidden on mobile) */}
+          <div className="hidden items-center gap-[22px] md:flex">
+            <a href="#" className="text-[11px] font-semibold text-[#8e98bb] transition-colors hover:text-[#5d6dff]">דירוג</a>
+            <a href="#" className="text-[11px] font-semibold text-[#8e98bb] transition-colors hover:text-[#5d6dff]">דשבורד</a>
+            <a href="#" className="text-[11px] font-semibold text-[#8e98bb] transition-colors hover:text-[#5d6dff]">חשבונות</a>
+            <a href="#" className="text-[11px] font-semibold text-[#8e98bb] transition-colors hover:text-[#5d6dff]">עזרה וחקר</a>
+          </div>
+
+          {/* Right - User */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              <div>
+                <p className="text-[14px] font-bold text-[#2f3969]">{currentUser.firstName || currentUser.username}</p>
+                <p className="mt-[2px] text-[11px] font-medium text-[#9aa5c9]">בעל הדירוג</p>
+              </div>
+              <div className="h-[34px] w-[34px] rounded-full border-2 border-white/95 shadow-[0_6px_18px_rgba(95,110,180,0.16)] bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white text-sm font-bold">
+                {(currentUser.firstName || currentUser.username).charAt(0)}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Hero Section */}
+        <div className="relative z-[3] min-h-[148px] overflow-hidden bg-[linear-gradient(135deg,rgba(187,234,255,0.40)_0%,rgba(217,230,255,0.33)_42%,rgba(239,230,255,0.28)_100%)] px-[34px] pt-5 pb-[26px]">
+          {/* Blob 1 */}
+          <div 
+            className="absolute top-0 left-1/4 w-[280px] h-[280px] rounded-full blur-[80px] opacity-40 pointer-events-none"
+            style={{ background: 'rgba(200, 230, 255, 0.5)', transform: 'translate(-50%, -30%)' }}
+          />
+          {/* Blob 2 */}
+          <div 
+            className="absolute -bottom-12 right-1/3 w-[200px] h-[200px] rounded-full blur-[60px] opacity-30 pointer-events-none"
+            style={{ background: 'rgba(220, 200, 255, 0.4)' }}
+          />
+
+          <h1 className="relative text-[44px] font-bold leading-[1.05] text-[#2f3969]">
+            {currentUser.firstName || currentUser.username}
+          </h1>
+          <p className="relative mt-[6px] text-[13px] font-medium text-[#96a1c6]">
+            {settings.buildingName || 'בניין אלמוג'} • {settings.buildingAddress || ''}
+          </p>
+        </div>
+
+        {/* KPI Row */}
+        <div className="relative z-[4] -mt-[16px] px-[26px] pb-[26px]">
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 xl:grid-cols-4">
+            {[
+              { label: 'בעלי חוב', value: '₪ 734', color: '#2bc9a8', icon: '🔒' },
+              { label: 'דמי ניהול חודשיים', value: '₪ 162,445', color: '#6270ff', icon: '📋' },
+              { label: 'סכום מיוחד חודשי', value: '₪ 12,773', color: '#f5a623', icon: '⚠️' },
+              { label: 'חשמל כולל חודשי', value: '₪ 91,772', color: '#ff5a9c', icon: '📱' }
+            ].map((kpi, idx) => (
+              <div
+                key={idx}
+                className="relative min-h-[108px] overflow-hidden rounded-[20px] border border-[rgba(225,231,248,0.96)] bg-[rgba(255,255,255,0.90)] px-[18px] pt-4 pb-[14px] backdrop-blur-[12px] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)]"
+              >
+                {/* Overlay */}
+                <div 
+                  className="absolute inset-0 pointer-events-none"
+                  style={{
+                    background: 'linear-gradient(180deg, rgba(255,255,255,0.72) 0%, rgba(255,255,255,0.10) 100%)'
+                  }}
+                />
+
+                {/* Content */}
+                <div className="relative">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-[0.04em] text-[#a0aacb]">{kpi.label}</p>
+                      <p className="mt-2 text-[35px] font-extrabold leading-none" style={{ color: kpi.color }}>
+                        {kpi.value}
+                      </p>
+                    </div>
+                    <span className="text-2xl">{kpi.icon}</span>
+                  </div>
+                  <div className="mt-3">
+                    <span className="inline-flex h-7 items-center rounded-full border border-[rgba(226,232,248,0.96)] bg-[#f7f9ff] px-[14px] text-[11px] font-semibold text-[#8f99bd]">
+                      ראה פרטים →
+                    </span>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Content Wrapper Below Shell */}
+      <div className="relative mx-auto w-full max-w-[1365px] mt-8 space-y-6 px-[18px]">
+
         {/* Filter indicators */}
         {filterKeyFromUrl &&
         <Alert className="rounded-[18px] border border-white/70 bg-white/85 backdrop-blur-[6px] shadow-[0_10px_26px_rgba(15,23,42,0.06)] px-5 md:px-6 py-4">
@@ -387,23 +494,9 @@ function DashboardContent() {
           </Alert>
         }
 
-        {/* כותרת */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 md:gap-6">
-          <div>
-            <div className="flex items-center gap-2 mb-2">
-              <h1 className="text-3xl font-bold text-slate-900">
-                שלום, {currentUser.firstName || currentUser.username}
-              </h1>
-              {currentUser?.isBase44Admin &&
-              <span className="text-xs bg-gradient-to-l from-purple-600 to-purple-700 text-white px-2.5 py-1 rounded-lg font-bold">
-                Base44 Super Admin
-              </span>
-              }
-            </div>
-            <p className="text-sm text-slate-500">
-              {settings.buildingName || 'דשבורד חייבים'} • {settings.buildingAddress || ''}
-            </p>
-          </div>
+        {/* Tools Toolbar */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div />
           <div className="flex flex-wrap items-center gap-2">
             {!isAdmin &&
             <div className="text-sm rounded-[12px] border border-slate-200 bg-white px-4 py-2.5 text-slate-600 font-medium shadow-sm">
@@ -430,9 +523,6 @@ function DashboardContent() {
             </AppButton>
           </div>
         </div>
-
-        {/* כרטיסי KPI - מבוסס על כל הרשומות כולל ארכיון */}
-        <KPICards records={allRecords} settings={settings} allStatuses={allStatuses} />
 
         {/* אינדיקציית ייבוא אחרון - בין KPI לטבלה */}
         <LastImportIndicator lastImportAt={settings?.last_import_at} isAdmin={isAdmin} />
