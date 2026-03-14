@@ -738,7 +738,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[#f5f8fc] text-[#7f95b5]">
                   <Home className="w-5 h-5" />
                 </div>
-                <h3 className="text-[30px] leading-none font-black tracking-[-0.02em] text-[#253b5b] text-right flex-1">פרטים עיקריים</h3>
+                <h3 className="text-[24px] leading-none font-black tracking-[-0.02em] text-[#253b5b] text-right flex-1">פרטים עיקריים</h3>
               </div>
               <div className="grid grid-cols-[1fr_auto] items-start gap-x-4 gap-y-3 py-2">
                 <div>
@@ -766,7 +766,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 <div className="flex h-10 w-10 items-center justify-center rounded-[12px] bg-[#f5f8fc] text-[#7f95b5]">
                   <FileText className="w-5 h-5" />
                 </div>
-                <h3 className="text-[30px] leading-none font-black tracking-[-0.02em] text-[#253b5b] text-right flex-1">מידע נוסף</h3>
+                <h3 className="text-[24px] leading-none font-black tracking-[-0.02em] text-[#253b5b] text-right flex-1">מידע נוסף</h3>
               </div>
               <div className="space-y-3">
                 {editedRecord?.detailsMonthly && (
@@ -825,7 +825,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 )}
                 <div className="space-y-1 text-right">
                   <p className="text-[13px] font-semibold text-[#95a3b8]">טלפון בעלים</p>
-                  <p className="text-[32px] leading-none font-black text-[#233754]">{formatPhone(editedRecord?.phoneOwner || record.phoneOwner || 'אין')}</p>
+                  <p className="text-[26px] leading-none font-black text-[#233754]">{formatPhone(editedRecord?.phoneOwner || record.phoneOwner || 'אין')}</p>
                 </div>
               </div>
             </div>
@@ -852,7 +852,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 )}
                 <div className="space-y-1 text-right">
                   <p className="text-[13px] font-semibold text-[#95a3b8]">טלפון שוכר</p>
-                  <p className="text-[32px] leading-none font-black text-[#233754]">{formatPhone(editedRecord?.phoneTenant || record.phoneTenant || 'אין')}</p>
+                  <p className="text-[26px] leading-none font-black text-[#233754]">{formatPhone(editedRecord?.phoneTenant || record.phoneTenant || 'אין')}</p>
                 </div>
               </div>
             </div>
@@ -908,7 +908,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 <div className="absolute inset-y-0 right-0 w-[5px] rounded-r-[20px] bg-[#ff4d6d]" />
                 <div className="space-y-2 text-right">
                   <p className="text-[14px] font-semibold text-[#97a6bb]">סה״כ חוב</p>
-                  <p className="text-[36px] leading-none font-black tracking-[-0.03em] text-[#ff4d6d]">{formatCurrency(record.totalDebt)}</p>
+                  <p className="text-[26px] leading-none font-black tracking-[-0.03em] text-[#ff4d6d]">{formatCurrency(record.totalDebt)}</p>
                 </div>
               </div>
               {/* Management fees KPI */}
@@ -916,7 +916,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 <div className="absolute inset-y-0 right-0 w-[5px] rounded-r-[20px] bg-[#f5a623]" />
                 <div className="space-y-2 text-right">
                   <p className="text-[14px] font-semibold text-[#97a6bb]">דמי ניהול</p>
-                  <p className="text-[36px] leading-none font-black tracking-[-0.03em] text-[#f59e0b]">{formatCurrency(record.monthlyDebt)}</p>
+                  <p className="text-[26px] leading-none font-black tracking-[-0.03em] text-[#f59e0b]">{formatCurrency(record.monthlyDebt)}</p>
                 </div>
               </div>
               {/* Water fees KPI */}
@@ -924,7 +924,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 <div className="absolute inset-y-0 right-0 w-[5px] rounded-r-[20px] bg-[#8b5cf6]" />
                 <div className="space-y-2 text-right">
                   <p className="text-[14px] font-semibold text-[#97a6bb]">מים חמים</p>
-                  <p className="text-[36px] leading-none font-black tracking-[-0.03em] text-[#8b5cf6]">{formatCurrency(record.specialDebt)}</p>
+                  <p className="text-[26px] leading-none font-black tracking-[-0.03em] text-[#8b5cf6]">{formatCurrency(record.specialDebt)}</p>
                 </div>
               </div>
             </div>
