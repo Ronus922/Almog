@@ -346,7 +346,7 @@ export default function DebtorsTable({
                     placeholder="מספר דירה..."
                     value={apartmentSearch}
                     onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
-                    className="pr-10 h-10 rounded-xl border-slate-300 text-sm"
+                    className="pr-10 h-[34px] rounded-[10px] border-[rgba(224,230,246,0.96)] bg-white px-3 text-[12px] font-semibold text-[#687395] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] outline-none transition-colors placeholder:text-[#a2abc8] focus:border-[#cfd8ff]"
                     inputMode="numeric" />
 
               </div>
