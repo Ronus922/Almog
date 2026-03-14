@@ -689,7 +689,6 @@ function DashboardContent() {
             onSave={handleSaveRecord}
             isAdmin={isAdmin}
             settings={settings} />
-          </>
           </div>
           </TooltipProvider>
   );
