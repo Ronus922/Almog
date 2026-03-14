@@ -404,127 +404,141 @@ export default function Tasks() {
         </div>
 
         {/* Table */}
-        <div className="sys-card overflow-hidden">
-            {isLoading ?
-            <div className="empty-state">טוען משימות...</div> :
-            sorted.length === 0 ?
+        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
+          {isLoading ? (
+            <div className="empty-state">טוען משימות...</div>
+          ) : sorted.length === 0 ? (
             <div className="empty-state">
-                <ClipboardList className="empty-state-icon" />
-                <p>אין משימות להצגה</p>
-              </div> :
-
+              <ClipboardList className="empty-state-icon" />
+              <p>אין משימות להצגה</p>
+            </div>
+          ) : (
             <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="sys-table-header-row">
-                      <th className="sys-table-header-cell w-10"></th>
-                      <SortableHeader label="תיאור המשימה" field="task_type" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
-                      <SortableHeader label="עובד" field="assigned" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
-                      <SortableHeader label="תאריך לביצוע" field="due_date" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
-                      <SortableHeader label="עדיפות" field="priority" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
-                      <SortableHeader label="סטטוס" field="status" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
-                      <th className="sys-table-header-cell">תאריך יצירה</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sorted.map((task) =>
+              <table className="w-full text-sm border-collapse">
+                <thead>
+                  <tr className="bg-slate-50 border-b border-slate-200">
+                    <th className="text-right font-semibold text-slate-500 px-4 py-3 w-20"></th>
+                    <th className="text-right font-semibold text-slate-500 px-4 py-3 cursor-pointer select-none" onClick={() => handleSort("task_type")}>
+                      <span className="flex items-center gap-1 justify-end">תיאור המשימה {sortField === "task_type" ? (sortDir === "asc" ? "↑" : "↓") : ""}</span>
+                    </th>
+                    <th className="text-right font-semibold text-slate-500 px-4 py-3 cursor-pointer select-none" onClick={() => handleSort("assigned")}>
+                      <span className="flex items-center gap-1 justify-end">עובד {sortField === "assigned" ? (sortDir === "asc" ? "↑" : "↓") : ""}</span>
+                    </th>
+                    <th className="text-right font-semibold text-slate-500 px-4 py-3 cursor-pointer select-none" onClick={() => handleSort("due_date")}>
+                      <span className="flex items-center gap-1 justify-end">תאריך לביצוע {sortField === "due_date" ? (sortDir === "asc" ? "↑" : "↓") : ""}</span>
+                    </th>
+                    <th className="text-right font-semibold text-slate-500 px-4 py-3 cursor-pointer select-none" onClick={() => handleSort("priority")}>
+                      <span className="flex items-center gap-1 justify-end">עדיפות {sortField === "priority" ? (sortDir === "asc" ? "↑" : "↓") : ""}</span>
+                    </th>
+                    <th className="text-right font-semibold text-slate-500 px-4 py-3 cursor-pointer select-none" onClick={() => handleSort("status")}>
+                      <span className="flex items-center gap-1 justify-end">סטטוס {sortField === "status" ? (sortDir === "asc" ? "↑" : "↓") : ""}</span>
+                    </th>
+                    <th className="text-right font-semibold text-slate-500 px-4 py-3">תאריך יצירה</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {sorted.map((task, idx) => (
                     <tr
-                    key={task.id}
-                    className={`transition-colors cursor-pointer ${isOverdue(task) ? "bg-[#fdecec] hover:bg-[#fbd9d9]" : "hover:bg-blue-50/40"}`}
-                    onClick={() => {setEditTask(task);setShowDialog(true);}}>
-
-                        <td className="px-4 py-3">
-                          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                      key={task.id}
+                      className={`border-b border-slate-100 cursor-pointer transition-colors ${
+                        isOverdue(task)
+                          ? "bg-red-50 hover:bg-red-100"
+                          : idx % 2 === 0
+                          ? "bg-white hover:bg-blue-50/50"
+                          : "bg-slate-50/50 hover:bg-blue-50/50"
+                      }`}
+                      onClick={() => { setEditTask(task); setShowDialog(true); }}
+                    >
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                          <button
+                            onClick={() => { setEditTask(task); setShowDialog(true); }}
+                            className="text-slate-400 hover:text-blue-600 transition-colors"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
+                          {(task.assigned_by === currentUser?.username || task.assigned_by === currentUser?.email) && (
                             <button
-                          onClick={() => {setEditTask(task);setShowDialog(true);}}
-                          className="text-slate-400 hover:text-blue-600 transition-colors">
-
-                              <Pencil className="w-4 h-4" />
+                              onClick={() => { if (window.confirm("למחוק משימה זו?")) deleteMutation.mutate(task.id); }}
+                              className="text-slate-300 hover:text-red-500 transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
                             </button>
-                            {(task.assigned_by === currentUser?.username || task.assigned_by === currentUser?.email) &&
-                        <button
-                          onClick={() => {if (window.confirm("למחוק משימה זו?")) deleteMutation.mutate(task.id);}}
-                          className="text-slate-300 hover:text-red-500 transition-colors">
+                          )}
+                        </div>
+                      </td>
 
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                        }
+                      <td className="px-4 py-3">
+                        <div className="font-medium text-slate-800">{task.task_type}</div>
+                        {task.owner_name && (
+                          <div className="text-xs text-slate-400 mt-0.5">דירה {task.apartment_number} – {task.owner_name}</div>
+                        )}
+                        {task.description && (
+                          <div className="text-xs text-slate-400 truncate max-w-xs">{task.description}</div>
+                        )}
+                      </td>
+
+                      <td className="px-4 py-3">
+                        <div className="text-slate-700">
+                          {task.assigned_to_name === "רונן משולם" ? "רונן משולם" : task.assigned_to_name || task.assigned_to || "-"}
+                        </div>
+                        {task.assigned_by && (
+                          <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
+                            <UserPlus className="w-3 h-3" />
+                            {userNameMap[task.assigned_by] || task.assigned_by}
                           </div>
-                        </td>
+                        )}
+                      </td>
 
-                        <td className="px-4 py-3">
-                          <div className="font-medium text-slate-800">{task.task_type}</div>
-                          {task.owner_name &&
-                      <div className="text-xs text-slate-400 mt-0.5">
-                              דירה {task.apartment_number} – {task.owner_name}
-                            </div>
-                      }
-                          {task.description &&
-                      <div className="text-xs text-slate-400 truncate max-w-xs">{task.description}</div>
-                      }
-                        </td>
+                      <td className={`px-4 py-3 ${getDueDateStyle(task)}`}>
+                        {task.due_date ? formatDateTime(task.due_date + "T00:00:00") : "-"}
+                      </td>
 
-                        <td className="px-4 py-3">
-                           <div className="text-slate-700">
-                             {task.assigned_to_name === "רונן משולם" ? "רונן משולם" : task.assigned_to_name || task.assigned_to || "-"}
-                           </div>
-                          {task.assigned_by &&
-                      <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
-                              <UserPlus className="w-3 h-3" />
-                              {userNameMap[task.assigned_by] || task.assigned_by}
-                            </div>
-                      }
-                        </td>
+                      <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                        <Select value={task.priority} onValueChange={(value) => updatePriority.mutate({ taskId: task.id, priority: value })}>
+                          <SelectTrigger className={`w-28 h-8 text-xs font-semibold ${
+                            task.priority === "גבוהה" ? "bg-red-100 text-red-700 border-red-300" :
+                            task.priority === "בינונית" ? "bg-yellow-100 text-yellow-700 border-yellow-300" :
+                            "bg-green-100 text-green-700 border-green-300"
+                          }`}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="גבוהה"><span className="text-red-700 font-semibold">● גבוהה</span></SelectItem>
+                            <SelectItem value="בינונית"><span className="text-yellow-700 font-semibold">● בינונית</span></SelectItem>
+                            <SelectItem value="נמוכה"><span className="text-green-700 font-semibold">● נמוכה</span></SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </td>
 
-                        <td className={`px-4 py-3 ${getDueDateStyle(task)}`}>
-                          {task.due_date ? formatDateTime(task.due_date + "T00:00:00") : "-"}
-                        </td>
+                      <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                        <Select value={task.status} onValueChange={(value) => updateStatus.mutate({ taskId: task.id, status: value })}>
+                          <SelectTrigger className={`w-28 h-8 text-xs font-semibold ${
+                            task.status === "פתוחה" ? "bg-blue-100 text-blue-700 border-blue-300" :
+                            task.status === "בטיפול" ? "bg-orange-100 text-orange-700 border-orange-300" :
+                            task.status === "הושלמה" ? "bg-green-100 text-green-700 border-green-300" :
+                            "bg-slate-100 text-slate-700 border-slate-300"
+                          }`}>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="פתוחה"><span className="text-blue-700 font-semibold">● פתוחה</span></SelectItem>
+                            <SelectItem value="בטיפול"><span className="text-orange-700 font-semibold">● בטיפול</span></SelectItem>
+                            <SelectItem value="הושלמה"><span className="text-green-700 font-semibold">● הושלמה</span></SelectItem>
+                            <SelectItem value="בוטלה"><span className="text-slate-700 font-semibold">● בוטלה</span></SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </td>
 
-                        <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                           <Select value={task.priority} onValueChange={(value) => updatePriority.mutate({ taskId: task.id, priority: value })}>
-                             <SelectTrigger className={`w-28 h-8 text-xs font-semibold ${
-                               task.priority === "גבוהה" ? "bg-red-100 text-red-700 border-red-300" :
-                               task.priority === "בינונית" ? "bg-yellow-100 text-yellow-700 border-yellow-300" :
-                               "bg-green-100 text-green-700 border-green-300"
-                             }`}>
-                               <SelectValue />
-                             </SelectTrigger>
-                             <SelectContent>
-                               <SelectItem value="גבוהה"><span className="text-red-700 font-semibold">● גבוהה</span></SelectItem>
-                               <SelectItem value="בינונית"><span className="text-yellow-700 font-semibold">● בינונית</span></SelectItem>
-                               <SelectItem value="נמוכה"><span className="text-green-700 font-semibold">● נמוכה</span></SelectItem>
-                             </SelectContent>
-                           </Select>
-                         </td>
-
-                        <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                           <Select value={task.status} onValueChange={(value) => updateStatus.mutate({ taskId: task.id, status: value })}>
-                             <SelectTrigger className={`w-28 h-8 text-xs font-semibold ${
-                               task.status === "פתוחה" ? "bg-blue-100 text-blue-700 border-blue-300" :
-                               task.status === "בטיפול" ? "bg-orange-100 text-orange-700 border-orange-300" :
-                               task.status === "הושלמה" ? "bg-green-100 text-green-700 border-green-300" :
-                               "bg-slate-100 text-slate-700 border-slate-300"
-                             }`}>
-                               <SelectValue />
-                             </SelectTrigger>
-                             <SelectContent>
-                               <SelectItem value="פתוחה"><span className="text-blue-700 font-semibold">● פתוחה</span></SelectItem>
-                               <SelectItem value="בטיפול"><span className="text-orange-700 font-semibold">● בטיפול</span></SelectItem>
-                               <SelectItem value="הושלמה"><span className="text-green-700 font-semibold">● הושלמה</span></SelectItem>
-                               <SelectItem value="בוטלה"><span className="text-slate-700 font-semibold">● בוטלה</span></SelectItem>
-                             </SelectContent>
-                           </Select>
-                         </td>
-
-                        <td className="px-4 py-3 text-slate-500">
-                          {formatDateTime(task.created_date)}
-                        </td>
-                      </tr>
-                  )}
-                  </tbody>
-                </table>
-              </div>
-            }
+                      <td className="px-4 py-3 text-slate-500 whitespace-nowrap">
+                        {formatDateTime(task.created_date)}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
         </div>
       </div>
 
