@@ -355,7 +355,7 @@ export default function DebtorsTable({
                   <Button
                       variant="outline"
                       size="sm"
-                      className="h-10 px-3 rounded-xl"
+                      className="h-[34px] min-w-[86px] rounded-[10px] border border-[rgba(224,230,246,0.96)] bg-white px-3 text-[12px] font-semibold text-[#687395] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] outline-none transition-colors hover:border-[#cfd8ff]"
                       style={{
                         fontSize: '15px',
                         fontWeight: 800,
