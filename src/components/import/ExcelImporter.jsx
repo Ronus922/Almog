@@ -161,6 +161,7 @@ export default function ExcelImporter({ onImportComplete }) {
   const [importResult, setImportResult] = useState(null);
   const [importRunData, setImportRunData] = useState(null);
   const [importWarnings, setImportWarnings] = useState([]);
+  const [importPreview, setImportPreview] = useState(null);
 
   // ═══════════════════════════════════════════════════════════
   // FILE VALIDATION
@@ -661,6 +662,13 @@ export default function ExcelImporter({ onImportComplete }) {
       }
 
       console.log(`[Excel Import] PARSE: creates=${createsQueue.length}, updates=${updatesQueue.length}, zero=${zeroQueue.length}, warnings=${allWarnings.length}`);
+
+      // ═══════════════════════════════════════════════════════════
+      // PREVIEW: הצג preview לפני אישור הסופי
+      // ═══════════════════════════════════════════════════════════
+      const preview = buildImportPreview(createsQueue, updatesQueue, allWarnings);
+      setImportPreview(preview);
+      setStep(2.5); // שלב ביניים - preview
 
       // ═══════════════════════════════════════════════════════════
       // SAFETY CHECK: מניעת כפילויות (Upsert לפי apartmentKey)
@@ -1242,6 +1250,69 @@ export default function ExcelImporter({ onImportComplete }) {
                 <AlertDescription className="text-right whitespace-pre-line">{error}</AlertDescription>
               </Alert>
             )}
+          </div>
+        )}
+
+        {step === 2.5 && importPreview && (
+          <div className="space-y-6" dir="rtl">
+            <Alert className="bg-blue-50 border-blue-300" dir="rtl">
+              <AlertDescription className="text-blue-800 text-right">
+                <div style={mappingTitleStyle}>תצוגה מקדימה של היבוא</div>
+                <p className="text-sm text-blue-700 mt-2">לפני ביצוע - בדוק מה יעודכן:</p>
+              </AlertDescription>
+            </Alert>
+
+            <div className="grid grid-cols-3 gap-3">
+              <div className="text-center p-4 bg-green-50 rounded-lg border border-green-200">
+                <p className="text-2xl font-bold text-green-600">{importPreview.willCreate}</p>
+                <p className="text-sm text-slate-600 mt-1">יוצרו דירות חדשות</p>
+              </div>
+              <div className="text-center p-4 bg-blue-50 rounded-lg border border-blue-200">
+                <p className="text-2xl font-bold text-blue-600">{importPreview.willUpdate}</p>
+                <p className="text-sm text-slate-600 mt-1">עדכנו דירות קיימות</p>
+              </div>
+              <div className="text-center p-4 bg-orange-50 rounded-lg border border-orange-200">
+                <p className="text-2xl font-bold text-orange-600">{importPreview.willSkip}</p>
+                <p className="text-sm text-slate-600 mt-1">דלגו שורות</p>
+              </div>
+            </div>
+
+            <Alert className="bg-green-50 border-green-300" dir="rtl">
+              <AlertDescription className="text-green-800 text-right">
+                <div className="font-bold mb-2">✅ שדות מורשים לעדכון:</div>
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  {Object.keys(importPreview.fieldsToUpdate).slice(0, 8).map(field => (
+                    <div key={field}>• {field}</div>
+                  ))}
+                </div>
+              </AlertDescription>
+            </Alert>
+
+            <Alert className="bg-red-50 border-red-300" dir="rtl">
+              <AlertDescription className="text-red-800 text-right">
+                <div className="font-bold mb-2">🔒 שדות מוגנים - לא יתעדכנו:</div>
+                <div className="text-xs space-y-1 max-h-32 overflow-y-auto">
+                  {importPreview.willNotUpdate.slice(0, 10).map(field => (
+                    <div key={field}>• {field}</div>
+                  ))}
+                  {importPreview.willNotUpdate.length > 10 && (
+                    <div className="font-semibold mt-1">ועוד {importPreview.willNotUpdate.length - 10} שדות</div>
+                  )}
+                </div>
+              </AlertDescription>
+            </Alert>
+
+            <Alert className="bg-amber-50 border-amber-300" dir="rtl">
+              <AlertDescription className="text-amber-800 text-right">
+                <div className="font-bold mb-2">⚠️ כללי MERGE בלבד:</div>
+                <ul className="text-sm space-y-1 list-disc pr-5">
+                  <li>אם שדה ריק באקסל וקיים במערכת - השדה הקיים שמור</li>
+                  <li>טלפונים, הערות, תגיות - לעולם לא מתעדכנים</li>
+                  <li>מפעיל (operator_id) - לעולם לא משתנה</li>
+                  <li>סטטוס משפטי - לא משתנה אם נעול</li>
+                </ul>
+              </AlertDescription>
+            </Alert>
           </div>
         )}
 
