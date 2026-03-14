@@ -404,25 +404,6 @@ export default function Tasks() {
                     onClick={() => {setEditTask(task);setShowDialog(true);}}>
 
                         <td className="px-4 py-3">
-                          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                            <button
-                          onClick={() => {setEditTask(task);setShowDialog(true);}}
-                          className="text-slate-400 hover:text-blue-600 transition-colors">
-
-                              <Pencil className="w-4 h-4" />
-                            </button>
-                            {(task.assigned_by === currentUser?.username || task.assigned_by === currentUser?.email) &&
-                        <button
-                          onClick={() => {if (window.confirm("למחוק משימה זו?")) deleteMutation.mutate(task.id);}}
-                          className="text-slate-300 hover:text-red-500 transition-colors">
-
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                        }
-                          </div>
-                        </td>
-
-                        <td className="px-4 py-3">
                           <div className="font-medium text-slate-800">{task.task_type}</div>
                           {task.owner_name &&
                       <div className="text-xs text-slate-400 mt-0.5">
