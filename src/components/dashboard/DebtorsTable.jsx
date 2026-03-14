@@ -597,9 +597,9 @@ export default function DebtorsTable({
 
         {/* Desktop Table View */}
         <div className="hidden lg:block overflow-x-auto">
-          <Table className="border-separate border-spacing-0">
+          <Table className="border-separate border-spacing-y-2 border-spacing-x-0">
             <TableHeader>
-              <TableRow className="bg-slate-50/90 border-b border-slate-200/80">
+              <TableRow className="bg-transparent border-b border-0">
                 <TableHead className="text-right font-semibold text-slate-600 text-[13px] px-4 md:px-5 py-4 cursor-pointer hover:text-slate-800" onClick={() => toggleSort('apartmentNumber')}>
                   <div className="flex items-center gap-2 justify-end">
                     <ArrowUpDown className={`w-5 h-5 ${sortField === 'apartmentNumber' ? 'text-blue-600' : 'text-slate-400'}`} />
