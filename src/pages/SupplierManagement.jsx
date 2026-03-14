@@ -17,6 +17,7 @@ import SupplierFormDialog from '@/components/suppliers/SupplierFormDialog';
 import CategoryManagementDialog from '@/components/suppliers/CategoryManagementDialog';
 import WhatsAppDialog from '@/components/whatsapp/WhatsAppDialog';
 import { useAlert } from '@/components/notifications/AlertContext';
+import { tableStyles } from '@/components/tables/DataTableStyles';
 
 export default function SupplierManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -196,93 +197,93 @@ export default function SupplierManagement() {
         </div>
 
         {/* Table */}
-        <div className="bg-white border border-slate-200 rounded-lg shadow-sm overflow-hidden">
-          {loadingSuppliers ?
-          <div className="flex items-center justify-center h-64">
-              <div className="animate-spin w-8 h-8 border-4 border-slate-200 border-t-blue-600 rounded-full"></div>
-            </div> :
-          filteredSuppliers.length === 0 ?
-          <div className="flex items-center justify-center h-64 text-slate-500">
-              {suppliers.length === 0 ? 'אין ספקים בעדיין' : 'לא נמצאו ספקים תואמים לחיפוש'}
-            </div> :
+         <div className={tableStyles.wrapper}>
+           {loadingSuppliers ?
+           <div className={tableStyles.loadingContainer}>
+               <div className={tableStyles.loadingSpinner}></div>
+             </div> :
+           filteredSuppliers.length === 0 ?
+           <div className={tableStyles.emptyContainer}>
+               {suppliers.length === 0 ? 'אין ספקים בעדיין' : 'לא נמצאו ספקים תואמים לחיפוש'}
+             </div> :
 
-          <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-right w-28">שם החברה</TableHead>
-                    <TableHead className="text-right w-20">קטגוריה</TableHead>
-                    <TableHead className="text-right w-24">איש קשר</TableHead>
-                    <TableHead className="text-right w-20">טלפון נייד</TableHead>
-                    <TableHead className="text-right w-20">טלפון במשרד</TableHead>
-                    <TableHead className="text-right w-24">אימייל</TableHead>
-                    <TableHead className="text-right w-20">מסמכים</TableHead>
-                    <TableHead className="bg-white text-muted-foreground px-10 font-medium text-left h-10 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] w-28 sticky left-0 border-l border-slate-200 z-10">פעולות</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {filteredSuppliers.map((supplier) =>
-                <TableRow key={supplier.id} className="hover:bg-slate-50 cursor-pointer" onClick={() => handleEdit(supplier)}>
-                      <TableCell className="font-medium text-right text-sm">{supplier.company_name}</TableCell>
-                      <TableCell className="text-right text-sm">
-                        {categories[supplier.category_id]?.name ?
-                    <Badge variant="outline" className="text-xs">{categories[supplier.category_id].name}</Badge> :
+           <div className="overflow-x-auto">
+               <Table>
+                 <TableHeader>
+                   <TableRow className={tableStyles.headerRow}>
+                     <TableHead className={`${tableStyles.headerCell} w-28`}>שם החברה</TableHead>
+                     <TableHead className={`${tableStyles.headerCell} w-20`}>קטגוריה</TableHead>
+                     <TableHead className={`${tableStyles.headerCell} w-24`}>איש קשר</TableHead>
+                     <TableHead className={`${tableStyles.headerCell} w-20`}>טלפון נייד</TableHead>
+                     <TableHead className={`${tableStyles.headerCell} w-20`}>טלפון במשרד</TableHead>
+                     <TableHead className={`${tableStyles.headerCell} w-24`}>אימייל</TableHead>
+                     <TableHead className={`${tableStyles.headerCell} w-20`}>מסמכים</TableHead>
+                     <TableHead className={`${tableStyles.stickyHeaderCell} w-28`}>פעולות</TableHead>
+                   </TableRow>
+                 </TableHeader>
+                 <TableBody>
+                   {filteredSuppliers.map((supplier) =>
+                 <TableRow key={supplier.id} className={tableStyles.bodyRow} onClick={() => handleEdit(supplier)}>
+                       <TableCell className={`${tableStyles.bodyCell} font-medium`}>{supplier.company_name}</TableCell>
+                       <TableCell className={tableStyles.bodyCell}>
+                         {categories[supplier.category_id]?.name ?
+                     <Badge variant="outline" className="text-xs">{categories[supplier.category_id].name}</Badge> :
 
-                    <span className="text-slate-400">-</span>
-                    }
-                      </TableCell>
-                      <TableCell className="text-right text-sm">{supplier.contact_person_name || '-'}</TableCell>
-                      <TableCell className="text-right text-sm text-blue-600">
-                        {supplier.contact_mobile_whatsapp ?
-                    <span className="cursor-pointer hover:underline">{supplier.contact_mobile_whatsapp}</span> :
-                    '-'}
-                      </TableCell>
-                      <TableCell className="text-right text-sm">{supplier.company_phone || '-'}</TableCell>
-                      <TableCell className="text-right text-sm text-slate-600 truncate">{supplier.email || '-'}</TableCell>
-                      <TableCell className="text-right text-sm text-slate-600">{documentCounts[supplier.id] || '-'}</TableCell>
-                      <TableCell className="text-right text-sm sticky left-0 bg-white border-l border-slate-200 z-10 group-hover:bg-slate-50">
-                        <div className="flex gap-1 justify-end">
-                          {supplier.contact_mobile_whatsapp &&
-                      <button
-                        onClick={() => handleWhatsApp(supplier)}
-                        className="p-1.5 text-green-600 hover:bg-green-50 rounded transition"
-                        title="וואטסאפ">
+                     <span className="text-slate-400">-</span>
+                     }
+                       </TableCell>
+                       <TableCell className={tableStyles.bodyCell}>{supplier.contact_person_name || '-'}</TableCell>
+                       <TableCell className={`${tableStyles.bodyCell} text-blue-600`}>
+                         {supplier.contact_mobile_whatsapp ?
+                     <span className="cursor-pointer hover:underline">{supplier.contact_mobile_whatsapp}</span> :
+                     '-'}
+                       </TableCell>
+                       <TableCell className={tableStyles.bodyCell}>{supplier.company_phone || '-'}</TableCell>
+                       <TableCell className={`${tableStyles.bodyCell} text-slate-600 truncate`}>{supplier.email || '-'}</TableCell>
+                       <TableCell className={`${tableStyles.bodyCell} text-slate-600`}>{documentCounts[supplier.id] || '-'}</TableCell>
+                       <TableCell className={tableStyles.stickyCellActions}>
+                         <div className="flex gap-1 justify-end">
+                           {supplier.contact_mobile_whatsapp &&
+                       <button
+                         onClick={() => handleWhatsApp(supplier)}
+                         className={`${tableStyles.actionButton} ${tableStyles.actionButtonGreen}`}
+                         title="וואטסאפ">
 
-                              <MessageCircle className="w-4 h-4" />
-                            </button>
-                      }
-                          {supplier.company_phone &&
-                      <button
-                        onClick={() => handleCall(supplier.company_phone)}
-                        className="p-1.5 text-blue-600 hover:bg-blue-50 rounded transition"
-                        title="התקשר">
+                               <MessageCircle className="w-4 h-4" />
+                             </button>
+                       }
+                           {supplier.company_phone &&
+                       <button
+                         onClick={() => handleCall(supplier.company_phone)}
+                         className={`${tableStyles.actionButton} ${tableStyles.actionButtonBlue}`}
+                         title="התקשר">
 
-                              <Phone className="w-4 h-4" />
-                            </button>
-                      }
-                          <button
-                        onClick={() => handleEdit(supplier)}
-                        className="p-1.5 text-slate-600 hover:bg-slate-100 rounded transition"
-                        title="ערוך">
+                               <Phone className="w-4 h-4" />
+                             </button>
+                       }
+                           <button
+                         onClick={() => handleEdit(supplier)}
+                         className={`${tableStyles.actionButton} ${tableStyles.actionButtonGray}`}
+                         title="ערוך">
 
-                            <Edit2 className="w-4 h-4" />
-                          </button>
-                          <button
-                        onClick={() => handleDelete(supplier.id)}
-                        className="p-1.5 text-red-600 hover:bg-red-50 rounded transition"
-                        title="מחק">
+                             <Edit2 className="w-4 h-4" />
+                           </button>
+                           <button
+                         onClick={() => handleDelete(supplier.id)}
+                         className={`${tableStyles.actionButton} ${tableStyles.actionButtonRed}`}
+                         title="מחק">
 
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                )}
-                </TableBody>
-              </Table>
-            </div>
-          }
-        </div>
+                             <Trash2 className="w-4 h-4" />
+                           </button>
+                         </div>
+                       </TableCell>
+                     </TableRow>
+                 )}
+                 </TableBody>
+               </Table>
+             </div>
+           }
+         </div>
 
         {/* Dialogs */}
         <SupplierFormDialog
