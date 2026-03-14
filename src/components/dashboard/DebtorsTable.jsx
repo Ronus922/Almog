@@ -464,10 +464,10 @@ export default function DebtorsTable({
                     </TableRow> :
                     paginatedRecords.map((record) =>
                     <TableRow
-                      key={record.id}
-                      className="border-b border-slate-200 hover:bg-slate-50 cursor-pointer"
-                      onClick={() => onRowClick(record)}>
-                      <TableCell className="px-4 py-3 text-sm text-slate-700">{record.apartmentNumber}</TableCell>
+                       key={record.id}
+                       className="border-b border-slate-200 hover:bg-slate-50 cursor-pointer"
+                       onClick={() => onRowClick(record)}>
+                       <TableCell className="px-4 py-3 text-sm text-slate-700 font-semibold">{record.apartmentNumber}</TableCell>
                       <TableCell className="px-4 py-3 text-sm text-slate-700">
                         {record.ownerName?.split(/[\/,]/)[0]?.trim() || '-'}
                       </TableCell>
