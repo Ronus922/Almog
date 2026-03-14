@@ -1,7 +1,6 @@
 import React from 'react';
-import { Dialog, DialogContent, DialogPortal, DialogOverlay, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogPortal, DialogOverlay, DialogTitle, DialogClose } from "@/components/ui/dialog";
 import { X } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { VisuallyHidden } from "@radix-ui/react-visually-hidden";
 
 export default function AppModal({
@@ -20,10 +19,10 @@ export default function AppModal({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogPortal>
-        <DialogOverlay className="bg-black/60 backdrop-blur-sm" />
+        <DialogOverlay className="fixed inset-0 z-50 bg-slate-900/45 backdrop-blur-[2px]" />
         <DialogContent
-          className="p-0 gap-0 overflow-hidden max-h-[90vh] border-0 rounded-lg shadow-2xl [&>button]:hidden"
-          style={{ width: 'min(620px, calc(100vw - 24px))', maxWidth: '620px' }}
+          className="fixed left-1/2 top-1/2 z-50 w-[min(96vw,820px)] h-[92vh] max-h-[920px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[22px] border border-slate-200 bg-[#eef3f8] shadow-[0_30px_80px_rgba(15,23,42,0.24)] flex flex-col p-0 gap-0 [&>button]:hidden"
+          style={{ maxWidth: '472px' }}
           onPointerDownOutside={(e) => {
             if (dangerous) {
               e.preventDefault();
@@ -33,57 +32,56 @@ export default function AppModal({
           <VisuallyHidden>
             <DialogTitle>{title}</DialogTitle>
           </VisuallyHidden>
-          <div className="flex flex-col h-full max-h-[90vh] bg-white rounded-lg overflow-hidden">
-            {/* Header - Sticky */}
-            <div className="bg-[#2c4768] text-slate-50 px-5 py-4 opacity-100 sticky top-0 z-30 flex items-center justify-between gap-4 from-slate-900 via-slate-800 to-slate-900 border-b border-white/10">
-              <div className="flex-1 flex flex-col items-end gap-1 mr-4">
-                <div className="flex items-center gap-3">
-                  <h2 className="text-lg font-bold leading-tight text-white">{title}</h2>
-                  {dangerous &&
-                  <span className="px-2 py-0.5 text-xs font-semibold bg-red-500/20 text-red-200 border border-red-400/30 rounded-md">
-                      פעולה בלתי הפיכה
-                    </span>
-                  }
-                </div>
-                {subtitle &&
-                <p className="text-sm text-slate-300 opacity-90">{subtitle}</p>
-                }
-                {statusPill &&
-                <span className={cn(
-                  "px-3 py-1 text-xs font-semibold rounded-lg border mt-1",
-                  statusPill.color
-                )}>
-                    {statusPill.text}
-                  </span>
-                }
+
+          {/* Header */}
+          <div className="relative shrink-0 overflow-hidden bg-[linear-gradient(180deg,#23477a_0%,#274b80_45%,#2c5088_100%)] px-6 pt-5 pb-4 text-white">
+            {/* Decorative overlay layers */}
+            <div className="absolute inset-0 opacity-[0.12] bg-[radial-gradient(circle_at_top_right,white_0,transparent_42%)]" />
+            <div className="absolute -bottom-8 -left-10 h-28 w-[55%] rounded-[999px] bg-white/10 blur-2xl" />
+            <div className="absolute -top-10 right-8 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+
+            {/* Close button */}
+            <DialogClose className="absolute left-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-[14px] border border-white/20 bg-white/10 text-white shadow-sm backdrop-blur-sm transition hover:bg-white/20 z-10">
+              <X className="h-5 w-5" />
+              <span className="sr-only">סגור</span>
+            </DialogClose>
+
+            {/* Header content */}
+            <div className="relative z-10 flex items-start justify-between gap-4">
+              <div className="flex-1 text-right">
+                <h2 className="text-[34px] leading-none font-black tracking-[-0.02em] text-white">{title}</h2>
+                {subtitle && (
+                  <p className="mt-2 text-[13px] font-medium text-white/75">{subtitle}</p>
+                )}
               </div>
-
-              <button
-                onClick={onClose}
-                className="w-10 h-10 rounded-lg border border-white/20 bg-white/12 hover:bg-white/16 text-white flex items-center justify-center transition-opacity duration-150 flex-shrink-0"
-                aria-label="סגור">
-
-                <X className="w-[18px] h-[18px]" />
-              </button>
             </div>
 
-            {/* Body - Scrollable */}
-            <div className={cn(
-              "flex-1 overflow-y-auto bg-gradient-to-br from-slate-50 to-slate-100 p-5",
-              className
-            )}>
-              {children}
-            </div>
+            {/* Status pill row */}
+            {statusPill && (
+              <div className="relative z-10 mt-4 flex items-center justify-between gap-3">
+                <span className="text-[13px] font-semibold text-white/80">סטטוס משפטי:</span>
+                <span className="inline-flex h-9 items-center rounded-full bg-[#ff6b63] px-5 text-[13px] font-bold text-white shadow-[0_8px_18px_rgba(255,107,99,0.35)]">
+                  {statusPill.text.replace('סטטוס משפטי: ', '')}
+                </span>
+              </div>
+            )}
+          </div>
 
-            {/* Footer - Sticky (Optional) */}
-            {footer &&
-            <div className="sticky bottom-0 z-20 px-5 py-3 bg-white/96 backdrop-blur-sm border-t border-slate-200 flex items-center justify-end gap-3">
+          {/* Body - Scrollable */}
+          <div className="flex-1 overflow-y-auto px-5 py-5 bg-[#eef3f8]">
+            {children}
+          </div>
+
+          {/* Footer */}
+          {footer && (
+            <div className="shrink-0 border-t border-slate-200 bg-[#f8fbff] px-4 py-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
                 {footer}
               </div>
-            }
-          </div>
+            </div>
+          )}
         </DialogContent>
       </DialogPortal>
-    </Dialog>);
-
+    </Dialog>
+  );
 }
