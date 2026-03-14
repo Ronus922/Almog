@@ -192,7 +192,8 @@ function DashboardContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[linear-gradient(180deg,#f5f7ff_0%,#edf2ff_100%)] px-[18px] pt-[22px] pb-10" dir="rtl">
+    <TooltipProvider>
+      <div className="min-h-screen bg-[linear-gradient(180deg,#f5f7ff_0%,#edf2ff_100%)] px-[18px] pt-[22px] pb-10" dir="rtl">
       <style>{`
         @media print {
           body * {
