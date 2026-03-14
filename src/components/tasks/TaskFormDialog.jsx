@@ -38,7 +38,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
   });
   const [saving, setSaving] = useState(false);
   const [activeTab, setActiveTab] = useState("form");
-  const [openDatePicker, setOpenDatePicker] = useState(false);
+  
   const [showUserDropdown, setShowUserDropdown] = useState(false);
   const [userSearchTerm, setUserSearchTerm] = useState("");
   const userDropdownRef = useRef(null);
