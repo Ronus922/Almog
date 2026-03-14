@@ -283,7 +283,7 @@ export default function Calendar() {
         />
 
         {/* Calendar View Container */}
-        <div className="flex-1 overflow-auto">
+        <div className="flex-1 overflow-auto rounded-xl bg-white shadow-sm border border-slate-100">
           {viewMode === 'month' && (
             <CalendarGrid
               currentMonth={currentMonth}
