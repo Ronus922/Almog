@@ -117,14 +117,25 @@ export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }
 
         {/* Content */}
         <div className="flex-1 overflow-y-auto p-6">
-          <Tabs defaultValue="general" className="w-full">
+          <Tabs defaultValue="documents" className="w-full">
             <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="general" className="text-sm">פרטים כלליים</TabsTrigger>
+              <TabsTrigger value="documents" className="text-sm">פרטים כלליים</TabsTrigger>
               <TabsTrigger value="business" className="text-sm">פרטי העסק</TabsTrigger>
             </TabsList>
 
-            {/* Tab 1: פרטים כלליים */}
-            <TabsContent value="general" className="space-y-4">
+            {/* Tab 1: פרטים כלליים - מסמכים בלבד */}
+            <TabsContent value="documents" className="space-y-4">
+              {supplier?.id ? (
+                <DocumentUploadSection supplierId={supplier.id} />
+              ) : (
+                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700 text-right">
+                  שמור את הספק תחילה כדי להעלות מסמכים
+                </div>
+              )}
+            </TabsContent>
+
+            {/* Tab 2: פרטי העסק - כל השדות */}
+            <TabsContent value="business" className="space-y-4">
               <div>
                 <Label htmlFor="company_name" className="text-right block mb-1">שם החברה *</Label>
                 <Input
@@ -160,7 +171,7 @@ export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }
               </div>
 
               <div>
-                <Label htmlFor="contact_person_name" className="text-right block mb-1">שם איש קשר</Label>
+                <Label htmlFor="contact_person_name" className="text-right block mb-1">שם איש קשר 1</Label>
                 <Input
                   id="contact_person_name"
                   placeholder="שם איש קשר"
@@ -196,10 +207,7 @@ export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }
                 />
                 {errors.email && <span className="text-red-500 text-xs mt-1 block">{errors.email}</span>}
               </div>
-            </TabsContent>
 
-            {/* Tab 2: פרטי העסק */}
-            <TabsContent value="business" className="space-y-4">
               <div>
                 <Label htmlFor="full_address" className="text-right block mb-1">כתובת מלאה</Label>
                 <Input
@@ -223,19 +231,6 @@ export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }
                   dir="rtl"
                 />
               </div>
-
-              {/* Documents Section */}
-              {supplier?.id && (
-                <div className="border-t border-slate-100 pt-4 mt-6">
-                  <Label className="text-right block mb-3 font-semibold">מסמכים וקבצים</Label>
-                  <DocumentUploadSection supplierId={supplier.id} />
-                </div>
-              )}
-              {!supplier && (
-                <div className="p-3 bg-blue-50 border border-blue-200 rounded-lg text-sm text-blue-700 text-right">
-                  שמור את הספק תחילה כדי להעלות מסמכים
-                </div>
-              )}
             </TabsContent>
           </Tabs>
         </div>
