@@ -14,12 +14,14 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Plus, Upload, Send, Trash2, Search, X, Filter, Download } from "lucide-react";
+import { Plus, Upload, Send, Trash2, Search, X, Filter, Download, Users } from "lucide-react";
 import ContactFormDialog from "@/components/contacts/ContactFormDialog";
 import SendWhatsAppBulkDialog from "@/components/contacts/SendWhatsAppBulkDialog";
 import ContactImportDialog from "@/components/contacts/ContactImportDialog";
+import OperatorManagementDialog from "@/components/contacts/OperatorManagementDialog";
 import { useAlert } from "@/components/notifications/AlertContext";
 import { tableStyles } from '@/components/tables/DataTableStyles';
+import { useState, useMemo } from "react";
 
 export default function Contacts() {
   const queryClient = useQueryClient();
@@ -32,6 +34,7 @@ export default function Contacts() {
   const [editContact, setEditContact] = useState(null);
   const [sendOpen, setSendOpen] = useState(false);
   const [importOpen, setImportOpen] = useState(false);
+  const [operatorManagementOpen, setOperatorManagementOpen] = useState(false);
 
   const { data: contacts = [], isLoading } = useQuery({
     queryKey: ["contacts"],
@@ -180,6 +183,13 @@ export default function Contacts() {
             </>
           )}
           <Button
+            variant="outline"
+            className="gap-2"
+            onClick={() => setOperatorManagementOpen(true)}
+          >
+            <Users className="w-4 h-4" /> ניהול מפעילים
+          </Button>
+          <Button
             className="gap-2 bg-[#3563d0] hover:bg-[#2a50b0] text-white"
             onClick={() => {
               setEditContact(null);
@@ -251,6 +261,7 @@ export default function Contacts() {
                    <TableRow className={tableStyles.headerRow}>
                      <TableHead className={`${tableStyles.headerCell}`}>דירה</TableHead>
                      <TableHead className={`${tableStyles.headerCell}`}>בעל הדירה</TableHead>
+                     <TableHead className={`${tableStyles.headerCell}`}>מפעיל / שוכר</TableHead>
                      <TableHead className={`${tableStyles.headerCell} w-32`}>טלפון בעל</TableHead>
                      <TableHead className={`${tableStyles.headerCell} hidden md:table-cell`}>השוכר</TableHead>
                      <TableHead className={`${tableStyles.headerCell} hidden md:table-cell w-32`}>טלפון שוכר</TableHead>
@@ -263,6 +274,11 @@ export default function Contacts() {
                       <TableRow key={contact.id} className={tableStyles.bodyRow} onClick={() => {setEditContact(contact); setFormOpen(true);}}>
                         <TableCell className={`${tableStyles.bodyCell} font-bold text-blue-600`}>{contact.apartment_number}</TableCell>
                         <TableCell className={tableStyles.bodyCell}>{contact.owner_name || "—"}</TableCell>
+                        <TableCell className={tableStyles.bodyCell}>
+                          {contact.resident_type === 'tenant' && <Badge className="bg-purple-100 text-purple-700">שוכר</Badge>}
+                          {contact.resident_type === 'operator' && <Badge className="bg-orange-100 text-orange-700">מפעיל</Badge>}
+                          {contact.resident_type === 'owner' && <span className="text-slate-400 text-sm">—</span>}
+                        </TableCell>
                         <TableCell className={`${tableStyles.bodyCell} w-32`} dir="ltr">{contact.owner_phone || "—"}</TableCell>
                         <TableCell className={`${tableStyles.bodyCell} hidden md:table-cell`}>{contact.tenant_name || "—"}</TableCell>
                         <TableCell className={`${tableStyles.bodyCell} hidden md:table-cell w-32`} dir="ltr">{contact.tenant_phone || "—"}</TableCell>
@@ -335,6 +351,10 @@ export default function Contacts() {
         onClose={() => setImportOpen(false)}
         onImported={() => queryClient.invalidateQueries({ queryKey: ["contacts"] })}
       />
-    </div>
-  );
-}
+      <OperatorManagementDialog
+        open={operatorManagementOpen}
+        onClose={() => setOperatorManagementOpen(false)}
+      />
+      </div>
+      );
+      }
