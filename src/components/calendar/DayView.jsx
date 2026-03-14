@@ -110,8 +110,10 @@ export default function DayView({
                onClick={() => onAppointmentClick(apt)}
              >
                <div className="font-bold truncate">{apt.title}</div>
-               <div className="text-xs opacity-90">{apt.start_datetime.split('T')[1].slice(0, 5)} - {apt.end_datetime.split('T')[1].slice(0, 5)}</div>
-               {apt.location && <div className="text-xs opacity-75 truncate">📍 {apt.location}</div>}
+                <div className="text-xs opacity-90">
+                  {(apt.start_time || apt.start_datetime?.split('T')[1] || '10:00').slice(0, 5)} - {(apt.end_time || apt.end_datetime?.split('T')[1] || '11:00').slice(0, 5)}
+                </div>
+                {apt.location && <div className="text-xs opacity-75 truncate">📍 {apt.location}</div>}
              </div>
            ))}
         </div>
