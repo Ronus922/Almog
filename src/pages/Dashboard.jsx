@@ -370,7 +370,7 @@ function DashboardContent() {
         }
 
         {autoStatusFilter && !filterKeyFromUrl &&
-        <Alert className="bg-orange-50 border-orange-200">
+        <Alert className="rounded-[18px] border border-white/70 bg-white/85 backdrop-blur-[6px] shadow-[0_10px_26px_rgba(15,23,42,0.06)] px-5 md:px-6 py-4">
             <AlertDescription className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="font-bold text-orange-900">מסונן לפי סטטוס אוטומטי:</span>
