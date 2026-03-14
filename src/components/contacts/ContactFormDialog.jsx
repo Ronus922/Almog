@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -71,29 +71,38 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl" aria-describedby={undefined}>
-         <DialogHeader>
-           <DialogTitle className="text-right">{contact ? "עריכת איש קשר" : "איש קשר חדש"}</DialogTitle>
-           <DialogDescription className="sr-only">טופס {contact ? "עריכת" : "הוספת"} פרטי איש קשר</DialogDescription>
-         </DialogHeader>
+      <DialogContent className="max-w-lg max-h-[92vh] overflow-hidden flex flex-col rounded-lg" dir="rtl" aria-describedby={undefined}>
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-lg text-white relative">
+          <DialogClose className="absolute left-4 top-4 rounded-lg bg-white/20 hover:bg-white/40 transition-all p-1.5 focus:outline-none">
+            <X className="h-5 w-5 text-white" />
+            <span className="sr-only">סגור</span>
+          </DialogClose>
+          <DialogHeader dir="rtl">
+            <DialogTitle className="text-right text-lg font-bold text-white pr-10">{contact ? "עריכת איש קשר" : "איש קשר חדש"}</DialogTitle>
+            <DialogDescription className="sr-only">טופס {contact ? "עריכת" : "הוספת"} פרטי איש קשר</DialogDescription>
+          </DialogHeader>
+        </div>
 
-        <div className="space-y-4 mt-2 text-right">
+        {/* Content */}
+        <div className="space-y-4 overflow-y-auto flex-1 px-6 pt-4 pb-4" dir="rtl">
           {/* Apartment */}
-          <div className="grid grid-cols-2 gap-3">
-            <div>
-              <Label className="text-right block">מספר דירה *</Label>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label className="text-right block text-sm font-semibold text-slate-700">מספר דירה *</Label>
               <Input
                 value={form.apartment_number}
                 onChange={e => setForm(f => ({ ...f, apartment_number: e.target.value }))}
-                className="mt-1 text-right"
+                className="h-9 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 dir="rtl"
                 disabled={contact !== null}
+                placeholder="הכנס מספר דירה"
               />
             </div>
-            <div>
-              <Label className="text-right block">איש קשר ראשי (להודעות)</Label>
+            <div className="space-y-2">
+              <Label className="text-right block text-sm font-semibold text-slate-700">איש קשר ראשי</Label>
               <Select value={form.contact_type} onValueChange={v => setForm(f => ({ ...f, contact_type: v }))}>
-                <SelectTrigger className="mt-1 text-right" dir="rtl">
+                <SelectTrigger className="h-9 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500" dir="rtl">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -106,102 +115,110 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
           </div>
 
           {/* Owner Info */}
-          <div className="border-t pt-3">
-            <h3 className="text-sm font-semibold text-slate-700 mb-2">פרטי בעל הדירה</h3>
-            <div className="grid grid-cols-3 gap-3">
-              <div>
-                <Label className="text-right block">שם</Label>
+          <div className="border-t border-slate-100 pt-4">
+            <h3 className="text-sm font-semibold text-slate-700 mb-3">פרטי בעל הדירה</h3>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label className="text-right block text-sm font-semibold text-slate-700">שם</Label>
                 <Input
                   value={form.owner_name}
                   onChange={e => setForm(f => ({ ...f, owner_name: e.target.value }))}
-                  className="mt-1 text-right"
+                  className="h-9 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                   dir="rtl"
+                  placeholder="שם בעל הדירה"
                 />
               </div>
-              <div>
-                <Label className="text-right block">טלפון</Label>
+              <div className="space-y-2">
+                <Label className="text-right block text-sm font-semibold text-slate-700">טלפון</Label>
                 <Input
                   value={form.owner_phone}
                   onChange={e => setForm(f => ({ ...f, owner_phone: e.target.value }))}
-                  className="mt-1 text-right"
+                  className="h-9 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                   dir="ltr"
+                  placeholder="מספר טלפון"
                 />
               </div>
-              <div>
-                <Label className="text-right block">מייל</Label>
+              <div className="space-y-2">
+                <Label className="text-right block text-sm font-semibold text-slate-700">מייל</Label>
                 <Input
                   value={form.owner_email}
                   onChange={e => setForm(f => ({ ...f, owner_email: e.target.value }))}
-                  className="mt-1 text-right"
+                  className="h-9 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                   dir="ltr"
                   type="email"
+                  placeholder="דוא״ל"
                 />
               </div>
             </div>
           </div>
 
           {/* Tenant Info */}
-          <div className="border-t pt-3">
-            <h3 className="text-sm font-semibold text-slate-700 mb-2">פרטי השוכר</h3>
-            <div className="grid grid-cols-3 gap-3">
-              <div>
-                <Label className="text-right block">שם</Label>
+          <div className="border-t border-slate-100 pt-4">
+            <h3 className="text-sm font-semibold text-slate-700 mb-3">פרטי השוכר</h3>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label className="text-right block text-sm font-semibold text-slate-700">שם</Label>
                 <Input
                   value={form.tenant_name}
                   onChange={e => setForm(f => ({ ...f, tenant_name: e.target.value }))}
-                  className="mt-1 text-right"
+                  className="h-9 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                   dir="rtl"
+                  placeholder="שם השוכר"
                 />
               </div>
-              <div>
-                <Label className="text-right block">טלפון</Label>
+              <div className="space-y-2">
+                <Label className="text-right block text-sm font-semibold text-slate-700">טלפון</Label>
                 <Input
                   value={form.tenant_phone}
                   onChange={e => setForm(f => ({ ...f, tenant_phone: e.target.value }))}
-                  className="mt-1 text-right"
+                  className="h-9 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                   dir="ltr"
+                  placeholder="מספר טלפון"
                 />
               </div>
-              <div>
-                <Label className="text-right block">מייל</Label>
+              <div className="space-y-2">
+                <Label className="text-right block text-sm font-semibold text-slate-700">מייל</Label>
                 <Input
                   value={form.tenant_email}
                   onChange={e => setForm(f => ({ ...f, tenant_email: e.target.value }))}
-                  className="mt-1 text-right"
+                  className="h-9 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                   dir="ltr"
                   type="email"
+                  placeholder="דוא״ל"
                 />
               </div>
             </div>
           </div>
 
           {/* Additional Fields */}
-          <div className="border-t pt-3 space-y-3">
-            <div>
-              <Label className="text-right block">כתובת מגורים (אופציונלי)</Label>
+          <div className="border-t border-slate-100 pt-4 space-y-4">
+            <div className="space-y-2">
+              <Label className="text-right block text-sm font-semibold text-slate-700">כתובת מגורים</Label>
               <Input
                 value={form.address}
                 onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
-                className="mt-1 text-right"
+                className="h-9 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 dir="rtl"
+                placeholder="כתובת מגורים (אופציונלי)"
               />
             </div>
 
-            <div>
-              <Label className="text-right block">הערות</Label>
+            <div className="space-y-2">
+              <Label className="text-right block text-sm font-semibold text-slate-700">הערות</Label>
               <Textarea
                 value={form.notes}
                 onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                className="mt-1 text-right"
+                className="border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500 resize-none"
                 dir="rtl"
-                rows={2}
+                rows={3}
+                placeholder="הערות נוספות..."
               />
             </div>
 
-            <div>
-              <Label className="text-right block">תגיות</Label>
-              <div className="flex gap-2 mt-1 flex-row-reverse">
-                <Button variant="outline" size="icon" onClick={addTag}>
+            <div className="space-y-2">
+              <Label className="text-right block text-sm font-semibold text-slate-700">תגיות</Label>
+              <div className="flex gap-2 flex-row-reverse">
+                <Button variant="outline" size="icon" onClick={addTag} className="h-9 w-9">
                   <Plus className="w-4 h-4" />
                 </Button>
                 <Input
@@ -210,15 +227,16 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
                   onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addTag())}
                   placeholder="הוסף תגית..."
                   dir="rtl"
+                  className="h-9 border border-slate-200 rounded-lg focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
                 />
               </div>
               {form.tags.length > 0 && (
-                <div className="flex flex-wrap gap-1 mt-2">
+                <div className="flex flex-wrap gap-2 mt-2">
                   {form.tags.map(tag => (
                     <Badge
                       key={tag}
                       variant="secondary"
-                      className="gap-1 cursor-pointer"
+                      className="gap-1 cursor-pointer hover:bg-slate-300 transition-colors"
                       onClick={() => removeTag(tag)}
                     >
                       {tag} <X className="w-3 h-3" />
@@ -228,18 +246,19 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
               )}
             </div>
           </div>
-        </div>
+          </div>
 
-        <div className="flex justify-end gap-2 mt-4 border-t pt-4 flex-row-reverse">
+          {/* Footer */}
+          <div className="flex justify-end gap-2 px-6 py-4 border-t border-slate-100 bg-white flex-shrink-0">
           <Button
             onClick={handleSave}
             disabled={!form.apartment_number}
-            className="bg-[#3563d0] hover:bg-[#2a50b0] text-white"
+            className="h-9 bg-[#3563d0] hover:bg-[#2a50b0] text-white font-medium rounded-md gap-2"
           >
             {contact ? "שמור שינויים" : "הוסף איש קשר"}
           </Button>
-          <Button variant="outline" onClick={onClose}>ביטול</Button>
-        </div>
+          <Button variant="outline" onClick={onClose} className="h-9">ביטול</Button>
+          </div>
       </DialogContent>
     </Dialog>
   );
