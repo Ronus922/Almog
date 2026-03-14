@@ -504,18 +504,17 @@ export default function DebtorsTable({
               </div>
 
               <div className="relative">
-                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9ca7ca]" />
                 <Input
-                    placeholder="חיפוש שם או טלפון..."
-                    value={search}
-                    onChange={(e) => {setSearch(e.target.value);setPage(1);}}
-                    className="pr-12 w-52 h-11 rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500" />
-
+                  placeholder="חיפוש..."
+                  value={search}
+                  onChange={(e) => {setSearch(e.target.value);setPage(1);}}
+                  className="pr-10 h-[34px] w-40 rounded-[10px] border border-[rgba(224,230,246,0.96)] bg-white px-3 text-[12px] font-semibold text-[#687395] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] outline-none transition-colors placeholder:text-[#a2abc8] focus:border-[#cfd8ff]" />
               </div>
 
               <Select value={statusFilter} onValueChange={(v) => {setStatusFilter(v);setPage(1);}}>
-                <SelectTrigger className="w-44 h-11 rounded-xl border-slate-300">
-                  <SelectValue placeholder="כל הסטטוסים" />
+                <SelectTrigger className="h-[34px] min-w-[86px] rounded-[10px] border border-[rgba(224,230,246,0.96)] bg-white px-3 text-[12px] font-semibold text-[#687395] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] outline-none transition-colors">
+                  <SelectValue placeholder="סטטוס" />
                 </SelectTrigger>
                 <SelectContent className="rounded-xl">
                   <SelectItem value="all">כל הסטטוסים</SelectItem>
@@ -526,10 +525,10 @@ export default function DebtorsTable({
               </Select>
 
               <Button
-                  variant={showAdvancedFilters ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                  className="h-11 rounded-xl px-4"
+                variant={showAdvancedFilters ? "default" : "outline"}
+                size="sm"
+                onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
+                className="h-[34px] rounded-[10px] px-4 inline-flex items-center justify-center bg-[linear-gradient(135deg,#6a7cff_0%,#5b6cff_100%)] text-white text-[12px] font-bold shadow-[0_8px_18px_rgba(91,108,255,0.24)] transition-opacity hover:opacity-95"
                   style={{
                     fontSize: '15px',
                     fontWeight: 800,
