@@ -279,32 +279,16 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
                   </Select>
                 </div>
                 <div className="space-y-2">
-                   <Label className="text-sm font-semibold text-slate-700">תאריך יעד *</Label>
-                   <Popover open={openDatePicker} onOpenChange={setOpenDatePicker}>
-                     <PopoverTrigger asChild>
-                       <Button variant="outline" className="w-full justify-start text-left font-normal h-10 bg-white hover:bg-slate-50 border-slate-200">
-                         {form.due_date ? format(new Date(form.due_date + "T00:00:00"), "dd MMMM yyyy", { locale: he }) : "בחר תאריך"}
-                       </Button>
-                     </PopoverTrigger>
-                     <PopoverContent className="w-auto p-0" align="start" dir="rtl">
-                       <Calendar
-                         mode="single"
-                         selected={form.due_date ? new Date(form.due_date + "T00:00:00") : undefined}
-                         onSelect={(date) => {
-                           if (date) {
-                             set("due_date", format(date, "yyyy-MM-dd"));
-                             setOpenDatePicker(false);
-                           }
-                         }}
-                         disabled={(date) => {
-                           if (isEdit) return false;
-                           return date < new Date(new Date().setHours(0, 0, 0, 0));
-                         }}
-                         locale={he}
-                         className="text-lg"
-                       />
-                     </PopoverContent>
-                   </Popover>
+                  <Label className="text-sm font-semibold text-slate-700">תאריך יעד *</Label>
+                  <DateTimePicker
+                    value={form.due_date ? new Date(form.due_date + "T00:00:00") : undefined}
+                    onChange={(date) => {
+                      if (date) set("due_date", format(date, "yyyy-MM-dd"));
+                      else set("due_date", "");
+                    }}
+                    placeholder="בחר תאריך"
+                    minDate={isEdit ? undefined : new Date()}
+                  />
                  </div>
               </div>
 
