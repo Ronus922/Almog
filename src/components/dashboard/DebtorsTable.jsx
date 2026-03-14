@@ -474,6 +474,7 @@ export default function DebtorsTable({
                       <TableCell className="px-4 py-3 text-sm text-slate-700">{formatPhoneForDisplay(getPhonePrimaryForTable(record))}</TableCell>
                       <TableCell className="px-4 py-3 text-sm font-semibold text-slate-900 text-center">{formatCurrency(record.totalDebt)}</TableCell>
                       <TableCell className="px-4 py-3 text-sm font-semibold text-slate-900 text-center">{formatCurrency(record.monthlyDebt)}</TableCell>
+                      <TableCell className="px-4 py-3 text-sm font-semibold text-slate-900 text-center">{formatCurrency(record.specialDebt)}</TableCell>
                       <TableCell className="px-4 py-3 text-sm text-center">
                         {(() => {
                           const legalStatus = getLegalStatusForRecord(record);
