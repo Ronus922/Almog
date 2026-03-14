@@ -295,6 +295,7 @@ export default function DebtorsTable({
 
                 {/* Search and Filters */}
                 <div className="hidden lg:flex flex-wrap items-center gap-3">
+                  {/* Apartment Search */}
                   <div className="relative">
                     <Search className="absolute right-3 top-2.5 w-4 h-4 text-slate-400" />
                     <Input
@@ -305,6 +306,48 @@ export default function DebtorsTable({
                     />
                   </div>
 
+                  {/* Min/Max Debt */}
+                  <Input
+                    type="number"
+                    placeholder="חוב מינימום"
+                    value={minDebt}
+                    onChange={(e) => {setMinDebt(e.target.value);setPage(1);}}
+                    className="w-32 h-10 rounded-lg border-slate-300"
+                  />
+                  <Input
+                    type="number"
+                    placeholder="חוב מקסימום"
+                    value={maxDebt}
+                    onChange={(e) => {setMaxDebt(e.target.value);setPage(1);}}
+                    className="w-32 h-10 rounded-lg border-slate-300"
+                  />
+
+                  {/* Legal Status Filter */}
+                  <Select value={legalStatusFilter} onValueChange={(v) => {setLegalStatusFilter(v);setPage(1);}}>
+                    <SelectTrigger className="w-44 h-10 rounded-lg border-slate-300">
+                      <SelectValue placeholder="מצב משפטי" />
+                    </SelectTrigger>
+                    <SelectContent className="rounded-lg">
+                      <SelectItem value="all">כל המצבים</SelectItem>
+                      <SelectItem value="null">ללא סטטוס משפטי</SelectItem>
+                      {activeLegalStatuses.map((status) => (
+                        <SelectItem key={status.id} value={status.id}>{status.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* Phone Filter */}
+                  <div className="relative">
+                    <Search className="absolute right-3 top-2.5 w-4 h-4 text-slate-400" />
+                    <Input
+                      placeholder="חיפוש טלפון..."
+                      value={phoneFilter}
+                      onChange={(e) => {setPhoneFilter(e.target.value);setPage(1);}}
+                      className="pr-10 w-40 h-10 rounded-lg border-slate-300"
+                    />
+                  </div>
+
+                  {/* Status Auto Filter */}
                   <Select value={statusFilter} onValueChange={(v) => {setStatusFilter(v);setPage(1);}}>
                     <SelectTrigger className="w-44 h-10 rounded-lg border-slate-300">
                       <SelectValue placeholder="כל הסטטוסים" />
@@ -317,7 +360,8 @@ export default function DebtorsTable({
                     </SelectContent>
                   </Select>
 
-                  {(statusFilter !== 'all' || search || apartmentSearch) &&
+                  {/* Clear Button */}
+                  {(statusFilter !== 'all' || search || apartmentSearch || minDebt || maxDebt || legalStatusFilter !== 'all' || phoneFilter) &&
                     <Button
                       variant="ghost"
                       size="sm"
@@ -327,6 +371,40 @@ export default function DebtorsTable({
                       נקה
                     </Button>
                   }
+
+                  {/* Action Icons */}
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="p-2 hover:bg-slate-100 rounded">
+                          <Download className="w-4 h-4 text-slate-600" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>ייצוא לאקסל</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="p-2 hover:bg-slate-100 rounded">
+                          <FileText className="w-4 h-4 text-slate-600" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>ייצוא ל-PDF</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <button className="p-2 hover:bg-slate-100 rounded">
+                          <Printer className="w-4 h-4 text-slate-600" />
+                        </button>
+                      </TooltipTrigger>
+                      <TooltipContent>הדפסה</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </div>
               </div>
             </div>
