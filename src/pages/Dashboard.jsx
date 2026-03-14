@@ -245,6 +245,7 @@ function DashboardContent() {
         {/* REST OF PAGE */}
         <div className="max-w-full mx-auto space-y-6 p-6">
 
+
           {/* Filter indicators */}
           {filterKeyFromUrl &&
           <Alert className="rounded-lg border border-blue-200 bg-blue-50 px-6 py-4">
