@@ -209,8 +209,8 @@ export default function SupplierManagement() {
                 </TableHeader>
                 <TableBody>
                   {filteredSuppliers.map((supplier) =>
-                <TableRow key={supplier.id} className="hover:bg-slate-50">
-                      <TableCell className="font-medium text-right text-sm cursor-pointer hover:text-blue-600 transition-colors" onClick={() => handleEdit(supplier)}>{supplier.company_name}</TableCell>
+                <TableRow key={supplier.id} className="hover:bg-slate-50 cursor-pointer" onClick={() => handleEdit(supplier)}>
+                      <TableCell className="font-medium text-right text-sm">{supplier.company_name}</TableCell>
                       <TableCell className="text-right text-sm">
                         {categories[supplier.category_id]?.name ?
                     <Badge variant="outline" className="text-xs">{categories[supplier.category_id].name}</Badge> :
