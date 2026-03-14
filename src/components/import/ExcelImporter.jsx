@@ -1467,6 +1467,14 @@ export default function ExcelImporter({ onImportComplete }) {
         {step === 2 && (
           <div className="flex flex-row-reverse items-center justify-between gap-3 p-4 w-full flex-wrap" dir="rtl">
             <AppButton 
+              variant="outline"
+              icon={ArrowLeft}
+              onClick={() => setStep(1)} 
+              className="min-w-[140px] flex-1"
+            >
+              חזור
+            </AppButton>
+            <AppButton 
               variant={importMode === 'reset' ? 'danger' : 'primary'}
               icon={importMode === 'reset' ? AlertTriangle : Database}
               onClick={handleImport} 
@@ -1474,10 +1482,30 @@ export default function ExcelImporter({ onImportComplete }) {
               disabled={importMode === 'reset' && resetConfirmation !== 'מחק הכל'}
               className="min-w-[140px] flex-1"
             >
-              {importMode === 'reset' ? 'בצע איפוס' : 'התחל ייבוא'}
+              {importMode === 'reset' ? 'בצע איפוס' : 'צפה בתצוגה מקדימה'}
             </AppButton>
-            <AppButton variant="outline" icon={ArrowLeft} onClick={() => setStep(1)} className="min-w-[140px] flex-1">
+          </div>
+        )}
+
+        {step === 2.5 && (
+          <div className="flex flex-row-reverse items-center justify-between gap-3 p-4 w-full flex-wrap" dir="rtl">
+            <AppButton 
+              variant="outline"
+              icon={ArrowLeft}
+              onClick={() => setStep(2)} 
+              className="min-w-[140px] flex-1"
+            >
               חזור
+            </AppButton>
+            <AppButton 
+              variant="primary"
+              icon={Database}
+              onClick={handleImport} 
+              loading={isImporting}
+              disabled={isImporting}
+              className="min-w-[140px] flex-1"
+            >
+              אישור - התחל ייבוא
             </AppButton>
           </div>
         )}
