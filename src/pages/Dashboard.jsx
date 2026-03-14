@@ -413,7 +413,7 @@ function DashboardContent() {
           </div>
           <div className="flex flex-wrap items-center gap-2 md:gap-3">
             {!isAdmin &&
-            <div className="text-xs md:text-sm bg-gradient-to-l from-blue-50 to-blue-100 text-blue-700 px-3 md:px-4 py-2 md:py-2.5 rounded-lg md:rounded-xl border border-blue-200 font-semibold shadow-sm">
+            <div className="text-sm rounded-[12px] border border-slate-200 bg-white px-4 py-2.5 text-slate-600 font-medium shadow-sm">
                 צפייה בלבד
               </div>
             }
