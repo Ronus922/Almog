@@ -189,16 +189,8 @@ export default function Tasks() {
     return result;
   }, [myTasks, filterStatus, filterPriority, filterAssigned, filterDueDate, filterTaskType, search, activeKpiFilter]);
 
-  const isOverdue = (task) => {
-    if (task.status === "הושלמה" || task.status === "בוטלה") return false;
-    if (!task.due_date) return false;
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-    return new Date(task.due_date) < today;
-  };
-
   const sorted = useMemo(() => {
-    return [...filtered].sort((a, b) => {
+    return [...visibleTasks].sort((a, b) => {
       const priorityOrder = { "גבוהה": 1, "בינונית": 2, "נמוכה": 3 };
       const aPriority = priorityOrder[a.priority] || 9;
       const bPriority = priorityOrder[b.priority] || 9;
