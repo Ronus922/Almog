@@ -15,6 +15,7 @@ import { Badge } from "@/components/ui/badge";
 import { Plus, MessageCircle, Phone, Edit2, Trash2, Tag } from 'lucide-react';
 import SupplierFormDialog from '@/components/suppliers/SupplierFormDialog';
 import CategoryManagementDialog from '@/components/suppliers/CategoryManagementDialog';
+import WhatsAppDialog from '@/components/whatsapp/WhatsAppDialog';
 import { useAlert } from '@/components/notifications/AlertContext';
 
 export default function SupplierManagement() {
@@ -22,6 +23,8 @@ export default function SupplierManagement() {
   const [editingSupplier, setEditingSupplier] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [isCategoryDialogOpen, setIsCategoryDialogOpen] = useState(false);
+  const [whatsappDialogOpen, setWhatsappDialogOpen] = useState(false);
+  const [selectedSupplierForWhatsapp, setSelectedSupplierForWhatsapp] = useState(null);
   const { showAlert } = useAlert();
   const queryClient = useQueryClient();
 
@@ -131,10 +134,9 @@ export default function SupplierManagement() {
     setIsDialogOpen(true);
   };
 
-  const handleWhatsApp = (phone) => {
-    if (phone) {
-      window.open(`https://wa.me/${phone.replace(/\D/g, '')}`, '_blank');
-    }
+  const handleWhatsApp = (supplier) => {
+    setSelectedSupplierForWhatsapp(supplier);
+    setWhatsappDialogOpen(true);
   };
 
   const handleCall = (phone) => {
@@ -224,7 +226,7 @@ export default function SupplierManagement() {
                         <div className="flex gap-1 justify-end">
                           {supplier.contact_mobile_whatsapp && (
                             <button
-                              onClick={() => handleWhatsApp(supplier.contact_mobile_whatsapp)}
+                              onClick={() => handleWhatsApp(supplier)}
                               className="p-1.5 text-green-600 hover:bg-green-50 rounded transition"
                               title="וואטסאפ"
                             >
@@ -277,6 +279,22 @@ export default function SupplierManagement() {
         <CategoryManagementDialog
           isOpen={isCategoryDialogOpen}
           onClose={() => setIsCategoryDialogOpen(false)}
+        />
+        <WhatsAppDialog
+          open={whatsappDialogOpen}
+          onClose={() => {
+            setWhatsappDialogOpen(false);
+            setSelectedSupplierForWhatsapp(null);
+          }}
+          record={selectedSupplierForWhatsapp ? {
+            id: selectedSupplierForWhatsapp.id,
+            phonePrimary: selectedSupplierForWhatsapp.contact_mobile_whatsapp,
+            ownerName: selectedSupplierForWhatsapp.contact_person_name,
+            apartmentNumber: selectedSupplierForWhatsapp.company_name,
+            totalDebt: 0,
+            monthlyDebt: 0,
+            specialDebt: 0
+          } : null}
         />
       </div>
     </div>
