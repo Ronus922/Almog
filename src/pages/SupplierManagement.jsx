@@ -198,13 +198,13 @@ export default function SupplierManagement() {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead className="text-right w-32">שם החברה</TableHead>
-                    <TableHead className="text-right w-24">קטגוריה</TableHead>
-                    <TableHead className="text-right w-24">טלפון חברה</TableHead>
+                    <TableHead className="text-right w-28">שם החברה</TableHead>
+                    <TableHead className="text-right w-20">קטגוריה</TableHead>
                     <TableHead className="text-right w-24">איש קשר</TableHead>
-                    <TableHead className="text-right w-24">נייד / וואטסאפ</TableHead>
-                    <TableHead className="text-right w-28">אימייל</TableHead>
-                    <TableHead className="text-right w-32">פעולות</TableHead>
+                    <TableHead className="text-right w-20">טלפון נייד</TableHead>
+                    <TableHead className="text-right w-20">טלפון חברה</TableHead>
+                    <TableHead className="text-right w-24">אימייל</TableHead>
+                    <TableHead className="text-right w-28">פעולות</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -212,15 +212,19 @@ export default function SupplierManagement() {
                     <TableRow key={supplier.id} className="hover:bg-slate-50">
                       <TableCell className="font-medium text-right text-sm">{supplier.company_name}</TableCell>
                       <TableCell className="text-right text-sm">
-                        <Badge variant="outline">{categories[supplier.category_id]?.name || '-'}</Badge>
+                        {categories[supplier.category_id]?.name ? (
+                          <Badge variant="outline" className="text-xs">{categories[supplier.category_id].name}</Badge>
+                        ) : (
+                          <span className="text-slate-400">-</span>
+                        )}
                       </TableCell>
-                      <TableCell className="text-right text-sm">{supplier.company_phone || '-'}</TableCell>
                       <TableCell className="text-right text-sm">{supplier.contact_person_name || '-'}</TableCell>
                       <TableCell className="text-right text-sm text-blue-600">
                         {supplier.contact_mobile_whatsapp ? (
                           <span className="cursor-pointer hover:underline">{supplier.contact_mobile_whatsapp}</span>
                         ) : '-'}
                       </TableCell>
+                      <TableCell className="text-right text-sm">{supplier.company_phone || '-'}</TableCell>
                       <TableCell className="text-right text-sm text-slate-600 truncate">{supplier.email || '-'}</TableCell>
                       <TableCell className="text-right text-sm">
                         <div className="flex gap-1 justify-end">
