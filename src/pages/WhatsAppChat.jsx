@@ -188,6 +188,105 @@ export default function WhatsAppChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Sync WhatsApp profile image when contact is selected
+  useEffect(() => {
+    if (!selectedContact?.id) return;
+
+    const syncProfileImage = async () => {
+      try {
+        const primaryPhone = selectedContact.owner_phone || selectedContact.tenant_phone;
+        if (!primaryPhone) return;
+
+        // Check if already synced recently (within 24 hours)
+        if (selectedContact.whatsapp_profile_last_synced_at) {
+          const lastSync = new Date(selectedContact.whatsapp_profile_last_synced_at);
+          const now = new Date();
+          if (now - lastSync < 24 * 60 * 60 * 1000) {
+            return; // Skip if synced less than 24 hours ago
+          }
+        }
+
+        // Step 1: Try GetAvatar (primary method)
+        const chatId = `${primaryPhone.replace(/\D/g, '')}@c.us`;
+        
+        try {
+          const avatarResponse = await base44.functions.invoke('getWhatsAppAvatar', {
+            phoneNumber: primaryPhone
+          });
+
+          const updateData = {
+            whatsapp_profile_last_synced_at: new Date().toISOString()
+          };
+
+          if (avatarResponse?.available === true && avatarResponse?.urlAvatar) {
+            // Avatar exists and has URL
+            updateData.whatsapp_profile_image_url = avatarResponse.urlAvatar;
+            updateData.whatsapp_profile_sync_status = 'synced';
+            updateData.whatsapp_profile_sync_error = null;
+          } else if (avatarResponse?.available === true && !avatarResponse?.urlAvatar) {
+            // Avatar exists but no URL
+            updateData.whatsapp_profile_sync_status = 'no_avatar';
+            updateData.whatsapp_profile_sync_error = null;
+          } else if (avatarResponse?.available === false) {
+            // Avatar not available
+            updateData.whatsapp_profile_sync_status = 'unavailable';
+            updateData.whatsapp_profile_sync_error = null;
+          }
+
+          // Update contact with GetAvatar result
+          await base44.entities.Contact.update(selectedContact.id, updateData);
+          
+          // Invalidate queries to refresh UI
+          queryClient.invalidateQueries({ queryKey: ['contacts'] });
+          queryClient.invalidateQueries({ queryKey: ['chatMessages', selectedContact.id] });
+
+        } catch (avatarError) {
+          // Step 2: Fallback to GetContactInfo if GetAvatar fails
+          console.log('[WhatsApp] GetAvatar failed, trying GetContactInfo fallback');
+          
+          try {
+            const contactInfoResponse = await base44.functions.invoke('getWhatsAppContactInfo', {
+              phoneNumber: primaryPhone
+            });
+
+            const updateData = {
+              whatsapp_profile_last_synced_at: new Date().toISOString()
+            };
+
+            if (contactInfoResponse?.avatar) {
+              // GetContactInfo has avatar
+              updateData.whatsapp_profile_image_url = contactInfoResponse.avatar;
+              updateData.whatsapp_profile_sync_status = 'synced';
+              updateData.whatsapp_profile_sync_error = null;
+            } else {
+              // GetContactInfo has no avatar
+              updateData.whatsapp_profile_sync_status = 'no_avatar';
+              updateData.whatsapp_profile_sync_error = null;
+            }
+
+            await base44.entities.Contact.update(selectedContact.id, updateData);
+            queryClient.invalidateQueries({ queryKey: ['contacts'] });
+            queryClient.invalidateQueries({ queryKey: ['chatMessages', selectedContact.id] });
+
+          } catch (contactInfoError) {
+            // Both methods failed
+            console.error('[WhatsApp] Both GetAvatar and GetContactInfo failed');
+            await base44.entities.Contact.update(selectedContact.id, {
+              whatsapp_profile_sync_status: 'failed',
+              whatsapp_profile_sync_error: 'סנכרון תמונת פרופיל נכשל',
+              whatsapp_profile_last_synced_at: new Date().toISOString()
+            });
+          }
+        }
+
+      } catch (error) {
+        console.error('[WhatsApp] Profile sync error:', error);
+      }
+    };
+
+    syncProfileImage();
+  }, [selectedContact?.id, queryClient]);
+
   return (
     <div className="min-h-screen bg-gray-100" dir="rtl" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Cpath d=\'M0 0h100v100H0z\' fill=\'%23ECE5DD\'/%3E%3Cpath d=\'M50 0L100 50L50 100L0 50z\' fill=\'%23E8DED2\' opacity=\'0.3\'/%3E%3C/svg%3E")', backgroundSize: '100px 100px' }}>
       <div className="h-screen flex gap-0">
