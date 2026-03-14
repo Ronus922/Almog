@@ -57,6 +57,19 @@ export default function NotificationBell({ currentUser }) {
     setNotifications(prev => prev.filter(n => n.id !== notif.id));
   };
 
+  const deleteNotification = async (notifId, e) => {
+    e.stopPropagation();
+    await base44.entities.Notification.delete(notifId);
+    setNotifications(prev => prev.filter(n => n.id !== notifId));
+  };
+
+  const clearAllNotifications = async () => {
+    for (const n of notifications) {
+      await base44.entities.Notification.delete(n.id);
+    }
+    setNotifications([]);
+  };
+
   const handleOpen = () => {
     setOpen(o => !o);
   };
