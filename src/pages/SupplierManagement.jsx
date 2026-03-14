@@ -214,7 +214,7 @@ export default function SupplierManagement() {
                     <TableHead className="text-right w-20">קטגוריה</TableHead>
                     <TableHead className="text-right w-24">איש קשר</TableHead>
                     <TableHead className="text-right w-20">טלפון נייד</TableHead>
-                    <TableHead className="text-right w-20">טלפון חברה</TableHead>
+                    <TableHead className="text-right w-20">טלפון במשרד</TableHead>
                     <TableHead className="text-right w-24">אימייל</TableHead>
                     <TableHead className="text-right w-20">מסמכים</TableHead>
                     <TableHead className="bg-white text-muted-foreground px-10 font-medium text-left h-10 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px] w-28 sticky left-0 border-l border-slate-200 z-10">פעולות</TableHead>
@@ -240,7 +240,7 @@ export default function SupplierManagement() {
                       <TableCell className="text-right text-sm">{supplier.company_phone || '-'}</TableCell>
                       <TableCell className="text-right text-sm text-slate-600 truncate">{supplier.email || '-'}</TableCell>
                       <TableCell className="text-right text-sm text-slate-600">{documentCounts[supplier.id] || '-'}</TableCell>
-                      <TableCell className="text-right text-sm sticky left-0 bg-white border-l border-slate-200 z-10">
+                      <TableCell className="text-right text-sm sticky left-0 bg-white border-l border-slate-200 z-10 group-hover:bg-slate-50">
                         <div className="flex gap-1 justify-end">
                           {supplier.contact_mobile_whatsapp &&
                       <button
