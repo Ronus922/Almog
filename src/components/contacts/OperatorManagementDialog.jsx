@@ -284,16 +284,21 @@ export default function OperatorManagementDialog({ open, onClose }) {
                     </div>
                   ) : (
                     <>
-                      <div className="text-right flex-1">
+                      <div className="text-right flex-1 space-y-1">
                         <div className="text-sm font-medium text-slate-900">{operator.company_name}</div>
                         {operator.contact_name && (
-                          <div className="text-xs text-slate-500 mt-0.5">{operator.contact_name}</div>
+                          <div className="text-xs text-slate-600">{operator.contact_name}</div>
                         )}
-                        {operator.phone && (
-                          <div className="text-xs text-slate-500">{operator.phone}</div>
-                        )}
+                        <div className="flex gap-3 text-xs text-slate-500">
+                          {operator.phone && (
+                            <span dir="ltr">{operator.phone}</span>
+                          )}
+                          {operator.email && (
+                            <span dir="ltr" className="truncate">{operator.email}</span>
+                          )}
+                        </div>
                         {operatorUsage[operator.id] > 0 && (
-                          <div className="text-xs text-blue-600 mt-1 font-medium">
+                          <div className="text-xs text-blue-600 font-medium mt-1">
                             {operatorUsage[operator.id]} דירות
                           </div>
                         )}
