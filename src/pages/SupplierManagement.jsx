@@ -204,7 +204,7 @@ export default function SupplierManagement() {
                     <TableHead className="text-right w-20">טלפון נייד</TableHead>
                     <TableHead className="text-right w-20">טלפון חברה</TableHead>
                     <TableHead className="text-right w-24">אימייל</TableHead>
-                    <TableHead className="text-right w-28 sticky left-0 bg-white border-l border-slate-200 z-10">פעולות</TableHead>
+                    <TableHead className="text-left w-28 sticky left-0 bg-white border-l border-slate-200 z-10">פעולות</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
