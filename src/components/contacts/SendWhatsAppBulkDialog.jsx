@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -98,13 +98,14 @@ export default function SendWhatsAppBulkDialog({ open, onClose, contacts, settin
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg" dir="rtl">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
-            <Send className="w-5 h-5 text-green-600" />
-            שליחת וואטסאפ קבוצתי
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="max-w-lg" dir="rtl" aria-describedby={undefined}>
+         <DialogHeader>
+           <DialogTitle className="flex items-center gap-2">
+             <Send className="w-5 h-5 text-green-600" />
+             שליחת וואטסאפ קבוצתי
+           </DialogTitle>
+           <DialogDescription className="sr-only">שלח הודעות וואטסאפ למספר אנשי קשר</DialogDescription>
+         </DialogHeader>
 
         <div className="flex items-center gap-2 p-3 bg-blue-50 rounded-lg">
           <Users className="w-4 h-4 text-blue-600" />
