@@ -1,5 +1,4 @@
 import React from 'react';
-import { Card } from "@/components/ui/card";
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { 
