@@ -313,8 +313,8 @@ const { useState, useEffect, useMemo } = require('react');
   };
 
   return (
+    <div>
     <TooltipProvider>
-      <div>
         {whatsappRecord && (
           <WhatsAppDialog
             open={!!whatsappRecord}
