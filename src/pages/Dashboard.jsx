@@ -105,18 +105,145 @@ function DashboardContent() {
 
   return (
     <TooltipProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 p-6" dir="rtl">
-        <div className="max-w-full mx-auto space-y-6">
-          {/* Header */}
-          <div className="flex flex-col gap-4">
-            <div>
-              <h1 className="text-4xl font-bold text-slate-900">דשבורד חייבים</h1>
-              <p className="text-slate-600 mt-2">ניהול וניטור חייבים הישראליים</p>
-            </div>
+      <style>{`
+        .kpi-card-glow {
+          position: relative;
+          overflow: hidden;
+        }
+        .kpi-card-glow::before {
+          content: '';
+          position: absolute;
+          top: -50%;
+          right: -50%;
+          width: 200%;
+          height: 200%;
+          background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%);
+          animation: float 6s ease-in-out infinite;
+          pointer-events: none;
+        }
+        @keyframes float {
+          0%, 100% { transform: translate(0, 0); }
+          50% { transform: translate(-10px, -10px); }
+        }
+        .hero-glow {
+          position: absolute;
+          border-radius: 50%;
+          filter: blur(60px);
+          opacity: 0.35;
+          mix-blend-mode: screen;
+        }
+        .hero-glow-1 {
+          width: 400px;
+          height: 400px;
+          background: #a8d4ff;
+          top: -100px;
+          right: -150px;
+        }
+        .hero-glow-2 {
+          width: 350px;
+          height: 350px;
+          background: #d8bcff;
+          bottom: -120px;
+          left: -100px;
+        }
+      `}</style>
 
-            {/* KPI Cards */}
-            <KPICards records={debtorRecords} settings={settings} allStatuses={allStatuses} />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50" dir="rtl">
+        {/* OUTER SECTION */}
+        <section className="relative m-6 rounded-3xl bg-gradient-to-b from-[#f5f7ff] to-[#edf2ff] border border-[rgba(184,198,245,0.60)] shadow-[0_24px_70px_rgba(109,132,220,0.14),0_8px_24px_rgba(160,180,255,0.10),inset_0_1px_0_rgba(255,255,255,0.95)] overflow-hidden">
+          
+          {/* HEADER */}
+          <header className="h-[68px] flex items-center justify-between px-7 bg-[rgba(255,255,255,0.70)] backdrop-blur-[12px] border-b border-[rgba(225,230,247,0.92)]">
+            <div className="flex items-center gap-4">
+              <div className="w-[34px] h-[34px] rounded-full bg-gradient-to-br from-blue-500 to-blue-600 border-2 border-[rgba(255,255,255,0.95)] shadow-[0_6px_18px_rgba(95,110,180,0.16)]"></div>
+              <div>
+                <p className="text-[14px] font-bold text-[#2f3969]">{currentUser?.username || 'משתמש'}</p>
+                <p className="text-[11px] text-[#9aa5c9]">{currentUser?.role === 'ADMIN' ? 'מנהל' : 'צופה'}</p>
+              </div>
+            </div>
+            
+            <nav className="hidden md:flex items-center gap-[22px]">
+              <span className="text-[11px] font-semibold text-[#8e98bb] cursor-pointer hover:text-[#6b77a6]">דשבורד</span>
+              <span className="text-[11px] font-semibold text-[#8e98bb] cursor-pointer hover:text-[#6b77a6]">דוחות</span>
+              <span className="text-[11px] font-semibold text-[#8e98bb] cursor-pointer hover:text-[#6b77a6]">הגדרות</span>
+            </nav>
+
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] font-semibold text-[#8e98bb]">≡</span>
+            </div>
+          </header>
+
+          {/* HERO SECTION */}
+          <div className="relative min-h-[148px] pt-5 pr-[34px] pl-[34px] pb-[26px] bg-gradient-to-br from-[rgba(187,234,255,0.40)] via-[rgba(217,230,255,0.33)] to-[rgba(239,230,255,0.28)] overflow-hidden">
+            <div className="hero-glow hero-glow-1"></div>
+            <div className="hero-glow hero-glow-2"></div>
+            
+            <div className="relative z-2">
+              <h1 className="text-[44px] font-black leading-[1.05] text-[#2f3969] text-right">דשבורד חייבים</h1>
+              <p className="mt-1.5 text-[13px] font-medium text-[#96a1c6] text-right">ניהול וניטור מלא של חייבים בנכסים</p>
+            </div>
           </div>
+
+          {/* KPI CARDS WRAPPER */}
+          <div className="-mt-4 px-[26px] pb-6 relative z-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              {/* KPI 1 */}
+              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between">
+                <p className="text-[10px] font-bold uppercase letter-spacing text-[#a0aacb]">סה״כ חוב</p>
+                <div>
+                  <p className="text-[32px] font-black leading-none text-[#2bc9a8]">
+                    {new Intl.NumberFormat('he-IL', { notation: 'compact', maximumFractionDigits: 0 }).format(records.reduce((sum, r) => sum + (r.totalDebt || 0), 0))}
+                  </p>
+                  <div className="mt-3 h-7 rounded-full bg-[#f7f9ff] border border-[rgba(226,232,248,0.96)] px-3.5 flex items-center">
+                    <span className="text-[11px] font-semibold text-[#8f99bd]">סה״כ</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* KPI 2 */}
+              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between">
+                <p className="text-[10px] font-bold uppercase text-[#a0aacb]">דמי ניהול</p>
+                <div>
+                  <p className="text-[32px] font-black leading-none text-[#6270ff]">
+                    {new Intl.NumberFormat('he-IL', { notation: 'compact', maximumFractionDigits: 0 }).format(records.reduce((sum, r) => sum + (r.monthlyDebt || 0), 0))}
+                  </p>
+                  <div className="mt-3 h-7 rounded-full bg-[#f7f9ff] border border-[rgba(226,232,248,0.96)] px-3.5 flex items-center">
+                    <span className="text-[11px] font-semibold text-[#8f99bd]">חודשי</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* KPI 3 */}
+              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between">
+                <p className="text-[10px] font-bold uppercase text-[#a0aacb]">מים חמים</p>
+                <div>
+                  <p className="text-[32px] font-black leading-none text-[#f5a623]">
+                    {new Intl.NumberFormat('he-IL', { notation: 'compact', maximumFractionDigits: 0 }).format(records.reduce((sum, r) => sum + (r.specialDebt || 0), 0))}
+                  </p>
+                  <div className="mt-3 h-7 rounded-full bg-[#f7f9ff] border border-[rgba(226,232,248,0.96)] px-3.5 flex items-center">
+                    <span className="text-[11px] font-semibold text-[#8f99bd]">מיוחד</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* KPI 4 */}
+              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between">
+                <p className="text-[10px] font-bold uppercase text-[#a0aacb]">לגבייה</p>
+                <div>
+                  <p className="text-[32px] font-black leading-none text-[#ff5a9c]">
+                    {records.filter(r => (r.totalDebt || 0) > 0).length}
+                  </p>
+                  <div className="mt-3 h-7 rounded-full bg-[#f7f9ff] border border-[rgba(226,232,248,0.96)] px-3.5 flex items-center">
+                    <span className="text-[11px] font-semibold text-[#8f99bd]">דירות</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* REST OF PAGE */}
+        <div className="max-w-full mx-auto space-y-6 p-6">
 
           {/* Filter indicators */}
           {filterKeyFromUrl &&
