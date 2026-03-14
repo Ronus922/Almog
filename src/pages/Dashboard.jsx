@@ -397,7 +397,7 @@ function DashboardContent() {
           <div className="flex items-center gap-3 md:gap-4">
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl md:text-3xl font-extrabold bg-gradient-to-l from-slate-800 to-slate-600 bg-clip-text text-transparent">
+                <h1 className="text-[30px] md:text-[34px] font-[700] tracking-tight text-slate-800">
                   שלום, {currentUser.firstName || currentUser.username}
                 </h1>
                 {currentUser?.isBase44Admin &&
