@@ -33,6 +33,7 @@ export default function AppModal({
 
           <VisuallyHidden>
             <DialogTitle>{title}</DialogTitle>
+            <div id="modal-description">{subtitle}</div>
           </VisuallyHidden>
 
           {/* Header */}
