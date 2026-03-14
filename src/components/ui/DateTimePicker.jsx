@@ -151,7 +151,7 @@ function CalendarPanel({ selectedDate, onSelectDay }) {
   });
 
   return (
-    <div style={{ width:260, height:260, padding:"8px 10px", flexShrink:0, boxSizing:"border-box" }}>
+    <div style={{ width:320, height:280, padding:"8px 10px", flexShrink:0, boxSizing:"border-box" }}>
       <CalendarHeader year={view.year} month={view.month} onPrev={prev} onNext={next} />
       <CalendarGrid year={view.year} month={view.month} selectedDate={selectedDate} onSelectDay={(d) => onSelectDay(view.year, view.month, d)} />
     </div>
