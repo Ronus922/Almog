@@ -683,9 +683,9 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             <Button
               onClick={handleSave}
               disabled={isSaving}
-              className="h-10 min-w-[120px] rounded-[12px] border-0 bg-blue-600 px-4 text-[14px] font-bold text-white transition hover:bg-blue-700"
+              className="h-10 min-w-[140px] rounded-[14px] border-0 bg-[linear-gradient(180deg,#2d6cff_0%,#1f5cf2_100%)] px-4 text-[15px] font-black text-white shadow-[0_14px_28px_rgba(37,99,235,0.35)] transition hover:brightness-[1.04]"
             >
-              <Save className="mr-2 h-4 w-4" />
+              <Save className="mr-2 h-3 w-3" />
               {isSaving ? 'שומר...' : 'שמור'}
             </Button>
           )}
@@ -693,17 +693,17 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             variant="outline"
             onClick={handleExportPDF}
             disabled={isExporting}
-            className="h-10 min-w-[85px] rounded-[12px] border border-slate-200 bg-white px-3 text-[13px] font-bold text-slate-700 transition hover:bg-slate-50"
+            className="h-10 min-w-[90px] rounded-[14px] border border-slate-200 bg-white px-3 text-[14px] font-bold text-[#243858] shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition hover:bg-slate-50"
           >
-            <FileDown className="mr-1.5 h-4 w-4" />
+            <FileDown className="mr-1.5 h-3 w-3" />
             PDF
           </Button>
           <Button
             variant="outline"
             onClick={handlePrint}
-            className="h-10 min-w-[85px] rounded-[12px] border border-slate-200 bg-white px-3 text-[13px] font-bold text-slate-700 transition hover:bg-slate-50"
+            className="h-10 min-w-[90px] rounded-[14px] border border-slate-200 bg-white px-3 text-[14px] font-bold text-[#243858] shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition hover:bg-slate-50"
           >
-            <Printer className="mr-1.5 h-4 w-4" />
+            <Printer className="mr-1.5 h-3 w-3" />
             הדפסה
           </Button>
           <Button
@@ -712,7 +712,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
               onClose();
             }}
-            className="h-10 min-w-[85px] rounded-[12px] border border-slate-200 bg-white px-3 text-[13px] font-bold text-slate-700 transition hover:bg-slate-50"
+            className="h-10 min-w-[90px] rounded-[14px] border border-slate-200 bg-white px-3 text-[14px] font-bold text-[#243858] shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition hover:bg-slate-50"
           >
             סגור
           </Button>
@@ -744,7 +744,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               <div className="grid grid-cols-[1fr_auto] items-start gap-x-4 gap-y-3 py-2">
                 <div>
                   <p className="text-[13px] font-semibold text-[#95a3b8]">מספר דירה</p>
-                  <p className="text-[26px] leading-[1.2] font-black text-[#233754]">{editedRecord?.apartmentNumber}</p>
+                  <p className="text-[31px] leading-[1.2] font-black text-[#233754]">{editedRecord?.apartmentNumber}</p>
                 </div>
                 <div className="flex h-9 w-9 items-center justify-center rounded-[11px] bg-[#f7f9fc] text-[#93a4bc]">
                   <Home className="w-4 h-4" />
@@ -753,7 +753,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               <div className="grid grid-cols-[1fr_auto] items-start gap-x-4 gap-y-3 py-2">
                 <div>
                   <p className="text-[13px] font-semibold text-[#95a3b8]">בעל הדירה</p>
-                  <p className="text-[22px] leading-[1.28] font-black text-[#233754]">{editedRecord?.ownerName || 'לא צוין'}</p>
+                  <p className="text-[27px] leading-[1.28] font-black text-[#233754]">{editedRecord?.ownerName || 'לא צוין'}</p>
                 </div>
                 <div className="flex h-9 w-9 items-center justify-center rounded-[11px] bg-[#f7f9fc] text-[#93a4bc]">
                   <User className="w-4 h-4" />
@@ -900,7 +900,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 <div className="flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#fff1f2] text-[#ff5b6e]">
                   <Wallet className="w-6 h-6" />
                 </div>
-                <h3 className="text-[26px] leading-none font-black tracking-[-0.02em] text-[#253b5b]">פירוט חובות</h3>
+                <h3 className="text-[34px] leading-none font-black tracking-[-0.02em] text-[#253b5b]">פירוט חובות</h3>
               </div>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
@@ -939,7 +939,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                   <div className="flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#eef4ff] text-[#3b82f6]">
                     <Scale className="w-6 h-6" />
                   </div>
-                  <h3 className="text-[26px] leading-none font-black tracking-[-0.02em] text-[#253b5b]">ניהול משפטי</h3>
+                  <h3 className="text-[34px] leading-none font-black tracking-[-0.02em] text-[#253b5b]">ניהול משפטי</h3>
                 </div>
               </div>
 
