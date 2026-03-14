@@ -94,8 +94,8 @@ export default function SupplierFormDialog({ isOpen, onClose, supplier, onSave }
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
-        className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] max-w-lg bg-background shadow-lg border overflow-hidden flex flex-col sm:rounded-lg p-0"
-        style={{ maxWidth: "552px", height: "500px", width: "100%" }}
+        className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] bg-background shadow-lg border overflow-hidden flex flex-col sm:rounded-lg p-0"
+        style={{ width: "460px", height: "750px" }}
         dir="rtl" 
         aria-describedby={undefined}
       >
