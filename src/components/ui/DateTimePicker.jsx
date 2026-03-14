@@ -19,55 +19,77 @@ function getFirstDayOfWeek(year, month) {
 // ─── TimeColumn ───────────────────────────────────────────────────────────────
 function TimeColumn({ selectedHour, selectedMinute, onSelect }) {
   const MINUTES = [0, 15, 30, 45];
-  // שעות: 1,2,...,23,0 (00 בסוף)
-  const HOURS = [...Array.from({ length: 23 }, (_, i) => i + 1), 0];
-  const listRef = useRef(null);
-  const activeRef = useRef(null);
+  const HOURS = Array.from({ length: 24 }, (_, i) => i);
+  const hourActiveRef = useRef(null);
+  const minActiveRef = useRef(null);
 
   useEffect(() => {
-    if (activeRef.current) {
-      activeRef.current.scrollIntoView({ block: "center" });
-    }
-  }, [selectedHour, selectedMinute]);
+    if (hourActiveRef.current) hourActiveRef.current.scrollIntoView({ block: "center" });
+  }, [selectedHour]);
 
-  const rows = [];
-  for (let hi = 0; hi < HOURS.length; hi++) {
-    const h = HOURS[hi];
-    for (let mi = 0; mi < MINUTES.length; mi++) {
-      const m = MINUTES[mi];
-      const active = h === selectedHour && m === selectedMinute;
-      rows.push(
-        <div
-          key={`${h}-${m}`}
-          ref={active ? activeRef : null}
-          onClick={() => onSelect(h, m)}
-          style={{
-            display:"flex", height:30, alignItems:"center", cursor:"pointer",
-            background: active ? "#3b82f6" : "transparent",
-            borderRadius: active ? 6 : 0,
-            margin: active ? "0 4px" : 0,
-            width: active ? "calc(100% - 8px)" : "100%",
-            transition: "background 0.1s",
-          }}
-        >
-          <span style={{ flex:1, textAlign:"center", fontSize:13, fontWeight: active ? 600 : 400, color: active ? "#fff" : "#1e293b" }}>{pad(m)}</span>
-          <span style={{ flex:1, textAlign:"center", fontSize:13, fontWeight: active ? 600 : 400, color: active ? "#dbeafe" : "#475569" }}>{pad(h)}</span>
-        </div>
-      );
-    }
-  }
+  useEffect(() => {
+    if (minActiveRef.current) minActiveRef.current.scrollIntoView({ block: "center" });
+  }, [selectedMinute]);
 
   return (
-    <div
-      ref={listRef}
-      style={{ width: 120, height: 280, overflowY: "auto", borderRight: "1px solid #e5e7eb", flexShrink: 0 }}
-    >
-      {/* header: דקות מימין, שעה משמאל */}
-      <div style={{ display:"flex", height:32, alignItems:"center", borderBottom:"1px solid #e5e7eb", background:"#f8fafc", position:"sticky", top:0, zIndex:1 }}>
-        <span style={{ flex:1, textAlign:"center", fontSize:11, fontWeight:600, color:"#64748b" }}>דקות</span>
-        <span style={{ flex:1, textAlign:"center", fontSize:11, fontWeight:600, color:"#64748b" }}>שעה</span>
+    <div style={{ width: 120, height: 280, display:"flex", flexDirection:"row", borderRight: "1px solid #e5e7eb", flexShrink: 0 }}>
+      {/* סקרולר שעות - משמאל */}
+      <div style={{ flex:1, display:"flex", flexDirection:"column", borderLeft:"1px solid #e5e7eb", overflowY:"auto" }}>
+        <div style={{ height:32, display:"flex", alignItems:"center", justifyContent:"center", borderBottom:"1px solid #e5e7eb", background:"#f8fafc", position:"sticky", top:0, zIndex:1 }}>
+          <span style={{ fontSize:11, fontWeight:600, color:"#64748b" }}>שעה</span>
+        </div>
+        {HOURS.map((h) => {
+          const active = h === selectedHour;
+          return (
+            <div
+              key={h}
+              ref={active ? hourActiveRef : null}
+              onClick={() => onSelect(h, selectedMinute)}
+              style={{
+                height:32, display:"flex", alignItems:"center", justifyContent:"center",
+                cursor:"pointer", fontSize:13,
+                fontWeight: active ? 700 : 400,
+                background: active ? "#3b82f6" : "transparent",
+                color: active ? "#fff" : "#1e293b",
+                borderRadius: active ? 6 : 0,
+                margin: active ? "1px 4px" : "1px 0",
+                transition: "background 0.1s",
+              }}
+            >
+              {pad(h)}
+            </div>
+          );
+        })}
       </div>
-      {rows}
+
+      {/* סקרולר דקות - מימין */}
+      <div style={{ flex:1, display:"flex", flexDirection:"column", overflowY:"auto" }}>
+        <div style={{ height:32, display:"flex", alignItems:"center", justifyContent:"center", borderBottom:"1px solid #e5e7eb", background:"#f8fafc", position:"sticky", top:0, zIndex:1 }}>
+          <span style={{ fontSize:11, fontWeight:600, color:"#64748b" }}>דקות</span>
+        </div>
+        {MINUTES.map((m) => {
+          const active = m === selectedMinute;
+          return (
+            <div
+              key={m}
+              ref={active ? minActiveRef : null}
+              onClick={() => onSelect(selectedHour, m)}
+              style={{
+                height:32, display:"flex", alignItems:"center", justifyContent:"center",
+                cursor:"pointer", fontSize:13,
+                fontWeight: active ? 700 : 400,
+                background: active ? "#3b82f6" : "transparent",
+                color: active ? "#fff" : "#1e293b",
+                borderRadius: active ? 6 : 0,
+                margin: active ? "1px 4px" : "1px 0",
+                transition: "background 0.1s",
+              }}
+            >
+              {pad(m)}
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
