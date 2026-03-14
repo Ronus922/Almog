@@ -256,17 +256,17 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
         }
 
         {activeTab === "audit" && isEdit ? (
-        <TaskAuditLogTab taskId={task?.id} />
+          <TaskAuditLogTab taskId={task?.id} />
         ) : activeTab === "attachments" && isEdit ? (
-        <TaskAttachmentsTab
-          taskId={task?.id}
-          currentUser={currentUser}
-          canEdit={
-            currentUser?.role === "SUPER_ADMIN" ||
-            task?.assigned_by === currentUser?.username ||
-            task?.assigned_to === currentUser?.username
-          }
-        />
+          <TaskAttachmentsTab
+            taskId={task?.id}
+            currentUser={currentUser}
+            canEdit={
+              currentUser?.role === "SUPER_ADMIN" ||
+              task?.assigned_by === currentUser?.username ||
+              task?.assigned_to === currentUser?.username
+            }
+          />
         ) : (
         <>
             <div className="space-y-4 mt-2 max-h-[60vh] overflow-y-auto px-6 pt-4">
