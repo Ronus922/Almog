@@ -266,22 +266,22 @@ export default function DebtorsTable({
   return (
     <TooltipProvider>
       <div>
-        {whatsappRecord && (
-          <WhatsAppDialog
-            open={!!whatsappRecord}
-            onClose={() => setWhatsappRecord(null)}
-            record={whatsappRecord}
-          />
-        )}
-        {commentRecord && (
-          <QuickCommentDialog
-            open={!!commentRecord}
-            onClose={() => setCommentRecord(null)}
-            record={commentRecord}
-            currentUser={currentUser}
-            isAdmin={isAdmin}
-          />
-        )}
+        {whatsappRecord &&
+        <WhatsAppDialog
+          open={!!whatsappRecord}
+          onClose={() => setWhatsappRecord(null)}
+          record={whatsappRecord} />
+
+        }
+        {commentRecord &&
+        <QuickCommentDialog
+          open={!!commentRecord}
+          onClose={() => setCommentRecord(null)}
+          record={commentRecord}
+          currentUser={currentUser}
+          isAdmin={isAdmin} />
+
+        }
         <Card className="rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
           <CardHeader className="bg-slate-50 border-b border-slate-200 p-6">
             <div className="flex flex-col gap-4">
@@ -302,25 +302,25 @@ export default function DebtorsTable({
                       placeholder="מספר דירה..."
                       value={apartmentSearch}
                       onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
-                      className="pr-10 w-40 h-10 rounded-lg border-slate-300"
-                    />
+                      className="pr-10 w-40 h-10 rounded-lg border-slate-300" />
+
                   </div>
 
                   {/* Min/Max Debt */}
-                  <Input
-                    type="number"
-                    placeholder="חוב מינימום"
-                    value={minDebt}
-                    onChange={(e) => {setMinDebt(e.target.value);setPage(1);}}
-                    className="w-32 h-10 rounded-lg border-slate-300"
-                  />
-                  <Input
-                    type="number"
-                    placeholder="חוב מקסימום"
-                    value={maxDebt}
-                    onChange={(e) => {setMaxDebt(e.target.value);setPage(1);}}
-                    className="w-32 h-10 rounded-lg border-slate-300"
-                  />
+                  
+
+
+
+
+
+
+                  
+
+
+
+
+
+
 
                   {/* Legal Status Filter */}
                   <Select value={legalStatusFilter} onValueChange={(v) => {setLegalStatusFilter(v);setPage(1);}}>
@@ -330,9 +330,9 @@ export default function DebtorsTable({
                     <SelectContent className="rounded-lg">
                       <SelectItem value="all">כל המצבים</SelectItem>
                       <SelectItem value="null">ללא סטטוס משפטי</SelectItem>
-                      {activeLegalStatuses.map((status) => (
-                        <SelectItem key={status.id} value={status.id}>{status.name}</SelectItem>
-                      ))}
+                      {activeLegalStatuses.map((status) =>
+                      <SelectItem key={status.id} value={status.id}>{status.name}</SelectItem>
+                      )}
                     </SelectContent>
                   </Select>
 
@@ -343,8 +343,8 @@ export default function DebtorsTable({
                       placeholder="חיפוש טלפון..."
                       value={phoneFilter}
                       onChange={(e) => {setPhoneFilter(e.target.value);setPage(1);}}
-                      className="pr-10 w-40 h-10 rounded-lg border-slate-300"
-                    />
+                      className="pr-10 w-40 h-10 rounded-lg border-slate-300" />
+
                   </div>
 
                   {/* Status Auto Filter */}
@@ -362,11 +362,11 @@ export default function DebtorsTable({
 
                   {/* Clear Button */}
                   {(statusFilter !== 'all' || search || apartmentSearch || minDebt || maxDebt || legalStatusFilter !== 'all' || phoneFilter) &&
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={clearFilters}
-                      className="h-10">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={clearFilters}
+                    className="h-10">
                       <X className="w-4 h-4 ml-1" />
                       נקה
                     </Button>
@@ -414,21 +414,21 @@ export default function DebtorsTable({
             {/* Mobile View */}
             <div className="block lg:hidden p-4 space-y-3">
               {paginatedRecords.length === 0 ?
-                <div className="text-center py-12">
+              <div className="text-center py-12">
                   <p className="text-slate-600 font-semibold">לא נמצאו רשומות</p>
                 </div> :
-                paginatedRecords.map((record) =>
-                <DebtorCard
-                  key={record.id}
-                  record={record}
-                  onClick={onRowClick}
-                  settings={settings}
-                  isAdmin={isAdmin}
-                  showArchived={showArchived}
-                  onArchiveToggle={(rec) => handleArchiveToggle(rec, { stopPropagation: () => {} })}
-                  allStatuses={allStatuses}
-                />
-                )
+              paginatedRecords.map((record) =>
+              <DebtorCard
+                key={record.id}
+                record={record}
+                onClick={onRowClick}
+                settings={settings}
+                isAdmin={isAdmin}
+                showArchived={showArchived}
+                onArchiveToggle={(rec) => handleArchiveToggle(rec, { stopPropagation: () => {} })}
+                allStatuses={allStatuses} />
+
+              )
               }
             </div>
 
@@ -457,16 +457,16 @@ export default function DebtorsTable({
                 </TableHeader>
                 <TableBody>
                   {paginatedRecords.length === 0 ?
-                    <TableRow>
+                  <TableRow>
                       <TableCell colSpan={7} className="text-center py-12">
                         <p className="text-slate-600 font-semibold">לא נמצאו רשומות</p>
                       </TableCell>
                     </TableRow> :
-                    paginatedRecords.map((record) =>
-                    <TableRow
-                       key={record.id}
-                       className="border-b border-slate-200 hover:bg-slate-50 cursor-pointer"
-                       onClick={() => onRowClick(record)}>
+                  paginatedRecords.map((record) =>
+                  <TableRow
+                    key={record.id}
+                    className="border-b border-slate-200 hover:bg-slate-50 cursor-pointer"
+                    onClick={() => onRowClick(record)}>
                        <TableCell className="px-4 py-3 text-sm text-slate-700 font-semibold">{record.apartmentNumber}</TableCell>
                       <TableCell className="px-4 py-3 text-sm text-slate-700">
                         {record.ownerName?.split(/[\/,]/)[0]?.trim() || '-'}
@@ -477,55 +477,55 @@ export default function DebtorsTable({
                       <TableCell className="px-4 py-3 text-sm font-semibold text-slate-900 text-center">{formatCurrency(record.specialDebt)}</TableCell>
                       <TableCell className="px-4 py-3 text-sm text-center">
                         {(() => {
-                          const legalStatus = getLegalStatusForRecord(record);
-                          return legalStatus ?
-                            <Badge className={`${legalStatus.color} rounded-full inline-block`}>
+                        const legalStatus = getLegalStatusForRecord(record);
+                        return legalStatus ?
+                        <Badge className={`${legalStatus.color} rounded-full inline-block`}>
                               {legalStatus.name}
                             </Badge> :
-                            <Badge className="bg-slate-100 text-slate-700 rounded-full inline-block">
+                        <Badge className="bg-slate-100 text-slate-700 rounded-full inline-block">
                               -
                             </Badge>;
-                        })()}
+                      })()}
                       </TableCell>
                       <TableCell className="px-4 py-3 text-center" onClick={(e) => e.stopPropagation()}>
                         <TableActionsCell
-                          record={record}
-                          isAdmin={isAdmin}
-                          showArchived={showArchived}
-                          archivingRecords={archivingRecords}
-                          onCommentClick={() => setCommentRecord(record)}
-                          onWhatsAppClick={() => setWhatsappRecord(record)}
-                          onArchiveToggle={handleArchiveToggle}
-                        />
+                        record={record}
+                        isAdmin={isAdmin}
+                        showArchived={showArchived}
+                        archivingRecords={archivingRecords}
+                        onCommentClick={() => setCommentRecord(record)}
+                        onWhatsAppClick={() => setWhatsappRecord(record)}
+                        onArchiveToggle={handleArchiveToggle} />
+
                       </TableCell>
                     </TableRow>
-                    )
+                  )
                   }
                 </TableBody>
               </Table>
             </div>
 
             {totalPages > 1 &&
-              <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-slate-200 bg-white">
+            <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-slate-200 bg-white">
                 <p className="text-sm text-slate-600">
                   מציג {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, filteredRecords.length)} מתוך {filteredRecords.length}
                 </p>
                 <div className="flex items-center gap-2">
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage(Math.max(1, page - 1))}
-                    disabled={page === 1}>
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(Math.max(1, page - 1))}
+                  disabled={page === 1}>
                     הקודם
                   </Button>
                   <span className="text-sm font-semibold text-slate-700">
                     {page} / {totalPages}
                   </span>
                   <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setPage(Math.min(totalPages, page + 1))}
-                    disabled={page === totalPages}>
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setPage(Math.min(totalPages, page + 1))}
+                  disabled={page === totalPages}>
                     הבא
                   </Button>
                 </div>
@@ -534,6 +534,6 @@ export default function DebtorsTable({
           </CardContent>
         </Card>
       </div>
-    </TooltipProvider>
-  );
+    </TooltipProvider>);
+
 }
