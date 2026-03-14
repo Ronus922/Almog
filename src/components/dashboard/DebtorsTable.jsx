@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/components/auth/AuthContext';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import TableActionsCell from './TableActionsCell';
@@ -15,21 +15,15 @@ import {
   TableRow } from
 "@/components/ui/table";
 import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X, Download, FileText, Printer, MessageCircle, MessageSquare, Archive, Undo2 } from "lucide-react";
-import * as XLSX from 'xlsx';
-import { jsPDF } from 'jspdf';
 import WhatsAppDialog from '../whatsapp/WhatsAppDialog';
 import QuickCommentDialog from './QuickCommentDialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import DebtorCard from './DebtorCard';
-import { normalizeApartmentNumber } from '../utils/apartmentNormalizer';
 import { getPhonePrimaryForTable, formatPhoneForDisplay } from '../utils/phoneDisplay';
 import { toast } from 'sonner';
-
-const STATUS_COLORS = {
-  'תקין': 'bg-green-100 text-green-700 border-green-200',
-  'לגבייה מיידית': 'bg-orange-100 text-orange-700 border-orange-200',
-  'חריגה מופרזת': 'bg-red-100 text-red-700 border-red-200'
-};
+import { useDebtorsTableFilters } from './useDebtorsTableFilters';
+import { handleExportExcel, handleExportPDF, handlePrint } from './debtorsTableExport';
+import { STATUS_COLORS } from './debtorsTableConstants';
 
 export default function DebtorsTable({
   records,
@@ -46,22 +40,35 @@ export default function DebtorsTable({
   showArchived = false
 }) {
   const { currentUser } = useAuth();
-  const [search, setSearch] = useState('');
-  const [apartmentSearch, setApartmentSearch] = useState('');
-  const [autoStatusFilter, setAutoStatusFilter] = useState('all');
-  const [sortField, setSortField] = useState('totalDebt');
-  const [sortDir, setSortDir] = useState('desc');
-  const [page, setPage] = useState(1);
-  const [minDebt, setMinDebt] = useState('');
-  const [maxDebt, setMaxDebt] = useState('');
-  const [ownerNameFilter, setOwnerNameFilter] = useState('');
-  const [phoneFilter, setPhoneFilter] = useState('');
-  const [legalStatusFilter, setLegalStatusFilter] = useState('all');
   const [archivingRecords, setArchivingRecords] = useState(new Set());
   const [whatsappRecord, setWhatsappRecord] = useState(null);
   const [commentRecord, setCommentRecord] = useState(null);
 
   const pageSize = 50;
+
+  const {
+    search, setSearch,
+    apartmentSearch, setApartmentSearch,
+    autoStatusFilter, setAutoStatusFilter,
+    sortField,
+    sortDir,
+    page, setPage,
+    minDebt, setMinDebt,
+    maxDebt, setMaxDebt,
+    ownerNameFilter, setOwnerNameFilter,
+    phoneFilter, setPhoneFilter,
+    legalStatusFilter, setLegalStatusFilter,
+    filteredRecords,
+    toggleSort,
+    clearFilters,
+    getLegalStatusForRecord,
+    legalStatuses,
+  } = useDebtorsTableFilters(records, allStatuses);
+
+  const activeLegalStatuses = legalStatuses.filter((s) => s.is_active);
+
+  const formatCurrency = (num) =>
+    new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num || 0);
 
   // Apply URL filters
   useEffect(() => {
@@ -101,104 +108,6 @@ export default function DebtorsTable({
     }
   }, [initialFilterKey, initialStatusFilter, initialAutoStatusFilter, allStatuses]);
 
-  const legalStatuses = allStatuses.filter((s) => s.type === 'LEGAL');
-  const activeLegalStatuses = legalStatuses.filter((s) => s.is_active);
-
-  const getLegalStatusForRecord = (record) => {
-    if (!record.legal_status_id) return null;
-    return legalStatuses.find((s) => s.id === record.legal_status_id) || null;
-  };
-
-  const formatCurrency = (num) =>
-  new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num || 0);
-
-  const normApt = normalizeApartmentNumber;
-
-  const filteredRecords = useMemo(() => {
-    let result = [...records];
-
-    if (apartmentSearch) {
-      const normQuery = normApt(apartmentSearch);
-      result = result.filter((r) => normApt(r.apartmentNumber).includes(normQuery));
-    }
-
-    if (search) {
-      const s = search.toLowerCase();
-      result = result.filter((r) =>
-      r.apartmentNumber?.toLowerCase().includes(s) ||
-      r.ownerName?.toLowerCase().includes(s) ||
-      r.phonePrimary?.toLowerCase().includes(s)
-      );
-    }
-
-    if (autoStatusFilter !== 'all') {
-      result = result.filter((r) => r.debt_status_auto === autoStatusFilter);
-    }
-
-    if (minDebt !== '') {
-      const min = parseFloat(minDebt);
-      if (!isNaN(min)) {
-        result = result.filter((r) => (r.totalDebt || 0) >= min);
-      }
-    }
-    if (maxDebt !== '') {
-      const max = parseFloat(maxDebt);
-      if (!isNaN(max)) {
-        result = result.filter((r) => (r.totalDebt || 0) <= max);
-      }
-    }
-
-    if (ownerNameFilter) {
-      const s = ownerNameFilter.toLowerCase();
-      result = result.filter((r) => r.ownerName?.toLowerCase().includes(s));
-    }
-
-    if (phoneFilter) {
-      const s = phoneFilter.toLowerCase();
-      result = result.filter((r) =>
-      r.phonePrimary?.toLowerCase().includes(s) ||
-      r.phoneOwner?.toLowerCase().includes(s) ||
-      r.phoneTenant?.toLowerCase().includes(s)
-      );
-    }
-
-    if (legalStatusFilter && legalStatusFilter !== 'all') {
-      if (legalStatusFilter === 'null') {
-        result = result.filter((r) => !r.legal_status_id);
-      } else {
-        result = result.filter((r) => r.legal_status_id === legalStatusFilter);
-      }
-    }
-
-    result.sort((a, b) => {
-      let aVal = a[sortField];
-      let bVal = b[sortField];
-
-      if (sortField === 'apartmentNumber') {
-        const aNum = parseInt(normApt(aVal)) || 0;
-        const bNum = parseInt(normApt(bVal)) || 0;
-        return sortDir === 'asc' ? aNum - bNum : bNum - aNum;
-      }
-
-      if (sortField === 'legal_status_id') {
-        const aStatus = getLegalStatusForRecord(a);
-        const bStatus = getLegalStatusForRecord(b);
-        const aName = aStatus?.name || 'zzz';
-        const bName = bStatus?.name || 'zzz';
-        return sortDir === 'asc' ? aName.localeCompare(bName) : bName.localeCompare(aName);
-      }
-
-      if (typeof aVal === 'number' && typeof bVal === 'number') {
-        return sortDir === 'asc' ? aVal - bVal : bVal - aVal;
-      }
-      aVal = aVal || '';
-      bVal = bVal || '';
-      return sortDir === 'asc' ? aVal.localeCompare(bVal) : bVal.localeCompare(aVal);
-    });
-
-    return result;
-  }, [records, search, apartmentSearch, autoStatusFilter, sortField, sortDir, minDebt, maxDebt, ownerNameFilter, phoneFilter, legalStatusFilter, allStatuses]);
-
   useEffect(() => {
     if (onFilteredDataChange) {
       onFilteredDataChange(filteredRecords);
@@ -207,159 +116,6 @@ export default function DebtorsTable({
 
   const totalPages = Math.ceil(filteredRecords.length / pageSize);
   const paginatedRecords = filteredRecords.slice((page - 1) * pageSize, page * pageSize);
-
-  const toggleSort = (field) => {
-    if (sortField === field) {
-      setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
-    } else {
-      setSortField(field);
-      setSortDir('desc');
-    }
-  };
-
-  const clearFilters = () => {
-    setAutoStatusFilter('all');
-    setSearch('');
-    setApartmentSearch('');
-    setMinDebt('');
-    setMaxDebt('');
-    setOwnerNameFilter('');
-    setPhoneFilter('');
-    setLegalStatusFilter('all');
-    setPage(1);
-  };
-
-  const handleExportExcel = () => {
-    const data = filteredRecords.map((r) => ({
-      'מספר דירה': r.apartmentNumber,
-      'שם בעלים': r.ownerName?.split(/[\/,]/)[0]?.trim() || '-',
-      'טלפון': getPhonePrimaryForTable(r),
-      'סה״כ חוב': r.totalDebt || 0,
-      'דמי ניהול': r.monthlyDebt || 0,
-      'מים חמים': r.specialDebt || 0,
-      'מצב משפטי': getLegalStatusForRecord(r)?.name || '-'
-    }));
-
-    const ws = XLSX.utils.json_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'חייבים');
-    XLSX.writeFile(wb, `חייבים_${new Date().toISOString().split('T')[0]}.xlsx`);
-    toast.success('קובץ אקסל הורד בהצלחה');
-  };
-
-  const handleExportPDF = () => {
-    try {
-      const doc = new jsPDF({
-        orientation: 'landscape',
-        unit: 'mm',
-        format: 'a4'
-      });
-
-      const pageWidth = doc.internal.pageSize.getWidth();
-      const pageHeight = doc.internal.pageSize.getHeight();
-      const margin = 10;
-
-      // כותרת
-      doc.setFontSize(16);
-      doc.text('דוח חייבים', pageWidth / 2, margin + 10, { align: 'center' });
-
-      // נתונים
-      doc.setFontSize(10);
-      const headers = ['מספר דירה', 'שם בעלים', 'סה״כ חוב', 'דמי ניהול', 'מים חמים', 'מצב משפטי'];
-      const rows = filteredRecords.map((r) => [
-        r.apartmentNumber,
-        r.ownerName?.split(/[\/,]/)[0]?.trim() || '-',
-        formatCurrency(r.totalDebt),
-        formatCurrency(r.monthlyDebt),
-        formatCurrency(r.specialDebt),
-        getLegalStatusForRecord(r)?.name || '-'
-      ]);
-
-      const startY = margin + 20;
-      let currentY = startY;
-      const rowHeight = 8;
-
-      // כותרות טבלה
-      doc.setFillColor(240, 240, 240);
-      headers.forEach((header, idx) => {
-        const x = margin + (idx * (pageWidth - 2 * margin) / headers.length);
-        doc.text(header, x, currentY, { maxWidth: (pageWidth - 2 * margin) / headers.length - 2 });
-      });
-      currentY += rowHeight;
-
-      // שורות
-      rows.forEach((row) => {
-        if (currentY + rowHeight > pageHeight - margin) {
-          doc.addPage();
-          currentY = margin;
-        }
-        row.forEach((cell, idx) => {
-          const x = margin + (idx * (pageWidth - 2 * margin) / headers.length);
-          doc.text(String(cell), x, currentY, { maxWidth: (pageWidth - 2 * margin) / headers.length - 2 });
-        });
-        currentY += rowHeight;
-      });
-
-      doc.save(`חייבים_${new Date().toISOString().split('T')[0]}.pdf`);
-      toast.success('קובץ PDF הורד בהצלחה');
-    } catch (error) {
-      console.error('PDF export error:', error);
-      toast.error('שגיאה בייצוא PDF');
-    }
-  };
-
-  const handlePrint = () => {
-    const printWindow = window.open('', '_blank');
-    const html = `
-      <html dir="rtl">
-      <head>
-        <title>דוח חייבים</title>
-        <style>
-          body { font-family: Arial, sans-serif; direction: rtl; }
-          table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-          th, td { border: 1px solid #ddd; padding: 12px; text-align: right; }
-          th { background-color: #f0f0f0; font-weight: bold; }
-          tr:nth-child(even) { background-color: #f9f9f9; }
-          h1 { text-align: center; color: #333; }
-        </style>
-      </head>
-      <body>
-        <h1>דוח חייבים</h1>
-        <p>תאריך: ${new Date().toLocaleDateString('he-IL')}</p>
-        <table>
-          <thead>
-            <tr>
-              <th>מספר דירה</th>
-              <th>שם בעלים</th>
-              <th>סה״כ חוב</th>
-              <th>דמי ניהול</th>
-              <th>מים חמים</th>
-              <th>מצב משפטי</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${filteredRecords.map((r) => `
-              <tr>
-                <td>${r.apartmentNumber}</td>
-                <td>${r.ownerName?.split(/[\/,]/)[0]?.trim() || '-'}</td>
-                <td>${formatCurrency(r.totalDebt)}</td>
-                <td>${formatCurrency(r.monthlyDebt)}</td>
-                <td>${formatCurrency(r.specialDebt)}</td>
-                <td>${getLegalStatusForRecord(r)?.name || '-'}</td>
-              </tr>
-            `).join('')}
-          </tbody>
-        </table>
-      </body>
-      </html>
-    `;
-    printWindow.document.write(html);
-    printWindow.document.close();
-    printWindow.onload = () => {
-      printWindow.focus();
-      printWindow.print();
-    };
-  };
 
   const handleArchiveToggle = async (record, e) => {
     e.stopPropagation();
@@ -399,7 +155,6 @@ export default function DebtorsTable({
           open={!!whatsappRecord}
           onClose={() => setWhatsappRecord(null)}
           record={whatsappRecord} />
-
         }
         {commentRecord &&
         <QuickCommentDialog
@@ -408,7 +163,6 @@ export default function DebtorsTable({
           record={commentRecord}
           currentUser={currentUser}
           isAdmin={isAdmin} />
-
         }
         <Card className="rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
           <CardHeader className="bg-slate-50 border-b border-slate-200 p-6">
@@ -431,7 +185,6 @@ export default function DebtorsTable({
                       value={apartmentSearch}
                       onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
                       className="pr-10 w-40 h-10 rounded-lg border-slate-300" />
-
                   </div>
 
                   {/* Owner Name Search */}
@@ -442,24 +195,7 @@ export default function DebtorsTable({
                       value={ownerNameFilter}
                       onChange={(e) => {setOwnerNameFilter(e.target.value);setPage(1);}}
                       className="pr-10 w-40 h-10 rounded-lg border-slate-300" />
-
                   </div>
-
-                  {/* Min/Max Debt */}
-                  
-
-
-
-
-
-
-                  
-
-
-
-
-
-
 
                   {/* Legal Status Filter */}
                   <Select value={legalStatusFilter} onValueChange={(v) => {setLegalStatusFilter(v);setPage(1);}}>
@@ -491,7 +227,7 @@ export default function DebtorsTable({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button onClick={handleExportExcel} className="p-2 hover:bg-slate-100 rounded">
+                        <button onClick={() => handleExportExcel(filteredRecords, getLegalStatusForRecord, getPhonePrimaryForTable)} className="p-2 hover:bg-slate-100 rounded">
                           <Download className="w-4 h-4 text-slate-600" />
                         </button>
                       </TooltipTrigger>
@@ -502,7 +238,7 @@ export default function DebtorsTable({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button onClick={handleExportPDF} className="p-2 hover:bg-slate-100 rounded">
+                        <button onClick={() => handleExportPDF(filteredRecords, getLegalStatusForRecord)} className="p-2 hover:bg-slate-100 rounded">
                           <FileText className="w-4 h-4 text-slate-600" />
                         </button>
                       </TooltipTrigger>
@@ -513,7 +249,7 @@ export default function DebtorsTable({
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <button onClick={handlePrint} className="p-2 hover:bg-slate-100 rounded">
+                        <button onClick={() => handlePrint(filteredRecords, getLegalStatusForRecord)} className="p-2 hover:bg-slate-100 rounded">
                           <Printer className="w-4 h-4 text-slate-600" />
                         </button>
                       </TooltipTrigger>
@@ -542,7 +278,6 @@ export default function DebtorsTable({
                 showArchived={showArchived}
                 onArchiveToggle={(rec) => handleArchiveToggle(rec, { stopPropagation: () => {} })}
                 allStatuses={allStatuses} />
-
               )
               }
             </div>
@@ -630,7 +365,6 @@ export default function DebtorsTable({
                             </button>
                           )}
                         </div>
-
                       </TableCell>
                     </TableRow>
                   )
@@ -669,5 +403,4 @@ export default function DebtorsTable({
         </Card>
       </div>
     </TooltipProvider>);
-
 }
