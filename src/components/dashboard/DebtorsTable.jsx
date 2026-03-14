@@ -7,13 +7,6 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger } from
-"@/components/ui/sheet";
-import {
   Table,
   TableBody,
   TableCell,
@@ -21,7 +14,7 @@ import {
   TableHeader,
   TableRow } from
 "@/components/ui/table";
-import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X, SlidersHorizontal, Archive, Undo2, MessageCircle, FileText } from "lucide-react";
+import { Search, Filter, ArrowUpDown, ChevronLeft, ChevronRight, X } from "lucide-react";
 import WhatsAppDialog from '../whatsapp/WhatsAppDialog';
 import QuickCommentDialog from './QuickCommentDialog';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
@@ -33,7 +26,7 @@ import { toast } from 'sonner';
 const STATUS_COLORS = {
   'תקין': 'bg-green-100 text-green-700 border-green-200',
   'לגבייה מיידית': 'bg-orange-100 text-orange-700 border-orange-200',
-  'חריגה מופרזת': 'bg-[#ff8080] text-white border-[#ff8080]'
+  'חריגה מופרזת': 'bg-red-100 text-red-700 border-red-200'
 };
 
 export default function DebtorsTable({
@@ -58,9 +51,6 @@ export default function DebtorsTable({
   const [sortField, setSortField] = useState('totalDebt');
   const [sortDir, setSortDir] = useState('desc');
   const [page, setPage] = useState(1);
-  const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [showAdvancedFilters, setShowAdvancedFilters] = useState(false);
-
   const [minDebt, setMinDebt] = useState('');
   const [maxDebt, setMaxDebt] = useState('');
   const [ownerNameFilter, setOwnerNameFilter] = useState('');
@@ -74,7 +64,6 @@ export default function DebtorsTable({
 
   // Apply URL filters
   useEffect(() => {
-    // Map filterKey to actual filters
     if (initialFilterKey) {
       switch (initialFilterKey) {
         case 'IMMEDIATE_COLLECTION':
@@ -99,7 +88,6 @@ export default function DebtorsTable({
           }
       }
     } else {
-      // Legacy filter support
       if (initialStatusFilter) {
         const matchingStatus = allStatuses.find((s) => s.name === initialStatusFilter);
         if (matchingStatus) {
@@ -122,20 +110,6 @@ export default function DebtorsTable({
 
   const formatCurrency = (num) =>
   new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num || 0);
-
-  const formatPhone = (phone) => {
-    if (!phone) return 'אין מספר';
-    const cleaned = phone.replace(/\D/g, '');
-    if (/^0+$/.test(cleaned)) return 'אין מספר';
-    return phone;
-  };
-
-  const formatOwnerName = (ownerName) => {
-    if (!ownerName) return '-';
-    const isTenant = ownerName.includes('/') || ownerName.includes(',');
-    const mainName = ownerName.split(/[\/,]/)[0]?.trim() || ownerName;
-    return isTenant ? mainName + ' (שוכר)' : mainName;
-  };
 
   const normApt = normalizeApartmentNumber;
 
@@ -193,7 +167,6 @@ export default function DebtorsTable({
 
     if (legalStatusFilter && legalStatusFilter !== 'all') {
       if (legalStatusFilter === 'null') {
-        // פילטר רשומות ללא סטטוס
         result = result.filter((r) => !r.legal_status_id);
       } else {
         result = result.filter((r) => r.legal_status_id === legalStatusFilter);
@@ -204,18 +177,16 @@ export default function DebtorsTable({
       let aVal = a[sortField];
       let bVal = b[sortField];
 
-      // מיון מיוחד למספר דירה - מספרי
       if (sortField === 'apartmentNumber') {
         const aNum = parseInt(normApt(aVal)) || 0;
         const bNum = parseInt(normApt(bVal)) || 0;
         return sortDir === 'asc' ? aNum - bNum : bNum - aNum;
       }
 
-      // מיון מיוחד למצב משפטי - לפי שם הסטטוס
       if (sortField === 'legal_status_id') {
         const aStatus = getLegalStatusForRecord(a);
         const bStatus = getLegalStatusForRecord(b);
-        const aName = aStatus?.name || 'zzz'; // רשומות ללא סטטוס בסוף
+        const aName = aStatus?.name || 'zzz';
         const bName = bStatus?.name || 'zzz';
         return sortDir === 'asc' ? aName.localeCompare(bName) : bName.localeCompare(aName);
       }
@@ -231,11 +202,9 @@ export default function DebtorsTable({
     return result;
   }, [records, search, apartmentSearch, statusFilter, autoStatusFilter, sortField, sortDir, minDebt, maxDebt, ownerNameFilter, phoneFilter, legalStatusFilter, allStatuses]);
 
-  // Notify parent of filtered data changes
   useEffect(() => {
     if (onFilteredDataChange) {
       onFilteredDataChange(filteredRecords);
-      console.log(`[DebtorsTable] Filtered dataset updated: ${filteredRecords.length} records`);
     }
   }, [filteredRecords, onFilteredDataChange]);
 
@@ -262,24 +231,7 @@ export default function DebtorsTable({
     setPhoneFilter('');
     setLegalStatusFilter('all');
     setPage(1);
-    window.history.pushState({}, '', window.location.pathname);
   };
-
-  const clearAdvancedFilters = () => {
-    setMinDebt('');
-    setMaxDebt('');
-    setOwnerNameFilter('');
-    setPhoneFilter('');
-    setLegalStatusFilter('all');
-    setApartmentSearch('');
-    setStatusFilter('all');
-    setAutoStatusFilter('all');
-    setSearch('');
-    setPage(1);
-  };
-
-  const hasActiveFilters = statusFilter !== 'all' || autoStatusFilter !== 'all' || search !== '' || apartmentSearch !== '';
-  const hasAdvancedFilters = minDebt !== '' || maxDebt !== '' || ownerNameFilter !== '' || phoneFilter !== '' || legalStatusFilter !== 'all' || apartmentSearch !== '';
 
   const handleArchiveToggle = async (record, e) => {
     e.stopPropagation();
@@ -296,7 +248,6 @@ export default function DebtorsTable({
 
       toast.success(showArchived ? 'הוחזר לחייבים' : 'הועבר לארכיון');
 
-      // Call onRecordUpdate to refresh data immediately
       if (onRecordUpdate) {
         onRecordUpdate(record.id);
       }
@@ -331,197 +282,34 @@ export default function DebtorsTable({
             isAdmin={isAdmin}
           />
         )}
-        <Card className="rounded-[24px] border border-white/80 bg-white/88 backdrop-blur-[8px] shadow-[0_18px_40px_rgba(15,23,42,0.09)] overflow-hidden">
-          <CardHeader className="bg-slate-50/90 pt-4 pb-4 p-6 flex flex-col space-y-1.5 md:pb-6 md:pt-6 border-b border-slate-200/80">
+        <Card className="rounded-lg border border-slate-200 bg-white shadow-sm overflow-hidden">
+          <CardHeader className="bg-slate-50 border-b border-slate-200 p-6">
             <div className="flex flex-col gap-4">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                  <CardTitle className="text-[22px] md:text-[26px] font-[700] text-slate-800">טבלת חייבים</CardTitle>
-                  <p className="text-sm text-slate-600 mt-1 font-medium">
-                    סה״כ רשומות: <span className="font-bold text-blue-600">{filteredRecords.length}</span>
+                  <CardTitle className="text-2xl font-bold text-slate-800">טבלת חייבים</CardTitle>
+                  <p className="text-sm text-slate-600 mt-1">
+                    סה״כ {filteredRecords.length} רשומות
                   </p>
                 </div>
-                
-                {/* Mobile filters */}
-                <div className="flex lg:hidden gap-2">
-                  <div className="relative flex-1">
-                    <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <Input
-                        placeholder="מספר דירה..."
-                        value={apartmentSearch}
-                        onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
-                        className="pr-10 h-10 rounded-xl border-slate-300 text-sm"
-                        inputMode="numeric" />
 
-                  </div>
-                  <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-                    <SheetTrigger asChild>
-                      <Button
-                          variant="outline"
-                          size="sm"
-                          className="h-10 px-3 rounded-xl"
-                          style={{
-                            fontSize: '15px',
-                            fontWeight: 800,
-                            letterSpacing: 0,
-                            minHeight: '40px',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '8px'
-                          }}>
-
-                        <SlidersHorizontal className="w-4 h-4" />
-                        חיפוש מורחב
-                        {(hasActiveFilters || hasAdvancedFilters) &&
-                          <span className="mr-1 w-2 h-2 bg-blue-600 rounded-full"></span>
-                          }
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent side="right" className="w-80 overflow-y-auto" dir="rtl">
-                      <SheetHeader>
-                        <SheetTitle className="text-right">חיפוש מורחב</SheetTitle>
-                      </SheetHeader>
-                      <div className="mt-6 space-y-4">
-                        <div>
-                          <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">מספר דירה</label>
-                          <Input
-                              placeholder="חפש מספר דירה..."
-                              value={apartmentSearch}
-                              onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
-                              className="h-11 rounded-xl text-right"
-                              dir="rtl"
-                              inputMode="numeric" />
-
-                        </div>
-
-                        <div>
-                          <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">שם בעלים</label>
-                          <Input
-                              placeholder="חיפוש לפי שם"
-                              value={ownerNameFilter}
-                              onChange={(e) => {setOwnerNameFilter(e.target.value);setPage(1);}}
-                              className="h-11 rounded-xl text-right"
-                              dir="rtl" />
-
-                        </div>
-
-                        <div>
-                          <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">טלפון</label>
-                          <Input
-                              placeholder="חיפוש לפי טלפון"
-                              value={phoneFilter}
-                              onChange={(e) => {setPhoneFilter(e.target.value);setPage(1);}}
-                              className="h-11 rounded-xl text-right"
-                              dir="rtl" />
-
-                        </div>
-
-                        <div>
-                          <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">טווח סכום חוב</label>
-                          <div className="flex gap-2" dir="rtl">
-                            <Input
-                                type="number"
-                                placeholder="מסכום"
-                                value={minDebt}
-                                onChange={(e) => {setMinDebt(e.target.value);setPage(1);}}
-                                className="h-11 rounded-xl text-right flex-1"
-                                dir="rtl" />
-
-                            <Input
-                                type="number"
-                                placeholder="עד סכום"
-                                value={maxDebt}
-                                onChange={(e) => {setMaxDebt(e.target.value);setPage(1);}}
-                                className="h-11 rounded-xl text-right flex-1"
-                                dir="rtl" />
-
-                          </div>
-                        </div>
-
-                        <div>
-                          <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">סטטוס חוב</label>
-                          <Select value={statusFilter} onValueChange={(v) => {setStatusFilter(v);setPage(1);}}>
-                            <SelectTrigger className="w-full h-11 rounded-xl">
-                              <SelectValue placeholder="כל הסטטוסים" />
-                            </SelectTrigger>
-                            <SelectContent className="rounded-xl">
-                              <SelectItem value="all">כל הסטטוסים</SelectItem>
-                              <SelectItem value="תקין">תקין</SelectItem>
-                              <SelectItem value="לגבייה מיידית">לגבייה מיידית</SelectItem>
-                              <SelectItem value="חריגה מופרזת">חריגה מופרזת</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        {!hideStatusFilter &&
-                          <div>
-                            <label className="text-sm font-semibold text-slate-700 mb-2 block text-right">מצב משפטי</label>
-                            <Select value={legalStatusFilter} onValueChange={(v) => {setLegalStatusFilter(v);setPage(1);}}>
-                              <SelectTrigger className="w-full h-11 rounded-xl">
-                                <SelectValue placeholder="כל המצבים" />
-                              </SelectTrigger>
-                              <SelectContent className="rounded-xl">
-                                <SelectItem value="all">כל המצבים</SelectItem>
-                                <SelectItem value="null">ללא סטטוס</SelectItem>
-                                {activeLegalStatuses.map((status) =>
-                                <SelectItem key={status.id} value={status.id}>
-                                    {status.name}
-                                  </SelectItem>
-                                )}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          }
-
-                        <div className="pt-4 flex gap-2">
-                          <Button
-                              variant="outline"
-                              className="flex-1 rounded-xl"
-                              onClick={clearFilters}>
-
-                            <X className="w-4 h-4 ml-1" />
-                            נקה פילטרים
-                          </Button>
-                          <Button
-                              className="flex-1 rounded-xl"
-                              onClick={() => setIsFilterOpen(false)}>
-
-                            סגור
-                          </Button>
-                        </div>
-                      </div>
-                    </SheetContent>
-                  </Sheet>
-                </div>
-
-                {/* Desktop filters */}
+                {/* Search and Filters */}
                 <div className="hidden lg:flex flex-wrap items-center gap-3">
                   <div className="relative">
-                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                    <Search className="absolute right-3 top-2.5 w-4 h-4 text-slate-400" />
                     <Input
-                        placeholder="מספר דירה..."
-                        value={apartmentSearch}
-                        onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
-                        className="pr-12 w-40 h-11 rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500"
-                        inputMode="numeric" />
-
-                  </div>
-
-                  <div className="relative">
-                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                    <Input
-                        placeholder="חיפוש שם או טלפון..."
-                        value={search}
-                        onChange={(e) => {setSearch(e.target.value);setPage(1);}}
-                        className="pr-12 w-52 h-11 rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500" />
-
+                      placeholder="מספר דירה..."
+                      value={apartmentSearch}
+                      onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
+                      className="pr-10 w-40 h-10 rounded-lg border-slate-300"
+                    />
                   </div>
 
                   <Select value={statusFilter} onValueChange={(v) => {setStatusFilter(v);setPage(1);}}>
-                    <SelectTrigger className="w-44 h-11 rounded-xl border-slate-300">
+                    <SelectTrigger className="w-44 h-10 rounded-lg border-slate-300">
                       <SelectValue placeholder="כל הסטטוסים" />
                     </SelectTrigger>
-                    <SelectContent className="rounded-xl">
+                    <SelectContent className="rounded-lg">
                       <SelectItem value="all">כל הסטטוסים</SelectItem>
                       <SelectItem value="תקין">תקין</SelectItem>
                       <SelectItem value="לגבייה מיידית">לגבייה מיידית</SelectItem>
@@ -529,58 +317,28 @@ export default function DebtorsTable({
                     </SelectContent>
                   </Select>
 
-                  <Button
-                      variant={showAdvancedFilters ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setShowAdvancedFilters(!showAdvancedFilters)}
-                      className="h-11 rounded-xl px-4"
-                      style={{
-                        fontSize: '15px',
-                        fontWeight: 800,
-                        letterSpacing: 0,
-                        minHeight: '40px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px'
-                      }}>
-
-                    <SlidersHorizontal className="w-4 h-4" />
-                    חיפוש מורחב
-                    {hasAdvancedFilters &&
-                      <span className="mr-2 w-2 h-2 bg-white rounded-full"></span>
-                      }
-                  </Button>
-
-                  {(hasActiveFilters || hasAdvancedFilters) &&
+                  {(statusFilter !== 'all' || search || apartmentSearch) &&
                     <Button
                       variant="ghost"
                       size="sm"
                       onClick={clearFilters}
-                      className="h-11 rounded-xl">
-
+                      className="h-10">
                       <X className="w-4 h-4 ml-1" />
-                      נקה הכל
+                      נקה
                     </Button>
-                    }
+                  }
                 </div>
               </div>
             </div>
           </CardHeader>
 
           <CardContent className="p-0">
-            {/* Mobile Card View */}
+            {/* Mobile View */}
             <div className="block lg:hidden p-4 space-y-3">
               {paginatedRecords.length === 0 ?
                 <div className="text-center py-12">
-                  <div className="flex flex-col items-center gap-3">
-                    <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center">
-                      <Filter className="w-8 h-8 text-slate-400" />
-                    </div>
-                    <p className="text-slate-600 font-semibold text-lg">לא נמצאו רשומות</p>
-                    <p className="text-sm text-slate-400">נסה לשנות את הפילטרים או את החיפוש</p>
-                  </div>
+                  <p className="text-slate-600 font-semibold">לא נמצאו רשומות</p>
                 </div> :
-
                 paginatedRecords.map((record) =>
                 <DebtorCard
                   key={record.id}
@@ -590,258 +348,104 @@ export default function DebtorsTable({
                   isAdmin={isAdmin}
                   showArchived={showArchived}
                   onArchiveToggle={(rec) => handleArchiveToggle(rec, { stopPropagation: () => {} })}
-                  allStatuses={allStatuses} />
-
+                  allStatuses={allStatuses}
+                />
                 )
-                }
+              }
             </div>
 
-            {/* Desktop Table View */}
+            {/* Desktop Table */}
             <div className="hidden lg:block overflow-x-auto">
-              <Table className="border-separate border-spacing-y-2 border-spacing-x-0">
+              <Table>
                 <TableHeader>
-                  <TableRow className="bg-transparent border-b border-0">
-                    <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('apartmentNumber')}>
-                      <div className="flex items-center gap-2 justify-end">
-                        <ArrowUpDown className={`w-5 h-5 ${sortField === 'apartmentNumber' ? 'text-blue-600' : 'text-slate-400'}`} />
-                        מס׳ דירה
-                      </div>
+                  <TableRow className="bg-slate-50 border-b border-slate-200">
+                    <TableHead className="px-4 py-3 text-right text-sm font-semibold text-slate-700 cursor-pointer hover:bg-slate-100" onClick={() => toggleSort('apartmentNumber')}>
+                      מס׳ דירה {sortField === 'apartmentNumber' && <ArrowUpDown className="w-4 h-4 inline ml-1" />}
                     </TableHead>
-                    <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be]">שם בעל הדירה</TableHead>
-                    <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be]">טלפון</TableHead>
-                    <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('totalDebt')}>
-                       <div className="flex items-center gap-2 justify-end">
-                        <ArrowUpDown className={`w-4 h-4 ${sortField === 'totalDebt' ? 'text-blue-600' : 'text-slate-400'}`} />
-                        סה״כ חוב
-                       </div>
-                     </TableHead>
-                     <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('monthlyDebt')}>
-                       <div className="flex items-center gap-2 justify-end">
-                        <ArrowUpDown className={`w-4 h-4 ${sortField === 'monthlyDebt' ? 'text-blue-600' : 'text-slate-400'}`} />
-                        דמי ניהול
-                       </div>
-                     </TableHead>
-                     <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('specialDebt')}>
-                       <div className="flex items-center gap-2 justify-end">
-                        <ArrowUpDown className={`w-4 h-4 ${sortField === 'specialDebt' ? 'text-blue-600' : 'text-slate-400'}`} />
-                        מים חמים
-                       </div>
-                     </TableHead>
-
-                     <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('legal_status_id')}>
-                       <div className="flex items-center gap-2 justify-end">
-                        <ArrowUpDown className={`w-4 h-4 ${sortField === 'legal_status_id' ? 'text-blue-600' : 'text-slate-400'}`} />
-                        מצב משפטי
-                       </div>
-                     </TableHead>
-                     <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-center text-[11px] font-bold text-[#8f99be]" style={{ width: '120px' }}>פעולות</TableHead>
+                    <TableHead className="px-4 py-3 text-right text-sm font-semibold text-slate-700">שם בעל הדירה</TableHead>
+                    <TableHead className="px-4 py-3 text-right text-sm font-semibold text-slate-700">טלפון</TableHead>
+                    <TableHead className="px-4 py-3 text-center text-sm font-semibold text-slate-700 cursor-pointer hover:bg-slate-100" onClick={() => toggleSort('totalDebt')}>
+                      סה״כ חוב {sortField === 'totalDebt' && <ArrowUpDown className="w-4 h-4 inline ml-1" />}
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-center text-sm font-semibold text-slate-700 cursor-pointer hover:bg-slate-100" onClick={() => toggleSort('monthlyDebt')}>
+                      דמי ניהול {sortField === 'monthlyDebt' && <ArrowUpDown className="w-4 h-4 inline ml-1" />}
+                    </TableHead>
+                    <TableHead className="px-4 py-3 text-center text-sm font-semibold text-slate-700">מצב משפטי</TableHead>
+                    <TableHead className="px-4 py-3 text-center text-sm font-semibold text-slate-700">פעולות</TableHead>
                   </TableRow>
-                  
-                  {/* Advanced Filter Row */}
-                  {showAdvancedFilters &&
-                    <TableRow className="bg-blue-50/50 border-b-2 border-blue-200">
-                      <TableHead className="py-3 px-4">
-                        <Input
-                          placeholder="מספר דירה"
-                          value={apartmentSearch}
-                          onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
-                          className="h-9 rounded-lg text-sm text-right"
-                          dir="rtl"
-                          inputMode="numeric" />
-
-                      </TableHead>
-                      <TableHead className="py-3 px-4">
-                        <Input
-                          placeholder="שם בעלים"
-                          value={ownerNameFilter}
-                          onChange={(e) => {setOwnerNameFilter(e.target.value);setPage(1);}}
-                          className="h-9 rounded-lg text-sm text-right"
-                          dir="rtl" />
-
-                      </TableHead>
-                      <TableHead className="py-3 px-4">
-                        <Input
-                          placeholder="טלפון"
-                          value={phoneFilter}
-                          onChange={(e) => {setPhoneFilter(e.target.value);setPage(1);}}
-                          className="h-9 rounded-lg text-sm text-right"
-                          dir="rtl" />
-
-                      </TableHead>
-                      <TableHead className="py-3 px-4">
-                        <div className="flex gap-2 items-center justify-end" dir="rtl">
-                          <Input
-                            type="number"
-                            placeholder="מסכום"
-                            value={minDebt}
-                            onChange={(e) => {setMinDebt(e.target.value);setPage(1);}}
-                            className="h-9 rounded-lg text-sm w-20 text-right"
-                            dir="rtl" />
-
-                          <span className="text-xs text-slate-500">-</span>
-                          <Input
-                            type="number"
-                            placeholder="עד"
-                            value={maxDebt}
-                            onChange={(e) => {setMaxDebt(e.target.value);setPage(1);}}
-                            className="h-9 rounded-lg text-sm w-20 text-right"
-                            dir="rtl" />
-
-                        </div>
-                      </TableHead>
-                      <TableHead className="py-3 px-4"></TableHead>
-                      <TableHead className="py-3 px-4"></TableHead>
-                      <TableHead className="py-3 px-4">
-                        {!hideStatusFilter &&
-                        <Select value={legalStatusFilter} onValueChange={(v) => {setLegalStatusFilter(v);setPage(1);}}>
-                            <SelectTrigger className="h-9 rounded-lg text-sm">
-                              <SelectValue placeholder="הכל" />
-                            </SelectTrigger>
-                            <SelectContent className="rounded-lg">
-                              <SelectItem value="all">הכל</SelectItem>
-                              <SelectItem value="null">ללא סטטוס</SelectItem>
-                              {activeLegalStatuses.map((status) =>
-                            <SelectItem key={status.id} value={status.id}>
-                                  {status.name}
-                                </SelectItem>
-                            )}
-                            </SelectContent>
-                          </Select>
-                        }
-                        </TableHead>
-                        <TableHead className="py-3 px-4"></TableHead>
-                         </TableRow>
-                    }
-                  
-                  {/* Filter Actions Row */}
-                  {showAdvancedFilters &&
-                    <TableRow className="bg-blue-50/30 border-b border-blue-200">
-                       <TableHead colSpan={8} className="py-3 px-6">
-                        <div className="flex items-center justify-end" dir="rtl">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={clearAdvancedFilters}
-                            className="h-9 rounded-lg">
-
-                            <X className="w-4 h-4 ml-1" />
-                            נקה פילטרים
-                          </Button>
-                        </div>
-                      </TableHead>
-                    </TableRow>
-                    }
                 </TableHeader>
                 <TableBody>
                   {paginatedRecords.length === 0 ?
                     <TableRow>
-                       <TableCell colSpan={8} className="text-center py-12">
-                        <div className="flex flex-col items-center gap-3">
-                          <div className="w-16 h-16 bg-gradient-to-br from-slate-100 to-slate-200 rounded-2xl flex items-center justify-center">
-                            <Filter className="w-8 h-8 text-slate-400" />
-                          </div>
-                          <p className="text-slate-600 font-semibold text-lg">לא נמצאו רשומות</p>
-                          <p className="text-sm text-slate-400">נסה לשנות את הפילטרים או את החיפוש</p>
-                        </div>
+                      <TableCell colSpan={7} className="text-center py-12">
+                        <p className="text-slate-600 font-semibold">לא נמצאו רשומות</p>
                       </TableCell>
                     </TableRow> :
-
-                    paginatedRecords.map((record, idx) =>
+                    paginatedRecords.map((record) =>
                     <TableRow
                       key={record.id}
-                      className={`group transition-all duration-150 cursor-pointer`}
+                      className="border-b border-slate-200 hover:bg-slate-50 cursor-pointer"
                       onClick={() => onRowClick(record)}>
-
-                        <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] rounded-r-[14px] group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
-                          {record.apartmentNumber}
-                        </TableCell>
-                        <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
-                          <div className="line-clamp-2 break-words">
-                            {record.ownerName ? (
-                              <>
-                                {record.ownerName.split(/[\/,]/)[0]?.trim() || record.ownerName}
-                                {(record.ownerName.includes('/') || record.ownerName.includes(',')) && (
-                                  <span> (שוכר)</span>
-                                )}
-                              </>
-                            ) : '-'}
-                          </div>
-                        </TableCell>
-                        <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-right group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]" dir="rtl">
-                          {formatPhoneForDisplay(getPhonePrimaryForTable(record))}
-                        </TableCell>
-                        <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-center group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
-                          <span className="font-bold text-[13px] text-[#ff5d8f] tabular-nums">{formatCurrency(record.totalDebt)}</span>
-                        </TableCell>
-                        <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-center group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
-                          <span className="font-bold text-[13px] text-[#8b5cff] tabular-nums">{formatCurrency(record.monthlyDebt)}</span>
-                        </TableCell>
-                        <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-center group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]">
-                          <span className="font-bold text-[13px] text-[#f5a623] tabular-nums">{formatCurrency(record.specialDebt)}</span>
-                        </TableCell>
-
-                        <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-center group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)] rounded-l-[14px]">
-                          {(() => {
+                      <TableCell className="px-4 py-3 text-sm text-slate-700">{record.apartmentNumber}</TableCell>
+                      <TableCell className="px-4 py-3 text-sm text-slate-700">
+                        {record.ownerName?.split(/[\/,]/)[0]?.trim() || '-'}
+                      </TableCell>
+                      <TableCell className="px-4 py-3 text-sm text-slate-700">{formatPhoneForDisplay(getPhonePrimaryForTable(record))}</TableCell>
+                      <TableCell className="px-4 py-3 text-sm font-semibold text-slate-900 text-center">{formatCurrency(record.totalDebt)}</TableCell>
+                      <TableCell className="px-4 py-3 text-sm font-semibold text-slate-900 text-center">{formatCurrency(record.monthlyDebt)}</TableCell>
+                      <TableCell className="px-4 py-3 text-sm text-center">
+                        {(() => {
                           const legalStatus = getLegalStatusForRecord(record);
-
                           return legalStatus ?
-                          <Badge className={`${legalStatus.color} rounded-full min-w-[74px] inline-flex items-center justify-center px-[10px] h-6 text-[11px] font-bold transition-all duration-200 hover:opacity-80`}>
-                                {legalStatus.name}
-                              </Badge> :
-
-                          <Badge className="bg-[rgba(148,151,175,0.12)] text-[#7581a8] rounded-full min-w-[74px] inline-flex items-center justify-center px-[10px] h-6 text-[11px] font-bold transition-all duration-200">
-                                לא הוגדר
-                              </Badge>;
-
+                            <Badge className={`${legalStatus.color} rounded-full inline-block`}>
+                              {legalStatus.name}
+                            </Badge> :
+                            <Badge className="bg-slate-100 text-slate-700 rounded-full inline-block">
+                              -
+                            </Badge>;
                         })()}
-                        </TableCell>
-                        <TableCell className="h-[52px] whitespace-nowrap bg-[linear-gradient(180deg,rgba(255,255,255,0.98)_0%,rgba(250,251,255,0.98)_100%)] px-[14px] align-middle text-[12px] font-medium text-[#58627f] shadow-[0_4px_14px_rgba(146,163,229,0.06),inset_0_1px_0_rgba(255,255,255,0.9)] text-center group-hover:shadow-[0_10px_22px_rgba(125,145,220,0.10),inset_0_1px_0_rgba(255,255,255,0.96)]" onClick={(e) => e.stopPropagation()}>
-                           <TableActionsCell
-                             record={record}
-                             isAdmin={isAdmin}
-                             showArchived={showArchived}
-                             archivingRecords={archivingRecords}
-                             onCommentClick={() => setCommentRecord(record)}
-                             onWhatsAppClick={() => setWhatsappRecord(record)}
-                             onArchiveToggle={handleArchiveToggle}
-                           />
-                          </TableCell>
-                        </TableRow>
+                      </TableCell>
+                      <TableCell className="px-4 py-3 text-center" onClick={(e) => e.stopPropagation()}>
+                        <TableActionsCell
+                          record={record}
+                          isAdmin={isAdmin}
+                          showArchived={showArchived}
+                          archivingRecords={archivingRecords}
+                          onCommentClick={() => setCommentRecord(record)}
+                          onWhatsAppClick={() => setWhatsappRecord(record)}
+                          onArchiveToggle={handleArchiveToggle}
+                        />
+                      </TableCell>
+                    </TableRow>
                     )
-                    }
-                        </TableBody>
-                        </Table>
-                        </div>
+                  }
+                </TableBody>
+              </Table>
+            </div>
 
             {totalPages > 1 &&
-              <div className="flex flex-col md:flex-row items-center justify-between gap-3 px-4 md:px-6 py-4 border-t border-slate-200/80 bg-white">
-                <p className="text-sm text-slate-600 font-medium">
-                  מציג {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, filteredRecords.length)} מתוך {filteredRecords.length} רשומות
+              <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-slate-200 bg-white">
+                <p className="text-sm text-slate-600">
+                  מציג {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, filteredRecords.length)} מתוך {filteredRecords.length}
                 </p>
-                <div className="flex items-center gap-2 md:gap-3">
+                <div className="flex items-center gap-2">
                   <Button
                     variant="outline"
                     size="sm"
-                    className="rounded-[10px] h-9 min-w-[36px] border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                    onClick={() => setPage((p) => Math.max(1, p - 1))}
+                    onClick={() => setPage(Math.max(1, page - 1))}
                     disabled={page === 1}>
-
-                     <ChevronRight className="w-4 h-4 ml-1" />
-                     <span className="hidden sm:inline">הקודם</span>
-                   </Button>
-                   <span className="text-sm font-bold text-slate-700 bg-white border border-slate-200 px-3 py-2 rounded-[10px] whitespace-nowrap">
-                     {page} / {totalPages}
-                   </span>
-                   <Button
-                     variant="outline"
-                     size="sm"
-                     className="rounded-[10px] h-9 min-w-[36px] border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
-                     onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                     disabled={page === totalPages}>
-
-                     <span className="hidden sm:inline">הבא</span>
-                     <ChevronLeft className="w-4 h-4 mr-1" />
-                   </Button>
+                    הקודם
+                  </Button>
+                  <span className="text-sm font-semibold text-slate-700">
+                    {page} / {totalPages}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setPage(Math.min(totalPages, page + 1))}
+                    disabled={page === totalPages}>
+                    הבא
+                  </Button>
                 </div>
               </div>
             }
