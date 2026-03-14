@@ -342,9 +342,9 @@ export default function UserManagement() {
 
         {/* Add User Dialog */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent className="rounded-2xl" dir="rtl">
+          <DialogContent className="rounded-xl" dir="rtl">
             <DialogHeader className="text-right">
-              <DialogTitle className="text-2xl font-bold">הוספת משתמש חדש</DialogTitle>
+              <DialogTitle className="text-xl font-bold">הוספת משתמש חדש</DialogTitle>
             </DialogHeader>
 
             {formError && (
