@@ -130,6 +130,20 @@ export default function Calendar() {
     }
   }, []);
 
+  // Handle "Show all" button click from CalendarGrid
+  React.useEffect(() => {
+    const handleShowDayView = (e) => {
+      const date = e.detail?.date;
+      if (date) {
+        setCurrentMonth(date);
+        setViewMode('day');
+      }
+    };
+    
+    window.addEventListener('showDayView', handleShowDayView);
+    return () => window.removeEventListener('showDayView', handleShowDayView);
+  }, []);
+
   const saveFilters = (itemType, mt, u) => {
     localStorage.setItem('calendarFilters', JSON.stringify({
       itemType: itemType,
