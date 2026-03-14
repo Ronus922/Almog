@@ -189,7 +189,7 @@ function DashboardContent() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               {/* KPI 1 */}
               <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between">
-                <p className="text-[10px] font-bold uppercase letter-spacing text-[#a0aacb]">סה״כ חוב</p>
+                <p className="text-[18px] font-black uppercase letter-spacing" style={{color: '#1d5bbd'}}>סה״כ חוב</p>
                 <div>
                   <p className="text-[32px] font-black leading-none text-[#2bc9a8]">
                     {new Intl.NumberFormat('he-IL', { notation: 'compact', maximumFractionDigits: 0 }).format(records.reduce((sum, r) => sum + (r.totalDebt || 0), 0))}
@@ -202,7 +202,7 @@ function DashboardContent() {
 
               {/* KPI 2 */}
               <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between">
-                <p className="text-[10px] font-bold uppercase text-[#a0aacb]">דמי ניהול</p>
+                <p className="text-[18px] font-black uppercase" style={{color: '#1d5bbd'}}>דמי ניהול</p>
                 <div>
                   <p className="text-[32px] font-black leading-none text-[#6270ff]">
                     {new Intl.NumberFormat('he-IL', { notation: 'compact', maximumFractionDigits: 0 }).format(records.reduce((sum, r) => sum + (r.monthlyDebt || 0), 0))}
@@ -215,7 +215,7 @@ function DashboardContent() {
 
               {/* KPI 3 */}
               <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between">
-                <p className="text-[10px] font-bold uppercase text-[#a0aacb]">מים חמים</p>
+                <p className="text-[18px] font-black uppercase" style={{color: '#1d5bbd'}}>מים חמים</p>
                 <div>
                   <p className="text-[32px] font-black leading-none text-[#f5a623]">
                     {new Intl.NumberFormat('he-IL', { notation: 'compact', maximumFractionDigits: 0 }).format(records.reduce((sum, r) => sum + (r.specialDebt || 0), 0))}
@@ -245,7 +245,7 @@ function DashboardContent() {
                 setFilterDisplayName('לגבייה מיידית');
                 window.history.pushState({}, '', `${window.location.pathname}?reportKey=IMMEDIATE_COLLECTION`);
               }}>
-                <p className="text-[10px] font-bold uppercase text-[#a0aacb]">לגבייה מיידית</p>
+                <p className="text-[18px] font-black uppercase" style={{color: '#1d5bbd'}}>לגבייה מיידית</p>
                 <div>
                   <p className="text-[32px] font-black leading-none text-[#ff7a5c]">
                     {records.filter((r) => r.debt_status_auto === 'לגבייה מיידית').length}
@@ -262,7 +262,7 @@ function DashboardContent() {
                 setFilterDisplayName('חריגה מופרזת');
                 window.history.pushState({}, '', `${window.location.pathname}?reportKey=REQUIRES_LEGAL_ACTION`);
               }}>
-                <p className="text-[10px] font-bold uppercase text-[#a0aacb]">חריגה מופרזת</p>
+                <p className="text-[18px] font-black uppercase" style={{color: '#1d5bbd'}}>חריגה מופרזת</p>
                 <div>
                   <p className="text-[32px] font-black leading-none text-[#ff3b3b]">
                     {records.filter((r) => r.debt_status_auto === 'חריגה מופרזת').length}
@@ -279,7 +279,7 @@ function DashboardContent() {
                 setFilterDisplayName('מכתבי התראה');
                 window.history.pushState({}, '', `${window.location.pathname}?reportKey=WARNING_LETTER`);
               }}>
-                <p className="text-[10px] font-bold uppercase text-[#a0aacb]">מכתבי התראה</p>
+                <p className="text-[18px] font-black uppercase" style={{color: '#1d5bbd'}}>מכתבי התראה</p>
                 <div>
                   <p className="text-[32px] font-black leading-none text-[#ffa500]">
                     {allStatuses.find((s) => s.type === 'LEGAL' && s.name === 'מכתב התראה') ? records.filter((r) => r.legal_status_id === allStatuses.find((s) => s.type === 'LEGAL' && s.name === 'מכתב התראה')?.id).length : 0}
@@ -299,7 +299,7 @@ function DashboardContent() {
                   window.history.pushState({}, '', `${window.location.pathname}?reportKey=LEGAL_CANDIDATES`);
                 }
               }}>
-                <p className="text-[10px] font-bold uppercase text-[#a0aacb]">לטיפול משפטי</p>
+                <p className="text-[18px] font-black uppercase" style={{color: '#1d5bbd'}}>לטיפול משפטי</p>
                 <div>
                   <p className="text-[32px] font-black leading-none text-[#5b6cff]">
                     {records.filter((r) => !r.legal_status_id && r.debt_status_auto === 'חריגה מופרזת').length}
@@ -316,7 +316,7 @@ function DashboardContent() {
                 setFilterDisplayName('בהליך משפטי');
                 window.history.pushState({}, '', `${window.location.pathname}?reportKey=LEGAL_PROCESS`);
               }}>
-                <p className="text-[10px] font-bold uppercase text-[#a0aacb]">בהליך משפטי</p>
+                <p className="text-[18px] font-black uppercase" style={{color: '#1d5bbd'}}>בהליך משפטי</p>
                 <div>
                   <p className="text-[32px] font-black leading-none text-[#2bc9a8]">
                     {allStatuses.find((s) => s.type === 'LEGAL' && s.name === 'תביעה משפטית') ? records.filter((r) => r.legal_status_id === allStatuses.find((s) => s.type === 'LEGAL' && s.name === 'תביעה משפטית')?.id).length : 0}
