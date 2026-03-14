@@ -358,72 +358,117 @@ export default function DebtorsTable({
             </div>
 
             {/* Desktop Table */}
-            <div className="hidden lg:block overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow className="bg-slate-50 border-b border-slate-200">
-                    <TableHead className="px-4 py-3 text-right text-sm font-semibold text-slate-700 cursor-pointer hover:bg-slate-100" onClick={() => toggleSort('apartmentNumber')}>
-                      מס׳ דירה {sortField === 'apartmentNumber' && <ArrowUpDown className="w-4 h-4 inline ml-1" />}
-                    </TableHead>
-                    <TableHead className="px-4 py-3 text-right text-sm font-semibold text-slate-700">שם בעל הדירה</TableHead>
-                    <TableHead className="px-4 py-3 text-right text-sm font-semibold text-slate-700">טלפון</TableHead>
-                    <TableHead className="px-4 py-3 text-center text-sm font-semibold text-slate-700 cursor-pointer hover:bg-slate-100" onClick={() => toggleSort('totalDebt')}>
-                      סה״כ חוב {sortField === 'totalDebt' && <ArrowUpDown className="w-4 h-4 inline ml-1" />}
-                    </TableHead>
-                    <TableHead className="px-4 py-3 text-center text-sm font-semibold text-slate-700 cursor-pointer hover:bg-slate-100" onClick={() => toggleSort('monthlyDebt')}>
-                      דמי ניהול {sortField === 'monthlyDebt' && <ArrowUpDown className="w-4 h-4 inline ml-1" />}
-                    </TableHead>
-                    <TableHead className="px-4 py-3 text-center text-sm font-semibold text-slate-700">מצב משפטי</TableHead>
-                    <TableHead className="px-4 py-3 text-center text-sm font-semibold text-slate-700">פעולות</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {paginatedRecords.length === 0 ?
-                    <TableRow>
-                      <TableCell colSpan={7} className="text-center py-12">
-                        <p className="text-slate-600 font-semibold">לא נמצאו רשומות</p>
-                      </TableCell>
-                    </TableRow> :
-                    paginatedRecords.map((record) =>
-                    <TableRow
-                      key={record.id}
-                      className="border-b border-slate-200 hover:bg-slate-50 cursor-pointer"
-                      onClick={() => onRowClick(record)}>
-                      <TableCell className="px-4 py-3 text-sm text-slate-700">{record.apartmentNumber}</TableCell>
-                      <TableCell className="px-4 py-3 text-sm text-slate-700">
-                        {record.ownerName?.split(/[\/,]/)[0]?.trim() || '-'}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-sm text-slate-700">{formatPhoneForDisplay(getPhonePrimaryForTable(record))}</TableCell>
-                      <TableCell className="px-4 py-3 text-sm font-semibold text-slate-900 text-center">{formatCurrency(record.totalDebt)}</TableCell>
-                      <TableCell className="px-4 py-3 text-sm font-semibold text-slate-900 text-center">{formatCurrency(record.monthlyDebt)}</TableCell>
-                      <TableCell className="px-4 py-3 text-sm text-center">
-                        {(() => {
-                          const legalStatus = getLegalStatusForRecord(record);
-                          return legalStatus ?
-                            <Badge className={`${legalStatus.color} rounded-full inline-block`}>
-                              {legalStatus.name}
-                            </Badge> :
-                            <Badge className="bg-slate-100 text-slate-700 rounded-full inline-block">
-                              -
-                            </Badge>;
-                        })()}
-                      </TableCell>
-                      <TableCell className="px-4 py-3 text-center" onClick={(e) => e.stopPropagation()}>
-                        <TableActionsCell
-                          record={record}
-                          isAdmin={isAdmin}
-                          showArchived={showArchived}
-                          archivingRecords={archivingRecords}
-                          onCommentClick={() => setCommentRecord(record)}
-                          onWhatsAppClick={() => setWhatsappRecord(record)}
-                          onArchiveToggle={handleArchiveToggle}
-                        />
-                      </TableCell>
-                    </TableRow>
-                    )
-                  }
-                </TableBody>
-              </Table>
+            <div className="hidden lg:block overflow-x-auto px-3.5 py-3">
+              <table className="w-full" style={{ borderCollapse: 'separate', borderSpacing: '0 8px' }}>
+                {/* TABLE HEAD */}
+                <thead>
+                  <tr className="h-[38px]">
+                    <th className="text-right whitespace-nowrap px-3.5 text-[11px] font-bold text-[#8f99be] bg-transparent cursor-pointer hover:text-[#5f6fff]" onClick={() => toggleSort('apartmentNumber')}>
+                      מס׳ דירה {sortField === 'apartmentNumber' && <ArrowUpDown className="w-3.5 h-3.5 inline ml-1" />}
+                    </th>
+                    <th className="text-right whitespace-nowrap px-3.5 text-[11px] font-bold text-[#8f99be] bg-transparent">שם בעל הדירה</th>
+                    <th className="text-right whitespace-nowrap px-3.5 text-[11px] font-bold text-[#8f99be] bg-transparent">טלפון</th>
+                    <th className="text-center whitespace-nowrap px-3.5 text-[11px] font-bold text-[#8f99be] bg-transparent cursor-pointer hover:text-[#5f6fff]" onClick={() => toggleSort('totalDebt')}>
+                      סה״כ חוב {sortField === 'totalDebt' && <ArrowUpDown className="w-3.5 h-3.5 inline ml-1" />}
+                    </th>
+                    <th className="text-center whitespace-nowrap px-3.5 text-[11px] font-bold text-[#8f99be] bg-transparent cursor-pointer hover:text-[#5f6fff]" onClick={() => toggleSort('monthlyDebt')}>
+                      דמי ניהול {sortField === 'monthlyDebt' && <ArrowUpDown className="w-3.5 h-3.5 inline ml-1" />}
+                    </th>
+                    <th className="text-center whitespace-nowrap px-3.5 text-[11px] font-bold text-[#8f99be] bg-transparent">מצב משפטי</th>
+                    <th className="text-center whitespace-nowrap px-3.5 text-[11px] font-bold text-[#8f99be] bg-transparent">פעולות</th>
+                  </tr>
+                </thead>
+
+                {/* TABLE BODY */}
+                <tbody>
+                  {paginatedRecords.length === 0 ? (
+                    <tr>
+                      <td colSpan={7} className="text-center py-12">
+                        <p className="text-[#7581a8] font-semibold text-sm">לא נמצאו רשומות</p>
+                      </td>
+                    </tr>
+                  ) : (
+                    paginatedRecords.map((record) => (
+                      <tr
+                        key={record.id}
+                        className="h-[52px] transition-all duration-160 hover:shadow-[0_10px_22px_rgba(125,145,220,0.10)] hover:-translate-y-0.5 cursor-pointer"
+                        onClick={() => onRowClick(record)}
+                        style={{
+                          background: 'linear-gradient(180deg, rgba(255,255,255,0.98) 0%, rgba(250,251,255,0.98) 100%)',
+                          boxShadow: '0 4px 14px rgba(146,163,229,0.06), inset 0 1px 0 rgba(255,255,255,0.9)'
+                        }}
+                      >
+                        {/* Apartment Number */}
+                        <td className="whitespace-nowrap px-3.5 align-middle text-[12px] font-medium text-[#58627f] rounded-r-[14px]">
+                          {record.apartmentNumber}
+                        </td>
+
+                        {/* Owner Name */}
+                        <td className="whitespace-nowrap px-3.5 align-middle text-[12px] font-medium text-[#58627f]">
+                          {record.ownerName?.split(/[\/,]/)[0]?.trim() || '-'}
+                        </td>
+
+                        {/* Phone */}
+                        <td className="whitespace-nowrap px-3.5 align-middle text-[12px] font-medium text-[#58627f]">
+                          {formatPhoneForDisplay(getPhonePrimaryForTable(record))}
+                        </td>
+
+                        {/* Total Debt */}
+                        <td className="whitespace-nowrap px-3.5 align-middle text-center text-[13px] font-bold text-[#8b5cff]">
+                          {formatCurrency(record.totalDebt)}
+                        </td>
+
+                        {/* Monthly Debt */}
+                        <td className="whitespace-nowrap px-3.5 align-middle text-center text-[13px] font-bold text-[#f5a623]">
+                          {formatCurrency(record.monthlyDebt)}
+                        </td>
+
+                        {/* Legal Status */}
+                        <td className="whitespace-nowrap px-3.5 align-middle text-center">
+                          {(() => {
+                            const legalStatus = getLegalStatusForRecord(record);
+                            if (!legalStatus) {
+                              return (
+                                <div className="inline-flex items-center justify-center min-w-[74px] h-6 px-2.5 rounded-full text-[11px] font-bold bg-[rgba(217,225,245,0.40)] text-[#7581a8]">
+                                  -
+                                </div>
+                              );
+                            }
+                            let badgeClass = '';
+                            if (legalStatus.name.includes('תביעה') || legalStatus.name.includes('הליך')) {
+                              badgeClass = 'bg-[rgba(255,95,132,0.16)] text-[#ef5172]';
+                            } else if (legalStatus.name.includes('התראה')) {
+                              badgeClass = 'bg-[rgba(255,186,85,0.18)] text-[#e39a26]';
+                            } else {
+                              badgeClass = 'bg-[rgba(142,109,255,0.15)] text-[#8a63ff]';
+                            }
+                            return (
+                              <div className={`inline-flex items-center justify-center min-w-[74px] h-6 px-2.5 rounded-full text-[11px] font-bold ${badgeClass}`}>
+                                {legalStatus.name}
+                              </div>
+                            );
+                          })()}
+                        </td>
+
+                        {/* Actions */}
+                        <td className="whitespace-nowrap px-3.5 align-middle text-center rounded-l-[14px]" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center justify-center gap-2 text-[#9ca7ca]">
+                            <TableActionsCell
+                              record={record}
+                              isAdmin={isAdmin}
+                              showArchived={showArchived}
+                              archivingRecords={archivingRecords}
+                              onCommentClick={() => setCommentRecord(record)}
+                              onWhatsAppClick={() => setWhatsappRecord(record)}
+                              onArchiveToggle={handleArchiveToggle}
+                            />
+                          </div>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
             </div>
 
             {totalPages > 1 &&
