@@ -55,6 +55,7 @@ export default function Tasks() {
   const isAdmin = isManagerRole(currentUser);
   const queryClient = useQueryClient();
 
+  const [activeKpiFilter, setActiveKpiFilter] = useState(null); // null | "open" | "today" | "overdue"
   const [search, setSearch] = useState("");
   const [filterStatus, setFilterStatus] = useState("הכל");
   const [filterPriority, setFilterPriority] = useState("הכל");
