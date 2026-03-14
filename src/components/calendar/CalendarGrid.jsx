@@ -2,6 +2,7 @@ import React from 'react';
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, isSameDay, isSaturday, isFriday, getDay } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Repeat2 } from 'lucide-react';
+import React from 'react';
 
 export default function CalendarGrid({ currentMonth, appointments, onDateClick, onAppointmentClick, isHoliday, getHolidayName }) {
   const monthStart = startOfMonth(currentMonth);
@@ -141,26 +142,48 @@ export default function CalendarGrid({ currentMonth, appointments, onDateClick, 
 
               {/* Appointments */}
               <div className="space-y-1">
-                {dayAppointments.slice(0, 2).map((apt) =>
-                <div
-                  key={apt.id}
-                  className="text-xs p-2 rounded text-white truncate cursor-pointer hover:shadow-lg transition-shadow font-medium border border-opacity-20 border-white flex items-center gap-1"
-                  style={{
-                    backgroundColor: apt.event_color || '#3B82F6',
-                    opacity: isPast ? 0.6 : 1
-                  }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (!isPast) {
-                      onAppointmentClick(apt);
-                    }
-                  }}
-                  title={apt.is_recurring ? `${apt.title} (אירוע מחזורי)` : apt.title}>
-
+                {dayAppointments.slice(0, 2).map((apt) => (
+                  <div
+                    key={apt.id}
+                    className="text-xs p-2 rounded text-white cursor-pointer hover:shadow-lg transition-shadow font-medium border border-opacity-20 border-white flex flex-col gap-0.5 group relative"
+                    style={{
+                      backgroundColor: apt.event_color || '#3B82F6',
+                      opacity: isPast ? 0.6 : 1
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!isPast) {
+                        onAppointmentClick(apt);
+                      }
+                    }}>
+                    {/* Main content */}
+                    <div className="flex items-center gap-1 min-w-0">
                       {apt.is_recurring && <Repeat2 className="w-3 h-3 flex-shrink-0" />}
                       <span className="truncate">{apt.title}</span>
                     </div>
-                )}
+
+                    {/* Time and Location (compact) */}
+                    <div className="text-xs opacity-90 truncate">
+                      {apt.start_datetime && format(new Date(apt.start_datetime), 'HH:mm')}
+                      {apt.location && ` • ${apt.location}`}
+                    </div>
+
+                    {/* Tooltip */}
+                    <div className="absolute bottom-full right-0 mb-2 hidden group-hover:block bg-slate-900 text-white text-xs p-3 rounded-lg shadow-lg whitespace-normal w-48 z-50 border border-slate-700">
+                      <div className="font-bold mb-1">{apt.title}</div>
+                      {apt.start_datetime && (
+                        <div className="text-slate-300">
+                          {format(new Date(apt.start_datetime), 'HH:mm')} - {apt.end_datetime && format(new Date(apt.end_datetime), 'HH:mm')}
+                        </div>
+                      )}
+                      {apt.location && <div className="text-slate-300">📍 {apt.location}</div>}
+                      {apt.description && <div className="text-slate-300 mt-1">{apt.description}</div>}
+                      {apt.attendees_users?.length > 0 && (
+                        <div className="text-slate-300 text-xs mt-1">👥 {apt.attendees_users.length} משתתפים</div>
+                      )}
+                    </div>
+                  </div>
+                ))}
                 {dayAppointments.length > 2 &&
                 <div className="text-xs text-blue-600 px-2 font-semibold">
                     +{dayAppointments.length - 2} עוד
