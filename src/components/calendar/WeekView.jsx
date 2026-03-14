@@ -4,27 +4,35 @@ import { he } from 'date-fns/locale';
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
 
-export default function WeekView({ currentDate, appointments, onDateClick, onAppointmentClick }) {
-  // Placeholder - will be updated to match new design
+export default function WeekView({ 
+  currentDate, 
+  appointments, 
+  onDateClick, 
+  onAppointmentClick,
+  draggedAppointment,
+  onDragStart,
+  onDragEnd,
+  onDragDrop,
+}) {
   if (!appointments) return null;
   const weekStart = startOfWeek(currentDate, { weekStartsOn: 0 });
   const weekEnd = endOfWeek(currentDate, { weekStartsOn: 0 });
   const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
 
   const getAppointmentsForDay = (day) => {
-    return appointments.filter(apt => isSameDay(new Date(apt.date), day));
+    return appointments.filter(apt => isSameDay(new Date(apt.event_date), day));
   };
 
   const getAppointmentStyle = (apt) => {
-    const [startHour, startMin] = apt.start_time.split(':').map(Number);
-    const [endHour, endMin] = apt.end_time.split(':').map(Number);
+    const [startHour, startMin] = apt.start_datetime.split('T')[1].split(':').map(Number);
+    const [endHour, endMin] = apt.end_datetime.split('T')[1].split(':').map(Number);
     const startPercent = ((startHour + startMin / 60) / 24) * 100;
     const heightPercent = (((endHour + endMin / 60) - (startHour + startMin / 60)) / 24) * 100;
     
     return {
       top: `${startPercent}%`,
-      height: `${heightPercent}%`,
-      backgroundColor: apt.event_color || '#3B82F6',
+      height: `${Math.max(heightPercent, 3)}%`,
+      backgroundColor: apt.color_key || '#3B82F6',
     };
   };
 
@@ -62,26 +70,36 @@ export default function WeekView({ currentDate, appointments, onDateClick, onApp
                 onClick={() => onDateClick(day)}
               >
                 {/* Appointments */}
-                {getAppointmentsForDay(day).map((apt) => {
-                  const [aptHour] = apt.start_time.split(':').map(Number);
-                  if (aptHour === hour) {
-                    return (
-                      <div
-                        key={apt.id}
-                        className="absolute inset-0 p-1 rounded text-white text-xs overflow-hidden cursor-pointer hover:opacity-90 transition-opacity"
-                        style={getAppointmentStyle(apt)}
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onAppointmentClick(apt);
-                        }}
-                      >
-                        <div className="font-semibold truncate">{apt.title}</div>
-                        <div className="text-xs opacity-90">{apt.start_time} - {apt.end_time}</div>
-                      </div>
-                    );
-                  }
-                  return null;
-                })}
+                  {getAppointmentsForDay(day).map((apt) => {
+                    const [aptHour] = apt.start_datetime.split('T')[1].split(':').map(Number);
+                    if (aptHour === hour) {
+                      return (
+                        <div
+                          key={apt.id}
+                          draggable={!!onDragDrop}
+                          onDragStart={(e) => {
+                            if (onDragStart) onDragStart(e, apt);
+                          }}
+                          onDragEnd={(e) => {
+                            if (onDragEnd) onDragEnd(e);
+                          }}
+                          className="absolute inset-0 p-1 rounded text-white text-xs overflow-hidden cursor-grab active:cursor-grabbing hover:shadow-lg transition-all hover:opacity-90"
+                          style={{
+                            ...getAppointmentStyle(apt),
+                            opacity: draggedAppointment?.id === apt.id ? 0.5 : 1,
+                          }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onAppointmentClick(apt);
+                          }}
+                        >
+                          <div className="font-semibold truncate">{apt.title}</div>
+                          <div className="text-xs opacity-90">{apt.start_datetime.split('T')[1].slice(0, 5)} - {apt.end_datetime.split('T')[1].slice(0, 5)}</div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  })}
               </div>
             ))}
           </div>
