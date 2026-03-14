@@ -570,7 +570,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
                       value={contactSearchTerm}
                       onChange={(e) => setContactSearchTerm(e.target.value)}
                       dir="rtl"
-                      className="pl-10 h-9 text-sm"
+                      className="pr-9 pl-3 h-9 text-sm"
                       autoFocus
                     />
                   </div>
