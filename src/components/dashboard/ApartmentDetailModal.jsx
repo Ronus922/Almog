@@ -8,10 +8,10 @@ import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { 
-  Home, Phone, Wallet, Calendar, FileText, Scale, 
-  Save, X, AlertTriangle, Lock, User, Pencil, Check, MessageSquare, FileDown, Printer
-} from "lucide-react";
+import {
+  Home, Phone, Wallet, Calendar, FileText, Scale,
+  Save, X, AlertTriangle, Lock, User, Pencil, Check, MessageSquare, FileDown, Printer } from
+"lucide-react";
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAlert } from '@/components/notifications/AlertContext';
@@ -27,12 +27,12 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   const [isExporting, setIsExporting] = useState(false);
   const { data: allStatuses = [] } = useQuery({
     queryKey: ['statuses'],
-    queryFn: () => base44.entities.Status.list('order'),
+    queryFn: () => base44.entities.Status.list('order')
   });
 
-  const legalStatuses = allStatuses.filter(s => s.type === 'LEGAL');
-  const activeLegalStatuses = legalStatuses.filter(s => s.is_active);
-  
+  const legalStatuses = allStatuses.filter((s) => s.type === 'LEGAL');
+  const activeLegalStatuses = legalStatuses.filter((s) => s.is_active);
+
   // State מקומי לסטטוס משפטי - נפרד מ-editedRecord
   const [selectedLegalStatusId, setSelectedLegalStatusId] = useState('');
   const [editedRecord, setEditedRecord] = useState(record);
@@ -48,13 +48,13 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
   React.useEffect(() => {
     if (!record) return;
-    
+
     setEditedRecord(record);
-    
+
     // אתחול state מקומי לסטטוס משפטי
     const initialStatusId = record.legal_status_id || '';
     setSelectedLegalStatusId(String(initialStatusId));
-    
+
     setLastContactDateError('');
     setNextActionDateError('');
   }, [record]);
@@ -69,8 +69,8 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     return `${year}-${month}-${day}`;
   };
 
-  const formatCurrency = (num) => 
-    new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num || 0);
+  const formatCurrency = (num) =>
+  new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num || 0);
 
   const formatPhone = (phone) => {
     if (!phone) return 'אין מספר';
@@ -85,33 +85,33 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   const handleSave = async () => {
     setLastContactDateError('');
     setNextActionDateError('');
-    
+
     // ולידציה: תאריך קשר אחרון לא יכול להיות עתידי
     if (editedRecord?.lastContactDate) {
       const selectedDate = new Date(editedRecord.lastContactDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       selectedDate.setHours(0, 0, 0, 0);
-      
+
       if (selectedDate > today) {
         setLastContactDateError('לא ניתן לבחור תאריך עתידי');
         return;
       }
     }
-    
+
     // ולידציה: תאריך פעולה הבאה לא יכול להיות בעבר
     if (editedRecord?.nextActionDate) {
       const selectedDate = new Date(editedRecord.nextActionDate);
       const today = new Date();
       today.setHours(0, 0, 0, 0);
       selectedDate.setHours(0, 0, 0, 0);
-      
+
       if (selectedDate < today) {
         setNextActionDateError('לא ניתן לבחור תאריך עבר');
         return;
       }
     }
-    
+
     setIsSaving(true);
     await onSave(editedRecord);
     setIsSaving(false);
@@ -130,25 +130,25 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   // Universal field save handler with optimistic update
   const handleFieldSave = async (fieldName, value) => {
     console.log('[FIELD_SAVE] Saving field', fieldName, value, record.id);
-    
+
     const updatePayload = { [fieldName]: value };
-    
+
     // Set phonesManualOverride for phone fields
     if (['phoneOwner', 'phoneTenant', 'phonePrimary'].includes(fieldName)) {
       updatePayload.phonesManualOverride = true;
     }
-    
+
     // Optimistic update - מיידי
-    setEditedRecord(prev => ({ ...prev, ...updatePayload }));
-    
+    setEditedRecord((prev) => ({ ...prev, ...updatePayload }));
+
     queryClient.setQueryData(['debtorRecords'], (old) => {
       if (!old) return old;
-      return old.map(r => r.id === record.id ? { ...r, ...updatePayload } : r);
+      return old.map((r) => r.id === record.id ? { ...r, ...updatePayload } : r);
     });
-    
+
     // Server update
     await base44.entities.DebtorRecord.update(record.id, updatePayload);
-    
+
     showAlert(`${fieldName === 'phoneOwner' ? 'טלפון בעלים' : fieldName === 'phoneTenant' ? 'טלפון שוכר' : fieldName === 'phonePrimary' ? 'טלפון להצגה' : 'שדה'} עודכן בהצלחה`, 'success');
   };
 
@@ -169,8 +169,8 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
     // שמירת ערך ישן לצורך rollback
     const oldStatusId = editedRecord.legal_status_id;
-    const newStatus = legalStatuses.find(s => s.id === newStatusId);
-    const oldStatus = legalStatuses.find(s => s.id === oldStatusId);
+    const newStatus = legalStatuses.find((s) => s.id === newStatusId);
+    const oldStatus = legalStatuses.find((s) => s.id === oldStatusId);
 
     // 1) OPTIMISTIC UPDATE - מיידי לפני השרת
     setSelectedLegalStatusId(String(newStatusId));
@@ -180,11 +180,11 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     // עדכון מיידי בטבלת הדשבורד (cache)
     queryClient.setQueryData(['debtorRecords'], (old) => {
       if (!old) return old;
-      return old.map(r => r.id === record.id ? { ...r, legal_status_id: newStatusId } : r);
+      return old.map((r) => r.id === record.id ? { ...r, legal_status_id: newStatusId } : r);
     });
 
     // עדכון מיידי ב-state המקומי
-    setEditedRecord(prev => ({
+    setEditedRecord((prev) => ({
       ...prev,
       legal_status_id: newStatusId
     }));
@@ -229,55 +229,55 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           debtorRecordId: record.id,
           oldStatusId: oldStatusId,
           newStatusId: newStatusId
-        }).then(response => {
+        }).then((response) => {
           console.log('[EMAIL CLIENT] ✅ Full response:', response);
           console.log('[EMAIL CLIENT] Response.data:', response.data);
-          
+
           if (response.data?.success) {
             const summary = response.data.summary;
             const results = response.data.results || [];
-            
+
             console.log('[EMAIL CLIENT] Summary:', summary);
             console.log('[EMAIL CLIENT] Results:', results);
-            
-            if (summary && summary.success > 0) {
-            showAlert(`✉️ נשלחו ${summary.success} מיילים בהצלחה`, 'success');
 
-            if (summary.failed > 0) {
-              const failedEmails = results.filter(r => !r.success).map(r => r.email).join(', ');
-              showAlert(`${summary.failed} מיילים נכשלו: ${failedEmails}`, 'warning');
-            }
+            if (summary && summary.success > 0) {
+              showAlert(`✉️ נשלחו ${summary.success} מיילים בהצלחה`, 'success');
+
+              if (summary.failed > 0) {
+                const failedEmails = results.filter((r) => !r.success).map((r) => r.email).join(', ');
+                showAlert(`${summary.failed} מיילים נכשלו: ${failedEmails}`, 'warning');
+              }
             } else if (results.length === 0) {
-            showAlert('לא הוגדרו כתובות מייל לסטטוס זה', 'info');
+              showAlert('לא הוגדרו כתובות מייל לסטטוס זה', 'info');
             } else {
-            showAlert('כל המיילים נכשלו', 'error');
+              showAlert('כל המיילים נכשלו', 'error');
             }
-            } else {
+          } else {
             console.log('[EMAIL CLIENT] ❌ No success in response');
             showAlert('לא התקבלה אישור על שליחת מיילים', 'warning');
-            }
-            }).catch(err => {
-            console.error('[EMAIL CLIENT] ❌ Error:', err);
-            showAlert(`שגיאה בשליחת מייל: ${err.message}`, 'error');
+          }
+        }).catch((err) => {
+          console.error('[EMAIL CLIENT] ❌ Error:', err);
+          showAlert(`שגיאה בשליחת מייל: ${err.message}`, 'error');
         });
 
         // עדכון נקודתי של cache (ללא refetch כבד)
         queryClient.setQueryData(['debtorRecords'], (old) => {
           if (!old) return old;
-          return old.map(r => r.id === record.id ? { ...r, ...updatedRecord } : r);
+          return old.map((r) => r.id === record.id ? { ...r, ...updatedRecord } : r);
         });
 
-        setEditedRecord(prev => ({
+        setEditedRecord((prev) => ({
           ...prev,
           legal_status_id: updatedRecord.legal_status_id,
           legal_status_source: 'MANUAL',
           legal_status_lock: true,
           legal_status_updated_at: updatedRecord.legal_status_updated_at || now,
-          legal_status_updated_by: updatedRecord.legal_status_updated_by || (currentUser.email || currentUser.username)
+          legal_status_updated_by: updatedRecord.legal_status_updated_by || currentUser.email || currentUser.username
         }));
 
         setSavingStatus(false);
-        
+
       } catch (err) {
         // Last-write-wins: ignore stale errors
         if (currentRequestId !== statusRequestIdRef.current) {
@@ -286,13 +286,13 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
         // ROLLBACK מיידי
         setSelectedLegalStatusId(String(oldStatusId || ''));
-        
+
         queryClient.setQueryData(['debtorRecords'], (old) => {
           if (!old) return old;
-          return old.map(r => r.id === record.id ? { ...r, legal_status_id: oldStatusId } : r);
+          return old.map((r) => r.id === record.id ? { ...r, legal_status_id: oldStatusId } : r);
         });
 
-        setEditedRecord(prev => ({
+        setEditedRecord((prev) => ({
           ...prev,
           legal_status_id: oldStatusId
         }));
@@ -307,11 +307,11 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     try {
       // Fetch comments
       const comments = await base44.entities.Comment.filter({ debtor_record_id: record.id }, '-created_date');
-      const currentStatus = legalStatuses.find(s => s.id === selectedLegalStatusId);
-      
+      const currentStatus = legalStatuses.find((s) => s.id === selectedLegalStatusId);
+
       // Create print window
       const printWindow = window.open('', '_blank');
-      
+
       const htmlContent = `
         <!DOCTYPE html>
         <html dir="rtl">
@@ -472,7 +472,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           ${comments && comments.length > 0 ? `
             <div style="margin-top: 20px;">
               <h3 style="color: #334155; margin-bottom: 10px;">הערות ותיעוד</h3>
-              ${comments.map(comment => `
+              ${comments.map((comment) => `
                 <div class="comment-box">
                   <div class="comment-header">
                     <span class="comment-author">${comment.author_name}</span>
@@ -490,16 +490,16 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         </body>
         </html>
       `;
-      
+
       printWindow.document.write(htmlContent);
       printWindow.document.close();
-      
+
       // Wait for content to load, then print
       printWindow.onload = () => {
         printWindow.focus();
         printWindow.print();
       };
-      
+
     } catch (error) {
       console.error('Print error:', error);
       showAlert('שגיאה בהדפסה', 'error');
@@ -511,15 +511,15 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     try {
       const html2canvas = (await import('html2canvas')).default;
       const { jsPDF } = await import('jspdf');
-      
+
       // Fetch comments
       const comments = await base44.entities.Comment.filter({ debtor_record_id: record.id }, '-created_date');
-      const currentStatus = legalStatuses.find(s => s.id === selectedLegalStatusId);
-      
+      const currentStatus = legalStatuses.find((s) => s.id === selectedLegalStatusId);
+
       // Create HTML content
       const printContent = document.createElement('div');
       printContent.style.cssText = 'position: absolute; left: -9999px; width: 800px; background: white; padding: 40px; font-family: Arial, sans-serif; direction: rtl;';
-      
+
       printContent.innerHTML = `
         <div style="direction: rtl; text-align: right;">
           <h1 style="color: #1e40af; border-bottom: 3px solid #1e40af; padding-bottom: 10px; margin-bottom: 20px;">
@@ -577,7 +577,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           ${comments && comments.length > 0 ? `
             <div style="margin-top: 20px;">
               <h3 style="color: #334155; margin-bottom: 10px;">הערות ותיעוד</h3>
-              ${comments.map(comment => `
+              ${comments.map((comment) => `
                 <div style="background: #f8fafc; border-right: 4px solid #3b82f6; padding: 12px; margin-bottom: 10px; border-radius: 4px;">
                   <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 12px; color: #64748b;">
                     <strong style="color: #1e40af;">${comment.author_name}</strong>
@@ -594,9 +594,9 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           </div>
         </div>
       `;
-      
+
       document.body.appendChild(printContent);
-      
+
       // Convert to canvas
       const canvas = await html2canvas(printContent, {
         scale: 2,
@@ -604,7 +604,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         logging: false,
         backgroundColor: '#ffffff'
       });
-      
+
       // Create PDF
       const imgData = canvas.toDataURL('image/jpeg', 1.0);
       const pdf = new jsPDF({
@@ -612,10 +612,10 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         unit: 'mm',
         format: 'a4'
       });
-      
+
       const imgWidth = 210;
       const pageHeight = 297;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const imgHeight = canvas.height * imgWidth / canvas.width;
       let heightLeft = imgHeight;
       let position = 0;
 
@@ -628,9 +628,9 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         pdf.addImage(imgData, 'JPEG', 0, position, imgWidth, imgHeight);
         heightLeft -= pageHeight;
       }
-      
+
       document.body.removeChild(printContent);
-      
+
       pdf.save(`דירה_${record.apartmentNumber}_${new Date().toISOString().split('T')[0]}.pdf`);
       showAlert('PDF הורד בהצלחה', 'success');
     } catch (error) {
@@ -641,8 +641,8 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     }
   };
 
-  const InfoRow = ({ icon: Icon, label, value }) => (
-    <div className="flex items-start gap-3 md:gap-4 py-2 md:py-3" dir="rtl">
+  const InfoRow = ({ icon: Icon, label, value }) =>
+  <div className="flex items-start gap-3 md:gap-4 py-2 md:py-3" dir="rtl">
       <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-slate-100 flex items-center justify-center">
         <Icon className="w-4 h-4 md:w-5 md:h-5 text-slate-600" />
       </div>
@@ -650,13 +650,13 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         <p className="text-xs text-slate-500 font-semibold mb-1">{label}</p>
         <p className="text-sm md:text-base font-bold text-slate-800 break-words">{value || '-'}</p>
       </div>
-    </div>
-  );
+    </div>;
 
 
 
-  const currentStatusLabel = legalStatuses.find(s => s.id === selectedLegalStatusId)?.name || 'לא הוגדר';
-  const currentStatusColor = legalStatuses.find(s => s.id === selectedLegalStatusId)?.color || 'bg-slate-100 text-slate-700';
+
+  const currentStatusLabel = legalStatuses.find((s) => s.id === selectedLegalStatusId)?.name || 'לא הוגדר';
+  const currentStatusColor = legalStatuses.find((s) => s.id === selectedLegalStatusId)?.color || 'bg-slate-100 text-slate-700';
 
   return (
     <AppModal
@@ -669,39 +669,39 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         color: `${currentStatusColor} border`
       }}
       footer={
-        <>
+      <>
           <Button variant="outline" onClick={onClose} className="rounded-xl h-11 px-6 font-semibold">
             <X className="w-5 h-5 ml-2" />
             סגור
           </Button>
-          <Button 
-            variant="outline" 
-            onClick={handlePrint} 
-            className="rounded-xl h-11 px-6 font-semibold"
-          >
+          <Button
+          variant="outline"
+          onClick={handlePrint}
+          className="rounded-xl h-11 px-6 font-semibold">
+
             <Printer className="w-5 h-5 ml-2" />
             הדפס
           </Button>
-          <Button 
-            variant="outline" 
-            onClick={handleExportPDF} 
-            disabled={isExporting}
-            className="rounded-xl h-11 px-6 font-semibold"
-          >
+          <Button
+          variant="outline"
+          onClick={handleExportPDF}
+          disabled={isExporting}
+          className="rounded-xl h-11 px-6 font-semibold">
+
             <FileDown className="w-5 h-5 ml-2" />
             {isExporting ? 'מייצא...' : 'יצא ל-PDF'}
           </Button>
-          {isAdmin && (
-            <Button onClick={handleSave} disabled={isSaving} className="rounded-xl h-11 px-6 font-semibold bg-gradient-to-l from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
+          {isAdmin &&
+        <Button onClick={handleSave} disabled={isSaving} className="rounded-xl h-11 px-6 font-semibold bg-gradient-to-l from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800">
               <Save className="w-5 h-5 ml-2" />
               {isSaving ? 'שומר...' : 'שמור שינויים'}
             </Button>
-          )}
+        }
         </>
-      }
-    >
-        {!isAdmin && (
-          <Alert className="bg-gradient-to-l from-blue-50 to-blue-100 border-blue-300 rounded-xl mb-6" dir="rtl">
+      }>
+
+        {!isAdmin &&
+      <Alert className="bg-gradient-to-l from-blue-50 to-blue-100 border-blue-300 rounded-xl mb-6" dir="rtl">
             <div className="flex items-center gap-3">
               <Lock className="w-5 h-5 text-blue-600" />
               <AlertDescription className="text-blue-800 font-semibold">
@@ -709,7 +709,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               </AlertDescription>
             </div>
           </Alert>
-        )}
+      }
 
         <div className="space-y-2 md:space-y-3 py-1" dir="rtl">
           {/* פרטים כלליים */}
@@ -728,11 +728,11 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 <FileText className="w-4 h-4 md:w-5 md:h-5 text-amber-600" />
                 מידע נוסף
               </h3>
-              <InfoRow 
-                icon={FileText} 
-                label="פרטים מהייבוא" 
-                value={editedRecord?.detailsMonthly || 'אין נתונים'} 
-              />
+              <InfoRow
+              icon={FileText}
+              label="פרטים מהייבוא"
+              value={editedRecord?.detailsMonthly || 'אין נתונים'} />
+
               
               <div className="flex items-start gap-3 md:gap-4 py-2 md:py-3" dir="rtl">
                 <div className="flex-shrink-0 w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-slate-100 flex items-center justify-center">
@@ -741,21 +741,21 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 <div className="flex-1 text-right">
                   <p className="text-xs text-slate-500 font-semibold mb-1">דמי ניהול לחודשים:</p>
                   <div className="text-sm text-slate-700 bg-white rounded-lg p-3 border border-slate-200">
-                    {editedRecord?.managementMonthsRaw ? (
-                      <div className="space-y-1">
+                    {editedRecord?.managementMonthsRaw ?
+                  <div className="space-y-1">
                         {editedRecord.managementMonthsRaw.split(/[,،\n]/).map((item, idx) => {
-                          const trimmed = item.trim();
-                          return trimmed ? (
-                            <div key={idx} className="flex items-start gap-2">
+                      const trimmed = item.trim();
+                      return trimmed ?
+                      <div key={idx} className="flex items-start gap-2">
                               <span className="text-blue-600 font-bold">•</span>
                               <span className="flex-1">{trimmed}</span>
-                            </div>
-                          ) : null;
-                        })}
-                      </div>
-                    ) : (
-                      <span className="text-slate-500">אין נתונים</span>
-                    )}
+                            </div> :
+                      null;
+                    })}
+                      </div> :
+
+                  <span className="text-slate-500">אין נתונים</span>
+                  }
                   </div>
                 </div>
               </div>
@@ -768,28 +768,28 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           <div className="bg-slate-50/50 rounded-2xl p-3 md:p-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-2 md:gap-3">
               <InlineEditableField
-                icon={Phone}
-                label="טלפון בעלים"
-                value={editedRecord?.phoneOwner}
-                recordId={record.id}
-                fieldName="phoneOwner"
-                isAdmin={isAdmin}
-                onSave={handleFieldSave}
-                formatDisplay={formatPhone}
-                validate={validatePhone}
-              />
+              icon={Phone}
+              label="טלפון בעלים"
+              value={editedRecord?.phoneOwner}
+              recordId={record.id}
+              fieldName="phoneOwner"
+              isAdmin={isAdmin}
+              onSave={handleFieldSave}
+              formatDisplay={formatPhone}
+              validate={validatePhone} />
+
 
               <InlineEditableField
-                icon={Phone}
-                label="טלפון שוכר"
-                value={editedRecord?.phoneTenant}
-                recordId={record.id}
-                fieldName="phoneTenant"
-                isAdmin={isAdmin}
-                onSave={handleFieldSave}
-                formatDisplay={formatPhone}
-                validate={validatePhone}
-              />
+              icon={Phone}
+              label="טלפון שוכר"
+              value={editedRecord?.phoneTenant}
+              recordId={record.id}
+              fieldName="phoneTenant"
+              isAdmin={isAdmin}
+              onSave={handleFieldSave}
+              formatDisplay={formatPhone}
+              validate={validatePhone} />
+
             </div>
           </div>
 
@@ -822,8 +822,8 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           <Separator className="my-1 md:my-2" />
 
           {/* שדות עריכה למנהל */}
-          {isAdmin && (
-            <div className="space-y-2 md:space-y-3 bg-blue-50/30 rounded-2xl p-3 md:p-4">
+          {isAdmin &&
+        <div className="space-y-2 md:space-y-3 bg-blue-50/30 rounded-2xl p-3 md:p-4">
               <h3 className="text-base md:text-lg font-bold text-slate-800 flex items-center gap-2 md:gap-3 text-right">
                 <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg md:rounded-xl bg-blue-100 flex items-center justify-center">
                   <Scale className="w-4 h-4 md:w-5 md:h-5 text-blue-600" />
@@ -833,66 +833,66 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
               <div className="text-right">
                 <Label className="text-sm font-bold text-slate-700 mb-2 block">סטטוס משפטי</Label>
-                <Select 
-                  value={selectedLegalStatusId} 
-                  onValueChange={handleLegalStatusChange}
-                  disabled={!editedRecord || activeLegalStatuses.length === 0 || savingStatus}
-                >
+                <Select
+              value={selectedLegalStatusId}
+              onValueChange={handleLegalStatusChange}
+              disabled={!editedRecord || activeLegalStatuses.length === 0 || savingStatus}>
+
                   <SelectTrigger className="mt-2 h-12 rounded-xl text-right">
                     <SelectValue placeholder={activeLegalStatuses.length === 0 ? "אין סטטוסים זמינים" : "בחר סטטוס משפטי"} />
                   </SelectTrigger>
                   <SelectContent className="rounded-xl z-[9999]" position="popper">
-                    {activeLegalStatuses.map((status) => (
-                      <SelectItem key={status.id} value={String(status.id)}>
+                    {activeLegalStatuses.map((status) =>
+                <SelectItem key={status.id} value={String(status.id)}>
                         <div className="flex items-center gap-2">
                           <Badge className={`${status.color} text-xs transition-all duration-200 hover:opacity-80`}>
                             {status.name}
                           </Badge>
                         </div>
                       </SelectItem>
-                    ))}
+                )}
                   </SelectContent>
                 </Select>
 
                 {/* סטטוס נוכחי + מידע Audit */}
                 <div className="mt-3 space-y-2">
                   {(() => {
-                    const currentStatus = legalStatuses.find(s => s.id === selectedLegalStatusId);
-                    return currentStatus && (
-                      <div className="flex items-center gap-2">
-                        <Badge className={`${currentStatus.color} transition-all duration-200 hover:opacity-80`}>
-                          {currentStatus.name}
-                        </Badge>
-                        {savingStatus && (
-                          <span className="text-xs text-blue-600 font-semibold">שומר...</span>
-                        )}
-                        {statusSaveError && (
-                          <span className="text-xs text-red-600 font-semibold">{statusSaveError}</span>
-                        )}
-                      </div>
-                    );
-                  })()}
+                const currentStatus = legalStatuses.find((s) => s.id === selectedLegalStatusId);
+                return currentStatus &&
+                <div className="flex items-center gap-2">
+                        
 
-                  {!selectedLegalStatusId && (
-                    <div className="text-xs text-slate-500 bg-slate-50 rounded-lg p-2">
+
+                        {savingStatus &&
+                  <span className="text-xs text-blue-600 font-semibold">שומר...</span>
+                  }
+                        {statusSaveError &&
+                  <span className="text-xs text-red-600 font-semibold">{statusSaveError}</span>
+                  }
+                      </div>;
+
+              })()}
+
+                  {!selectedLegalStatusId &&
+              <div className="text-xs text-slate-500 bg-slate-50 rounded-lg p-2">
                       לא הוגדר סטטוס משפטי
                     </div>
-                  )}
+              }
 
-                  {editedRecord?.legal_status_updated_at && (
-                    <div className="text-xs text-slate-600 bg-slate-50 rounded-lg p-2">
+                  {editedRecord?.legal_status_updated_at &&
+              <div className="text-xs text-slate-600 bg-slate-50 rounded-lg p-2">
                       <div className="flex items-center gap-2">
                         <span className="font-semibold">עודכן לאחרונה:</span>
                         <span>{new Date(editedRecord.legal_status_updated_at).toLocaleString('he-IL')}</span>
                       </div>
-                      {editedRecord.legal_status_updated_by && (
-                        <div className="flex items-center gap-2 mt-1">
+                      {editedRecord.legal_status_updated_by &&
+                <div className="flex items-center gap-2 mt-1">
                           <span className="font-semibold">על ידי:</span>
                           <span>{editedRecord.legal_status_updated_by}</span>
                         </div>
-                      )}
+                }
                     </div>
-                  )}
+              }
                 </div>
               </div>
 
@@ -904,15 +904,15 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                   הערות ותיעוד
                 </Label>
                 <CommentsSection
-                  debtorRecordId={record.id}
-                  apartmentNumber={record.apartmentNumber}
-                  currentUser={currentUser}
-                  isAdmin={isAdmin}
-                />
+              debtorRecordId={record.id}
+              apartmentNumber={record.apartmentNumber}
+              currentUser={currentUser}
+              isAdmin={isAdmin} />
+
               </div>
             </div>
-          )}
+        }
         </div>
-    </AppModal>
-  );
+    </AppModal>);
+
 }
