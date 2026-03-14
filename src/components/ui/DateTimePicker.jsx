@@ -17,8 +17,10 @@ function getFirstDayOfWeek(year, month) {
 }
 
 // ─── TimeColumn ───────────────────────────────────────────────────────────────
-function TimeColumn({ selectedHour, onSelectHour }) {
+function TimeColumn({ selectedHour, selectedMinute, onSelect }) {
+  const MINUTES = [0, 10, 20, 30, 40, 50];
   const listRef = useRef(null);
+
   useEffect(() => {
     if (listRef.current) {
       const el = listRef.current.querySelector(`[data-hour="${selectedHour}"]`);
@@ -36,27 +38,29 @@ function TimeColumn({ selectedHour, onSelectHour }) {
         <span style={{ flex:1, textAlign:"center", fontSize:11, fontWeight:600, color:"#64748b" }}>שעה</span>
         <span style={{ flex:1, textAlign:"center", fontSize:11, fontWeight:600, color:"#64748b" }}>דקות</span>
       </div>
-      {Array.from({ length: 24 }, (_, h) => {
-        const active = h === selectedHour;
-        return (
-          <div
-            key={h}
-            data-hour={h}
-            onClick={() => onSelectHour(h)}
-            style={{
-              display:"flex", height:32, alignItems:"center", cursor:"pointer",
-              background: active ? "#3b82f6" : "transparent",
-              borderRadius: active ? 6 : 0,
-              margin: active ? "0 4px" : 0,
-              width: active ? "calc(100% - 8px)" : "100%",
-              transition: "background 0.1s",
-            }}
-          >
-            <span style={{ flex:1, textAlign:"center", fontSize:13, fontWeight: active ? 600 : 400, color: active ? "#fff" : "#1e293b" }}>{pad(h)}</span>
-            <span style={{ flex:1, textAlign:"center", fontSize:12, color: active ? "#dbeafe" : "#94a3b8" }}>00</span>
-          </div>
-        );
-      })}
+      {Array.from({ length: 24 }, (_, h) =>
+        MINUTES.map((m) => {
+          const active = h === selectedHour && m === selectedMinute;
+          return (
+            <div
+              key={`${h}-${m}`}
+              data-hour={h}
+              onClick={() => onSelect(h, m)}
+              style={{
+                display:"flex", height:30, alignItems:"center", cursor:"pointer",
+                background: active ? "#3b82f6" : "transparent",
+                borderRadius: active ? 6 : 0,
+                margin: active ? "0 4px" : 0,
+                width: active ? "calc(100% - 8px)" : "100%",
+                transition: "background 0.1s",
+              }}
+            >
+              <span style={{ flex:1, textAlign:"center", fontSize:13, fontWeight: active ? 600 : 400, color: active ? "#fff" : "#1e293b" }}>{pad(h)}</span>
+              <span style={{ flex:1, textAlign:"center", fontSize:12, color: active ? "#dbeafe" : "#475569" }}>{pad(m)}</span>
+            </div>
+          );
+        })
+      )}
     </div>
   );
 }
