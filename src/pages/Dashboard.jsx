@@ -323,7 +323,7 @@ function DashboardContent() {
       <div className="max-w-[1500px] mx-auto px-6 md:px-8 xl:px-10 pt-6 pb-10 space-y-6 md:space-y-8">
         {/* Filter indicators */}
         {filterKeyFromUrl &&
-        <Alert className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 shadow-sm">
+        <Alert className="rounded-[18px] border border-white/70 bg-white/85 backdrop-blur-[6px] shadow-[0_10px_26px_rgba(15,23,42,0.06)] px-5 md:px-6 py-4">
             <AlertDescription className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <span className="font-bold text-blue-900">מציג:</span>
