@@ -8,6 +8,7 @@ import { isManagerRole } from '@/components/utils/roles';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -210,47 +211,48 @@ export default function UserManagement() {
   }
 
   return (
-    <div className="page-root" dir="rtl">
-      <div className="page-inner" style={{ maxWidth: '72rem' }}>
-        <div className="page-header">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-slate-100 to-slate-50 p-4 md:p-8" dir="rtl">
+      <div className="max-w-6xl mx-auto space-y-6">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="page-title">ניהול משתמשים</h1>
-            <p className="page-subtitle">ניהול משתמשי המערכת והרשאות גישה</p>
+            <h1 className="text-3xl font-bold text-slate-800">ניהול משתמשים</h1>
+            <p className="text-slate-600 mt-1">ניהול משתמשי המערכת והרשאות גישה</p>
           </div>
           <Button
             onClick={() => setIsAddDialogOpen(true)}
-            className="h-10 rounded-lg text-white gap-2"
-            style={{ backgroundColor: 'var(--color-primary)' }}
+            className="bg-blue-600 hover:bg-blue-700 rounded-xl"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-4 h-4 ml-2" />
             משתמש חדש
           </Button>
         </div>
 
         {/* Users Table */}
-        <div className="sys-card">
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-slate-100">
-            <Users className="w-5 h-5 text-blue-600" />
-            <span className="font-semibold text-slate-700">משתמשי המערכת ({users.length})</span>
-          </div>
-          <div className="overflow-x-auto">
+        <Card className="border-0 shadow-lg rounded-2xl">
+          <CardHeader className="bg-gradient-to-l from-white to-slate-50">
+            <CardTitle className="flex items-center gap-3 text-right">
+              <Users className="w-5 h-5 text-blue-600" />
+              משתמשי המערכת ({users.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-0">
             <Table>
               <TableHeader>
-                <TableRow className="sys-table-header-row">
-                  <TableHead className="sys-table-header-cell">שם פרטי</TableHead>
-                  <TableHead className="sys-table-header-cell">שם משפחה</TableHead>
-                  <TableHead className="sys-table-header-cell">שם משתמש</TableHead>
-                  <TableHead className="sys-table-header-cell">אימייל</TableHead>
-                  <TableHead className="sys-table-header-cell">תפקיד</TableHead>
-                  <TableHead className="sys-table-header-cell">סטטוס</TableHead>
-                  <TableHead className="sys-table-header-cell">פעולות</TableHead>
+                <TableRow className="bg-slate-50">
+                  <TableHead className="text-right font-bold">שם פרטי</TableHead>
+                  <TableHead className="text-right font-bold">שם משפחה</TableHead>
+                  <TableHead className="text-right font-bold">שם משתמש</TableHead>
+                  <TableHead className="text-right font-bold">אימייל</TableHead>
+                  <TableHead className="text-right font-bold">תפקיד</TableHead>
+                  <TableHead className="text-right font-bold">סטטוס</TableHead>
+                  <TableHead className="text-right font-bold">פעולות</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {users.map((user) => (
                   <TableRow 
                     key={user.id}
-                    className="sys-table-row"
+                    className="hover:bg-slate-50 cursor-pointer"
                     onClick={() => handleEditUser(user)}
                   >
                     <TableCell className="font-medium">
@@ -336,14 +338,14 @@ export default function UserManagement() {
                 ))}
               </TableBody>
             </Table>
-          </div>
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Add User Dialog */}
         <Dialog open={isAddDialogOpen} onOpenChange={setIsAddDialogOpen}>
-          <DialogContent className="rounded-xl" dir="rtl">
+          <DialogContent className="rounded-2xl" dir="rtl">
             <DialogHeader className="text-right">
-              <DialogTitle className="text-xl font-bold">הוספת משתמש חדש</DialogTitle>
+              <DialogTitle className="text-2xl font-bold">הוספת משתמש חדש</DialogTitle>
             </DialogHeader>
 
             {formError && (
@@ -450,15 +452,14 @@ export default function UserManagement() {
                     setNewUser({ first_name: '', last_name: '', username: '', email: '', password: '', role: 'VIEWER' });
                     setFormError('');
                   }}
-                  className="flex-1 rounded-lg h-10"
+                  className="flex-1 rounded-xl"
                 >
                   ביטול
                 </Button>
                 <Button
                   onClick={handleCreateUser}
                   disabled={createUserMutation.isPending}
-                  className="flex-1 rounded-lg h-10 text-white"
-                  style={{ backgroundColor: 'var(--color-primary)' }}
+                  className="flex-1 rounded-xl bg-blue-600 hover:bg-blue-700"
                 >
                   {createUserMutation.isPending ? 'יוצר...' : 'צור משתמש'}
                 </Button>

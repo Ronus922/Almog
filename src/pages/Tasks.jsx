@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent } from "@/components/ui/card";
 import { Plus, Search, CheckCircle2, Clock, AlertTriangle, ClipboardList, Trash2, Pencil, UserPlus, Filter, X, ChevronUp, ChevronDown, ChevronsUpDown, Calendar } from "lucide-react";
 import { useAuth } from "@/components/auth/AuthContext";
 import { isManagerRole } from "@/components/utils/roles";
@@ -15,7 +16,7 @@ function SortableHeader({ label, field, sortField, sortDir, onSort }) {
   const active = sortField === field;
   return (
     <th
-      className="sys-table-header-cell cursor-pointer select-none hover:bg-slate-100 transition-colors"
+      className="text-right px-4 py-3 font-semibold text-slate-600 cursor-pointer select-none hover:bg-slate-100 transition-colors"
       onClick={() => onSort(field)}>
 
       <span className="inline-flex items-center gap-1">
@@ -234,14 +235,14 @@ export default function Tasks() {
   };
 
   return (
-    <div className="page-root" dir="rtl">
-      <div className="page-inner">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-4 md:p-6" dir="rtl">
+      <div className="max-w-7xl mx-auto space-y-6">
 
         {/* Header */}
-        <div className="page-header">
+        <div className="flex items-center justify-between">
           <div>
-            <h1 className="page-title">משימות לטיפול</h1>
-            <p className="page-subtitle">{kpiCounts.open} משימות פתוחות</p>
+            <h1 className="text-2xl font-bold text-slate-800">משימות לטיפול</h1>
+            <p className="text-sm text-slate-500 mt-1">{kpiCounts.open} משימות פתוחות</p>
           </div>
         </div>
 
@@ -316,7 +317,8 @@ export default function Tasks() {
         )}
 
         {/* Filters */}
-        <div className="sys-card p-4 space-y-3">
+        <Card className="border-0 shadow-sm bg-white">
+          <CardContent className="p-4 space-y-3">
             <div className="flex flex-wrap gap-3 items-center">
               <div className="relative flex-1 min-w-48">
                 <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
@@ -401,134 +403,134 @@ export default function Tasks() {
               }
               </div>
             }
-        </div>
+          </CardContent>
+        </Card>
 
         {/* Table */}
-        <div className="bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden">
-          {isLoading ? (
-            <div className="empty-state">טוען משימות...</div>
-          ) : sorted.length === 0 ? (
-            <div className="empty-state">
-              <ClipboardList className="empty-state-icon" />
-              <p>אין משימות להצגה</p>
-            </div>
-          ) : (
+        <Card className="border-0 shadow-sm bg-white overflow-hidden">
+          <CardContent className="p-0">
+            {isLoading ?
+            <div className="py-16 text-center text-slate-400">טוען משימות...</div> :
+            sorted.length === 0 ?
+            <div className="py-16 text-center text-slate-400">
+                <ClipboardList className="w-10 h-10 mx-auto mb-3 opacity-30" />
+                <p>אין משימות להצגה</p>
+              </div> :
+
             <div className="overflow-x-auto">
-              <table className="w-full text-sm" style={{ borderCollapse: 'collapse', direction: 'rtl' }}>
-                <thead>
-                  <tr style={{ backgroundColor: '#f1f5f9', borderBottom: '2px solid #cbd5e1' }}>
-                    <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 700, fontSize: '0.8rem', color: '#475569', letterSpacing: '0.02em', width: '80px' }}></th>
-                    <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 700, fontSize: '0.8rem', color: '#475569', cursor: 'pointer' }} onClick={() => handleSort("task_type")}>
-                      תיאור המשימה {sortField === "task_type" ? (sortDir === "asc" ? "↑" : "↓") : ""}
-                    </th>
-                    <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 700, fontSize: '0.8rem', color: '#475569', cursor: 'pointer', width: '160px' }} onClick={() => handleSort("assigned")}>
-                      עובד {sortField === "assigned" ? (sortDir === "asc" ? "↑" : "↓") : ""}
-                    </th>
-                    <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 700, fontSize: '0.8rem', color: '#475569', cursor: 'pointer', width: '150px' }} onClick={() => handleSort("due_date")}>
-                      תאריך לביצוע {sortField === "due_date" ? (sortDir === "asc" ? "↑" : "↓") : ""}
-                    </th>
-                    <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 700, fontSize: '0.8rem', color: '#475569', cursor: 'pointer', width: '130px' }} onClick={() => handleSort("priority")}>
-                      עדיפות {sortField === "priority" ? (sortDir === "asc" ? "↑" : "↓") : ""}
-                    </th>
-                    <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 700, fontSize: '0.8rem', color: '#475569', cursor: 'pointer', width: '130px' }} onClick={() => handleSort("status")}>
-                      סטטוס {sortField === "status" ? (sortDir === "asc" ? "↑" : "↓") : ""}
-                    </th>
-                    <th style={{ padding: '12px 16px', textAlign: 'right', fontWeight: 700, fontSize: '0.8rem', color: '#475569', width: '140px' }}>
-                      תאריך יצירה
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {sorted.map((task) => (
-                    <tr
-                      key={task.id}
-                      style={{
-                        borderBottom: '1px solid #e2e8f0',
-                        cursor: 'pointer',
-                        backgroundColor: isOverdue(task) ? '#fef2f2' : '#ffffff',
-                        transition: 'background-color 0.15s',
-                      }}
-                      onMouseEnter={e => e.currentTarget.style.backgroundColor = isOverdue(task) ? '#fee2e2' : '#eff6ff'}
-                      onMouseLeave={e => e.currentTarget.style.backgroundColor = isOverdue(task) ? '#fef2f2' : '#ffffff'}
-                      onClick={() => { setEditTask(task); setShowDialog(true); }}
-                    >
-                      <td style={{ padding: '12px 16px', textAlign: 'right' }}>
-                        <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-                          <button onClick={() => { setEditTask(task); setShowDialog(true); }} className="text-slate-400 hover:text-blue-600 transition-colors">
-                            <Pencil className="w-4 h-4" />
-                          </button>
-                          {(task.assigned_by === currentUser?.username || task.assigned_by === currentUser?.email) && (
-                            <button onClick={() => { if (window.confirm("למחוק משימה זו?")) deleteMutation.mutate(task.id); }} className="text-slate-300 hover:text-red-500 transition-colors">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                          )}
-                        </div>
-                      </td>
-
-                      <td style={{ padding: '12px 16px', textAlign: 'right' }}>
-                        <div className="font-medium text-slate-800">{task.task_type}</div>
-                        {task.owner_name && <div className="text-xs text-slate-400 mt-0.5">דירה {task.apartment_number} – {task.owner_name}</div>}
-                        {task.description && <div className="text-xs text-slate-400 truncate max-w-xs">{task.description}</div>}
-                      </td>
-
-                      <td style={{ padding: '12px 16px', textAlign: 'right', width: '160px' }}>
-                        <div className="text-slate-700">
-                          {task.assigned_to_name === "רונן משולם" ? "רונן משולם" : task.assigned_to_name || task.assigned_to || "-"}
-                        </div>
-                        {task.assigned_by && (
-                          <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
-                            <UserPlus className="w-3 h-3" />
-                            {userNameMap[task.assigned_by] || task.assigned_by}
-                          </div>
-                        )}
-                      </td>
-
-                      <td style={{ padding: '12px 16px', textAlign: 'right', width: '150px' }} className={getDueDateStyle(task)}>
-                        {task.due_date ? formatDateTime(task.due_date + "T00:00:00") : "-"}
-                      </td>
-
-                      <td style={{ padding: '12px 16px', textAlign: 'right', width: '130px' }} onClick={(e) => e.stopPropagation()}>
-                        <Select value={task.priority} onValueChange={(value) => updatePriority.mutate({ taskId: task.id, priority: value })}>
-                          <SelectTrigger className={`w-28 h-8 text-xs font-semibold ${
-                            task.priority === "גבוהה" ? "bg-red-100 text-red-700 border-red-300" :
-                            task.priority === "בינונית" ? "bg-yellow-100 text-yellow-700 border-yellow-300" :
-                            "bg-green-100 text-green-700 border-green-300"
-                          }`}><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="גבוהה"><span className="text-red-700 font-semibold">● גבוהה</span></SelectItem>
-                            <SelectItem value="בינונית"><span className="text-yellow-700 font-semibold">● בינונית</span></SelectItem>
-                            <SelectItem value="נמוכה"><span className="text-green-700 font-semibold">● נמוכה</span></SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </td>
-
-                      <td style={{ padding: '12px 16px', textAlign: 'right', width: '130px' }} onClick={(e) => e.stopPropagation()}>
-                        <Select value={task.status} onValueChange={(value) => updateStatus.mutate({ taskId: task.id, status: value })}>
-                          <SelectTrigger className={`w-28 h-8 text-xs font-semibold ${
-                            task.status === "פתוחה" ? "bg-blue-100 text-blue-700 border-blue-300" :
-                            task.status === "בטיפול" ? "bg-orange-100 text-orange-700 border-orange-300" :
-                            task.status === "הושלמה" ? "bg-green-100 text-green-700 border-green-300" :
-                            "bg-slate-100 text-slate-700 border-slate-300"
-                          }`}><SelectValue /></SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="פתוחה"><span className="text-blue-700 font-semibold">● פתוחה</span></SelectItem>
-                            <SelectItem value="בטיפול"><span className="text-orange-700 font-semibold">● בטיפול</span></SelectItem>
-                            <SelectItem value="הושלמה"><span className="text-green-700 font-semibold">● הושלמה</span></SelectItem>
-                            <SelectItem value="בוטלה"><span className="text-slate-700 font-semibold">● בוטלה</span></SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </td>
-
-                      <td style={{ padding: '12px 16px', textAlign: 'right', width: '140px', color: '#64748b', whiteSpace: 'nowrap' }}>
-                        {formatDateTime(task.created_date)}
-                      </td>
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="bg-slate-50 border-b border-slate-200">
+                      <th className="text-right px-4 py-3 font-semibold text-slate-600 w-10"></th>
+                      <SortableHeader label="תיאור המשימה" field="task_type" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                      <SortableHeader label="עובד" field="assigned" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                      <SortableHeader label="תאריך לביצוע" field="due_date" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                      <SortableHeader label="עדיפות" field="priority" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                      <SortableHeader label="סטטוס" field="status" sortField={sortField} sortDir={sortDir} onSort={handleSort} />
+                      <th className="text-right px-4 py-3 font-semibold text-slate-600">תאריך יצירה</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100">
+                    {sorted.map((task) =>
+                    <tr
+                    key={task.id}
+                    className={`transition-colors cursor-pointer ${isOverdue(task) ? "bg-[#fdecec] hover:bg-[#fbd9d9]" : "hover:bg-blue-50/40"}`}
+                    onClick={() => {setEditTask(task);setShowDialog(true);}}>
+
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+                            <button
+                          onClick={() => {setEditTask(task);setShowDialog(true);}}
+                          className="text-slate-400 hover:text-blue-600 transition-colors">
+
+                              <Pencil className="w-4 h-4" />
+                            </button>
+                            {(task.assigned_by === currentUser?.username || task.assigned_by === currentUser?.email) &&
+                        <button
+                          onClick={() => {if (window.confirm("למחוק משימה זו?")) deleteMutation.mutate(task.id);}}
+                          className="text-slate-300 hover:text-red-500 transition-colors">
+
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                        }
+                          </div>
+                        </td>
+
+                        <td className="px-4 py-3">
+                          <div className="font-medium text-slate-800">{task.task_type}</div>
+                          {task.owner_name &&
+                      <div className="text-xs text-slate-400 mt-0.5">
+                              דירה {task.apartment_number} – {task.owner_name}
+                            </div>
+                      }
+                          {task.description &&
+                      <div className="text-xs text-slate-400 truncate max-w-xs">{task.description}</div>
+                      }
+                        </td>
+
+                        <td className="px-4 py-3">
+                           <div className="text-slate-700">
+                             {task.assigned_to_name === "רונן משולם" ? "רונן משולם" : task.assigned_to_name || task.assigned_to || "-"}
+                           </div>
+                          {task.assigned_by &&
+                      <div className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
+                              <UserPlus className="w-3 h-3" />
+                              {userNameMap[task.assigned_by] || task.assigned_by}
+                            </div>
+                      }
+                        </td>
+
+                        <td className={`px-4 py-3 ${getDueDateStyle(task)}`}>
+                          {task.due_date ? formatDateTime(task.due_date + "T00:00:00") : "-"}
+                        </td>
+
+                        <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                           <Select value={task.priority} onValueChange={(value) => updatePriority.mutate({ taskId: task.id, priority: value })}>
+                             <SelectTrigger className={`w-28 h-8 text-xs font-semibold ${
+                               task.priority === "גבוהה" ? "bg-red-100 text-red-700 border-red-300" :
+                               task.priority === "בינונית" ? "bg-yellow-100 text-yellow-700 border-yellow-300" :
+                               "bg-green-100 text-green-700 border-green-300"
+                             }`}>
+                               <SelectValue />
+                             </SelectTrigger>
+                             <SelectContent>
+                               <SelectItem value="גבוהה"><span className="text-red-700 font-semibold">● גבוהה</span></SelectItem>
+                               <SelectItem value="בינונית"><span className="text-yellow-700 font-semibold">● בינונית</span></SelectItem>
+                               <SelectItem value="נמוכה"><span className="text-green-700 font-semibold">● נמוכה</span></SelectItem>
+                             </SelectContent>
+                           </Select>
+                         </td>
+
+                        <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                           <Select value={task.status} onValueChange={(value) => updateStatus.mutate({ taskId: task.id, status: value })}>
+                             <SelectTrigger className={`w-28 h-8 text-xs font-semibold ${
+                               task.status === "פתוחה" ? "bg-blue-100 text-blue-700 border-blue-300" :
+                               task.status === "בטיפול" ? "bg-orange-100 text-orange-700 border-orange-300" :
+                               task.status === "הושלמה" ? "bg-green-100 text-green-700 border-green-300" :
+                               "bg-slate-100 text-slate-700 border-slate-300"
+                             }`}>
+                               <SelectValue />
+                             </SelectTrigger>
+                             <SelectContent>
+                               <SelectItem value="פתוחה"><span className="text-blue-700 font-semibold">● פתוחה</span></SelectItem>
+                               <SelectItem value="בטיפול"><span className="text-orange-700 font-semibold">● בטיפול</span></SelectItem>
+                               <SelectItem value="הושלמה"><span className="text-green-700 font-semibold">● הושלמה</span></SelectItem>
+                               <SelectItem value="בוטלה"><span className="text-slate-700 font-semibold">● בוטלה</span></SelectItem>
+                             </SelectContent>
+                           </Select>
+                         </td>
+
+                        <td className="px-4 py-3 text-slate-500">
+                          {formatDateTime(task.created_date)}
+                        </td>
+                      </tr>
+                  )}
+                  </tbody>
+                </table>
+              </div>
+            }
+          </CardContent>
+        </Card>
       </div>
 
       <TaskFormDialog

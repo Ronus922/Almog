@@ -7,24 +7,6 @@
   --primary-foreground: 0 0% 100%;
 }
 
-/* ===== DESIGN TOKENS ===== */
-:root {
-  --color-primary:       #3563d0;
-  --color-primary-hover: #2a50b0;
-  --color-success:       #16a34a;
-  --color-warning:       #d97706;
-  --color-danger:        #dc2626;
-  --color-bg-page:       #f8fafc;
-  --color-bg-card:       #ffffff;
-  --color-bg-table-header: #f8fafc;
-  --color-border:        #e2e8f0;
-  --color-text-primary:  #1e293b;
-  --color-text-secondary:#64748b;
-  --radius-card:         0.75rem;
-  --radius-field:        0.5rem;
-  --height-field:        2.5rem; /* 40px */
-}
-
 @layer base {
   * {
     @apply border-border;
@@ -35,92 +17,22 @@
   }
   
   body {
-    background-color: var(--color-bg-page);
-    @apply text-foreground;
+    @apply bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 text-foreground;
     direction: rtl;
     text-align: right;
   }
-}
-
-@layer components {
-  /* ─── Page layout ─── */
-  .page-root {
-    @apply min-h-screen p-4 md:p-6;
-    background-color: var(--color-bg-page);
-  }
-  .page-inner {
-    @apply max-w-7xl mx-auto space-y-6;
+  
+  /* Enhanced cards */
+  .card-modern {
+    @apply bg-white border border-slate-200/60 rounded-xl shadow-sm hover:shadow-md transition-all duration-200;
   }
   
-  /* ─── Page header ─── */
-  .page-header {
-    @apply flex items-center justify-between flex-wrap gap-3;
+  /* Button styles */
+  .btn-gradient {
+    @apply bg-gradient-to-r from-blue-600 to-indigo-600 text-white hover:shadow-lg transition-all duration-200;
   }
-  .page-title {
-    @apply text-2xl font-bold;
-    color: var(--color-text-primary);
-  }
-  .page-subtitle {
-    @apply text-sm mt-0.5;
-    color: var(--color-text-secondary);
-  }
-
-  /* ─── Cards / sections ─── */
-  .sys-card {
-    @apply bg-white border-0 shadow-sm overflow-hidden;
-    border-radius: var(--radius-card);
-  }
-
-  /* ─── Table ─── */
-  .sys-table-header-row {
-    border-bottom: 1px solid var(--color-border);
-    background-color: var(--color-bg-table-header);
-  }
-  .sys-table-header-cell {
-    @apply text-right font-semibold text-sm px-4 py-3;
-    color: var(--color-text-secondary);
-  }
-  .sys-table-row {
-    @apply transition-colors cursor-pointer;
-    border-bottom: 1px solid #f1f5f9;
-  }
-  .sys-table-row:hover {
-    background-color: #f0f6ff;
-  }
-
-  /* ─── Buttons ─── */
-  .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 h-10 text-sm font-medium text-white transition-colors disabled:opacity-50 disabled:pointer-events-none;
-    background-color: var(--color-primary);
-  }
-  .btn-primary:hover { background-color: var(--color-primary-hover); }
-
-  .btn-danger-ghost {
-    @apply inline-flex items-center gap-1.5 rounded-lg px-3 h-9 text-sm font-medium border transition-colors;
-    color: var(--color-danger);
-    border-color: #fecaca;
-  }
-  .btn-danger-ghost:hover { background-color: #fff1f1; }
-
-  /* ─── Form fields ─── */
-  .sys-input {
-    @apply w-full rounded-lg border px-3 text-sm transition-colors;
-    height: var(--height-field);
-    border-color: var(--color-border);
-    background-color: var(--color-bg-card);
-  }
-  .sys-input:focus {
-    outline: none;
-    border-color: var(--color-primary);
-    box-shadow: 0 0 0 2px rgba(53,99,208,0.1);
-  }
-
-  /* ─── Empty state ─── */
-  .empty-state {
-    @apply flex flex-col items-center justify-center py-16 text-center;
-    color: var(--color-text-secondary);
-  }
-  .empty-state-icon {
-    @apply w-12 h-12 mb-3 opacity-30;
+  
+  .btn-soft {
+    @apply bg-blue-50 text-blue-700 hover:bg-blue-100 transition-all duration-200;
   }
 }

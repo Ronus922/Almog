@@ -254,20 +254,24 @@ export default function Calendar() {
   const monthRangeStr = `${format(monthStart, 'dd/MM/yyyy')} - ${format(monthEnd, 'dd/MM/yyyy')}`;
 
   return (
-    <div className="page-root overflow-auto" dir="rtl" style={{ minHeight: '100vh' }}>
-      <div className="w-full flex flex-col space-y-4">
-        {/* Header */}
-        <div className="page-header">
-          <div>
-            <h1 className="page-title">יומן פגישות</h1>
-            <p className="page-subtitle">ניהול פגישות ומשימות בקלות ובארגון</p>
-          </div>
+    <div className="w-screen h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100 p-4 md:p-8 overflow-auto" dir="rtl">
+      <div className="w-full min-h-screen flex flex-col">
+        {/* Header Section with Gradient */}
+        <div className="bg-gradient-to-l from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg p-6 mb-6">
+          <h1 className="text-3xl md:text-4xl font-bold mb-2">יומן פגישות</h1>
+          <p className="text-blue-100 text-sm">ניהול פגישות ומשימות בקלות ובארגון</p>
+        </div>
+
+        <div className="flex items-center justify-between gap-4 mb-6">
+          {/* Add Button */}
           <Button
-            onClick={() => { setSelectedAppointment(null); setShowForm(true); }}
-            className="h-10 rounded-lg text-white gap-2 whitespace-nowrap"
-            style={{ backgroundColor: 'var(--color-primary)' }}
+            onClick={() => {
+              setSelectedAppointment(null);
+              setShowForm(true);
+            }}
+            className="bg-blue-600 hover:bg-blue-700 text-white gap-2 whitespace-nowrap"
           >
-            <Plus className="w-4 h-4" />
+            <Plus className="w-5 h-5" />
             פגישה חדשה
           </Button>
         </div>
@@ -283,7 +287,7 @@ export default function Calendar() {
         />
 
         {/* Calendar View Container */}
-        <div className="flex-1 overflow-auto rounded-xl bg-white shadow-sm border border-slate-100">
+        <div className="flex-1 overflow-auto">
           {viewMode === 'month' && (
             <CalendarGrid
               currentMonth={currentMonth}
@@ -315,12 +319,12 @@ export default function Calendar() {
 
       {/* Appointment Form Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 rounded-xl" dir="rtl">
-          <div className="px-6 py-5 border-b border-slate-100 bg-slate-50 rounded-t-xl">
-            <h2 className="text-xl font-bold text-slate-800">
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0" dir="rtl">
+          <div className="bg-gradient-to-l from-blue-600 to-indigo-600 px-6 py-6 text-white rounded-t-lg">
+            <h2 className="text-2xl font-bold">
               {selectedAppointment ? 'עריכת פגישה' : 'פגישה חדשה'}
             </h2>
-            <p className="text-sm text-slate-500 mt-0.5">ניהול פרטי הפגישה</p>
+            <p className="text-sm text-blue-100 mt-1">ניהול פרטי הפגישה</p>
           </div>
           <div className="p-6">
             <AppointmentForm

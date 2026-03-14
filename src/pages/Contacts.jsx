@@ -4,6 +4,7 @@ import { base44 } from "@/api/base44Client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -146,57 +147,59 @@ export default function Contacts() {
   };
 
   return (
-    <div className="page-root" dir="rtl">
-      <div className="page-inner">
-        {/* Header */}
-        <div className="page-header">
-          <div>
-            <h1 className="page-title">אנשי קשר – דיירים</h1>
-            <p className="page-subtitle">{contacts.length} דירות במערכת</p>
-          </div>
-          <div className="flex gap-2 flex-wrap">
-            <Button variant="outline" className="gap-2 h-10 rounded-lg" onClick={() => setImportOpen(true)}>
-              <Upload className="w-4 h-4" /> ייבוא Excel
-            </Button>
-            <Button variant="outline" className="gap-2 h-10 rounded-lg" onClick={handleExportCSV}>
-              <Download className="w-4 h-4" /> ייצוא CSV
-            </Button>
-            {selected.length > 0 && (
-              <>
-                <Button
-                  variant="outline"
-                  className="gap-2 h-10 rounded-lg text-red-600 hover:bg-red-50 border-red-200"
-                  onClick={handleDeleteSelected}
-                >
-                  <Trash2 className="w-4 h-4" /> מחק ({selected.length})
-                </Button>
-                <Button
-                  className="gap-2 h-10 rounded-lg bg-green-600 hover:bg-green-700 text-white"
-                  onClick={() => setSendOpen(true)}
-                >
-                  <Send className="w-4 h-4" /> שלח וואטסאפ ({selected.length})
-                </Button>
-              </>
-            )}
-            <Button
-              className="gap-2 h-10 rounded-lg text-white"
-              style={{ backgroundColor: 'var(--color-primary)' }}
-              onClick={() => { setEditContact(null); setFormOpen(true); }}
-            >
-              <Plus className="w-4 h-4" /> הוסף דירה
-            </Button>
-          </div>
+    <div className="max-w-7xl mx-auto px-4 py-6 space-y-6" dir="rtl">
+      {/* Header */}
+      <div className="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-800">אנשי קשר - דיירים</h1>
+          <p className="text-sm text-slate-500">{contacts.length} דירות במערכת</p>
         </div>
+        <div className="flex gap-2 flex-wrap">
+          <Button variant="outline" className="gap-2" onClick={() => setImportOpen(true)}>
+            <Upload className="w-4 h-4" /> ייבוא Excel
+          </Button>
+          <Button variant="outline" className="gap-2" onClick={handleExportCSV}>
+            <Download className="w-4 h-4" /> ייצוא CSV
+          </Button>
+          {selected.length > 0 && (
+            <>
+              <Button
+                variant="outline"
+                className="gap-2 text-red-600 hover:bg-red-50 border-red-200"
+                onClick={handleDeleteSelected}
+              >
+                <Trash2 className="w-4 h-4" /> מחק ({selected.length})
+              </Button>
+              <Button
+                className="gap-2 bg-green-600 hover:bg-green-700 text-white"
+                onClick={() => setSendOpen(true)}
+              >
+                <Send className="w-4 h-4" /> שלח וואטסאפ ({selected.length})
+              </Button>
+            </>
+          )}
+          <Button
+            className="gap-2 bg-[#3563d0] hover:bg-[#2a50b0] text-white"
+            onClick={() => {
+              setEditContact(null);
+              setFormOpen(true);
+            }}
+          >
+            <Plus className="w-4 h-4" /> הוסף דירה
+          </Button>
+        </div>
+      </div>
 
-        {/* Filters */}
-        <div className="sys-card p-4 space-y-3">
+      {/* Filters */}
+      <Card>
+        <CardContent className="p-4 space-y-3" dir="rtl">
           <div className="relative">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder="חיפוש לפי דירה, שם בעל, שם שוכר, טלפון..."
-              className="pr-9 h-10 rounded-lg"
+              className="pr-9"
               dir="rtl"
             />
           </div>
@@ -224,75 +227,81 @@ export default function Contacts() {
               )}
             </div>
           )}
-        </div>
+        </CardContent>
+      </Card>
 
-        {/* Table */}
-        <div className="sys-card overflow-x-auto">
+      {/* Table */}
+      <Card>
+        <CardContent className="p-0 overflow-x-auto">
           {isLoading ? (
-            <div className="empty-state"><p>טוען...</p></div>
+            <div className="text-center py-12 text-slate-400">טוען...</div>
           ) : filtered.length === 0 ? (
-            <div className="empty-state">
+            <div className="text-center py-16 text-slate-400">
               <p className="font-medium">אין דירות</p>
               <p className="text-sm mt-1">הוסף ידנית או ייבא מ-Excel</p>
             </div>
           ) : (
             <Table>
               <TableHeader>
-                <TableRow className="sys-table-header-row">
-                  <TableHead className="sys-table-header-cell">דירה</TableHead>
-                  <TableHead className="sys-table-header-cell">בעל הדירה</TableHead>
-                  <TableHead className="sys-table-header-cell w-32">טלפון בעל</TableHead>
-                  <TableHead className="hidden md:table-cell sys-table-header-cell">השוכר</TableHead>
-                  <TableHead className="hidden md:table-cell sys-table-header-cell w-32">טלפון שוכר</TableHead>
-                  <TableHead className="hidden md:table-cell sys-table-header-cell">דמי ניהול</TableHead>
-                  <TableHead className="sys-table-header-cell text-center">פעולות</TableHead>
+                <TableRow className="bg-blue-50">
+                  <TableHead className="text-right font-bold text-slate-700">דירה</TableHead>
+                  <TableHead className="text-right font-bold text-slate-700">בעל הדירה</TableHead>
+                  <TableHead className="text-right font-bold text-slate-700 w-32">טלפון בעל</TableHead>
+                  <TableHead className="hidden md:table-cell text-right font-bold text-slate-700">השוכר</TableHead>
+                  <TableHead className="hidden md:table-cell text-right font-bold text-slate-700 w-32">טלפון שוכר</TableHead>
+                  <TableHead className="text-right hidden md:table-cell font-bold text-slate-700">דמי ניהול</TableHead>
+                  <TableHead className="text-center font-bold text-slate-700">פעולות</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {filtered.map(contact => (
-                  <TableRow key={contact.id} className="sys-table-row">
-                    <TableCell className="font-bold text-blue-600 px-4 py-3" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.apartment_number}</TableCell>
-                    <TableCell className="text-sm px-4 py-3" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.owner_name || "—"}</TableCell>
-                    <TableCell className="text-sm text-right w-32 px-4 py-3" dir="ltr" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.owner_phone || "—"}</TableCell>
-                    <TableCell className="hidden md:table-cell text-sm px-4 py-3" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.tenant_name || "—"}</TableCell>
-                    <TableCell className="hidden md:table-cell text-sm text-right w-32 px-4 py-3" dir="ltr" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.tenant_phone || "—"}</TableCell>
-                    <TableCell className="hidden md:table-cell text-right px-4 py-3" onClick={() => {setEditContact(contact); setFormOpen(true);}}>
-                      {contact.management_fees ? (
-                        <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
-                          ₪{contact.management_fees}
-                        </Badge>
-                      ) : (
-                        <span className="text-slate-400 text-sm">—</span>
-                      )}
-                    </TableCell>
-                    <TableCell className="w-min px-2 py-3">
-                      <div className="flex gap-0.5 justify-center">
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-green-600 hover:bg-green-50 rounded-lg"
-                          onClick={() => { setSelected([contact.id]); setSendOpen(true); }}
-                          title="שלח וואטסאפ"
-                        >
-                          <Send className="w-4 h-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          className="text-red-500 hover:bg-red-50 rounded-lg"
-                          onClick={() => handleDelete(contact)}
-                          title="מחיקה"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                   <TableRow key={contact.id} className="group cursor-pointer">
+                     <TableCell className="font-bold text-blue-600 group-hover:bg-blue-100" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.apartment_number}</TableCell>
+                     <TableCell className="text-sm group-hover:bg-blue-100" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.owner_name || "—"}</TableCell>
+                     <TableCell className="text-sm text-right w-32 group-hover:bg-blue-100" dir="ltr" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.owner_phone || "—"}</TableCell>
+                     <TableCell className="hidden md:table-cell text-sm group-hover:bg-blue-100" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.tenant_name || "—"}</TableCell>
+                     <TableCell className="hidden md:table-cell text-sm text-right w-32 group-hover:bg-blue-100" dir="ltr" onClick={() => {setEditContact(contact); setFormOpen(true);}}>{contact.tenant_phone || "—"}</TableCell>
+                     <TableCell className="hidden md:table-cell text-right group-hover:bg-blue-100" onClick={() => {setEditContact(contact); setFormOpen(true);}}>
+                       {contact.management_fees ? (
+                         <Badge variant="outline" className="bg-amber-50 text-amber-700 border-amber-200">
+                           ₪{contact.management_fees}
+                         </Badge>
+                       ) : (
+                         <span className="text-slate-400 text-sm">—</span>
+                       )}
+                     </TableCell>
+                     <TableCell className="w-min px-2 group-hover:bg-blue-100">
+                       <div className="flex gap-0.5 justify-center">
+                         <Button
+                           variant="ghost"
+                           size="sm"
+                           className="text-green-600 hover:bg-green-50"
+                           onClick={() => {
+                             setSelected([contact.id]);
+                             setSendOpen(true);
+                           }}
+                           title="שלח וואטסאפ"
+                         >
+                           <Send className="w-4 h-4" />
+                         </Button>
+                         <Button
+                           variant="ghost"
+                           size="sm"
+                           className="text-red-500 hover:bg-red-50"
+                           onClick={() => handleDelete(contact)}
+                           title="מחיקה"
+                         >
+                           <Trash2 className="w-4 h-4" />
+                         </Button>
+                       </div>
+                     </TableCell>
+                   </TableRow>
+                 ))}
               </TableBody>
             </Table>
           )}
-        </div>
+        </CardContent>
+      </Card>
 
       <ContactFormDialog
         open={formOpen}
@@ -317,7 +326,6 @@ export default function Contacts() {
         onClose={() => setImportOpen(false)}
         onImported={() => queryClient.invalidateQueries({ queryKey: ["contacts"] })}
       />
-      </div>
     </div>
   );
 }
