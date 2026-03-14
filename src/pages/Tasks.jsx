@@ -243,7 +243,7 @@ export default function Tasks() {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-slate-800">משימות לטיפול</h1>
-            <p className="text-sm text-slate-500 mt-1">{openTasks.length} משימות פתוחות</p>
+            <p className="text-sm text-slate-500 mt-1">{kpiCounts.open} משימות פתוחות</p>
           </div>
         </div>
 
