@@ -30,8 +30,8 @@ export function normalizePhone(v) {
  * @returns {string} טלפון להצגה
  */
 export function getPhonePrimaryForTable(record) {
-  // phonePrimaryForTable = normalizePhone(phonePrimary) ?? normalizePhone(phoneOwner) ?? null
-  return normalizePhone(record.phonePrimary) ?? normalizePhone(record.phoneOwner) ?? null;
+  // phonePrimaryForTable = normalizePhone(phonePrimary) ?? normalizePhone(phoneOwner) ?? normalizePhone(phoneTenant) ?? null
+  return normalizePhone(record.phonePrimary) ?? normalizePhone(record.phoneOwner) ?? normalizePhone(record.phoneTenant) ?? null;
 }
 
 /**
