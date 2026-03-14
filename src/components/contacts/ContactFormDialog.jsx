@@ -30,7 +30,11 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
     tenant_phone: "",
     tenant_email: "",
     contact_type: "owner",
+    resident_type: "owner",
     operator_id: "",
+    owner_is_primary_contact: true,
+    tenant_is_primary_contact: false,
+    operator_is_primary_contact: false,
     address: "",
     notes: "",
     tags: [],
@@ -53,7 +57,11 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
         tenant_phone: "",
         tenant_email: "",
         contact_type: "owner",
+        resident_type: "owner",
         operator_id: "",
+        owner_is_primary_contact: true,
+        tenant_is_primary_contact: false,
+        operator_is_primary_contact: false,
         address: "",
         notes: "",
         tags: [],
@@ -102,7 +110,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
 
         {/* Content */}
         <div className="space-y-4 mt-2 flex-1 overflow-y-auto px-6 pt-4" dir="rtl">
-          {/* Apartment */}
+          {/* Apartment + Resident Type */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label className="text-sm font-semibold text-slate-700">מספר דירה *</Label>
@@ -116,15 +124,15 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
               />
             </div>
             <div className="space-y-2">
-              <Label className="text-sm font-semibold text-slate-700">איש קשר ראשי</Label>
-              <Select value={form.contact_type} onValueChange={v => setForm(f => ({ ...f, contact_type: v }))}>
+              <Label className="text-sm font-semibold text-slate-700">מי גר בדירה</Label>
+              <Select value={form.resident_type} onValueChange={v => setForm(f => ({ ...f, resident_type: v }))}>
                 <SelectTrigger className="h-10 border border-slate-200 rounded-lg bg-white text-sm text-slate-700 focus:ring-1 focus:ring-blue-500 focus:border-blue-500" dir="rtl">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="owner">בעל דירה</SelectItem>
+                  <SelectItem value="owner">בעלים</SelectItem>
                   <SelectItem value="tenant">שוכר</SelectItem>
-                  <SelectItem value="both">שניהם</SelectItem>
+                  <SelectItem value="operator">מפעיל</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -166,9 +174,24 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
                 />
               </div>
             </div>
+
+            {/* Primary Contact Checkbox for Owner */}
+            <div className="mt-3 flex items-center gap-2">
+              <input 
+                type="checkbox" 
+                checked={form.owner_is_primary_contact}
+                onChange={e => setForm(f => ({ ...f, owner_is_primary_contact: e.target.checked }))}
+                className="w-4 h-4 rounded border-slate-200 cursor-pointer"
+                id="owner_primary"
+              />
+              <label htmlFor="owner_primary" className="text-xs text-slate-600 cursor-pointer">
+                מקבל הודעות/איש קשר ראשי
+              </label>
+            </div>
           </div>
 
-          {/* Tenant Info */}
+          {/* Tenant Info - Show only if resident_type is tenant or owner with tenant */}
+          {form.resident_type === "tenant" && (
           <div className="border-t border-slate-100 pt-4">
             <h3 className="text-sm font-semibold text-slate-700 mb-3">פרטי השוכר</h3>
             <div className="grid grid-cols-3 gap-4">
@@ -205,26 +228,58 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
               </div>
             </div>
 
-            {/* Operator Selection */}
-            <div className="mt-4 pt-4 border-t border-slate-100">
-              <div className="space-y-2">
-                <Label className="text-sm font-semibold text-slate-700">מפעיל</Label>
-                <Select value={form.operator_id || ""} onValueChange={v => setForm(f => ({ ...f, operator_id: v || "" }))}>
-                  <SelectTrigger className="h-10 border border-slate-200 rounded-lg bg-white text-sm text-slate-700 focus:ring-1 focus:ring-blue-500 focus:border-blue-500" dir="rtl">
-                    <SelectValue placeholder="בחר מפעיל" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={null}>אין מפעיל</SelectItem>
-                    {operators.filter(op => op.is_active).map(operator => (
-                      <SelectItem key={operator.id} value={operator.id}>
-                        {operator.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
+            {/* Primary Contact Checkbox for Tenant */}
+            <div className="mt-3 flex items-center gap-2">
+              <input 
+                type="checkbox" 
+                checked={form.tenant_is_primary_contact}
+                onChange={e => setForm(f => ({ ...f, tenant_is_primary_contact: e.target.checked }))}
+                className="w-4 h-4 rounded border-slate-200 cursor-pointer"
+                id="tenant_primary"
+              />
+              <label htmlFor="tenant_primary" className="text-xs text-slate-600 cursor-pointer">
+                מקבל הודעות/איש קשר ראשי
+              </label>
             </div>
           </div>
+          )}
+
+          {/* Operator Selection - Show only if resident_type is operator OR operator_is_primary_contact is true */}
+          {(form.resident_type === "operator" || form.operator_is_primary_contact) && (
+          <div className="border-t border-slate-100 pt-4">
+            <h3 className="text-sm font-semibold text-slate-700 mb-3">פרטי מפעיל</h3>
+            <div className="space-y-2">
+              <Label className="text-sm font-semibold text-slate-700">בחר מפעיל</Label>
+              <Select value={form.operator_id || ""} onValueChange={v => setForm(f => ({ ...f, operator_id: v || "" }))}>
+                <SelectTrigger className="h-10 border border-slate-200 rounded-lg bg-white text-sm text-slate-700 focus:ring-1 focus:ring-blue-500 focus:border-blue-500" dir="rtl">
+                  <SelectValue placeholder="בחר מפעיל" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value={null}>אין מפעיל</SelectItem>
+                  {operators.filter(op => op.is_active).map(operator => (
+                    <SelectItem key={operator.id} value={operator.id}>
+                      {operator.company_name} - {operator.contact_name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Primary Contact Checkbox for Operator */}
+            <div className="mt-3 flex items-center gap-2">
+              <input 
+                type="checkbox" 
+                checked={form.operator_is_primary_contact}
+                onChange={e => setForm(f => ({ ...f, operator_is_primary_contact: e.target.checked }))}
+                className="w-4 h-4 rounded border-slate-200 cursor-pointer"
+                id="operator_primary"
+              />
+              <label htmlFor="operator_primary" className="text-xs text-slate-600 cursor-pointer">
+                מקבל הודעות/איש קשר ראשי
+              </label>
+            </div>
+          </div>
+          )}
 
           {/* Additional Fields */}
           <div className="border-t border-slate-100 pt-4 space-y-4">
