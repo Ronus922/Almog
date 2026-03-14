@@ -693,7 +693,6 @@ function DashboardContent() {
         </>
 
       </div>
-    </div>
     </TooltipProvider>
   );
 }
