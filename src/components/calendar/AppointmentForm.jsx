@@ -220,7 +220,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
-    
+
     // Validate recurring appointments
     if (formData.is_recurring) {
       if (!formData.recurrence_pattern) {
@@ -232,8 +232,15 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         return;
       }
     }
-    
-    await onSave(formData);
+
+    // Convert recurrence_count to integer
+    const submitData = {
+      ...formData,
+      recurrence_count: formData.recurrence_count ? parseInt(formData.recurrence_count) : null,
+      recurrence_interval: formData.recurrence_interval ? parseInt(formData.recurrence_interval) : 1,
+    };
+
+    await onSave(submitData);
   }, [formData, onSave]);
 
   // Filter users and contacts
