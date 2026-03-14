@@ -791,53 +791,62 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
           {/* Contact row */}
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            {isAdmin ? (
-              <>
-                <InlineEditableField
-                  label="טלפון בעלים"
-                  value={editedRecord?.phoneOwner || record.phoneOwner || 'אין'}
-                  onSave={(val) => handleFieldSave('phoneOwner', val)}
-                  validate={validatePhone}
-                  icon={Phone}
-                />
-                <InlineEditableField
-                  label="טלפון שוכר"
-                  value={editedRecord?.phoneTenant || record.phoneTenant || 'אין'}
-                  onSave={(val) => handleFieldSave('phoneTenant', val)}
-                  validate={validatePhone}
-                  icon={Phone}
-                />
-              </>
-            ) : (
-              <>
-                <div className="rounded-[18px] border border-slate-200/80 bg-white px-5 py-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-[#7f93b0]">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#f7f9fc] text-[#8ea0b8]">
-                        <Phone className="w-4 h-4" />
-                      </div>
+            <div className="rounded-[18px] border border-slate-200/80 bg-white px-5 py-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)] cursor-pointer hover:shadow-[0_12px_32px_rgba(15,23,42,0.08)] transition-shadow" onClick={() => isAdmin && handleFieldSave('phoneOwner', editedRecord?.phoneOwner || record.phoneOwner)}>
+              <div className="flex items-center justify-between gap-3">
+                {isAdmin && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleFieldSave('phoneOwner', editedRecord?.phoneOwner || record.phoneOwner);
+                    }}
+                    className="flex items-center gap-2 text-[#7f93b0] hover:text-blue-600 transition-colors"
+                  >
+                    <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#f7f9fc] hover:bg-blue-100 text-[#8ea0b8] hover:text-blue-600 transition-all">
+                      <Phone className="w-4 h-4" />
                     </div>
-                    <div className="space-y-1 text-right">
-                      <p className="text-[13px] font-semibold text-[#95a3b8]">טלפון בעלים</p>
-                      <p className="text-[32px] leading-none font-black text-[#233754]">{formatPhone(editedRecord?.phoneOwner || record.phoneOwner || 'אין')}</p>
+                  </button>
+                )}
+                {!isAdmin && (
+                  <div className="flex items-center gap-2 text-[#7f93b0]">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#f7f9fc] text-[#8ea0b8]">
+                      <Phone className="w-4 h-4" />
                     </div>
                   </div>
+                )}
+                <div className="space-y-1 text-right">
+                  <p className="text-[13px] font-semibold text-[#95a3b8]">טלפון בעלים</p>
+                  <p className="text-[32px] leading-none font-black text-[#233754]">{formatPhone(editedRecord?.phoneOwner || record.phoneOwner || 'אין')}</p>
                 </div>
-                <div className="rounded-[18px] border border-slate-200/80 bg-white px-5 py-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
-                  <div className="flex items-center justify-between gap-3">
-                    <div className="flex items-center gap-2 text-[#7f93b0]">
-                      <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#f7f9fc] text-[#8ea0b8]">
-                        <Phone className="w-4 h-4" />
-                      </div>
+              </div>
+            </div>
+            <div className="rounded-[18px] border border-slate-200/80 bg-white px-5 py-4 shadow-[0_8px_24px_rgba(15,23,42,0.04)] cursor-pointer hover:shadow-[0_12px_32px_rgba(15,23,42,0.08)] transition-shadow" onClick={() => isAdmin && handleFieldSave('phoneTenant', editedRecord?.phoneTenant || record.phoneTenant)}>
+              <div className="flex items-center justify-between gap-3">
+                {isAdmin && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleFieldSave('phoneTenant', editedRecord?.phoneTenant || record.phoneTenant);
+                    }}
+                    className="flex items-center gap-2 text-[#7f93b0] hover:text-blue-600 transition-colors"
+                  >
+                    <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#f7f9fc] hover:bg-blue-100 text-[#8ea0b8] hover:text-blue-600 transition-all">
+                      <Phone className="w-4 h-4" />
                     </div>
-                    <div className="space-y-1 text-right">
-                      <p className="text-[13px] font-semibold text-[#95a3b8]">טלפון שוכר</p>
-                      <p className="text-[32px] leading-none font-black text-[#233754]">{formatPhone(editedRecord?.phoneTenant || record.phoneTenant || 'אין')}</p>
+                  </button>
+                )}
+                {!isAdmin && (
+                  <div className="flex items-center gap-2 text-[#7f93b0]">
+                    <div className="flex h-9 w-9 items-center justify-center rounded-[10px] bg-[#f7f9fc] text-[#8ea0b8]">
+                      <Phone className="w-4 h-4" />
                     </div>
                   </div>
+                )}
+                <div className="space-y-1 text-right">
+                  <p className="text-[13px] font-semibold text-[#95a3b8]">טלפון שוכר</p>
+                  <p className="text-[32px] leading-none font-black text-[#233754]">{formatPhone(editedRecord?.phoneTenant || record.phoneTenant || 'אין')}</p>
                 </div>
-              </>
-            )}
+              </div>
+            </div>
           </div>
 
           {/* Debt summary section */}
