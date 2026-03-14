@@ -846,34 +846,34 @@ export default function DebtorsTable({
                     </div>
 
         {totalPages > 1 &&
-          <div className="flex flex-col md:flex-row items-center justify-between gap-3 px-4 md:px-6 py-4 border-t bg-gradient-to-l from-slate-50 to-white">
-            <p className="text-xs md:text-sm text-slate-600 font-medium">
+          <div className="flex flex-col md:flex-row items-center justify-between gap-3 px-4 md:px-6 py-4 border-t border-slate-200/80 bg-white">
+            <p className="text-sm text-slate-600 font-medium">
               מציג {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, filteredRecords.length)} מתוך {filteredRecords.length} רשומות
             </p>
             <div className="flex items-center gap-2 md:gap-3">
               <Button
                 variant="outline"
                 size="sm"
-                className="rounded-xl h-9 md:h-10 px-3 md:px-4"
+                className="rounded-[10px] h-9 min-w-[36px] border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
                 disabled={page === 1}>
 
-                <ChevronRight className="w-4 h-4 ml-1" />
-                <span className="hidden sm:inline">הקודם</span>
-              </Button>
-              <span className="text-xs md:text-sm font-bold text-slate-700 bg-slate-100 px-3 md:px-4 py-2 rounded-xl whitespace-nowrap">
-                {page} / {totalPages}
-              </span>
-              <Button
-                variant="outline"
-                size="sm"
-                className="rounded-xl h-9 md:h-10 px-3 md:px-4"
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page === totalPages}>
+                 <ChevronRight className="w-4 h-4 ml-1" />
+                 <span className="hidden sm:inline">הקודם</span>
+               </Button>
+               <span className="text-sm font-bold text-slate-700 bg-white border border-slate-200 px-3 py-2 rounded-[10px] whitespace-nowrap">
+                 {page} / {totalPages}
+               </span>
+               <Button
+                 variant="outline"
+                 size="sm"
+                 className="rounded-[10px] h-9 min-w-[36px] border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                 disabled={page === totalPages}>
 
-                <span className="hidden sm:inline">הבא</span>
-                <ChevronLeft className="w-4 h-4 mr-1" />
-              </Button>
+                 <span className="hidden sm:inline">הבא</span>
+                 <ChevronLeft className="w-4 h-4 mr-1" />
+               </Button>
             </div>
           </div>
           }
