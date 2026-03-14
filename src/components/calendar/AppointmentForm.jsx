@@ -10,6 +10,7 @@ import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { Upload, X, Search, ChevronDown } from 'lucide-react';
+import DateTimePicker from '@/components/ui/DateTimePicker';
 
 const COLOR_PALETTE = [
   '#3B82F6', '#EF4444', '#10B981', '#F59E0B',
