@@ -744,7 +744,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               <div className="grid grid-cols-[1fr_auto] items-start gap-x-4 gap-y-3 py-2">
                 <div>
                   <p className="text-[13px] font-semibold text-[#95a3b8]">מספר דירה</p>
-                  <p className="text-[31px] leading-[1.2] font-black text-[#233754]">{editedRecord?.apartmentNumber}</p>
+                  <p className="text-[26px] leading-[1.2] font-black text-[#233754]">{editedRecord?.apartmentNumber}</p>
                 </div>
                 <div className="flex h-9 w-9 items-center justify-center rounded-[11px] bg-[#f7f9fc] text-[#93a4bc]">
                   <Home className="w-4 h-4" />
@@ -753,7 +753,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               <div className="grid grid-cols-[1fr_auto] items-start gap-x-4 gap-y-3 py-2">
                 <div>
                   <p className="text-[13px] font-semibold text-[#95a3b8]">בעל הדירה</p>
-                  <p className="text-[27px] leading-[1.28] font-black text-[#233754]">{editedRecord?.ownerName || 'לא צוין'}</p>
+                  <p className="text-[22px] leading-[1.28] font-black text-[#233754]">{editedRecord?.ownerName || 'לא צוין'}</p>
                 </div>
                 <div className="flex h-9 w-9 items-center justify-center rounded-[11px] bg-[#f7f9fc] text-[#93a4bc]">
                   <User className="w-4 h-4" />
@@ -897,12 +897,12 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           <div className="rounded-[22px] border border-slate-200/80 bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
             <div className="mb-5 flex items-center justify-between">
               <div className="flex items-center gap-3">
-                <div className="flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#fff1f2] text-[#ff5b6e]">
-                  <Wallet className="w-6 h-6" />
+                  <div className="flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#fff1f2] text-[#ff5b6e]">
+                    <Wallet className="w-6 h-6" />
+                  </div>
+                  <h3 className="text-[26px] leading-none font-black tracking-[-0.02em] text-[#253b5b]">פירוט חובות</h3>
                 </div>
-                <h3 className="text-[34px] leading-none font-black tracking-[-0.02em] text-[#253b5b]">פירוט חובות</h3>
               </div>
-            </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
               {/* Total debt KPI */}
               <div className="relative overflow-hidden rounded-[20px] border border-slate-200/80 bg-[#fffefe] px-5 py-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
@@ -936,12 +936,12 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           <div className="rounded-[22px] border border-slate-200/80 bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
               <div className="mb-5 flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#eef4ff] text-[#3b82f6]">
-                    <Scale className="w-6 h-6" />
+                    <div className="flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#eef4ff] text-[#3b82f6]">
+                      <Scale className="w-6 h-6" />
+                    </div>
+                    <h3 className="text-[26px] leading-none font-black tracking-[-0.02em] text-[#253b5b]">ניהול משפטי</h3>
                   </div>
-                  <h3 className="text-[34px] leading-none font-black tracking-[-0.02em] text-[#253b5b]">ניהול משפטי</h3>
                 </div>
-              </div>
 
               <div className="space-y-4 text-right">
                 <div>
