@@ -491,14 +491,14 @@ export default function DebtorsTable({
             </div>
 
             {/* Desktop filters */}
-            <div className="hidden lg:flex flex-wrap items-center gap-3">
+            <div className="hidden lg:flex flex-wrap items-center gap-2">
               <div className="relative">
-                <Search className="absolute right-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9ca7ca]" />
                 <Input
-                    placeholder="מספר דירה..."
-                    value={apartmentSearch}
-                    onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
-                    className="pr-12 w-40 h-11 rounded-xl border-slate-300 focus:border-blue-500 focus:ring-blue-500"
+                  placeholder="מספר דירה..."
+                  value={apartmentSearch}
+                  onChange={(e) => {setApartmentSearch(e.target.value);setPage(1);}}
+                  className="pr-10 h-[34px] w-32 rounded-[10px] border border-[rgba(224,230,246,0.96)] bg-white px-3 text-[12px] font-semibold text-[#687395] shadow-[inset_0_1px_0_rgba(255,255,255,0.9)] outline-none transition-colors placeholder:text-[#a2abc8] focus:border-[#cfd8ff]"
                     inputMode="numeric" />
 
               </div>
