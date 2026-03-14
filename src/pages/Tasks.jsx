@@ -222,8 +222,8 @@ export default function Tasks() {
   const getDueDateStyle = (task) => {
     if (task.status === "הושלמה" || task.status === "בוטלה") return "text-slate-400";
     if (!task.due_date) return "text-slate-600";
-    if (isOverdueByDateOnly(task.due_date)) return "text-red-600 font-semibold";
-    if (isTodayByDateOnly(task.due_date)) return "text-orange-500 font-semibold";
+    if (isTaskOverdue(task)) return "text-red-600 font-semibold";
+    if (isTaskToday(task)) return "text-orange-500 font-semibold";
     return "text-slate-600";
   };
 
