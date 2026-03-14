@@ -1,5 +1,4 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/components/auth/AuthContext';
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
