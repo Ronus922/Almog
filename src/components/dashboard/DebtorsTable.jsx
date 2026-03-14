@@ -216,7 +216,6 @@ export default function DebtorsTable({
   };
 
   const clearFilters = () => {
-    setStatusFilter('all');
     setAutoStatusFilter('all');
     setSearch('');
     setApartmentSearch('');
