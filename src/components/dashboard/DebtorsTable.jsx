@@ -611,26 +611,10 @@ export default function DebtorsTable({
                     סה״כ חוב
                   </div>
                 </TableHead>
-                <TableHead className="text-right font-semibold text-slate-600 text-[13px] px-4 md:px-5 py-4 cursor-pointer hover:text-slate-800" onClick={() => toggleSort('monthlyDebt')}>
-                   <div className="flex items-center gap-2 justify-end">
-                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'monthlyDebt' ? 'text-blue-600' : 'text-slate-400'}`} />
-                    דמי ניהול
-                   </div>
-                 </TableHead>
-                 <TableHead className="text-right font-semibold text-slate-600 text-[13px] px-4 md:px-5 py-4 cursor-pointer hover:text-slate-800" onClick={() => toggleSort('specialDebt')}>
-                   <div className="flex items-center gap-2 justify-end">
-                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'specialDebt' ? 'text-blue-600' : 'text-slate-400'}`} />
-                    מים חמים
-                   </div>
-                 </TableHead>
-
-                 <TableHead className="text-right font-semibold text-slate-600 text-[13px] px-4 md:px-5 py-4 cursor-pointer hover:text-slate-800" onClick={() => toggleSort('legal_status_id')}>
-                   <div className="flex items-center gap-2 justify-end">
-                    <ArrowUpDown className={`w-5 h-5 ${sortField === 'legal_status_id' ? 'text-blue-600' : 'text-slate-400'}`} />
-                    מצב משפטי
-                   </div>
-                 </TableHead>
-                 <TableHead className="text-center font-semibold text-slate-600 text-[13px] px-4 md:px-5 py-4" style={{ width: '120px' }}>פעולות</TableHead>
+                <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('monthlyDebt')}>דמי ניהול</TableHead>
+                <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('specialDebt')}>מים חמים</TableHead>
+                <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-right text-[11px] font-bold text-[#8f99be] cursor-pointer hover:text-slate-800" onClick={() => toggleSort('legal_status_id')}>מצב משפטי</TableHead>
+                <TableHead className="whitespace-nowrap bg-transparent px-[14px] text-center text-[11px] font-bold text-[#8f99be]">פעולות</TableHead>
               </TableRow>
               
               {/* Advanced Filter Row */}
