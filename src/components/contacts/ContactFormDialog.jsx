@@ -17,6 +17,9 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
+import { useQuery } from "@tanstack/react-query";
+import { base44 } from "@/api/base44Client";
+import { useState, useEffect } from "react";
 
 export default function ContactFormDialog({ open, onClose, contact, onSave }) {
   const [form, setForm] = useState({
@@ -28,11 +31,17 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
     tenant_phone: "",
     tenant_email: "",
     contact_type: "owner",
+    operator_id: "",
     address: "",
     notes: "",
     tags: [],
   });
   const [tagInput, setTagInput] = useState("");
+
+  const { data: operators = [] } = useQuery({
+    queryKey: ["operators"],
+    queryFn: () => base44.entities.Operator.list()
+  });
 
   useEffect(() => {
     if (open) {
@@ -45,6 +54,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
         tenant_phone: "",
         tenant_email: "",
         contact_type: "owner",
+        operator_id: "",
         address: "",
         notes: "",
         tags: [],
@@ -193,6 +203,26 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
                   type="email"
                   placeholder="דוא״ל"
                 />
+              </div>
+            </div>
+
+            {/* Operator Selection */}
+            <div className="mt-4 pt-4 border-t border-slate-100">
+              <div className="space-y-2">
+                <Label className="text-sm font-semibold text-slate-700">מפעיל</Label>
+                <Select value={form.operator_id || ""} onValueChange={v => setForm(f => ({ ...f, operator_id: v || "" }))}>
+                  <SelectTrigger className="h-10 border border-slate-200 rounded-lg bg-white text-sm text-slate-700 focus:ring-1 focus:ring-blue-500 focus:border-blue-500" dir="rtl">
+                    <SelectValue placeholder="בחר מפעיל" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value={null}>אין מפעיל</SelectItem>
+                    {operators.filter(op => op.is_active).map(operator => (
+                      <SelectItem key={operator.id} value={operator.id}>
+                        {operator.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
             </div>
           </div>
