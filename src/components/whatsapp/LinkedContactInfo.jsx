@@ -11,9 +11,22 @@ export default function LinkedContactInfo({ contact }) {
     : null;
 
   return (
-    <div className="text-sm text-gray-600 mt-1 space-y-1">
-      <div>דירה {contact.apartment_number}</div>
-      {linkedName && linkedType && <div className="text-xs">{linkedType}: {linkedName}</div>}
+    <div className="text-sm text-gray-600 mt-1 space-y-2">
+      <div className="flex items-center gap-2">
+        {contact.whatsapp_profile_image_url || contact.whatsapp_profile_image && (
+          <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
+            <img 
+              src={contact.whatsapp_profile_image_url || contact.whatsapp_profile_image} 
+              alt={contact.owner_name || contact.tenant_name}
+              className="w-full h-full object-cover"
+            />
+          </div>
+        )}
+        <div>
+          <div>דירה {contact.apartment_number}</div>
+          {linkedName && linkedType && <div className="text-xs">{linkedType}: {linkedName}</div>}
+        </div>
+      </div>
     </div>
   );
 }
