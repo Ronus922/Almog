@@ -456,33 +456,33 @@ function DashboardContent() {
 
         {/* טאבים - חייבים / ארכיון (רק למנהלים) */}
         {isAdmin &&
-        <div className={`tabs-shell ${activeTab === 'archived' ? 'mode-archive' : ''}`} dir="rtl">
-          <button
-            onClick={() => setActiveTab('debtors')}
-            className={`tab-pill ${activeTab === 'debtors' ? 'is-active' : ''}`}
-          >
-            <span className="tab-label">
-              <Users className="w-4 h-4 inline ml-1" />
-              חייבים
-            </span>
-            <span className="tab-badge">{debtorRecords.length}</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('archived')}
-            className={`tab-pill tab-archive ${activeTab === 'archived' ? 'is-active' : ''}`}
-          >
-            <span className="tab-label">
-              <Archive className="w-4 h-4 inline ml-1" />
-              ארכיון
-            </span>
-            <span className="tab-badge">{archivedRecords.length}</span>
-          </button>
-        </div>
+          <div className={`mx-[26px] tabs-shell ${activeTab === 'archived' ? 'mode-archive' : ''}`} dir="rtl">
+            <button
+              onClick={() => setActiveTab('debtors')}
+              className={`tab-pill ${activeTab === 'debtors' ? 'is-active' : ''}`}
+            >
+              <span className="tab-label">
+                <Users className="w-4 h-4 inline ml-1" />
+                חייבים
+              </span>
+              <span className="tab-badge">{debtorRecords.length}</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('archived')}
+              className={`tab-pill tab-archive ${activeTab === 'archived' ? 'is-active' : ''}`}
+            >
+              <span className="tab-label">
+                <Archive className="w-4 h-4 inline ml-1" />
+                ארכיון
+              </span>
+              <span className="tab-badge">{archivedRecords.length}</span>
+            </button>
+          </div>
         }
 
         {/* טבלה במיכל פרימיום */}
         <>
-          <div className="rounded-[24px] bg-white/90 backdrop-blur shadow-[0_18px_40px_rgba(15,23,42,0.09)] border border-white/70 overflow-hidden">
+          <div className="mx-[26px] mt-[18px] mb-7 overflow-hidden rounded-[22px] border border-[rgba(227,232,247,0.98)] bg-[rgba(255,255,255,0.91)] shadow-[0_18px_42px_rgba(122,140,210,0.10),inset_0_1px_0_rgba(255,255,255,0.98)]">
             {(activeTab === 'debtors' || !isAdmin) &&
             <DebtorsTable
               records={debtorRecords}
