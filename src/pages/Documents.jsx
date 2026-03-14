@@ -6,7 +6,8 @@ import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   Plus, Upload, Search, Folder, File, ChevronRight, Home, MoreVertical,
-  Download, Trash2, Edit2, FolderOpen, AlertCircle, CheckCircle
+  Download, Trash2, Edit2, FolderOpen, AlertCircle, CheckCircle, RotateCcw,
+  X, Eye, ArrowRight
 } from 'lucide-react';
 
 const FILE_CATEGORIES = {
