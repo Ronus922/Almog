@@ -73,7 +73,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent 
         className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] max-w-lg bg-background shadow-lg border overflow-hidden flex flex-col sm:rounded-lg p-0"
-        style={{ maxWidth: "472px", maxHeight: "780px", height: "92vh", width: "100%" }}
+        style={{ maxWidth: "552px", maxHeight: "820px", height: "92vh", width: "100%" }}
         dir="rtl" 
         aria-describedby={undefined}
       >
@@ -256,17 +256,17 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
           </div>
 
           {/* Footer */}
-          <div className="flex justify-end gap-2 px-6 py-4 border-t border-slate-100 bg-white flex-shrink-0">
-          <Button
-            onClick={handleSave}
-            disabled={!form.apartment_number}
-            className="h-9 bg-[#3563d0] text-white px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90"
-          >
-            {contact ? "שמור שינויים" : "הוסף איש קשר"}
-          </Button>
-          <Button variant="outline" onClick={onClose} className="h-9">
-            ביטול
-          </Button>
+          <div className="flex justify-between gap-2 px-6 py-4 border-t border-slate-100 bg-white flex-shrink-0">
+            <Button
+              onClick={handleSave}
+              disabled={!form.apartment_number}
+              className="h-9 bg-[#3563d0] text-white px-4 py-2 text-sm font-medium rounded-md inline-flex items-center justify-center gap-2 whitespace-nowrap transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 shadow hover:bg-primary/90"
+            >
+              {contact ? "שמור שינויים" : "הוסף איש קשר"}
+            </Button>
+            <Button variant="outline" onClick={onClose} className="h-9">
+              ביטול
+            </Button>
           </div>
       </DialogContent>
     </Dialog>
