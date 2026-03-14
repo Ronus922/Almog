@@ -14,7 +14,8 @@ export default function AppModal({
   dangerous = false,
   maxWidth = "630px",
   className,
-  showDefaultClose = false
+  showDefaultClose = false,
+  onHeaderClose
 }) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
@@ -41,10 +42,13 @@ export default function AppModal({
             <div className="absolute -top-10 right-8 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
 
             {/* Close button */}
-            <DialogClose className="absolute left-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-[14px] border border-white/20 bg-white/10 text-white shadow-sm backdrop-blur-sm transition hover:bg-white/20 z-10">
+            <button
+              onClick={onHeaderClose || onClose}
+              className="absolute left-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-[14px] border border-white/20 bg-white/10 text-white shadow-sm backdrop-blur-sm transition hover:bg-white/20 z-10"
+            >
               <X className="h-5 w-5" />
               <span className="sr-only">סגור</span>
-            </DialogClose>
+            </button>
 
             {/* Header content */}
             <div className="relative z-10 flex items-start justify-between gap-4">
