@@ -135,7 +135,7 @@ export default function WhatsAppDialog({ open, onClose, record }) {
         <div className="bg-gradient-to-r from-green-600 to-emerald-600 px-6 py-4 rounded-t-lg flex items-center gap-3">
           <MessageCircle className="w-5 h-5 text-white" />
           <div>
-            <div className="text-white text-lg font-bold">שליחת הודעת וואטסאפ</div>
+            <DialogTitle className="text-white text-lg font-bold">שליחת הודעת וואטסאפ</DialogTitle>
             <p className="text-green-100 text-sm mt-1">{name || '-'} — דירה {record?.apartmentNumber}</p>
           </div>
         </div>
