@@ -261,8 +261,8 @@ export default function TodoReminders() {
                 categories={myCategories}
                 selectedId={selectedCategoryId}
                 onSelect={(id) => setSelectedCategoryId((prev) => prev === id ? null : id)}
-                onCreate={(name) => createCategoryMutation.mutate(name)}
-                onRename={(id, name) => renameCategoryMutation.mutate({ id, name })}
+                onCreate={(name, color) => createCategoryMutation.mutate({ name, color })}
+                onRename={(id, name, color) => renameCategoryMutation.mutate({ id, name, color })}
                 onReorder={(src, dst) => reorderCategoriesMutation.mutate({ sourceIdx: src, destIdx: dst })}
                 onArchive={(id) => archiveCategoryMutation.mutate(id)}
                 itemCounts={itemCounts} />
