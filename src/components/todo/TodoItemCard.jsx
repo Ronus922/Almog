@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { CheckCircle2, Circle, GripVertical, Edit2, Trash2, MessageCircle, Share2, ChevronDown, ChevronUp, UserCheck } from 'lucide-react';
+import { CheckCircle2, Circle, GripVertical, Edit2, Trash2, MessageCircle, UserCheck } from 'lucide-react';
 import TodoComments from './TodoComments';
+import { getCategoryColor } from './TodoCategoryList';
 
 export default function TodoItemCard({
   item,
@@ -16,6 +17,7 @@ export default function TodoItemCard({
   onDelete,
   currentUsername,
   allUsers = [],
+  categoryColor,
 }) {
   const [showDetail, setShowDetail] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
