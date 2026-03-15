@@ -8,6 +8,7 @@ import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 
 const STRIP_COLORS = [
+  { key: 'blue', hex: '#3b82f6', label: 'כחול' },
   { key: 'orange', hex: '#fb923c', label: 'כתום' },
   { key: 'cyan', hex: '#06b6d4', label: 'טורקיז' },
   { key: 'pink', hex: '#ec4899', label: 'ורוד' },
@@ -15,7 +16,6 @@ const STRIP_COLORS = [
   { key: 'yellow', hex: '#eab308', label: 'צהוב' },
   { key: 'green', hex: '#22c55e', label: 'ירוק' },
   { key: 'red', hex: '#ef4444', label: 'אדום' },
-  { key: 'blue', hex: '#3b82f6', label: 'כחול' },
 ];
 
 export default function TodoItemForm({ open, onClose, onSave, initialData, categories, currentUsername }) {
@@ -46,7 +46,7 @@ export default function TodoItemForm({ open, onClose, onSave, initialData, categ
       setCategoryId(initialData?.category_id || categories[0]?.id || '');
       setSharedWith(initialData?.shared_with_user_id || '');
       setSharedWithSearch('');
-      setStripColor(initialData?.strip_color || '');
+      setStripColor(initialData?.strip_color || 'blue');
     }
   }, [open, initialData, categories]);
 
@@ -137,19 +137,8 @@ export default function TodoItemForm({ open, onClose, onSave, initialData, categ
           />
 
           <div className="space-y-3">
-            <label className="block text-sm font-semibold text-slate-700">צבע פס (אופציונלי)</label>
+            <label className="block text-sm font-semibold text-slate-700">צבע פס</label>
             <div className="flex gap-2 flex-wrap justify-end">
-              <button
-                type="button"
-                onClick={() => setStripColor('')}
-                className={`px-3 h-[22px] rounded-full text-xs font-medium transition-all border ${
-                  stripColor === ''
-                    ? 'border-slate-900 ring-2 ring-slate-900 ring-offset-1'
-                    : 'border-slate-300 hover:border-slate-400'
-                } bg-white text-slate-700`}
-              >
-                ברירת מחדל
-              </button>
               {STRIP_COLORS.map(color => (
                 <button
                   key={color.key}
