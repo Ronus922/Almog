@@ -34,10 +34,10 @@ export default function TodoItemCard({
     ? (allUsers.find(u => u.username === item.shared_with_user_id)?.first_name || item.shared_with_user_id)
     : null;
 
-  // Determine strip color: use item strip_color if set, otherwise use category color
+  // Determine strip color: use item strip_color if set, otherwise use category color, fallback to blue
   const stripColorClass = item.strip_color
     ? STRIP_COLORS[item.strip_color]
-    : getCategoryColor(categoryColor).dot;
+    : (categoryColor ? getCategoryColor(categoryColor).dot : STRIP_COLORS['blue']);
 
   return (
     <>
