@@ -15,6 +15,7 @@ const COLOR_PALETTE = [
 ];
 
 export default function AppointmentForm({ appointment, selectedDate, onSave, onCancel, isLoading }) {
+  const queryClient = useQueryClient();
   const [users, setUsers] = useState([]);
   const [contacts, setContacts] = useState([]);
   const [dragActive, setDragActive] = useState(false);
@@ -22,6 +23,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
   const [showContactSearch, setShowContactSearch] = useState(false);
   const [userSearchTerm, setUserSearchTerm] = useState('');
   const [contactSearchTerm, setContactSearchTerm] = useState('');
+  const [previousAttendeeIds, setPreviousAttendeeIds] = useState([]);
   const userDropdownRef = useRef(null);
   const contactDropdownRef = useRef(null);
 
@@ -78,6 +80,10 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         return { id: attendee, name: attendee, email: '' };
       });
 
+      // עקוב אחרי IDs של משתתפים הקודמים
+      const prevIds = normalizedAttendees.map(a => String(a.id || a).trim());
+      setPreviousAttendeeIds(prevIds);
+
       setFormData({
         title: appointment.title || '',
         appointment_type: appointment.appointment_type || 'פגישה',
@@ -102,6 +108,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         ...prev,
         date: format(selectedDate, 'yyyy-MM-dd'),
       }));
+      setPreviousAttendeeIds([]);
     }
   }, [appointment, selectedDate]);
 
@@ -218,6 +225,46 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
     }));
   }, []);
 
+  const createNotificationsForAppointment = useCallback(async (appointmentTitle, attendeesList, isUpdate = false) => {
+    try {
+      // סנן משתתפים חדשים בעת עריכה
+      let targetAttendees = attendeesList;
+      if (isUpdate && previousAttendeeIds.length > 0) {
+        const currentIds = attendeesList.map(a => String(a.id || a).trim());
+        targetAttendees = attendeesList.filter(a => {
+          const aId = String(a.id || a).trim();
+          return !previousAttendeeIds.includes(aId);
+        });
+      }
+
+      // צור notification לכל משתתף
+      for (const attendee of targetAttendees) {
+        const userId = attendee.id || attendee;
+        if (!userId) continue;
+
+        // מצא את ה-user object כדי לקבל username
+        const userObj = users.find(u => u.id === userId);
+        if (!userObj || !userObj.username) continue;
+
+        await base44.entities.Notification.create({
+          user_username: userObj.username,
+          type: 'task_assigned',
+          message: `הוקצתה לך פגישה חדשה: ${appointmentTitle}`,
+          task_id: null,
+          task_type: 'פגישה',
+          assigner_name: 'מערכת',
+          is_read: false,
+        });
+      }
+
+      // invalidate notification queries
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+    } catch (error) {
+      console.error('Failed to create notifications:', error);
+      // don't block save on notification error
+    }
+  }, [users, previousAttendeeIds, queryClient]);
+
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
 
@@ -240,8 +287,17 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       recurrence_interval: formData.recurrence_interval ? parseInt(formData.recurrence_interval) : 1,
     };
 
-    await onSave(submitData);
-  }, [formData, onSave]);
+    // בצע save דרך parent callback
+    // המתן להצלחה והיווצר notifications
+    const wrappedOnSave = async (data) => {
+      await onSave(data);
+      // אחרי save, צור notifications
+      const isEdit = !!appointment;
+      await createNotificationsForAppointment(formData.title, formData.attendees_users, isEdit);
+    };
+
+    await wrappedOnSave(submitData);
+  }, [formData, onSave, appointment, createNotificationsForAppointment]);
 
   // Filter users and contacts
   const filteredUsers = userSearchTerm.trim() === '' 
