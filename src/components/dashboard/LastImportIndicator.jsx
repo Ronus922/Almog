@@ -53,7 +53,7 @@ export default function LastImportIndicator({ lastImportAt, isAdmin = false }) {
     year: 'numeric'
   });
 
-  const showWarning = hoursSince > 48 || noDate;
+  const showWarning = (hoursSince !== null && hoursSince >= 48) || noDate;
 
   return (
     <div 
