@@ -47,45 +47,60 @@ export default function TodoItemForm({ open, onClose, onSave, initialData, categ
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-md w-full" dir="rtl">
-        <DialogHeader>
-          <DialogTitle>{isEdit ? 'עריכת תזכורת' : 'תזכורת חדשה'}</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4 pt-1">
-          {/* Title */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">כותרת <span className="text-red-500">*</span></label>
+      <DialogContent
+        className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] bg-background shadow-lg border p-0 overflow-hidden flex flex-col sm:rounded-lg"
+        style={{ maxWidth: '472px', width: '100%' }}
+        dir="rtl"
+      >
+        {/* כפתור סגירה */}
+        <button
+          onClick={onClose}
+          className="absolute left-4 top-4 z-10 rounded-lg bg-white/20 p-1.5 hover:bg-white/40 transition-colors"
+        >
+          <X className="h-5 w-5 text-white" />
+          <span className="sr-only">סגור</span>
+        </button>
+
+        {/* כותרת גרדיאנט */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-lg">
+          <DialogHeader className="sr-only"><DialogTitle>{isEdit ? 'עריכת תזכורת' : 'תזכורת חדשה'}</DialogTitle></DialogHeader>
+          <p className="text-white text-lg font-bold">{isEdit ? 'עריכת תזכורת' : 'תזכורת חדשה'}</p>
+        </div>
+
+        {/* תוכן */}
+        <div className="space-y-4 px-6 pt-5 pb-2 flex-1 overflow-y-auto">
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-slate-700">כותרת <span className="text-red-500">*</span></label>
             <Input
               placeholder="מה צריך לעשות?"
               value={title}
               onChange={e => setTitle(e.target.value)}
               autoFocus
               dir="rtl"
+              className="h-10 border-slate-200 rounded-lg"
               onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) handleSave(); }}
             />
           </div>
 
-          {/* Description */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">תיאור (אופציונלי)</label>
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-slate-700">תיאור (אופציונלי)</label>
             <textarea
               placeholder="פרטים נוספים..."
               value={description}
               onChange={e => setDescription(e.target.value)}
               dir="rtl"
-              rows={2}
+              rows={3}
               className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-blue-500"
             />
           </div>
 
-          {/* Category */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">קטגוריה <span className="text-red-500">*</span></label>
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-slate-700">קטגוריה <span className="text-red-500">*</span></label>
             <select
               value={categoryId}
               onChange={e => setCategoryId(e.target.value)}
               dir="rtl"
-              className="w-full h-9 border border-slate-200 rounded-lg px-3 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full h-10 border border-slate-200 rounded-lg px-3 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               {categories.map(c => (
                 <option key={c.id} value={c.id}>{c.name}</option>
@@ -93,14 +108,13 @@ export default function TodoItemForm({ open, onClose, onSave, initialData, categ
             </select>
           </div>
 
-          {/* Share */}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 mb-1.5">שתף עם משתמש (אופציונלי)</label>
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-slate-700">שתף עם משתמש (אופציונלי)</label>
             <select
               value={sharedWith}
               onChange={e => setSharedWith(e.target.value)}
               dir="rtl"
-              className="w-full h-9 border border-slate-200 rounded-lg px-3 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+              className="w-full h-10 border border-slate-200 rounded-lg px-3 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="">ללא שיתוף</option>
               {otherUsers.map(u => (
@@ -108,17 +122,18 @@ export default function TodoItemForm({ open, onClose, onSave, initialData, categ
               ))}
             </select>
           </div>
+        </div>
 
-          <div className="flex gap-2 justify-end pt-1">
-            <Button variant="outline" onClick={onClose}>ביטול</Button>
-            <Button
-              disabled={!title.trim() || !categoryId || saving}
-              onClick={handleSave}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              {saving ? 'שומר...' : isEdit ? 'שמור שינויים' : 'הוסף'}
-            </Button>
-          </div>
+        {/* כפתורים */}
+        <div className="flex justify-end gap-2 px-6 py-4 border-t border-slate-100 bg-white flex-shrink-0">
+          <Button
+            disabled={!title.trim() || !categoryId || saving}
+            onClick={handleSave}
+            className="bg-[#3563d0] text-white h-9 px-4 text-sm font-medium rounded-md shadow hover:bg-blue-700"
+          >
+            {saving ? 'שומר...' : isEdit ? 'שמור שינויים' : 'הוסף תזכורת'}
+          </Button>
+          <Button variant="outline" className="h-9" onClick={onClose}>ביטול</Button>
         </div>
       </DialogContent>
     </Dialog>
