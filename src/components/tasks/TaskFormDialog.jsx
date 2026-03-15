@@ -14,6 +14,7 @@ import DateTimePicker from "@/components/ui/DateTimePicker";
 import { Search, ChevronDown } from "lucide-react";
 import TaskAuditLogTab from "@/components/tasks/TaskAuditLogTab";
 import TaskAttachmentsTab from "@/components/tasks/TaskAttachmentsTab";
+import RecurringTaskInfo from "@/components/tasks/RecurringTaskInfo";
 
 const TRACKED_FIELDS = ["task_type", "status", "priority", "due_date", "assigned_to_name", "description", "completion_notes"];
 
