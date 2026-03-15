@@ -5,6 +5,14 @@ import { CheckCircle2, Circle, GripVertical, Edit2, Trash2, MessageCircle, UserC
 import TodoComments from './TodoComments';
 import { getCategoryColor } from './TodoCategoryList';
 
+const STRIP_COLORS = {
+  blue: 'bg-blue-500',
+  green: 'bg-green-500',
+  orange: 'bg-orange-400',
+  purple: 'bg-purple-500',
+  pink: 'bg-pink-400',
+};
+
 export default function TodoItemCard({
   item,
   isOwner,
@@ -26,6 +34,11 @@ export default function TodoItemCard({
     ? (allUsers.find(u => u.username === item.shared_with_user_id)?.first_name || item.shared_with_user_id)
     : null;
 
+  // Determine strip color: use item strip_color if set, otherwise use category color
+  const stripColorClass = item.strip_color
+    ? STRIP_COLORS[item.strip_color]
+    : getCategoryColor(categoryColor).dot;
+
   return (
     <>
       <div
@@ -37,7 +50,7 @@ export default function TodoItemCard({
       >
         {/* Thin color indicator on right side */}
         <div className="flex">
-          <div className={`w-1 flex-shrink-0 rounded-r-xl ${getCategoryColor(categoryColor).dot} ${item.status === 'done' ? 'opacity-30' : ''}`} />
+          <div className={`w-1 flex-shrink-0 rounded-r-xl ${stripColorClass} ${item.status === 'done' ? 'opacity-30' : ''}`} />
           <div className="flex items-start gap-2 p-3 flex-1">
           {/* Drag Handle — owner only */}
           {isOwner ? (
