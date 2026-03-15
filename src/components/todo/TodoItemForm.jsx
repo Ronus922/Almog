@@ -24,7 +24,7 @@ export default function TodoItemForm({ open, onClose, onSave, initialData, categ
   const [categoryId, setCategoryId] = useState('');
   const [sharedWith, setSharedWith] = useState('');
   const [sharedWithSearch, setSharedWithSearch] = useState('');
-  const [stripColor, setStripColor] = useState('');
+  const [stripColor, setStripColor] = useState('blue');
   const [saving, setSaving] = useState(false);
 
   const { data: allUsers = [] } = useQuery({
@@ -58,7 +58,7 @@ export default function TodoItemForm({ open, onClose, onSave, initialData, categ
       description: description.trim() || null,
       category_id: categoryId,
       shared_with_user_id: sharedWith || null,
-      strip_color: stripColor || null,
+      strip_color: stripColor || 'blue',
     });
     setSaving(false);
     onClose();
