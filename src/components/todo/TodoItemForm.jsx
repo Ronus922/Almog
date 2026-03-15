@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { X } from 'lucide-react';
+import ShareUserSelect from '@/components/shared/ShareUserSelect';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 
@@ -128,30 +129,12 @@ export default function TodoItemForm({ open, onClose, onSave, initialData, categ
             </select>
           </div>
 
-          <div className="space-y-2">
-            <label className="block text-sm font-semibold text-slate-700">שתף עם משתמש (אופציונלי)</label>
-            <div className="space-y-2">
-              <Input
-                type="text"
-                placeholder="חפש לפי שם..."
-                value={sharedWithSearch}
-                onChange={e => setSharedWithSearch(e.target.value)}
-                dir="rtl"
-                className="h-9 border-slate-200 rounded-lg text-sm"
-              />
-              <select
-                value={sharedWith}
-                onChange={e => setSharedWith(e.target.value)}
-                dir="rtl"
-                className="w-full h-10 border border-slate-200 rounded-lg px-3 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-              >
-                <option value="">ללא שיתוף</option>
-                {filteredUsers.map(u => (
-                  <option key={u.username} value={u.username}>{u.first_name || u.username}</option>
-                ))}
-              </select>
-            </div>
-          </div>
+          <ShareUserSelect
+            users={otherUsers}
+            value={sharedWith}
+            onChange={setSharedWith}
+            label="שתף עם משתמש (אופציונלי)"
+          />
 
           <div className="space-y-3">
             <label className="block text-sm font-semibold text-slate-700">צבע פס (אופציונלי)</label>
