@@ -511,11 +511,11 @@ export default function Tasks() {
          task={editTask}
          debtorRecord={null}
          currentUser={currentUser}
-         onSaved={(task) => {
+         onSaved={() => {
            queryClient.invalidateQueries({ queryKey: ["tasks"] });
            if (!editTask) {
              window.dispatchEvent(new CustomEvent('taskCreated', { 
-               detail: { action: 'created', title: task.task_type } 
+               detail: { action: 'created', title: 'משימה חדשה' } 
              }));
            }
          }}
