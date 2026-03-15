@@ -134,26 +134,26 @@ export default function TodoCategoryList({
                     <span className="flex-1 text-sm font-medium truncate">{cat.name}</span>
                     }
 
-                        {count > 0 &&
-                    <span className="text-xs px-1.5 py-0.5 rounded-full font-medium bg-slate-200 text-slate-600">
-                            {count}
-                          </span>
-                    }
-
                         <div className={`flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity`}>
                           <button
                         onClick={(e) => startEdit(cat, e)}
                         className="p-1 rounded hover:bg-slate-200 transition-colors text-slate-500">
 
-                            <Edit2 className="w-3 h-3" />
-                          </button>
-                          <button
+                             <Edit2 className="w-3 h-3" />
+                           </button>
+                           <button
                         onClick={(e) => {e.stopPropagation();handleArchive(cat);}}
                         className="p-1 rounded hover:bg-slate-200 transition-colors text-slate-500">
 
-                            <Archive className="w-3 h-3" />
-                          </button>
-                        </div>
+                             <Archive className="w-3 h-3" />
+                           </button>
+
+                        {count > 0 &&
+                        <span className="text-xs px-1.5 py-0.5 rounded-full font-medium bg-slate-200 text-slate-600">
+                            {count}
+                          </span>
+                        }
+                         </div>
                       </div>
                   }
                   </Draggable>);
