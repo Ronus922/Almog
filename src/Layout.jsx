@@ -178,18 +178,29 @@ function LayoutContent({ children, currentPageName }) {
             }
           </button>
 
-          {showNotifications && !isCollapsed && notifications.length > 0 &&
+          {showNotifications && !isCollapsed && tasks.length > 0 &&
           <div className="mt-2 bg-slate-700/30 rounded-lg p-3 space-y-2 max-h-64 overflow-y-auto">
-              {notifications.map((notif, idx) =>
-            <div key={idx} className="flex items-start gap-2 p-2 bg-slate-700/50 rounded text-sm text-slate-200">
-                  <span className="flex-1">{notif}</span>
+              <button
+                onClick={() => setTasks([])}
+                className="w-full text-xs text-slate-400 hover:text-slate-200 text-right mb-2 pb-2 border-b border-slate-600">
+                נקה הכל
+              </button>
+              {tasks.map((task) =>
+            <button
+              key={task.id}
+              onClick={() => {
+                navigate(createPageUrl('Tasks'));
+                setShowNotifications(false);
+              }}
+              className="w-full text-right flex items-start gap-2 p-2 bg-slate-700/50 hover:bg-slate-700/70 rounded text-sm text-slate-200 transition-colors">
+                  <span className="flex-1">{task.task_type}</span>
                   <button
-                onClick={() => setNotifications(notifications.filter((_, i) => i !== idx))}
+                onClick={(e) => {e.stopPropagation();setTasks(tasks.filter(t => t.id !== task.id));}}
                 className="text-slate-400 hover:text-red-400 flex-shrink-0">
 
                     ✕
                   </button>
-                </div>
+                </button>
             )}
             </div>
           }
