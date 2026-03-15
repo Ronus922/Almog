@@ -17,6 +17,44 @@ export default function WhatsAppChat() {
   const queryClient = useQueryClient();
   const messagesEndRef = useRef(null);
 
+  // Get operators for display names
+  const { data: operators = [] } = useQuery({
+    queryKey: ['operators'],
+    queryFn: () => base44.entities.Operator.list(),
+    staleTime: 1000 * 60 * 5,
+  });
+
+  // Helper: get primary display name based on priority operator > tenant > owner
+  const getPrimaryName = (contact) => {
+    if (contact.operator_is_primary_contact && contact.operator_id) {
+      const op = operators.find(o => o.id === contact.operator_id);
+      if (op) return op.company_name || op.contact_name;
+    }
+    if (contact.tenant_is_primary_contact && contact.tenant_name) return contact.tenant_name;
+    return contact.owner_name || contact.tenant_name || 'ללא שם';
+  };
+
+  // Helper: get secondary row info
+  const getSecondaryInfo = (contact, primaryName) => {
+    const isOperatorPrimary = contact.operator_is_primary_contact && contact.operator_id && operators.find(o => o.id === contact.operator_id);
+    const isTenantPrimary = !isOperatorPrimary && contact.tenant_is_primary_contact && contact.tenant_name;
+
+    if (isOperatorPrimary) {
+      // main is operator → show owner, or tenant if no owner
+      if (contact.owner_name) return 'בעלים: ' + contact.owner_name;
+      if (contact.tenant_name) return 'שוכר: ' + contact.tenant_name;
+      return null;
+    }
+    if (isTenantPrimary) {
+      // main is tenant → show owner
+      if (contact.owner_name) return 'בעלים: ' + contact.owner_name;
+      return null;
+    }
+    // main is owner → show tenant
+    if (contact.tenant_name) return 'שוכר: ' + contact.tenant_name;
+    return null;
+  };
+
   // Get all contacts with last message info
   const { data: contacts = [] } = useQuery({
     queryKey: ['contacts'],
