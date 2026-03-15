@@ -178,7 +178,7 @@ export default function CalendarQuickFilters({
         )}
 
         {/* User Filter */}
-         <Select value={userFilter || ''} onValueChange={onUserChange}>
+         <Select value={String(userFilter ?? '')} onValueChange={onUserChange}>
            <SelectTrigger className="w-48 h-10 text-sm">
              <SelectValue placeholder="משתמש" />
            </SelectTrigger>
