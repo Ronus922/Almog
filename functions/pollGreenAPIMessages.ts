@@ -2,14 +2,14 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 /**
  * Green API - קבלת הודעות נכנסות
- * משתמש ב-receiveNotification (pull-based) של Green API
- * קורא הודעות אחת-אחת ומוחק אותן מהתור לאחר עיבוד
+ * ReceiveNotification (pull-based) + DeleteNotification אחרי כל עיבוד
+ * נשמרות גם הודעות ממספרים שלא מוכרים / שלא יזמנו איתם שיחה
  */
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    // קבל פרטי Green API
+    // קבל פרטי Green API מה-Settings או env
     let instanceId = Deno.env.get('GREEN_API_INSTANCE_ID');
     let token = Deno.env.get('GREEN_API_TOKEN');
 
@@ -32,43 +32,68 @@ Deno.serve(async (req) => {
 
     let processedCount = 0;
     let skippedCount = 0;
+    let unknownCount = 0;
 
-    // Green API receiveNotification - pull הודעות מהתור (עד 20 בכל ריצה)
-    for (let i = 0; i < 20; i++) {
+    // pull עד 50 הודעות מהתור בכל ריצה
+    for (let i = 0; i < 50; i++) {
       const receiveRes = await fetch(
         `https://api.green-api.com/waInstance${instanceId}/receiveNotification/${token}`,
         { method: 'GET' }
       );
 
       if (!receiveRes.ok) {
-        console.error(`[POLL] receiveNotification error: ${receiveRes.status}`);
+        console.error(`[POLL] receiveNotification HTTP error: ${receiveRes.status}`);
         break;
       }
 
       const notification = await receiveRes.json();
 
-      // אם אין הודעות בתור - עצור
+      // אין יותר הודעות בתור
       if (!notification || !notification.body) {
-        console.log(`[POLL] No more notifications in queue after ${i} items`);
+        console.log(`[POLL] Queue empty after ${i} items`);
         break;
       }
 
       const receiptId = notification.receiptId;
       const body = notification.body;
 
-      console.log(`[POLL] Notification type: ${body.typeWebhook}, receiptId: ${receiptId}`);
+      console.log(`[POLL] #${i + 1} type=${body.typeWebhook} receiptId=${receiptId}`);
 
-      // רק הודעות נכנסות
+      // טפל רק בהודעות נכנסות
       if (body.typeWebhook === 'incomingMessageReceived') {
-        const senderRaw = body.senderData?.sender || '';
-        let senderPhone = senderRaw.replace(/[^0-9]/g, '');
+        // חלץ מספר שולח
+        const senderRaw = body.senderData?.chatId || body.senderData?.sender || '';
+        // chatId מגיע כ-972501234567@c.us — נקה ל-05...
+        let senderPhone = senderRaw.split('@')[0].replace(/[^0-9]/g, '');
         if (senderPhone.startsWith('972')) {
           senderPhone = '0' + senderPhone.substring(3);
         }
 
-        console.log(`[POLL] Incoming message from: ${senderPhone}`);
+        console.log(`[POLL] Incoming from: ${senderPhone}`);
 
-        // חפש איש קשר מתאים
+        // חלץ תוכן ההודעה לפי סוג
+        let content = '';
+        let message_type = 'text';
+        const msgData = body.messageData || {};
+
+        if (msgData.typeMessage === 'textMessage') {
+          content = msgData.textMessageData?.textMessage || '';
+        } else if (msgData.typeMessage === 'imageMessage') {
+          content = msgData.imageMessageData?.downloadUrl || msgData.imageMessageData?.jpegThumbnail || '';
+          message_type = 'image';
+        } else if (msgData.typeMessage === 'documentMessage') {
+          content = msgData.documentMessageData?.downloadUrl || msgData.documentMessageData?.fileName || '';
+          message_type = 'document';
+        } else if (msgData.typeMessage === 'extendedTextMessage') {
+          content = msgData.extendedTextMessageData?.text || '';
+        } else if (msgData.typeMessage === 'audioMessage' || msgData.typeMessage === 'voiceMessage') {
+          content = msgData.audioMessageData?.downloadUrl || msgData.fileMessageData?.downloadUrl || '';
+          message_type = 'document';
+        }
+
+        const timestamp = new Date((body.timestamp || Date.now() / 1000) * 1000).toISOString();
+
+        // חפש איש קשר מתאים לפי טלפון
         const senderPhoneClean = senderPhone.replace(/[^0-9]/g, '');
         const contact = contacts.find(c => {
           const phones = [c.owner_phone, c.tenant_phone].filter(p => p);
@@ -76,27 +101,7 @@ Deno.serve(async (req) => {
         });
 
         if (contact) {
-          console.log(`[POLL] Contact found: apartment ${contact.apartment_number}`);
-
-          // חלץ תוכן ההודעה לפי סוג
-          let content = '';
-          let message_type = 'text';
-          const msgData = body.messageData || {};
-
-          if (msgData.typeMessage === 'textMessage') {
-            content = msgData.textMessageData?.textMessage || '';
-          } else if (msgData.typeMessage === 'imageMessage') {
-            content = msgData.imageMessageData?.downloadUrl || msgData.imageMessageData?.jpegThumbnail || '';
-            message_type = 'image';
-          } else if (msgData.typeMessage === 'documentMessage') {
-            content = msgData.documentMessageData?.downloadUrl || msgData.documentMessageData?.fileName || '';
-            message_type = 'document';
-          } else if (msgData.typeMessage === 'extendedTextMessage') {
-            content = msgData.extendedTextMessageData?.text || '';
-          }
-
-          const timestamp = new Date((body.timestamp || Date.now() / 1000) * 1000).toISOString();
-
+          // מספר מוכר — שמור עם contact_id
           await base44.asServiceRole.entities.ChatMessage.create({
             contact_id: contact.id,
             contact_phone: senderPhone,
@@ -105,29 +110,44 @@ Deno.serve(async (req) => {
             content,
             timestamp
           });
-
           processedCount++;
-          console.log(`[POLL] ✓ Message saved for apartment ${contact.apartment_number}`);
+          console.log(`[POLL] ✓ Saved for contact: apartment ${contact.apartment_number}`);
         } else {
-          console.log(`[POLL] No contact found for phone: ${senderPhone}`);
-          skippedCount++;
+          // מספר לא מוכר — שמור בכל מקרה עם contact_id ריק ו-contact_phone
+          // כך ההודעה לא תאבד ואפשר לשייך אחר כך
+          await base44.asServiceRole.entities.ChatMessage.create({
+            contact_id: 'unknown_' + senderPhoneClean,
+            contact_phone: senderPhone,
+            direction: 'received',
+            message_type,
+            content,
+            timestamp
+          });
+          unknownCount++;
+          console.log(`[POLL] ⚠ Unknown sender ${senderPhone} — saved as unlinked`);
         }
       } else {
+        // סוג אחר (statusMessage, outgoingMessage וכו') — דלג
         skippedCount++;
+        console.log(`[POLL] Skipped type: ${body.typeWebhook}`);
       }
 
-      // מחק את ההתראה מהתור לאחר עיבוד
-      await fetch(
+      // חובה: מחק את ההתראה מהתור לאחר עיבוד (גם אם דילגנו)
+      // זה מונע תקיעת ה-FIFO
+      const deleteRes = await fetch(
         `https://api.green-api.com/waInstance${instanceId}/deleteNotification/${token}/${receiptId}`,
         { method: 'DELETE' }
       );
+      if (!deleteRes.ok) {
+        console.error(`[POLL] deleteNotification failed: ${deleteRes.status} for receiptId=${receiptId}`);
+      }
     }
 
-    console.log(`[POLL] Done. processed=${processedCount}, skipped=${skippedCount}`);
-    return Response.json({ success: true, processedCount, skippedCount });
+    console.log(`[POLL] Done. processed=${processedCount}, unknown=${unknownCount}, skipped=${skippedCount}`);
+    return Response.json({ success: true, processedCount, unknownCount, skippedCount });
 
   } catch (error) {
-    console.error('[POLL] Error:', error.message);
+    console.error('[POLL] Fatal error:', error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
