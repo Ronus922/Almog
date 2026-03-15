@@ -26,21 +26,10 @@ function LayoutContent({ children, currentPageName }) {
   const { attemptNavigation, ConfirmDialog } = useNavigationBlock();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [notifications, setNotifications] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
 
   const isAdmin = isManagerRole(currentUser);
-
-  useEffect(() => {
-    const handleTaskChange = (e) => {
-      if (e.detail?.action === 'created') {
-        setNotifications(prev => [...prev, `משימה חדשה: ${e.detail.title}`]);
-        setShowNotifications(true);
-      }
-    };
-    window.addEventListener('taskCreated', handleTaskChange);
-    return () => window.removeEventListener('taskCreated', handleTaskChange);
-  }, []);
 
   const handleNavigation = (pageName) => {
     attemptNavigation(() => {
