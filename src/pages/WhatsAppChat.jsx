@@ -337,7 +337,8 @@ export default function WhatsAppChat() {
               </div> :
 
             filteredContacts.map((contact) => {
-              const displayName = contact.owner_name || contact.tenant_name || 'ללא שם';
+              const displayName = getPrimaryName(contact);
+              const secondaryInfo = getSecondaryInfo(contact, displayName);
               const initials = displayName.split(' ').map((n) => n[0]).join('').substring(0, 2);
               return (
                 <button
@@ -351,7 +352,6 @@ export default function WhatsAppChat() {
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 overflow-hidden">
                       {contact.whatsapp_profile_image_url || contact.whatsapp_profile_image ?
                     <img src={contact.whatsapp_profile_image_url || contact.whatsapp_profile_image} alt={displayName} className="w-full h-full object-cover" /> :
-
                     initials
                     }
                     </div>
@@ -362,9 +362,9 @@ export default function WhatsAppChat() {
                       <div className="text-xs text-gray-600 mt-0.5 truncate">
                         דירה {contact.apartment_number}
                       </div>
-                      {contact.owner_name && contact.tenant_name &&
+                      {secondaryInfo &&
                     <div className="text-xs text-gray-500 mt-0.5 truncate">
-                          {contact.owner_name === displayName ? 'שוכר: ' + contact.tenant_name : 'בעלים: ' + contact.owner_name}
+                          {secondaryInfo}
                         </div>
                     }
                     </div>
