@@ -121,9 +121,9 @@ export default function TodoItemCard({
               </>
             )}
           </div>
-          </div>
         </div>
       </div>
+    </div>
 
       {/* Detail / Comments Dialog */}
       <Dialog open={showDetail} onOpenChange={setShowDetail}>
