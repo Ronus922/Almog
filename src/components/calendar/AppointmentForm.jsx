@@ -442,7 +442,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
             <button
               key={color}
               type="button"
-              className={`w-9 h-9 rounded-full border-2 transition-all hover:scale-110 ${
+              className={`w-[30px] h-[30px] rounded-full border-2 transition-all hover:scale-110 ${
                 formData.event_color === color ? 'border-slate-900 scale-110 shadow-lg' : 'border-slate-300'
               }`}
               style={{ backgroundColor: color }}
