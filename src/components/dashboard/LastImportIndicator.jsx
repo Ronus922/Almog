@@ -68,7 +68,7 @@ export default function LastImportIndicator({ lastImportAt, isAdmin = false }) {
           </div>
 
           {/* טקסט אזהרה - רק אם >48 שעות */}
-          {hoursSince > 48 && !noDate && (
+          {hoursSince !== null && hoursSince >= 48 && !noDate && (
             <div className="mt-2 text-sm text-slate-700 font-medium">
               הנתונים לא עודכנו ב־48 השעות האחרונות – מומלץ לבצע ייבוא
             </div>
