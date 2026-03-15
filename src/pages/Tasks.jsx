@@ -10,6 +10,8 @@ import { useAuth } from "@/components/auth/AuthContext";
 import { isManagerRole } from "@/components/utils/roles";
 import { StatusBadge } from "@/components/tasks/TaskBadge";
 import TaskFormDialog from "@/components/tasks/TaskFormDialog";
+import RecurringTaskBadge from "@/components/tasks/RecurringTaskBadge";
+import RecurringFilter from "@/components/tasks/RecurringFilter";
 import { format } from "date-fns";
 
 function SortableHeader({ label, field, sortField, sortDir, onSort }) {
@@ -66,8 +68,9 @@ export default function Tasks() {
   const [showDialog, setShowDialog] = useState(false);
   const [editTask, setEditTask] = useState(null);
   const [sortField, setSortField] = useState("priority");
-   const [sortDir, setSortDir] = useState("asc");
-   const [viewedTasks, setViewedTasks] = useState(new Set());
+    const [sortDir, setSortDir] = useState("asc");
+    const [viewedTasks, setViewedTasks] = useState(new Set());
+    const [filterRecurring, setFilterRecurring] = useState("");
 
   const handleKpiClick = (key) => {
     setActiveKpiFilter(prev => prev === key ? null : key);
@@ -150,28 +153,30 @@ export default function Tasks() {
 
     // שלב א: פילטרים ידניים
     const hasManualFilters = filterStatus !== "הכל" || filterPriority !== "הכל" ||
-      filterAssigned !== "הכל" || filterDueDate || filterTaskType !== "הכל" || search;
+      filterAssigned !== "הכל" || filterDueDate || filterTaskType !== "הכל" || search || filterRecurring;
 
     if (hasManualFilters) {
-      result = result.filter((t) => {
-        if (filterStatus !== "הכל" && t.status !== filterStatus) return false;
-        if (filterPriority !== "הכל" && t.priority !== filterPriority) return false;
-        if (filterAssigned !== "הכל" && (t.assigned_to_name || t.assigned_to) !== filterAssigned) return false;
-        if (filterTaskType !== "הכל" && t.task_type !== filterTaskType) return false;
-        if (filterDueDate && t.due_date?.slice(0, 10) !== filterDueDate) return false;
-        if (search) {
-          const s = search.toLowerCase();
-          return (
-            t.apartment_number?.includes(s) ||
-            t.owner_name?.toLowerCase().includes(s) ||
-            t.description?.toLowerCase().includes(s) ||
-            t.task_type?.includes(s) ||
-            t.assigned_to_name?.toLowerCase().includes(s)
-          );
-        }
-        return true;
-      });
-    }
+       result = result.filter((t) => {
+         if (filterStatus !== "הכל" && t.status !== filterStatus) return false;
+         if (filterPriority !== "הכל" && t.priority !== filterPriority) return false;
+         if (filterAssigned !== "הכל" && (t.assigned_to_name || t.assigned_to) !== filterAssigned) return false;
+         if (filterTaskType !== "הכל" && t.task_type !== filterTaskType) return false;
+         if (filterDueDate && t.due_date?.slice(0, 10) !== filterDueDate) return false;
+         if (filterRecurring === "recurring_only" && !t.is_recurring_instance && !t.recurrence_rule_id) return false;
+         if (filterRecurring === "manual_only" && (t.is_recurring_instance || t.recurrence_rule_id)) return false;
+         if (search) {
+           const s = search.toLowerCase();
+           return (
+             t.apartment_number?.includes(s) ||
+             t.owner_name?.toLowerCase().includes(s) ||
+             t.description?.toLowerCase().includes(s) ||
+             t.task_type?.includes(s) ||
+             t.assigned_to_name?.toLowerCase().includes(s)
+           );
+         }
+         return true;
+       });
+     }
 
     // שלב ב: activeKpiFilter — שכבת סינון נוספת מעל הפילטרים הידניים
     if (activeKpiFilter === "open") {
@@ -188,7 +193,7 @@ export default function Tasks() {
     }
 
     return result;
-  }, [myTasks, filterStatus, filterPriority, filterAssigned, filterDueDate, filterTaskType, search, activeKpiFilter]);
+  }, [myTasks, filterStatus, filterPriority, filterAssigned, filterDueDate, filterTaskType, search, activeKpiFilter, filterRecurring]);
 
   const sorted = useMemo(() => {
     return [...visibleTasks].sort((a, b) => {
@@ -314,6 +319,8 @@ export default function Tasks() {
 
             {showFilters &&
             <div className="flex flex-wrap gap-3 items-center pt-2 border-t border-slate-100">
+                <RecurringFilter value={filterRecurring} onChange={setFilterRecurring} />
+                
                 <Select value={filterTaskType} onValueChange={setFilterTaskType}>
                   <SelectTrigger className="w-44"><SelectValue placeholder="תיאור משימה" /></SelectTrigger>
                   <SelectContent>
@@ -360,10 +367,10 @@ export default function Tasks() {
                   </SelectContent>
                 </Select>
 
-                {(filterStatus !== "פתוחה" || filterPriority !== "הכל" || filterAssigned !== "הכל" || filterDueDate || filterTaskType !== "הכל") &&
+                {(filterStatus !== "פתוחה" || filterPriority !== "הכל" || filterAssigned !== "הכל" || filterDueDate || filterTaskType !== "הכל" || filterRecurring) &&
               <Button variant="ghost" size="sm" className="text-slate-400 gap-1" onClick={() => {
                 setFilterStatus("פתוחה");setFilterPriority("הכל");
-                setFilterAssigned("הכל");setFilterDueDate("");setFilterTaskType("הכל");
+                setFilterAssigned("הכל");setFilterDueDate("");setFilterTaskType("הכל");setFilterRecurring("");
               }}>
                     <X className="w-3.5 h-3.5" /> נקה
                   </Button>
@@ -405,15 +412,20 @@ export default function Tasks() {
                     onClick={() => {setEditTask(task);setShowDialog(true);}}>
 
                         <td className="px-4 py-3">
-                          <div className="font-medium text-slate-800">{task.task_type}</div>
-                          {task.owner_name &&
-                      <div className="text-xs text-slate-400 mt-0.5">
+                          <div className="space-y-1.5">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <div className="font-medium text-slate-800">{task.task_type}</div>
+                              <RecurringTaskBadge task={task} />
+                            </div>
+                            {task.owner_name &&
+                            <div className="text-xs text-slate-400">
                               דירה {task.apartment_number} – {task.owner_name}
                             </div>
-                      }
-                          {task.description &&
-                      <div className="text-xs text-slate-400 truncate max-w-xs">{task.description}</div>
-                      }
+                            }
+                            {task.description &&
+                            <div className="text-xs text-slate-400 truncate max-w-xs">{task.description}</div>
+                            }
+                          </div>
                         </td>
 
                         <td className="px-4 py-3">
