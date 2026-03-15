@@ -228,18 +228,32 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="p-0 overflow-hidden flex flex-col" style={{height: '92vh', maxHeight: '780px', maxWidth: '472px', width: '100%'}} dir="rtl">
-         <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-lg">
-           <DialogTitle className="text-white text-lg font-bold">{isEdit ? "עריכת משימה" : "משימה חדשה"}</DialogTitle>
-          {debtorRecord && !isEdit &&
-          <p className="text-blue-100 text-sm mt-1">
+      <DialogContent
+        className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] bg-background shadow-lg border p-0 overflow-hidden flex flex-col sm:rounded-lg"
+        style={{ maxWidth: '472px', maxHeight: '780px', height: '92vh', width: '100%' }}
+        dir="rtl"
+      >
+        {/* כפתור סגירה */}
+        <button
+          onClick={onClose}
+          className="absolute left-4 top-4 z-10 rounded-lg bg-white/20 p-1.5 hover:bg-white/40 transition-colors"
+        >
+          <X className="h-5 w-5 text-white" />
+          <span className="sr-only">סגור</span>
+        </button>
+
+        {/* כותרת */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-lg">
+          <DialogHeader className="sr-only">
+            <DialogTitle>{isEdit ? "עריכת משימה" : "משימה חדשה"}</DialogTitle>
+          </DialogHeader>
+          <p className="text-white text-lg font-bold">{isEdit ? "עריכת משימה" : "משימה חדשה"}</p>
+          {debtorRecord && !isEdit && (
+            <p className="text-blue-100 text-sm mt-1">
               דירה {debtorRecord.apartmentNumber} – {debtorRecord.ownerName}
             </p>
-          }
+          )}
         </div>
-        <DialogHeader className="sr-only">
-          <DialogTitle>{isEdit ? "עריכת משימה" : "משימה חדשה"}</DialogTitle>
-        </DialogHeader>
 
         {isEdit &&
         <div className="flex border-b border-slate-200 mb-2 px-6 pt-4">
