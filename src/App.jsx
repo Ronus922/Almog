@@ -235,6 +235,7 @@ const AuthenticatedApp = () => {
       <Route path="/Calendar" element={<LayoutWrapper currentPageName="Calendar"><Calendar /></LayoutWrapper>} />
       <Route path="/Documents" element={<LayoutWrapper currentPageName="Documents"><Documents /></LayoutWrapper>} />
       <Route path="/SupplierManagement" element={<LayoutWrapper currentPageName="SupplierManagement"><SupplierManagement /></LayoutWrapper>} />
+      <Route path="/TodoReminders" element={<LayoutWrapper currentPageName="TodoReminders"><TodoReminders /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

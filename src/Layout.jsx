@@ -84,6 +84,7 @@ function LayoutContent({ children, currentPageName }) {
   { name: 'SupplierManagement', label: 'ספקים', icon: ContactRound, adminOnly: false },
   { name: 'WhatsAppTemplates', label: 'תבניות וואטסאפ', icon: MessageCircle, adminOnly: true },
   { name: 'WhatsAppChat', label: 'צ\'אט וואטסאפ', icon: MessageCircle, adminOnly: false },
+  { name: 'TodoReminders', label: 'תזכורות', icon: ClipboardList, adminOnly: false },
   { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true }];
 
 
