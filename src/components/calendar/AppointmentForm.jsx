@@ -228,24 +228,33 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
   const createNotificationsForAppointment = useCallback(async (appointmentTitle, attendeesList, isUpdate = false) => {
     try {
-      // סנן משתתפים חדשים בעת עריכה
-      let targetAttendees = attendeesList;
+      let targetAttendees = attendeesList || [];
+      
       if (isUpdate && previousAttendeeIds.length > 0) {
-        const currentIds = attendeesList.map(a => String(a.id || a).trim());
-        targetAttendees = attendeesList.filter(a => {
-          const aId = String(a.id || a).trim();
-          return !previousAttendeeIds.includes(aId);
+        const currentIds = targetAttendees.map(a => String(a?.id ?? a ?? '').trim());
+        targetAttendees = targetAttendees.filter(a => {
+          const aId = String(a?.id ?? a ?? '').trim();
+          return aId && !previousAttendeeIds.includes(aId);
         });
       }
 
-      // צור notification לכל משתתף
-      for (const attendee of targetAttendees) {
-        const userId = attendee.id || attendee;
-        if (!userId) continue;
+      // dedupe by normalized id
+      const seenIds = new Set();
+      const deduped = targetAttendees.filter(a => {
+        const aId = String(a?.id ?? a ?? '').trim();
+        if (!aId || seenIds.has(aId)) return false;
+        seenIds.add(aId);
+        return true;
+      });
 
-        // מצא את ה-user object כדי לקבל username
-        const userObj = users.find(u => u.id === userId);
-        if (!userObj || !userObj.username) continue;
+      for (const attendee of deduped) {
+        const userId = attendee?.id ?? attendee;
+        const userIdNorm = String(userId ?? '').trim();
+        if (!userIdNorm) continue;
+
+        // normalize lookup by string comparison
+        const userObj = users.find(u => String(u.id ?? '').trim() === userIdNorm);
+        if (!userObj?.username) continue;
 
         await base44.entities.Notification.create({
           user_username: userObj.username,
@@ -258,11 +267,9 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         });
       }
 
-      // invalidate notification queries
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
     } catch (error) {
       console.error('Failed to create notifications:', error);
-      // don't block save on notification error
     }
   }, [users, previousAttendeeIds, queryClient]);
 
@@ -288,16 +295,20 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       recurrence_interval: formData.recurrence_interval ? parseInt(formData.recurrence_interval) : 1,
     };
 
-    // בצע save דרך parent callback
-    // המתן להצלחה והיווצר notifications
-    const wrappedOnSave = async (data) => {
-      await onSave(data);
-      // אחרי save, צור notifications
-      const isEdit = !!appointment;
-      await createNotificationsForAppointment(formData.title, formData.attendees_users, isEdit);
-    };
-
-    await wrappedOnSave(submitData);
+    // בצע save דרך parent callback עם await להחזרת הנתון השמור
+    try {
+      const savedData = await onSave(submitData);
+      // צור notifications מהנתון השמור בפועל, לא מ-formData
+      if (savedData) {
+        const isEdit = !!appointment;
+        const appointmentTitle = savedData.title ?? submitData.title ?? '';
+        const attendeesList = savedData.attendees_users ?? submitData.attendees_users ?? [];
+        await createNotificationsForAppointment(appointmentTitle, attendeesList, isEdit);
+      }
+    } catch (error) {
+      console.error('Failed to save appointment:', error);
+      throw error;
+    }
   }, [formData, onSave, appointment, createNotificationsForAppointment]);
 
   // Filter users and contacts
