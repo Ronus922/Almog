@@ -221,7 +221,7 @@ export default function TodoReminders() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50" dir="rtl">
       {/* Header */}
-      <div className="bg-gradient-to-l text-white my-4 from-blue-600 to-indigo-600 md:px-8">
+      <div className="bg-gradient-to-l text-white my-4 py-6 from-blue-600 to-indigo-600 md:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-3 mb-1">
             <ClipboardList className="w-7 h-7" />
