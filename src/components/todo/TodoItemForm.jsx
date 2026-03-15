@@ -6,11 +6,23 @@ import { X } from 'lucide-react';
 import { base44 } from '@/api/base44Client';
 import { useQuery } from '@tanstack/react-query';
 
+const STRIP_COLORS = [
+  { key: 'orange', hex: '#fb923c', label: 'כתום' },
+  { key: 'cyan', hex: '#06b6d4', label: 'טורקיז' },
+  { key: 'pink', hex: '#ec4899', label: 'ורוד' },
+  { key: 'purple', hex: '#a855f7', label: 'סגול' },
+  { key: 'yellow', hex: '#eab308', label: 'צהוב' },
+  { key: 'green', hex: '#22c55e', label: 'ירוק' },
+  { key: 'red', hex: '#ef4444', label: 'אדום' },
+  { key: 'blue', hex: '#3b82f6', label: 'כחול' },
+];
+
 export default function TodoItemForm({ open, onClose, onSave, initialData, categories, currentUsername }) {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [sharedWith, setSharedWith] = useState('');
+  const [sharedWithSearch, setSharedWithSearch] = useState('');
   const [stripColor, setStripColor] = useState('');
   const [saving, setSaving] = useState(false);
 
@@ -22,6 +34,9 @@ export default function TodoItemForm({ open, onClose, onSave, initialData, categ
   });
 
   const otherUsers = allUsers.filter(u => u.username !== currentUsername && u.is_active);
+  const filteredUsers = sharedWithSearch.trim()
+    ? otherUsers.filter(u => (u.first_name || u.username).toLowerCase().includes(sharedWithSearch.toLowerCase()))
+    : otherUsers;
 
   useEffect(() => {
     if (open) {
@@ -29,6 +44,7 @@ export default function TodoItemForm({ open, onClose, onSave, initialData, categ
       setDescription(initialData?.description || '');
       setCategoryId(initialData?.category_id || categories[0]?.id || '');
       setSharedWith(initialData?.shared_with_user_id || '');
+      setSharedWithSearch('');
       setStripColor(initialData?.strip_color || '');
     }
   }, [open, initialData, categories]);
@@ -114,34 +130,58 @@ export default function TodoItemForm({ open, onClose, onSave, initialData, categ
 
           <div className="space-y-2">
             <label className="block text-sm font-semibold text-slate-700">שתף עם משתמש (אופציונלי)</label>
-            <select
-              value={sharedWith}
-              onChange={e => setSharedWith(e.target.value)}
-              dir="rtl"
-              className="w-full h-10 border border-slate-200 rounded-lg px-3 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="">ללא שיתוף</option>
-              {otherUsers.map(u => (
-                <option key={u.username} value={u.username}>{u.first_name || u.username}</option>
-              ))}
-            </select>
+            <div className="space-y-2">
+              <Input
+                type="text"
+                placeholder="חפש לפי שם..."
+                value={sharedWithSearch}
+                onChange={e => setSharedWithSearch(e.target.value)}
+                dir="rtl"
+                className="h-9 border-slate-200 rounded-lg text-sm"
+              />
+              <select
+                value={sharedWith}
+                onChange={e => setSharedWith(e.target.value)}
+                dir="rtl"
+                className="w-full h-10 border border-slate-200 rounded-lg px-3 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+              >
+                <option value="">ללא שיתוף</option>
+                {filteredUsers.map(u => (
+                  <option key={u.username} value={u.username}>{u.first_name || u.username}</option>
+                ))}
+              </select>
+            </div>
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-3">
             <label className="block text-sm font-semibold text-slate-700">צבע פס (אופציונלי)</label>
-            <select
-              value={stripColor}
-              onChange={e => setStripColor(e.target.value)}
-              dir="rtl"
-              className="w-full h-10 border border-slate-200 rounded-lg px-3 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              <option value="">ברירת מחדל לפי קטגוריה</option>
-              <option value="blue">כחול</option>
-              <option value="green">ירוק</option>
-              <option value="orange">כתום</option>
-              <option value="purple">סגול</option>
-              <option value="pink">ורוד</option>
-            </select>
+            <div className="flex gap-2 flex-wrap justify-end">
+              <button
+                type="button"
+                onClick={() => setStripColor('')}
+                className={`px-3 h-[22px] rounded-full text-xs font-medium transition-all border ${
+                  stripColor === ''
+                    ? 'border-slate-900 ring-2 ring-slate-900 ring-offset-1'
+                    : 'border-slate-300 hover:border-slate-400'
+                } bg-white text-slate-700`}
+              >
+                ברירת מחדל
+              </button>
+              {STRIP_COLORS.map(color => (
+                <button
+                  key={color.key}
+                  type="button"
+                  className={`w-[22px] h-[22px] rounded-full border-2 transition-all ${
+                    stripColor === color.key
+                      ? 'border-slate-900 ring-2 ring-slate-900 ring-offset-1'
+                      : 'border-slate-300 hover:border-slate-400'
+                  }`}
+                  style={{ backgroundColor: color.hex }}
+                  onClick={() => setStripColor(color.key)}
+                  title={color.label}
+                />
+              ))}
+            </div>
           </div>
         </div>
 
