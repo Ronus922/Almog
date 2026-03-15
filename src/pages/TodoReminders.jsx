@@ -323,6 +323,7 @@ export default function TodoReminders() {
                   <div ref={provided.innerRef} {...provided.droppableProps} className="space-y-2">
                         {displayedItems.map((item, idx) => {
                       const isOwner = item.owner_user_id === username;
+                      const itemCategory = allCategories.find(c => c.id === item.category_id);
                       return (
                         <Draggable
                           key={item.id}
@@ -342,7 +343,8 @@ export default function TodoReminders() {
                             onEdit={(i) => {setEditingItem(i);setShowForm(true);}}
                             onDelete={(id) => deleteItemMutation.mutate(id)}
                             currentUsername={username}
-                            allUsers={allUsers} />
+                            allUsers={allUsers}
+                            categoryColor={itemCategory?.color || 'blue'} />
 
                           }
                             </Draggable>);
