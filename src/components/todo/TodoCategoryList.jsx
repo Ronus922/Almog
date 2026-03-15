@@ -134,6 +134,12 @@ export default function TodoCategoryList({
                     <span className="flex-1 text-sm font-medium truncate">{cat.name}</span>
                     }
 
+                    {count > 0 &&
+                    <div className={`w-5 h-5 rounded-full font-bold text-white text-xs flex items-center justify-center ${colorObj.selected}`}>
+                            {count}
+                          </div>
+                    }
+
                         <div className={`flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity`}>
                           <button
                         onClick={(e) => startEdit(cat, e)}
@@ -147,11 +153,6 @@ export default function TodoCategoryList({
 
                              <Archive className="w-3 h-3" />
                            </button>
-                           {count > 0 &&
-                    <div className={`w-5 h-5 rounded-full font-bold text-white text-xs flex items-center justify-center ${colorObj.selected}`}>
-                            {count}
-                          </div>
-                    }
                          </div>
                       </div>
                   }
