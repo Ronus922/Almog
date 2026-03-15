@@ -31,11 +31,14 @@ export default function TodoItemCard({
       <div
         ref={dragRef}
         {...draggableProps}
-        className={`group bg-white border rounded-xl transition-all ${
-          isDragging ? 'shadow-xl border-blue-300 rotate-1' : 'border-slate-200 hover:border-slate-300 hover:shadow-sm'
+        className={`group bg-white border rounded-xl transition-all overflow-hidden ${
+          isDragging ? 'shadow-xl border-slate-300 rotate-1' : 'border-slate-200 hover:border-slate-300 hover:shadow-sm'
         } ${item.status === 'done' ? 'opacity-60' : ''}`}
       >
-        <div className="flex items-start gap-2 p-3">
+        {/* Thin color indicator on right side */}
+        <div className="flex">
+          <div className={`w-1 flex-shrink-0 rounded-r-xl ${getCategoryColor(categoryColor).dot} ${item.status === 'done' ? 'opacity-30' : ''}`} />
+          <div className="flex items-start gap-2 p-3 flex-1">
           {/* Drag Handle — owner only */}
           {isOwner ? (
             <span
