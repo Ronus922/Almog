@@ -185,14 +185,35 @@ export default function WhatsAppChat() {
     const file = e.target.files?.[0];
     if (!file || !selectedContact) return;
 
-    try {
-      const phone = selectedContact.owner_phone || selectedContact.tenant_phone;
-      if (!phone) throw new Error('אין מספר טלפון זמין');
+    const phone = selectedContact.owner_phone || selectedContact.tenant_phone;
+    if (!phone) {
+      toast.error('אין מספר טלפון זמין לאיש קשר זה');
+      return;
+    }
 
-      // Upload file
+    const allowed = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
+    if (!allowed.includes(file.type)) {
+      toast.error('ניתן לשלוח רק תמונות (JPG, PNG, GIF) או PDF');
+      if (fileInput) fileInput.value = '';
+      return;
+    }
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error('גודל הקובץ לא יכול לעלות על 10MB');
+      if (fileInput) fileInput.value = '';
+      return;
+    }
+
+    toast.loading('מעלה ושולח קובץ...', { id: 'file-upload' });
+    try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
 
-      // Create chat message with file
+      await base44.functions.invoke('sendWhatsApp', {
+        phone,
+        fileUrl: file_url,
+        fileName: file.name,
+        message: ''
+      });
+
       await base44.entities.ChatMessage.create({
         contact_id: selectedContact.id,
         contact_phone: phone,
@@ -202,22 +223,12 @@ export default function WhatsAppChat() {
         timestamp: new Date().toISOString()
       });
 
-      // Send via Green API
-      try {
-        await base44.functions.invoke('sendWhatsApp', {
-          phone,
-          fileUrl: file_url,
-          fileName: file.name
-        });
-      } catch (error) {
-        console.error('Failed to send file via Green API:', error);
-      }
-
-      // Reset file input
+      toast.success('הקובץ נשלח בהצלחה!', { id: 'file-upload' });
       if (fileInput) fileInput.value = '';
       queryClient.invalidateQueries({ queryKey: ['chatMessages', selectedContact.id] });
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
     } catch (error) {
+      toast.error('שגיאה בשליחת הקובץ: ' + (error?.response?.data?.error || error.message), { id: 'file-upload' });
       console.error('File upload error:', error);
     }
   };
