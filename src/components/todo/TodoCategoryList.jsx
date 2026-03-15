@@ -147,6 +147,11 @@ export default function TodoCategoryList({
 
                              <Archive className="w-3 h-3" />
                            </button>
+                           {count > 0 &&
+                    <div className={`w-5 h-5 rounded-full font-bold text-white text-xs flex items-center justify-center ${colorObj.selected}`}>
+                            {count}
+                          </div>
+                    }
                          </div>
                       </div>
                   }
