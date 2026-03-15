@@ -252,12 +252,12 @@ function LayoutContent({ children, currentPageName }) {
         )}
 
         {/* Collapse Button */}
-        <div className="p-3">
+        <div className="p-3 flex justify-center">
           <button
             onClick={() => setIsCollapsed(!isCollapsed)}
-            className="w-full flex items-center justify-center p-3 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors text-slate-300 hover:text-white"
+            className="w-12 h-12 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors text-slate-300 hover:text-white flex items-center justify-center shadow-lg border border-slate-600 hover:border-slate-500"
           >
-            <ChevronLeft className="w-5 h-5" />
+            <ChevronLeft className={`w-5 h-5 transition-transform ${isCollapsed ? 'rotate-180' : ''}`} />
           </button>
         </div>
       </aside>
