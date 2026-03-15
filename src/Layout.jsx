@@ -88,6 +88,17 @@ function LayoutContent({ children, currentPageName }) {
     logout();
   };
 
+  useEffect(() => {
+    const handleNewTask = (e) => {
+      if (e.detail?.task) {
+        setTasks(prev => [e.detail.task, ...prev]);
+        setShowNotifications(true);
+      }
+    };
+    window.addEventListener('newTask', handleNewTask);
+    return () => window.removeEventListener('newTask', handleNewTask);
+  }, []);
+
   const renderNavSection = (items) =>
   <div className="space-y-1">
       {items.map((item) => {
