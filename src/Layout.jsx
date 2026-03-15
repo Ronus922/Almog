@@ -88,14 +88,12 @@ function LayoutContent({ children, currentPageName }) {
     logout();
   };
 
+  // Handle new task events from Tasks page
   useEffect(() => {
     const handleNewTask = (e) => {
       if (e.detail?.task) {
-        setTasks(prev => {
-          const newTasks = [e.detail.task, ...prev];
-          setShowNotifications(true);
-          return newTasks;
-        });
+        setTasks(prev => [e.detail.task, ...prev]);
+        setShowNotifications(true);
       }
     };
     window.addEventListener('newTask', handleNewTask);
