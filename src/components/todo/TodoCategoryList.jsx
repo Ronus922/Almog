@@ -149,7 +149,7 @@ export default function TodoCategoryList({
                            </button>
 
                         {count > 0 &&
-                        <span className="text-xs px-1.5 py-0.5 rounded-full font-medium bg-slate-200 text-slate-600">
+                        <span className={`text-xs px-1.5 py-0.5 rounded-full font-medium ${colorObj.soft}`}>
                             {count}
                           </span>
                         }
@@ -176,7 +176,7 @@ export default function TodoCategoryList({
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent
           className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] bg-background shadow-lg border p-0 overflow-hidden flex flex-col sm:rounded-lg"
-          style={{ maxWidth: '420px', width: '100%' }}
+          style={{ maxWidth: '470px', width: '100%', maxHeight: '580px' }}
           dir="rtl">
 
           {/* כפתור סגירה */}
@@ -226,7 +226,7 @@ export default function TodoCategoryList({
       <Dialog open={!!editingId} onOpenChange={(open) => {if (!open) setEditingId(null);}}>
         <DialogContent
           className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] bg-background shadow-lg border p-0 overflow-hidden flex flex-col sm:rounded-lg"
-          style={{ maxWidth: '420px', width: '100%' }}
+          style={{ maxWidth: '470px', width: '100%', maxHeight: '580px' }}
           dir="rtl">
 
           {/* כפתור סגירה */}
