@@ -21,11 +21,11 @@ export default function LastImportIndicator({ lastImportAt, isAdmin = false }) {
   let severity = 'ok';
   if (noDate) {
     severity = 'noDate';
-  } else if (hoursSince > 96) {
+  } else if (hoursSince >= 96) {
     severity = 'warn3';
-  } else if (hoursSince > 72) {
+  } else if (hoursSince >= 72) {
     severity = 'warn2';
-  } else if (hoursSince > 48) {
+  } else if (hoursSince >= 48) {
     severity = 'warn1';
   }
 
