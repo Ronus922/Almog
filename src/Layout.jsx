@@ -26,6 +26,8 @@ function LayoutContent({ children, currentPageName }) {
   const { attemptNavigation, ConfirmDialog } = useNavigationBlock();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   const isAdmin = isManagerRole(currentUser);
 
@@ -142,6 +144,53 @@ function LayoutContent({ children, currentPageName }) {
             </div>
           </div>
         )}
+
+        {/* Notifications Section */}
+        <div className="px-3 py-4 border-b border-slate-700">
+          <button
+            onClick={() => setShowNotifications(!showNotifications)}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+              notifications.length > 0
+                ? 'bg-orange-500/20 text-orange-300 hover:bg-orange-500/30'
+                : 'bg-slate-700/30 text-slate-400 hover:bg-slate-700/50'
+            }`}
+          >
+            <div className="relative flex-shrink-0">
+              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.93 6 11v5l-2 2v1h16v-1l-2-2z" />
+              </svg>
+              {notifications.length > 0 && (
+                <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-orange-500 text-white text-xs flex items-center justify-center font-bold">
+                  {notifications.length}
+                </span>
+              )}
+            </div>
+            {!isCollapsed && (
+              <>
+                <span className="flex-1 text-right font-medium">התראות</span>
+                <svg className={`w-4 h-4 transition-transform ${showNotifications ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+                </svg>
+              </>
+            )}
+          </button>
+
+          {showNotifications && !isCollapsed && notifications.length > 0 && (
+            <div className="mt-2 bg-slate-700/30 rounded-lg p-3 space-y-2 max-h-64 overflow-y-auto">
+              {notifications.map((notif, idx) => (
+                <div key={idx} className="flex items-start gap-2 p-2 bg-slate-700/50 rounded text-sm text-slate-200">
+                  <span className="flex-1">{notif}</span>
+                  <button
+                    onClick={() => setNotifications(notifications.filter((_, i) => i !== idx))}
+                    className="text-slate-400 hover:text-red-400 flex-shrink-0"
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
 
         {/* Navigation */}
         <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
