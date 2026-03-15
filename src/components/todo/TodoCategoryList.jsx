@@ -134,12 +134,6 @@ export default function TodoCategoryList({
                     <span className="flex-1 text-sm font-medium truncate">{cat.name}</span>
                     }
 
-                        {count > 0 &&
-                    <span className={`text-sm rounded-full font-bold text-white ${colorObj.selected}`} style={{paddingTop: '5px', paddingBottom: '5px', paddingLeft: '8px', paddingRight: '8px'}}>
-                            {count}
-                          </span>
-                    }
-
                         <div className={`flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity`}>
                           <button
                         onClick={(e) => startEdit(cat, e)}
