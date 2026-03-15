@@ -38,43 +38,21 @@ function LayoutContent({ children, currentPageName }) {
     });
   };
 
-  if (loading || !authChecked) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
-        <div className="text-center">
-          <div className="w-16 h-16 bg-blue-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
-            <LayoutDashboard className="w-8 h-8 text-blue-400" />
-          </div>
-          <p className="text-lg font-semibold text-slate-300">טוען...</p>
-        </div>
-      </div>);
-  }
-
-  if (!currentUser && currentPageName !== 'AppLogin') {
-    window.location.href = createPageUrl('AppLogin');
-    return null;
-  }
-
-  if (currentUser && currentPageName === 'AppLogin') {
-    window.location.href = createPageUrl('Dashboard');
-    return null;
-  }
-
   const navItems = [
-  { name: 'Dashboard', label: 'דשבורד', icon: LayoutDashboard, adminOnly: false, section: 'main' },
-  { name: 'UserManagement', label: 'משתמשים', icon: UsersIcon, adminOnly: true, section: 'admin' },
-  { name: 'StatusManagement', label: 'סטטוסים', icon: SlidersHorizontal, adminOnly: true, section: 'admin' },
-  { name: 'Import', label: 'ייבוא', icon: Upload, adminOnly: true, section: 'admin' },
-  { name: 'Tasks', label: 'משימות', icon: ClipboardList, adminOnly: false, section: 'main' },
-  { name: 'Calendar', label: 'יומן', icon: Clock, adminOnly: false, section: 'main' },
-  { name: 'Documents', label: 'מסמכים', icon: BookOpen, adminOnly: false, section: 'main' },
-  { name: 'Contacts', label: 'אנשי קשר', icon: ContactRound, adminOnly: false, section: 'main' },
-  { name: 'SupplierManagement', label: 'ספקים', icon: Users, adminOnly: false, section: 'main' },
-  { name: 'WhatsAppTemplates', label: 'תבניות וואטסאפ', icon: MessageCircle, adminOnly: true, section: 'admin' },
-  { name: 'WhatsAppChat', label: 'צ\'אט וואטסאפ', icon: MessageCircle, adminOnly: false, section: 'main' },
-  { name: 'TodoReminders', label: 'תזכורות', icon: AlertTriangle, adminOnly: false, section: 'main' },
-  { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true, section: 'admin' }];
-
+    { name: 'Dashboard', label: 'דשבורד', icon: LayoutDashboard, adminOnly: false, section: 'main' },
+    { name: 'UserManagement', label: 'משתמשים', icon: UsersIcon, adminOnly: true, section: 'admin' },
+    { name: 'StatusManagement', label: 'סטטוסים', icon: SlidersHorizontal, adminOnly: true, section: 'admin' },
+    { name: 'Import', label: 'ייבוא', icon: Upload, adminOnly: true, section: 'admin' },
+    { name: 'Tasks', label: 'משימות', icon: ClipboardList, adminOnly: false, section: 'main' },
+    { name: 'Calendar', label: 'יומן', icon: Clock, adminOnly: false, section: 'main' },
+    { name: 'Documents', label: 'מסמכים', icon: BookOpen, adminOnly: false, section: 'main' },
+    { name: 'Contacts', label: 'אנשי קשר', icon: ContactRound, adminOnly: false, section: 'main' },
+    { name: 'SupplierManagement', label: 'ספקים', icon: Users, adminOnly: false, section: 'main' },
+    { name: 'WhatsAppTemplates', label: 'תבניות וואטסאפ', icon: MessageCircle, adminOnly: true, section: 'admin' },
+    { name: 'WhatsAppChat', label: 'צ\'אט וואטסאפ', icon: MessageCircle, adminOnly: false, section: 'main' },
+    { name: 'TodoReminders', label: 'תזכורות', icon: AlertTriangle, adminOnly: false, section: 'main' },
+    { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true, section: 'admin' }
+  ];
 
   const filteredNavItems = navItems.filter((item) => {
     if (!item.adminOnly) return true;
@@ -83,10 +61,6 @@ function LayoutContent({ children, currentPageName }) {
 
   const mainItems = filteredNavItems.filter((i) => i.section === 'main');
   const adminItems = filteredNavItems.filter((i) => i.section === 'admin');
-
-  const handleLogout = () => {
-    logout();
-  };
 
   // Handle new task events from Tasks page
   useEffect(() => {
@@ -101,25 +75,49 @@ function LayoutContent({ children, currentPageName }) {
   }, []);
 
   const renderNavSection = (items) =>
-  <div className="space-y-1">
+    <div className="space-y-1">
       {items.map((item) => {
-      const isActive = currentPageName === item.name;
-      return (
-        <button
-          key={item.name}
-          onClick={() => handleNavigation(item.name)}
-          className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-sm font-medium ${
-          isActive ?
-          'bg-slate-700/50 text-white' :
-          'text-slate-400 hover:text-slate-200 hover:bg-slate-700/30'}`
-          }>
-
+        const isActive = currentPageName === item.name;
+        return (
+          <button
+            key={item.name}
+            onClick={() => handleNavigation(item.name)}
+            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-sm font-medium ${
+              isActive ? 'bg-slate-700/50 text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/30'
+            }`}>
             <item.icon className="w-5 h-5 flex-shrink-0" />
             {!isCollapsed && <span className="flex-1 text-right">{item.label}</span>}
-          </button>);
-
-    })}
+          </button>
+        );
+      })}
     </div>;
+
+  if (loading || !authChecked) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 to-slate-800">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-blue-500/20 rounded-2xl flex items-center justify-center mx-auto mb-4 animate-pulse">
+            <LayoutDashboard className="w-8 h-8 text-blue-400" />
+          </div>
+          <p className="text-lg font-semibold text-slate-300">טוען...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!currentUser && currentPageName !== 'AppLogin') {
+    window.location.href = createPageUrl('AppLogin');
+    return null;
+  }
+
+  if (currentUser && currentPageName === 'AppLogin') {
+    window.location.href = createPageUrl('Dashboard');
+    return null;
+  }
+
+  const handleLogout = () => {
+    logout();
+  };
 
 
   return (
