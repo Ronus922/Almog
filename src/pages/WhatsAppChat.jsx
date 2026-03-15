@@ -238,6 +238,28 @@ export default function WhatsAppChat() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // Polling כל 30 שניות למשיכת הודעות נכנסות מ-Green API
+  useEffect(() => {
+    const poll = async () => {
+      try {
+        await base44.functions.invoke('pollGreenAPIMessages', {});
+        // רענן הודעות ורשימת שיחות לאחר כל polling
+        queryClient.invalidateQueries({ queryKey: ['contacts'] });
+        if (selectedContact?.id) {
+          queryClient.invalidateQueries({ queryKey: ['chatMessages', selectedContact.id] });
+        }
+      } catch (e) {
+        console.error('[Poll] Error:', e);
+      }
+    };
+
+    // הרץ פעם ראשונה מיד
+    poll();
+
+    const interval = setInterval(poll, 30000);
+    return () => clearInterval(interval);
+  }, [selectedContact?.id, queryClient]);
+
   // Sync WhatsApp profile image when contact is selected
   useEffect(() => {
     if (!selectedContact?.id) return;
