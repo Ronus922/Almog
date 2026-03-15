@@ -32,17 +32,15 @@ function LayoutContent({ children, currentPageName }) {
   const isAdmin = isManagerRole(currentUser);
 
   useEffect(() => {
-    if (currentPageName === 'Tasks') {
-      const handleTaskChange = (e) => {
-        if (e.detail?.action === 'created') {
-          setNotifications(prev => [...prev, `משימה חדשה: ${e.detail.title}`]);
-          setShowNotifications(true);
-        }
-      };
-      window.addEventListener('taskCreated', handleTaskChange);
-      return () => window.removeEventListener('taskCreated', handleTaskChange);
-    }
-  }, [currentPageName]);
+    const handleTaskChange = (e) => {
+      if (e.detail?.action === 'created') {
+        setNotifications(prev => [...prev, `משימה חדשה: ${e.detail.title}`]);
+        setShowNotifications(true);
+      }
+    };
+    window.addEventListener('taskCreated', handleTaskChange);
+    return () => window.removeEventListener('taskCreated', handleTaskChange);
+  }, []);
 
   const handleNavigation = (pageName) => {
     attemptNavigation(() => {
