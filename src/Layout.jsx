@@ -113,26 +113,27 @@ function LayoutContent({ children, currentPageName }) {
   return (
     <div className="min-h-screen bg-slate-50 flex" dir="rtl">
       {/* Sidebar Desktop - Fixed */}
-      <aside className={`hidden md:flex md:flex-col fixed right-0 top-0 h-screen bg-gradient-to-b from-slate-800 via-slate-800 to-slate-900 border-l border-slate-700 z-50 transition-all duration-300 shadow-2xl ${
+      <aside className={`hidden md:flex md:flex-col fixed right-0 top-0 h-screen bg-gradient-to-b from-slate-800 via-slate-800 to-slate-900 border-l border-slate-700 z-50 transition-all duration-300 shadow-2xl scrollbar-hide ${
         isCollapsed ? 'w-20' : 'w-64'
       }`}>
         
         {/* Header */}
-        <div className="p-4 border-b border-slate-700">
-          <div className="flex items-center justify-between gap-2">
-            {!isCollapsed && (
-              <h1 className="text-lg font-bold text-white">מערכת</h1>
-            )}
-            <div className="w-8 h-8 rounded-lg bg-slate-700 flex items-center justify-center text-slate-300">
-              {isCollapsed ? '◀' : '▼'}
-            </div>
-          </div>
+        <div className="p-3 border-b border-slate-700 flex items-center justify-between">
+          {!isCollapsed && (
+            <h1 className="text-lg font-bold text-white">מערכת</h1>
+          )}
+          <button
+            onClick={() => setIsCollapsed(!isCollapsed)}
+            className="w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors text-slate-300 hover:text-white flex items-center justify-center flex-shrink-0"
+          >
+            <ChevronLeft className={`w-4 h-4 transition-transform ${isCollapsed ? 'rotate-180' : ''}`} />
+          </button>
         </div>
 
         {/* Search/Filter */}
         {!isCollapsed && (
-          <div className="px-3 py-4 border-b border-slate-700">
-            <div className="flex items-center bg-slate-700/50 rounded-lg px-3 py-2 gap-2">
+          <div className="px-3 py-2.5 border-b border-slate-700">
+            <div className="flex items-center bg-slate-700/50 rounded-lg px-3 py-1.5 gap-2">
               <input
                 type="text"
                 placeholder="חיפוש..."
@@ -146,10 +147,10 @@ function LayoutContent({ children, currentPageName }) {
         )}
 
         {/* Notifications Section */}
-        <div className="px-3 py-4 border-b border-slate-700">
+        <div className="px-3 py-2 border-b border-slate-700">
           <button
             onClick={() => setShowNotifications(!showNotifications)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 ${
+            className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-lg transition-all duration-200 ${
               notifications.length > 0
                 ? 'bg-orange-500/20 text-orange-300 hover:bg-orange-500/30'
                 : 'bg-slate-700/30 text-slate-400 hover:bg-slate-700/50'
@@ -193,7 +194,7 @@ function LayoutContent({ children, currentPageName }) {
         </div>
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-4 overflow-y-auto">
+        <nav className="flex-1 px-3 py-2 space-y-2 overflow-y-auto scrollbar-hide">
           {!isCollapsed && mainItems.length > 0 && (
             <div>
               <p className="text-xs text-slate-500 uppercase font-bold px-2 mb-2">תפריט ראשי</p>
@@ -218,10 +219,10 @@ function LayoutContent({ children, currentPageName }) {
 
         {/* User Section */}
         {currentUser && !isCollapsed && (
-          <div className="p-4 border-b border-slate-700">
+          <div className="p-3 border-b border-slate-700">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <button className="w-full flex items-center gap-3 p-3 rounded-lg hover:bg-slate-700/50 transition-colors text-right">
+                <button className="w-full flex items-center gap-3 p-2.5 rounded-lg hover:bg-slate-700/50 transition-colors text-right">
                   <div className="w-10 h-10 rounded-full bg-slate-600 flex items-center justify-center flex-shrink-0">
                     <User className="w-5 h-5 text-white" />
                   </div>
@@ -251,15 +252,7 @@ function LayoutContent({ children, currentPageName }) {
           </div>
         )}
 
-        {/* Collapse Button */}
-        <div className="p-3 flex justify-center">
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="w-12 h-12 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors text-slate-300 hover:text-white flex items-center justify-center shadow-lg border border-slate-600 hover:border-slate-500"
-          >
-            <ChevronLeft className={`w-5 h-5 transition-transform ${isCollapsed ? 'rotate-180' : ''}`} />
-          </button>
-        </div>
+
       </aside>
 
       {/* Mobile Sidebar */}
@@ -354,6 +347,13 @@ export default function Layout({ children, currentPageName }) {
         }
         strong, b {
           font-weight: 700;
+        }
+        .scrollbar-hide {
+          -ms-overflow-style: none;
+          scrollbar-width: none;
+        }
+        .scrollbar-hide::-webkit-scrollbar {
+          display: none;
         }
         `}</style>
         <LayoutContent children={children} currentPageName={currentPageName} />
