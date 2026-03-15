@@ -1,13 +1,18 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
+/**
+ * Green API - קבלת הודעות נכנסות
+ * משתמש ב-receiveNotification (pull-based) של Green API
+ * קורא הודעות אחת-אחת ומוחק אותן מהתור לאחר עיבוד
+ */
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    // Get Green API credentials
+    // קבל פרטי Green API
     let instanceId = Deno.env.get('GREEN_API_INSTANCE_ID');
     let token = Deno.env.get('GREEN_API_TOKEN');
-    
+
     try {
       const settingsList = await base44.asServiceRole.entities.Settings.list();
       if (settingsList.length > 0) {
@@ -21,75 +26,108 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Green API credentials not configured' }, { status: 500 });
     }
 
-    // Get last message timestamp from storage
-    const settingsList = await base44.asServiceRole.entities.Settings.list();
-    let lastMessageTime = settingsList[0]?.lastWhatsAppCheckTime ? new Date(settingsList[0].lastWhatsAppCheckTime).getTime() / 1000 : Math.floor(Date.now() / 1000) - 300;
+    // קבל את כל אנשי הקשר פעם אחת
+    const contacts = await base44.asServiceRole.entities.Contact.filter({});
+    console.log(`[POLL] Contacts in DB: ${contacts.length}`);
 
-    // Fetch messages from Green API
-    const res = await fetch(`https://api.green-api.com/waInstance${instanceId}/messages/${token}`, {
-      method: 'GET'
-    });
-
-    if (!res.ok) {
-      console.error('Green API error:', res.status);
-      return Response.json({ error: 'Failed to fetch messages from Green API' }, { status: res.status });
-    }
-
-    const data = await res.json();
-    const messages = data?.data || [];
-
-    // Process new messages
     let processedCount = 0;
-    for (const msg of messages) {
-      if (msg.timestamp <= lastMessageTime || msg.typeMessage === 'outgoing') continue;
+    let skippedCount = 0;
 
-      const phone = msg.senderData?.sender?.replace('@c.us', '') || '';
-      if (!phone) continue;
+    // Green API receiveNotification - pull הודעות מהתור (עד 20 בכל ריצה)
+    for (let i = 0; i < 20; i++) {
+      const receiveRes = await fetch(
+        `https://api.green-api.com/waInstance${instanceId}/receiveNotification/${token}`,
+        { method: 'GET' }
+      );
 
-      // Normalize phone for matching
-      let normalizedPhone = phone;
-      if (phone.startsWith('972')) {
-        normalizedPhone = '0' + phone.slice(3);
+      if (!receiveRes.ok) {
+        console.error(`[POLL] receiveNotification error: ${receiveRes.status}`);
+        break;
       }
 
-      // Find contact
-      const contacts = await base44.asServiceRole.entities.Contact.filter({
-        "$or": [
-          { "owner_phone": phone },
-          { "owner_phone": normalizedPhone },
-          { "tenant_phone": phone },
-          { "tenant_phone": normalizedPhone }
-        ]
-      });
+      const notification = await receiveRes.json();
 
-      if (contacts?.length > 0) {
-        // Save message
-        try {
-          await base44.asServiceRole.entities.ChatMessage.create({
-            contact_id: contacts[0].id,
-            contact_phone: phone,
-            direction: 'received',
-            message_type: 'text',
-            content: msg.textMessageData?.textMessage || msg.body || '',
-            timestamp: new Date(msg.timestamp * 1000).toISOString()
-          });
-          processedCount++;
-        } catch (e) {
-          console.error('Failed to save message:', e);
+      // אם אין הודעות בתור - עצור
+      if (!notification || !notification.body) {
+        console.log(`[POLL] No more notifications in queue after ${i} items`);
+        break;
+      }
+
+      const receiptId = notification.receiptId;
+      const body = notification.body;
+
+      console.log(`[POLL] Notification type: ${body.typeWebhook}, receiptId: ${receiptId}`);
+
+      // רק הודעות נכנסות
+      if (body.typeWebhook === 'incomingMessageReceived') {
+        const senderRaw = body.senderData?.sender || '';
+        let senderPhone = senderRaw.replace(/[^0-9]/g, '');
+        if (senderPhone.startsWith('972')) {
+          senderPhone = '0' + senderPhone.substring(3);
         }
+
+        console.log(`[POLL] Incoming message from: ${senderPhone}`);
+
+        // חפש איש קשר מתאים
+        const senderPhoneClean = senderPhone.replace(/[^0-9]/g, '');
+        const contact = contacts.find(c => {
+          const phones = [c.owner_phone, c.tenant_phone].filter(p => p);
+          return phones.some(p => p.replace(/[^0-9]/g, '') === senderPhoneClean);
+        });
+
+        if (contact) {
+          console.log(`[POLL] Contact found: apartment ${contact.apartment_number}`);
+
+          // חלץ תוכן ההודעה לפי סוג
+          let content = '';
+          let message_type = 'text';
+          const msgData = body.messageData || {};
+
+          if (msgData.typeMessage === 'textMessage') {
+            content = msgData.textMessageData?.textMessage || '';
+          } else if (msgData.typeMessage === 'imageMessage') {
+            content = msgData.imageMessageData?.downloadUrl || msgData.imageMessageData?.jpegThumbnail || '';
+            message_type = 'image';
+          } else if (msgData.typeMessage === 'documentMessage') {
+            content = msgData.documentMessageData?.downloadUrl || msgData.documentMessageData?.fileName || '';
+            message_type = 'document';
+          } else if (msgData.typeMessage === 'extendedTextMessage') {
+            content = msgData.extendedTextMessageData?.text || '';
+          }
+
+          const timestamp = new Date((body.timestamp || Date.now() / 1000) * 1000).toISOString();
+
+          await base44.asServiceRole.entities.ChatMessage.create({
+            contact_id: contact.id,
+            contact_phone: senderPhone,
+            direction: 'received',
+            message_type,
+            content,
+            timestamp
+          });
+
+          processedCount++;
+          console.log(`[POLL] ✓ Message saved for apartment ${contact.apartment_number}`);
+        } else {
+          console.log(`[POLL] No contact found for phone: ${senderPhone}`);
+          skippedCount++;
+        }
+      } else {
+        skippedCount++;
       }
+
+      // מחק את ההתראה מהתור לאחר עיבוד
+      await fetch(
+        `https://api.green-api.com/waInstance${instanceId}/deleteNotification/${token}/${receiptId}`,
+        { method: 'DELETE' }
+      );
     }
 
-    // Update last check time
-    if (settingsList.length > 0) {
-      await base44.asServiceRole.entities.Settings.update(settingsList[0].id, {
-        lastWhatsAppCheckTime: new Date().toISOString()
-      });
-    }
+    console.log(`[POLL] Done. processed=${processedCount}, skipped=${skippedCount}`);
+    return Response.json({ success: true, processedCount, skippedCount });
 
-    return Response.json({ success: true, processedCount });
   } catch (error) {
-    console.error('Poll error:', error);
+    console.error('[POLL] Error:', error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
