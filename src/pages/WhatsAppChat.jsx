@@ -387,8 +387,8 @@ export default function WhatsAppChat() {
                   </Button>
                 </div>
                 <div className="text-right flex-1">
-                   <h3 className="font-semibold text-gray-900">{selectedContact.owner_name || selectedContact.tenant_name}</h3>
-                   <LinkedContactInfo contact={selectedContact} />
+                  <h3 className="font-semibold text-gray-900">{getPrimaryName(selectedContact)}</h3>
+                  <LinkedContactInfo contact={selectedContact} />
                 </div>
                 <div className="flex items-center gap-3">
                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm overflow-hidden">
