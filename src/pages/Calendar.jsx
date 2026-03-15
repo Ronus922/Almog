@@ -173,10 +173,10 @@ export default function Calendar() {
     // itemTypeFilter === 'הכל' shows all
     
     // 2. Filter by meeting type (only applies to meetings)
-    if (meetingTypeFilter && result.length > 0) {
+    if (meetingTypeFilter) {
       result = result.filter(a => {
         if (a.appointment_type !== 'פגישה') return true; // non-meetings pass through
-        return a.appointment_type === meetingTypeFilter;
+        return a.meeting_type === meetingTypeFilter;
       });
     }
     
@@ -331,9 +331,10 @@ export default function Calendar() {
         setEditMode(null);
         setShowEditDialog(true);
       } else {
-        await updateMutation.mutateAsync({ id: selectedAppointment.id, data });
+        const result = await updateMutation.mutateAsync({ id: selectedAppointment.id, data });
         setShowForm(false);
         setSelectedAppointment(null);
+        return result;
       }
     } else {
       // Create new
@@ -364,11 +365,14 @@ export default function Calendar() {
           });
         }
 
+        let lastResult = null;
         for (const instance of instances) {
-          await createMutation.mutateAsync(instance);
+          lastResult = await createMutation.mutateAsync(instance);
         }
+        return lastResult;
       } else if (!data.is_recurring) {
-        await createMutation.mutateAsync(data);
+        const result = await createMutation.mutateAsync(data);
+        return result;
       }
     }
   };
