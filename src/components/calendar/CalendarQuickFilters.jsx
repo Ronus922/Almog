@@ -178,21 +178,21 @@ export default function CalendarQuickFilters({
         )}
 
         {/* User Filter */}
-        <Select value={userFilter || ''} onValueChange={onUserChange}>
-          <SelectTrigger className="w-48 h-10 text-sm">
-            <SelectValue placeholder="משתמש" />
-          </SelectTrigger>
-          <SelectContent dir="rtl">
-            <SelectItem value={null}>כל המשתמשים</SelectItem>
-            {users.map(user => (
-              <SelectItem key={user.id} value={user.id}>
-                {user.first_name && user.last_name
-                  ? `${user.first_name} ${user.last_name}`
-                  : user.username}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+         <Select value={userFilter || ''} onValueChange={onUserChange}>
+           <SelectTrigger className="w-48 h-10 text-sm">
+             <SelectValue placeholder="משתמש" />
+           </SelectTrigger>
+           <SelectContent dir="rtl">
+             <SelectItem value={null}>כל המשתמשים</SelectItem>
+             {users.map(user => (
+               <SelectItem key={user.id} value={user.id}>
+                 {user.first_name && user.last_name
+                   ? `${user.first_name} ${user.last_name}`
+                   : user.username}
+               </SelectItem>
+             ))}
+           </SelectContent>
+         </Select>
 
         {hasActiveFilters && (
           <Button
