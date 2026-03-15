@@ -25,20 +25,17 @@ function LayoutContent({ children, currentPageName }) {
   const navigate = useNavigate();
   const { currentUser, logout, loading, authChecked } = useAuth();
   const { attemptNavigation, importInProgress, ConfirmDialog } = useNavigationBlock();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const isAdmin = isManagerRole(currentUser);
 
-  // Safe navigation with import guard
   const handleNavigation = (pageName) => {
     attemptNavigation(() => {
       navigate(createPageUrl(pageName));
-      setIsMobileMenuOpen(false);
+      setIsSidebarOpen(false);
     });
   };
 
-  // Show loading state while checking auth
   if (loading || !authChecked) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
@@ -49,28 +46,17 @@ function LayoutContent({ children, currentPageName }) {
           <p className="text-lg font-semibold text-slate-700">טוען...</p>
         </div>
       </div>);
-
   }
 
-  // CRITICAL: If not authenticated and not on login page, redirect
   if (!currentUser && currentPageName !== 'AppLogin') {
     window.location.href = createPageUrl('AppLogin');
     return null;
   }
 
-  // Redirect to Dashboard if authenticated and on login page
   if (currentUser && currentPageName === 'AppLogin') {
     window.location.href = createPageUrl('Dashboard');
     return null;
   }
-
-  console.log('[Layout] User check:', {
-    user: currentUser?.username || currentUser?.email,
-    role: currentUser?.role,
-    isBase44Admin: currentUser?.isBase44Admin,
-    isAdmin,
-    authChecked
-  });
 
   const navItems = [
   { name: 'Dashboard', label: 'דשבורד', icon: LayoutDashboard, adminOnly: false },
@@ -87,11 +73,9 @@ function LayoutContent({ children, currentPageName }) {
   { name: 'TodoReminders', label: 'תזכורות', icon: ClipboardList, adminOnly: false },
   { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true }];
 
-
-  // הצגת פריטים רק למי שיש לו הרשאה
   const filteredNavItems = navItems.filter((item) => {
-    if (!item.adminOnly) return true; // פריטים כלליים תמיד מוצגים
-    return isAdmin; // פריטים של admin רק למנהלים
+    if (!item.adminOnly) return true;
+    return isAdmin;
   });
 
   const handleLogout = () => {
@@ -99,10 +83,89 @@ function LayoutContent({ children, currentPageName }) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50" dir="rtl">
-      {/* Sidebar */}
-      <aside className={`fixed right-0 top-16 h-[calc(100vh-64px)] w-64 bg-white border-l border-slate-200 shadow-lg transform transition-transform duration-300 z-40 overflow-y-auto ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-        <nav className="p-4 space-y-2">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 flex" dir="rtl">
+      {/* Sidebar קבוע - Desktop */}
+      <aside className="hidden md:flex md:flex-col fixed right-0 top-0 h-screen w-72 bg-white border-l border-slate-200 shadow-xl z-50 overflow-y-auto">
+        {/* Header בסיידבר */}
+        <div className="bg-gradient-to-l from-blue-600 to-indigo-600 p-6 flex items-center gap-3 text-white">
+          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+            <Building2 className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="font-bold text-lg">מערכת</h1>
+            <p className="text-xs text-blue-100">ניהול וארגון</p>
+          </div>
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 px-3 py-6 space-y-1">
+          {filteredNavItems.map((item) => {
+            const isActive = currentPageName === item.name;
+            return (
+              <button
+                key={item.name}
+                onClick={() => handleNavigation(item.name)}
+                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-200 text-right ${
+                  isActive
+                    ? 'bg-gradient-to-l from-blue-100 to-blue-50 text-blue-700 shadow-sm border border-blue-200'
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'
+                }`}
+              >
+                <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
+                <span className="flex-1 text-right">{item.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* User section בתחתית סיידבר */}
+        {currentUser &&
+        <div className="border-t border-slate-200 p-4 space-y-3">
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="w-full flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors text-right">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center flex-shrink-0">
+                  <User className="w-5 h-5 text-white" />
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-slate-800">{currentUser.username}</p>
+                  <p className="text-xs text-slate-500">
+                    {currentUser.isBase44Admin ? 'מנהל עליון' : currentUser.role === 'ADMIN' ? 'מנהל' : 'צופה'}
+                  </p>
+                </div>
+                <ChevronDown className="w-4 h-4 text-slate-400" />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="start" className="w-56">
+              <div className="px-3 py-3">
+                <p className="text-sm font-semibold text-slate-800">{currentUser.username}</p>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {currentUser.isBase44Admin ? 'מנהל עליון' : currentUser.role === 'ADMIN' ? 'מנהל' : 'צופה'}
+                </p>
+              </div>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer">
+                <LogOut className="w-4 h-4 ml-2" />
+                התנתק
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+        }
+      </aside>
+
+      {/* Mobile Sidebar */}
+      <aside className={`md:hidden fixed right-0 top-0 h-screen w-64 bg-white shadow-2xl transform transition-transform duration-300 z-40 overflow-y-auto ${isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+        <div className="bg-gradient-to-l from-blue-600 to-indigo-600 p-6 flex items-center gap-3 text-white">
+          <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+            <Building2 className="w-6 h-6" />
+          </div>
+          <div>
+            <h1 className="font-bold text-lg">מערכת</h1>
+            <p className="text-xs text-blue-100">ניהול וארגון</p>
+          </div>
+        </div>
+        <nav className="p-3 space-y-1">
           {filteredNavItems.map((item) => {
             const isActive = currentPageName === item.name;
             return (
@@ -112,13 +175,13 @@ function LayoutContent({ children, currentPageName }) {
                   handleNavigation(item.name);
                   setIsSidebarOpen(false);
                 }}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 text-right ${
+                className={`w-full flex items-center gap-3 px-4 py-3.5 rounded-xl text-sm font-medium transition-all duration-200 text-right ${
                   isActive
-                    ? 'bg-blue-100 text-blue-700 font-semibold shadow-sm'
-                    : 'text-slate-700 hover:bg-slate-100'
+                    ? 'bg-gradient-to-l from-blue-100 to-blue-50 text-blue-700 shadow-sm border border-blue-200'
+                    : 'text-slate-600 hover:bg-slate-50 hover:text-slate-800'
                 }`}
               >
-                <item.icon className="w-5 h-5 flex-shrink-0" />
+                <item.icon className={`w-5 h-5 flex-shrink-0 ${isActive ? 'text-blue-600' : 'text-slate-400'}`} />
                 <span className="flex-1 text-right">{item.label}</span>
               </button>
             );
@@ -126,93 +189,47 @@ function LayoutContent({ children, currentPageName }) {
         </nav>
       </aside>
 
-      {/* Overlay */}
+      {/* Mobile Overlay */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/20 z-30 top-16"
+          className="md:hidden fixed inset-0 bg-black/20 z-30"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
-      {/* Header */}
-      <header className="bg-gradient-to-r from-blue-600 to-indigo-600 border-b border-blue-700/30 sticky top-0 z-50 shadow-lg">
-        <div className="px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            {/* לוגו אחד בלבד - ימין */}
-            
-
-
-
-
-
-
-
-            {/* כפתור תפריט - שמאל */}
-            <Button
-              variant="ghost"
-              size="icon"
-              className="h-9 w-9 text-white hover:bg-white/15"
-              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            >
-              {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-            </Button>
-
-            {/* תפריט משתמש - שמאל */}
+      <div className="flex-1 md:mr-72 flex flex-col">
+        {/* Header - Mobile Only */}
+        <header className="md:hidden bg-gradient-to-r from-blue-600 to-indigo-600 border-b border-blue-700/30 sticky top-0 z-50 shadow-lg">
+          <div className="px-4 flex items-center justify-between h-16">
             <div className="flex items-center gap-2">
-              {currentUser &&
-              <div className="hidden md:flex items-center gap-2">
-                   <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                      <Button variant="ghost" className="gap-2 h-9 text-white hover:bg-white/15">
-                        <div className="w-7 h-7 rounded-full bg-white/30 backdrop-blur-sm flex items-center justify-center">
-                          <User className="w-4 h-4 text-white" />
-                        </div>
-                        <span className="text-sm font-medium">שלום, {currentUser.username}</span>
-                        <ChevronDown className="w-3 h-3 text-white/70" />
-                      </Button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent align="start" className="w-56">
-                      <div className="px-3 py-3">
-                        <p className="text-sm font-semibold text-slate-800">{currentUser.username}</p>
-                        <p className="text-xs text-slate-500 mt-0.5">
-                          {currentUser.isBase44Admin ?
-                        'Base44 Super Admin' :
-                        currentUser.role === 'ADMIN' ? 'מנהל' :
-                        'צופה'}
-                        </p>
-                      </div>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={handleLogout} className="text-red-600 cursor-pointer">
-                        <LogOut className="w-4 h-4 ml-2" />
-                        התנתק
-                      </DropdownMenuItem>
-                    </DropdownMenuContent>
-                  </DropdownMenu>
-                </div>
-              }
-
-              {/* פעמון */}
-              {currentUser &&
-              <NotificationBell currentUser={currentUser} />
-              }
+              {currentUser && (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-9 w-9 text-white hover:bg-white/15"
+                    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                  >
+                    {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+                  </Button>
+                  <NotificationBell currentUser={currentUser} />
+                </>
+              )}
             </div>
           </div>
-        </div>
+        </header>
 
-
-      </header>
-
-      {/* תוכן */}
-      <main>
-        <ImportGuard>
-          {children}
-        </ImportGuard>
-      </main>
+        {/* תוכן */}
+        <main className="flex-1">
+          <ImportGuard>
+            {children}
+          </ImportGuard>
+        </main>
+      </div>
 
       <ConfirmDialog />
       <GlobalAlert />
-      </div>);
-
+    </div>);
 }
 
 export default function Layout({ children, currentPageName }) {
@@ -248,5 +265,4 @@ export default function Layout({ children, currentPageName }) {
       </ImportProvider>
       </AlertProvider>
       </AuthProvider>);
-
 }
