@@ -290,6 +290,8 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
         ) : (
         <>
             <div className="space-y-4 mt-2 flex-1 overflow-y-auto px-6 pt-4">
+              {isEdit && <RecurringTaskInfo task={task} />}
+              
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label className="text-sm font-semibold text-slate-700">תאריך יעד *</Label>
