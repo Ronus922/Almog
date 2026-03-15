@@ -91,8 +91,11 @@ function LayoutContent({ children, currentPageName }) {
   useEffect(() => {
     const handleNewTask = (e) => {
       if (e.detail?.task) {
-        setTasks(prev => [e.detail.task, ...prev]);
-        setShowNotifications(true);
+        setTasks(prev => {
+          const newTasks = [e.detail.task, ...prev];
+          setShowNotifications(true);
+          return newTasks;
+        });
       }
     };
     window.addEventListener('newTask', handleNewTask);
