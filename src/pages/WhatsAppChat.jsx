@@ -393,9 +393,9 @@ export default function WhatsAppChat() {
                 <div className="flex items-center gap-3">
                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm overflow-hidden">
                     {selectedContact.whatsapp_profile_image_url || selectedContact.whatsapp_profile_image ?
-                  <img src={selectedContact.whatsapp_profile_image_url || selectedContact.whatsapp_profile_image} alt={selectedContact.owner_name || selectedContact.tenant_name} className="w-full h-full object-cover" /> :
+                  <img src={selectedContact.whatsapp_profile_image_url || selectedContact.whatsapp_profile_image} alt={getPrimaryName(selectedContact)} className="w-full h-full object-cover" /> :
 
-                  (selectedContact.owner_name || selectedContact.tenant_name).split(' ').map((n) => n[0]).join('').substring(0, 2)
+                  getPrimaryName(selectedContact).split(' ').map((n) => n[0]).join('').substring(0, 2)
                   }
                   </div>
                 </div>
