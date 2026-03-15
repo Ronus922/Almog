@@ -118,7 +118,7 @@ export default function TodoReminders() {
   });
 
   const renameCategoryMutation = useMutation({
-    mutationFn: ({ id, name }) => base44.entities.TodoCategory.update(id, { name }),
+    mutationFn: ({ id, name, color }) => base44.entities.TodoCategory.update(id, { name, color }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['todo-categories'] })
   });
 
