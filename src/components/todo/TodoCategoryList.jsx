@@ -6,15 +6,15 @@ import { Plus, Edit2, Archive, Folder, GripVertical, AlertCircle, X } from 'luci
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 
 const COLOR_OPTIONS = [
-  { key: 'blue',   label: 'כחול',  dot: 'bg-blue-500',   soft: 'bg-blue-50 border-blue-200',   selected: 'bg-blue-600 text-white' },
-  { key: 'green',  label: 'ירוק',  dot: 'bg-green-500',  soft: 'bg-green-50 border-green-200',  selected: 'bg-green-600 text-white' },
-  { key: 'orange', label: 'כתום',  dot: 'bg-orange-400', soft: 'bg-orange-50 border-orange-200', selected: 'bg-orange-500 text-white' },
-  { key: 'purple', label: 'סגול',  dot: 'bg-purple-500', soft: 'bg-purple-50 border-purple-200', selected: 'bg-purple-600 text-white' },
-  { key: 'pink',   label: 'ורוד',  dot: 'bg-pink-400',   soft: 'bg-pink-50 border-pink-200',    selected: 'bg-pink-500 text-white' },
-];
+{ key: 'blue', label: 'כחול', dot: 'bg-blue-500', soft: 'bg-blue-50 border-blue-200', selected: 'bg-blue-600 text-white' },
+{ key: 'green', label: 'ירוק', dot: 'bg-green-500', soft: 'bg-green-50 border-green-200', selected: 'bg-green-600 text-white' },
+{ key: 'orange', label: 'כתום', dot: 'bg-orange-400', soft: 'bg-orange-50 border-orange-200', selected: 'bg-orange-500 text-white' },
+{ key: 'purple', label: 'סגול', dot: 'bg-purple-500', soft: 'bg-purple-50 border-purple-200', selected: 'bg-purple-600 text-white' },
+{ key: 'pink', label: 'ורוד', dot: 'bg-pink-400', soft: 'bg-pink-50 border-pink-200', selected: 'bg-pink-500 text-white' }];
+
 
 export function getCategoryColor(colorKey) {
-  return COLOR_OPTIONS.find(c => c.key === colorKey) || COLOR_OPTIONS[0];
+  return COLOR_OPTIONS.find((c) => c.key === colorKey) || COLOR_OPTIONS[0];
 }
 
 export default function TodoCategoryList({
@@ -25,7 +25,7 @@ export default function TodoCategoryList({
   onRename,
   onReorder,
   onArchive,
-  itemCounts = {},
+  itemCounts = {}
 }) {
   const [showCreate, setShowCreate] = useState(false);
   const [newName, setNewName] = useState('');
@@ -44,7 +44,7 @@ export default function TodoCategoryList({
   };
 
   const handleRename = (id) => {
-    if (!editingName.trim()) { setEditingId(null); return; }
+    if (!editingName.trim()) {setEditingId(null);return;}
     onRename(id, editingName.trim(), editingColor);
     setEditingId(null);
     setEditingName('');
@@ -81,109 +81,109 @@ export default function TodoCategoryList({
         </Button>
       </div>
 
-      {archiveAlert && (
-        <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2 text-sm text-amber-800">
+      {archiveAlert &&
+      <div className="mb-3 p-3 bg-amber-50 border border-amber-200 rounded-lg flex items-start gap-2 text-sm text-amber-800">
           <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
           <span className="flex-1">{archiveAlert}</span>
           <button onClick={() => setArchiveAlert(null)}><X className="w-3.5 h-3.5" /></button>
         </div>
-      )}
+      }
 
       <DragDropContext onDragEnd={handleDragEnd}>
         <Droppable droppableId="categories">
-          {(provided) => (
-            <div ref={provided.innerRef} {...provided.droppableProps} className="flex-1 space-y-1 overflow-y-auto">
+          {(provided) =>
+          <div ref={provided.innerRef} {...provided.droppableProps} className="flex-1 space-y-1 overflow-y-auto">
               {categories.map((cat, idx) => {
-                const isSelected = cat.id === selectedId;
-                const count = itemCounts[cat.id] || 0;
-                const colorObj = getCategoryColor(cat.color);
-                return (
-                  <Draggable key={cat.id} draggableId={cat.id} index={idx}>
-                    {(drag, snapshot) => (
-                      <div
-                        ref={drag.innerRef}
-                        {...drag.draggableProps}
-                        className={`flex items-center gap-2 px-3 py-2.5 rounded-lg cursor-pointer transition-all group border ${
-                          isSelected
-                            ? 'bg-slate-100 border-slate-300 text-slate-800'
-                            : 'border-transparent hover:bg-slate-50 text-slate-700'
-                        } ${snapshot.isDragging ? 'shadow-lg opacity-90' : ''}`}
-                        onClick={() => onSelect(cat.id)}
-                      >
-                        <span {...drag.dragHandleProps} className="opacity-30 group-hover:opacity-60 cursor-grab" onClick={e => e.stopPropagation()}>
+              const isSelected = cat.id === selectedId;
+              const count = itemCounts[cat.id] || 0;
+              const colorObj = getCategoryColor(cat.color);
+              return (
+                <Draggable key={cat.id} draggableId={cat.id} index={idx}>
+                    {(drag, snapshot) =>
+                  <div
+                    ref={drag.innerRef}
+                    {...drag.draggableProps} className="bg-slate-100 text-slate-700 px-3 py-2.5 rounded-lg flex items-center gap-2 cursor-pointer transition-all group border border-transparent hover:bg-slate-50"
+
+
+
+
+
+                    onClick={() => onSelect(cat.id)}>
+
+                        <span {...drag.dragHandleProps} className="opacity-30 group-hover:opacity-60 cursor-grab" onClick={(e) => e.stopPropagation()}>
                           <GripVertical className="w-3.5 h-3.5" />
                         </span>
 
                         {/* Color dot */}
                         <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${colorObj.dot}`} />
 
-                        {editingId === cat.id ? (
-                          <input
-                            className="flex-1 bg-white text-slate-900 border border-blue-300 rounded px-2 py-0.5 text-sm"
-                            value={editingName}
-                            autoFocus
-                            onClick={e => e.stopPropagation()}
-                            onChange={e => setEditingName(e.target.value)}
-                            onBlur={() => handleRename(cat.id)}
-                            onKeyDown={e => {
-                              if (e.key === 'Enter') handleRename(cat.id);
-                              if (e.key === 'Escape') setEditingId(null);
-                            }}
-                          />
-                        ) : (
-                          <span className="flex-1 text-sm font-medium truncate">{cat.name}</span>
-                        )}
+                        {editingId === cat.id ?
+                    <input
+                      className="flex-1 bg-white text-slate-900 border border-blue-300 rounded px-2 py-0.5 text-sm"
+                      value={editingName}
+                      autoFocus
+                      onClick={(e) => e.stopPropagation()}
+                      onChange={(e) => setEditingName(e.target.value)}
+                      onBlur={() => handleRename(cat.id)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') handleRename(cat.id);
+                        if (e.key === 'Escape') setEditingId(null);
+                      }} /> :
 
-                        {count > 0 && (
-                          <span className="text-xs px-1.5 py-0.5 rounded-full font-medium bg-slate-200 text-slate-600">
+
+                    <span className="flex-1 text-sm font-medium truncate">{cat.name}</span>
+                    }
+
+                        {count > 0 &&
+                    <span className="text-xs px-1.5 py-0.5 rounded-full font-medium bg-slate-200 text-slate-600">
                             {count}
                           </span>
-                        )}
+                    }
 
                         <div className={`flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity`}>
                           <button
-                            onClick={e => startEdit(cat, e)}
-                            className="p-1 rounded hover:bg-slate-200 transition-colors text-slate-500"
-                          >
+                        onClick={(e) => startEdit(cat, e)}
+                        className="p-1 rounded hover:bg-slate-200 transition-colors text-slate-500">
+
                             <Edit2 className="w-3 h-3" />
                           </button>
                           <button
-                            onClick={e => { e.stopPropagation(); handleArchive(cat); }}
-                            className="p-1 rounded hover:bg-slate-200 transition-colors text-slate-500"
-                          >
+                        onClick={(e) => {e.stopPropagation();handleArchive(cat);}}
+                        className="p-1 rounded hover:bg-slate-200 transition-colors text-slate-500">
+
                             <Archive className="w-3 h-3" />
                           </button>
                         </div>
                       </div>
-                    )}
-                  </Draggable>
-                );
-              })}
+                  }
+                  </Draggable>);
+
+            })}
               {provided.placeholder}
             </div>
-          )}
+          }
         </Droppable>
       </DragDropContext>
 
-      {categories.length === 0 && (
-        <div className="flex-1 flex flex-col items-center justify-center text-slate-400 text-sm gap-2 py-8">
+      {categories.length === 0 &&
+      <div className="flex-1 flex flex-col items-center justify-center text-slate-400 text-sm gap-2 py-8">
           <Folder className="w-10 h-10 opacity-30" />
           <p>אין קטגוריות עדיין</p>
         </div>
-      )}
+      }
 
       {/* Create Dialog */}
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
         <DialogContent
           className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] bg-background shadow-lg border p-0 overflow-hidden flex flex-col sm:rounded-lg"
           style={{ maxWidth: '420px', width: '100%' }}
-          dir="rtl"
-        >
+          dir="rtl">
+
           {/* כפתור סגירה */}
           <button
-            onClick={() => { setShowCreate(false); setNewName(''); setNewColor('blue'); }}
-            className="absolute left-4 top-4 z-10 rounded-lg bg-white/20 p-1.5 hover:bg-white/40 transition-colors"
-          >
+            onClick={() => {setShowCreate(false);setNewName('');setNewColor('blue');}}
+            className="absolute left-4 top-4 z-10 rounded-lg bg-white/20 p-1.5 hover:bg-white/40 transition-colors">
+
             <X className="h-5 w-5 text-white" />
             <span className="sr-only">סגור</span>
           </button>
@@ -199,12 +199,12 @@ export default function TodoCategoryList({
               <Input
                 placeholder="לדוגמה: עבודה, אישי..."
                 value={newName}
-                onChange={e => setNewName(e.target.value)}
+                onChange={(e) => setNewName(e.target.value)}
                 autoFocus
                 dir="rtl"
                 className="h-10 border-slate-200 rounded-lg"
-                onKeyDown={e => { if (e.key === 'Enter') handleCreate(); }}
-              />
+                onKeyDown={(e) => {if (e.key === 'Enter') handleCreate();}} />
+
             </div>
             <ColorPicker value={newColor} onChange={setNewColor} />
           </div>
@@ -213,27 +213,27 @@ export default function TodoCategoryList({
             <Button
               disabled={!newName.trim()}
               onClick={handleCreate}
-              className="bg-[#3563d0] text-white h-9 px-4 text-sm font-medium rounded-md shadow hover:bg-blue-700"
-            >
+              className="bg-[#3563d0] text-white h-9 px-4 text-sm font-medium rounded-md shadow hover:bg-blue-700">
+
               צור קטגוריה
             </Button>
-            <Button variant="outline" className="h-9" onClick={() => { setShowCreate(false); setNewName(''); setNewColor('blue'); }}>ביטול</Button>
+            <Button variant="outline" className="h-9" onClick={() => {setShowCreate(false);setNewName('');setNewColor('blue');}}>ביטול</Button>
           </div>
         </DialogContent>
       </Dialog>
 
       {/* Edit Dialog */}
-      <Dialog open={!!editingId} onOpenChange={(open) => { if (!open) setEditingId(null); }}>
+      <Dialog open={!!editingId} onOpenChange={(open) => {if (!open) setEditingId(null);}}>
         <DialogContent
           className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] bg-background shadow-lg border p-0 overflow-hidden flex flex-col sm:rounded-lg"
           style={{ maxWidth: '420px', width: '100%' }}
-          dir="rtl"
-        >
+          dir="rtl">
+
           {/* כפתור סגירה */}
           <button
             onClick={() => setEditingId(null)}
-            className="absolute left-4 top-4 z-10 rounded-lg bg-white/20 p-1.5 hover:bg-white/40 transition-colors"
-          >
+            className="absolute left-4 top-4 z-10 rounded-lg bg-white/20 p-1.5 hover:bg-white/40 transition-colors">
+
             <X className="h-5 w-5 text-white" />
             <span className="sr-only">סגור</span>
           </button>
@@ -249,12 +249,12 @@ export default function TodoCategoryList({
               <Input
                 placeholder="שם הקטגוריה"
                 value={editingName}
-                onChange={e => setEditingName(e.target.value)}
+                onChange={(e) => setEditingName(e.target.value)}
                 autoFocus
                 dir="rtl"
                 className="h-10 border-slate-200 rounded-lg"
-                onKeyDown={e => { if (e.key === 'Enter') handleRename(editingId); }}
-              />
+                onKeyDown={(e) => {if (e.key === 'Enter') handleRename(editingId);}} />
+
             </div>
             <ColorPicker value={editingColor} onChange={setEditingColor} />
           </div>
@@ -263,46 +263,46 @@ export default function TodoCategoryList({
             <Button
               disabled={!editingName.trim()}
               onClick={() => handleRename(editingId)}
-              className="bg-[#3563d0] text-white h-9 px-4 text-sm font-medium rounded-md shadow hover:bg-blue-700"
-            >
+              className="bg-[#3563d0] text-white h-9 px-4 text-sm font-medium rounded-md shadow hover:bg-blue-700">
+
               שמור שינויים
             </Button>
             <Button variant="outline" className="h-9" onClick={() => setEditingId(null)}>ביטול</Button>
           </div>
         </DialogContent>
       </Dialog>
-    </div>
-  );
+    </div>);
+
 }
 
 function ColorPicker({ value, onChange }) {
   const colors = [
-    { key: 'blue',   label: 'כחול',  bg: 'bg-blue-500' },
-    { key: 'green',  label: 'ירוק',  bg: 'bg-green-500' },
-    { key: 'orange', label: 'כתום',  bg: 'bg-orange-400' },
-    { key: 'purple', label: 'סגול',  bg: 'bg-purple-500' },
-    { key: 'pink',   label: 'ורוד',  bg: 'bg-pink-400' },
-  ];
+  { key: 'blue', label: 'כחול', bg: 'bg-blue-500' },
+  { key: 'green', label: 'ירוק', bg: 'bg-green-500' },
+  { key: 'orange', label: 'כתום', bg: 'bg-orange-400' },
+  { key: 'purple', label: 'סגול', bg: 'bg-purple-500' },
+  { key: 'pink', label: 'ורוד', bg: 'bg-pink-400' }];
+
   return (
     <div>
       <label className="text-sm font-medium text-slate-700 block mb-2">צבע קטגוריה</label>
       <div className="flex gap-2 flex-wrap">
-        {colors.map(c => (
-          <button
-            key={c.key}
-            type="button"
-            onClick={() => onChange(c.key)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
-              value === c.key
-                ? 'border-slate-400 bg-slate-100 text-slate-800 shadow-sm'
-                : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
-            }`}
-          >
+        {colors.map((c) =>
+        <button
+          key={c.key}
+          type="button"
+          onClick={() => onChange(c.key)}
+          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-xs font-medium transition-all ${
+          value === c.key ?
+          'border-slate-400 bg-slate-100 text-slate-800 shadow-sm' :
+          'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'}`
+          }>
+
             <span className={`w-3 h-3 rounded-full ${c.bg}`} />
             {c.label}
           </button>
-        ))}
+        )}
       </div>
-    </div>
-  );
+    </div>);
+
 }
