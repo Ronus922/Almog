@@ -11,6 +11,7 @@ export default function TodoItemForm({ open, onClose, onSave, initialData, categ
   const [description, setDescription] = useState('');
   const [categoryId, setCategoryId] = useState('');
   const [sharedWith, setSharedWith] = useState('');
+  const [stripColor, setStripColor] = useState('');
   const [saving, setSaving] = useState(false);
 
   const { data: allUsers = [] } = useQuery({
@@ -28,6 +29,7 @@ export default function TodoItemForm({ open, onClose, onSave, initialData, categ
       setDescription(initialData?.description || '');
       setCategoryId(initialData?.category_id || categories[0]?.id || '');
       setSharedWith(initialData?.shared_with_user_id || '');
+      setStripColor(initialData?.strip_color || '');
     }
   }, [open, initialData, categories]);
 
@@ -39,6 +41,7 @@ export default function TodoItemForm({ open, onClose, onSave, initialData, categ
       description: description.trim() || null,
       category_id: categoryId,
       shared_with_user_id: sharedWith || null,
+      strip_color: stripColor || null,
     });
     setSaving(false);
     onClose();
@@ -121,6 +124,23 @@ export default function TodoItemForm({ open, onClose, onSave, initialData, categ
               {otherUsers.map(u => (
                 <option key={u.username} value={u.username}>{u.first_name || u.username}</option>
               ))}
+            </select>
+          </div>
+
+          <div className="space-y-2">
+            <label className="block text-sm font-semibold text-slate-700">צבע פס (אופציונלי)</label>
+            <select
+              value={stripColor}
+              onChange={e => setStripColor(e.target.value)}
+              dir="rtl"
+              className="w-full h-10 border border-slate-200 rounded-lg px-3 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-blue-500"
+            >
+              <option value="">ברירת מחדל לפי קטגוריה</option>
+              <option value="blue">כחול</option>
+              <option value="green">ירוק</option>
+              <option value="orange">כתום</option>
+              <option value="purple">סגול</option>
+              <option value="pink">ורוד</option>
             </select>
           </div>
         </div>
