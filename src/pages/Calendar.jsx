@@ -181,12 +181,13 @@ export default function Calendar() {
     }
     
     // 3. Filter by user (matches attendees_users objects with id property)
-    if (userFilter) {
+    if (userFilter && userFilter.trim() !== '') {
       result = result.filter(a => {
         const attendees = a.attendees_users || [];
-        return attendees.some(att => 
-          (typeof att === 'object' ? att.id : att) === userFilter
-        );
+        return attendees.some(att => {
+          const attId = typeof att === 'object' ? att.id : att;
+          return String(attId).trim() === String(userFilter).trim();
+        });
       });
     }
     
