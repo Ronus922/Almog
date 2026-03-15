@@ -103,9 +103,10 @@ export default function TodoReminders() {
   // ============== MUTATIONS ==============
 
   const createCategoryMutation = useMutation({
-    mutationFn: (name) => base44.entities.TodoCategory.create({
+    mutationFn: ({ name, color }) => base44.entities.TodoCategory.create({
       owner_user_id: username,
       name,
+      color: color || 'blue',
       position: myCategories.length,
       is_archived: false
     }),
