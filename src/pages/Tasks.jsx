@@ -511,7 +511,14 @@ export default function Tasks() {
          task={editTask}
          debtorRecord={null}
          currentUser={currentUser}
-         onSaved={() => queryClient.invalidateQueries({ queryKey: ["tasks"] })}
+         onSaved={(savedTask) => {
+           queryClient.invalidateQueries({ queryKey: ["tasks"] });
+           if (!editTask && savedTask) {
+             window.dispatchEvent(new CustomEvent('newTask', { 
+               detail: { task: savedTask } 
+             }));
+           }
+         }}
          onTaskViewed={(taskId) => setViewedTasks(prev => new Set(prev).add(taskId))} />
 
     </div>);
