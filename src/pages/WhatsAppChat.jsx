@@ -1,22 +1,28 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Send, Search, Plus, Phone, Info, Paperclip } from 'lucide-react';
+import { Send, Search, Info, Paperclip, AlertCircle, Link } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import ChatMessageBubble from '@/components/whatsapp/ChatMessageBubble';
 import LinkedContactInfo from '@/components/whatsapp/LinkedContactInfo';
+import LinkUnlinkedDialog from '@/components/whatsapp/LinkUnlinkedDialog';
 
 export default function WhatsAppChat() {
   const [selectedContact, setSelectedContact] = useState(null);
+  // selectedContact יכול להיות: Contact רגיל, או { _isUnlinked: true, phone, chatId }
   const [searchQuery, setSearchQuery] = useState('');
   const [messageInput, setMessageInput] = useState('');
   const [fileInput, setFileInput] = useState(null);
+  const [linkDialogOpen, setLinkDialogOpen] = useState(false);
   const queryClient = useQueryClient();
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
+  // flag: האם המשתמש גלל ידנית למעלה (כדי לא לכפות scroll לתחתית)
+  const userScrolledUp = useRef(false);
 
   // Get operators for display names
   const { data: operators = [] } = useQuery({
@@ -25,8 +31,10 @@ export default function WhatsAppChat() {
     staleTime: 1000 * 60 * 5,
   });
 
-  // Helper: get primary display name based on priority operator > tenant > owner
+  // Helper: get primary display name
   const getPrimaryName = (contact) => {
+    if (!contact) return '';
+    if (contact._isUnlinked) return contact.phone || 'מספר לא מוכר';
     if (contact.operator_is_primary_contact && contact.operator_id) {
       const op = operators.find(o => o.id === contact.operator_id);
       if (op) return op.company_name || op.contact_name;
@@ -36,161 +44,212 @@ export default function WhatsAppChat() {
   };
 
   // Helper: get secondary row info
-  const getSecondaryInfo = (contact, primaryName) => {
+  const getSecondaryInfo = (contact) => {
+    if (!contact || contact._isUnlinked) return null;
     const isOperatorPrimary = contact.operator_is_primary_contact && contact.operator_id && operators.find(o => o.id === contact.operator_id);
     const isTenantPrimary = !isOperatorPrimary && contact.tenant_is_primary_contact && contact.tenant_name;
-
     if (isOperatorPrimary) {
-      // main is operator → show owner, or tenant if no owner
       if (contact.owner_name) return 'בעלים: ' + contact.owner_name;
       if (contact.tenant_name) return 'שוכר: ' + contact.tenant_name;
       return null;
     }
     if (isTenantPrimary) {
-      // main is tenant → show owner
       if (contact.owner_name) return 'בעלים: ' + contact.owner_name;
       return null;
     }
-    // main is owner → show tenant
     if (contact.tenant_name) return 'שוכר: ' + contact.tenant_name;
     return null;
   };
 
-  // Get all contacts with last message info
-  const { data: contacts = [] } = useQuery({
+  // ==========================================
+  // שאילתת אנשי קשר + שיחות unlinked
+  // מחשבת last activity אמיתי לכל שיחה
+  // ==========================================
+  const { data: allConversations = [] } = useQuery({
     queryKey: ['contacts'],
     queryFn: async () => {
-      const allContacts = await base44.entities.Contact.list();
-      const allMessages = await base44.entities.ChatMessage.list();
+      const [allContacts, allMessages] = await Promise.all([
+        base44.entities.Contact.list(),
+        base44.entities.ChatMessage.list(),
+      ]);
 
-      // Attach last message to each contact
-      return allContacts.map((contact) => {
-        const lastMsg = allMessages.
-        filter((m) => m.contact_id === contact.id).
-        sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
-
+      // --- שיחות רגילות (linked) ---
+      const linkedConvs = allContacts.map((contact) => {
+        const msgs = allMessages.filter((m) => m.contact_id === contact.id);
+        const lastMsg = msgs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
         return {
           ...contact,
           lastMessageTime: lastMsg?.timestamp || null,
-          lastMessage: lastMsg || null
+          lastMessage: lastMsg || null,
         };
       });
+
+      // --- שיחות unlinked: קבץ לפי contact_phone ---
+      const unlinkedMsgs = allMessages.filter((m) => m.link_status === 'unlinked');
+      const unlinkedByPhone = {};
+      for (const m of unlinkedMsgs) {
+        const phone = m.contact_phone || m.sender_phone_raw || 'unknown';
+        if (!unlinkedByPhone[phone]) {
+          unlinkedByPhone[phone] = { msgs: [], chatId: m.sender_chat_id };
+        }
+        unlinkedByPhone[phone].msgs.push(m);
+      }
+
+      const unlinkedConvs = Object.entries(unlinkedByPhone).map(([phone, { msgs, chatId }]) => {
+        const sorted = msgs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+        return {
+          _isUnlinked: true,
+          id: 'unlinked_' + phone,
+          phone,
+          chatId,
+          lastMessageTime: sorted[0]?.timestamp || null,
+          lastMessage: sorted[0] || null,
+        };
+      });
+
+      return [...linkedConvs, ...unlinkedConvs];
     },
-    staleTime: 1000 * 30,
-    gcTime: 1000 * 60
+    staleTime: 1000 * 15,
+    gcTime: 1000 * 60,
   });
 
-  // Get chat messages - sorted chronologically (oldest first for proper display)
+  // ==========================================
+  // הודעות לשיחה הנבחרת
+  // ==========================================
   const { data: messages = [] } = useQuery({
     queryKey: ['chatMessages', selectedContact?.id],
     queryFn: async () => {
       if (!selectedContact) return [];
-      const msgs = await base44.entities.ChatMessage.filter({
-        contact_id: selectedContact.id
-      }, 'timestamp'); // Keep oldest first - they'll appear at top
-      console.log('[WhatsAppChat] Messages fetched:', msgs.length, 'for contact:', selectedContact.id);
-      return msgs;
+      let msgs;
+      if (selectedContact._isUnlinked) {
+        // שיחה unlinked: filter לפי phone
+        const all = await base44.entities.ChatMessage.filter({ link_status: 'unlinked' });
+        const phone = selectedContact.phone;
+        msgs = all.filter((m) => (m.contact_phone || m.sender_phone_raw) === phone);
+      } else {
+        msgs = await base44.entities.ChatMessage.filter({ contact_id: selectedContact.id }, 'timestamp');
+      }
+      // מיון עתיק ראשון
+      return msgs.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
     },
     enabled: !!selectedContact,
     staleTime: 0,
-    refetchInterval: 1000,
-    gcTime: 1000 * 60
+    refetchInterval: 5000,
+    gcTime: 1000 * 60,
   });
 
-  // Subscribe to new messages in real-time
+  // ==========================================
+  // Real-time subscription
+  // ==========================================
   useEffect(() => {
     if (!selectedContact?.id) return;
-
     const unsubscribe = base44.entities.ChatMessage.subscribe((event) => {
-      console.log('[WhatsAppChat] Message event:', event.type, 'contact_id:', event.data?.contact_id, 'selected:', selectedContact.id);
       if (event.data?.contact_id === selectedContact.id) {
-        console.log('[WhatsAppChat] New message received:', event.data.id);
-        // Update cache directly with new message
         queryClient.setQueryData(['chatMessages', selectedContact.id], (old = []) => {
-          return [...old, event.data];
+          const exists = old.find((m) => m.id === event.data.id);
+          if (exists) return old;
+          return [...old, event.data].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
         });
+        queryClient.invalidateQueries({ queryKey: ['contacts'] });
       }
     });
-
     return () => unsubscribe?.();
   }, [selectedContact?.id, queryClient]);
 
-  // Send message mutation
+  // ==========================================
+  // Scroll לתחתית — רק כשצריך
+  // ==========================================
+  const scrollToBottom = useCallback((behavior = 'smooth') => {
+    messagesEndRef.current?.scrollIntoView({ behavior });
+  }, []);
+
+  // כשנכנסים לשיחה חדשה — scroll מיידי לתחתית
+  useEffect(() => {
+    userScrolledUp.current = false;
+    // instant (לא smooth) כדי שלא נראה ניחות מאמצע
+    const timer = setTimeout(() => scrollToBottom('instant'), 50);
+    return () => clearTimeout(timer);
+  }, [selectedContact?.id, scrollToBottom]);
+
+  // כשמגיעות הודעות חדשות — scroll לתחתית רק אם המשתמש לא גלל למעלה
+  useEffect(() => {
+    if (!userScrolledUp.current) {
+      scrollToBottom('smooth');
+    }
+  }, [messages, scrollToBottom]);
+
+  // זיהוי גלילה ידנית למעלה
+  const handleScroll = useCallback(() => {
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    const distFromBottom = el.scrollHeight - el.scrollTop - el.clientHeight;
+    userScrolledUp.current = distFromBottom > 100;
+  }, []);
+
+  // ==========================================
+  // Send message
+  // ==========================================
   const sendMessageMutation = useMutation({
     mutationFn: async (content) => {
       const phone = selectedContact.owner_phone || selectedContact.tenant_phone;
       if (!phone) throw new Error('אין מספר טלפון זמין');
-
-      // Save to ChatMessage first
       const msg = await base44.entities.ChatMessage.create({
         contact_id: selectedContact.id,
         contact_phone: phone,
+        link_status: 'linked',
         direction: 'sent',
         message_type: 'text',
         content,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
-
-      // Send via Green API
       try {
-        await base44.functions.invoke('sendWhatsApp', {
-          phone,
-          message: content
-        });
+        await base44.functions.invoke('sendWhatsApp', { phone, message: content });
       } catch (error) {
         console.error('Failed to send via Green API:', error);
-        // Message is still saved, but log the error
       }
-
       return msg;
     },
     onSuccess: () => {
       setMessageInput('');
+      userScrolledUp.current = false;
       queryClient.invalidateQueries({ queryKey: ['chatMessages', selectedContact.id] });
-      queryClient.invalidateQueries({ queryKey: ['contacts'] }); // Update contacts list order
+      queryClient.invalidateQueries({ queryKey: ['contacts'] });
     },
-    onError: (error) => {
-      console.error('Message send error:', error);
-    }
+    onError: (error) => console.error('Message send error:', error),
   });
 
-  // Filter and sort contacts by last message (newest first)
-  const filteredContacts = contacts.
-  filter((contact) => {
-    const searchLower = searchQuery.toLowerCase();
-    const ownerName = (contact.owner_name || '').toLowerCase();
-    const tenantName = (contact.tenant_name || '').toLowerCase();
-    const apartmentNumber = (contact.apartment_number || '').toLowerCase();
-
-    return (
-      ownerName.includes(searchLower) ||
-      tenantName.includes(searchLower) ||
-      apartmentNumber.includes(searchLower));
-
-  }).
-  sort((a, b) => {
-    // Sort by last message time (newest first)
-    const timeA = a.lastMessageTime ? new Date(a.lastMessageTime) : new Date(0);
-    const timeB = b.lastMessageTime ? new Date(b.lastMessageTime) : new Date(0);
-    return timeB - timeA;
-  });
+  // ==========================================
+  // Filter + sort conversations
+  // newest activity first תמיד
+  // ==========================================
+  const filteredConversations = allConversations
+    .filter((conv) => {
+      const q = searchQuery.toLowerCase();
+      if (conv._isUnlinked) return conv.phone?.includes(q) || q === '';
+      return (
+        (conv.owner_name || '').toLowerCase().includes(q) ||
+        (conv.tenant_name || '').toLowerCase().includes(q) ||
+        (conv.apartment_number || '').toLowerCase().includes(q)
+      );
+    })
+    .filter((conv) => conv.lastMessageTime !== null) // הצג רק שיחות עם פעילות
+    .sort((a, b) => {
+      const tA = a.lastMessageTime ? new Date(a.lastMessageTime) : new Date(0);
+      const tB = b.lastMessageTime ? new Date(b.lastMessageTime) : new Date(0);
+      return tB - tA; // newest first
+    });
 
   const handleSendMessage = () => {
-    if (messageInput.trim() && selectedContact) {
+    if (messageInput.trim() && selectedContact && !selectedContact._isUnlinked) {
       sendMessageMutation.mutate(messageInput);
     }
   };
 
   const handleFileSelect = async (e) => {
     const file = e.target.files?.[0];
-    if (!file || !selectedContact) return;
-
+    if (!file || !selectedContact || selectedContact._isUnlinked) return;
     const phone = selectedContact.owner_phone || selectedContact.tenant_phone;
-    if (!phone) {
-      toast.error('אין מספר טלפון זמין לאיש קשר זה');
-      return;
-    }
-
+    if (!phone) { toast.error('אין מספר טלפון זמין לאיש קשר זה'); return; }
     const allowed = ['image/jpeg', 'image/png', 'image/gif', 'application/pdf'];
     if (!allowed.includes(file.type)) {
       toast.error('ניתן לשלוח רק תמונות (JPG, PNG, GIF) או PDF');
@@ -202,48 +261,35 @@ export default function WhatsAppChat() {
       if (fileInput) fileInput.value = '';
       return;
     }
-
     toast.loading('מעלה ושולח קובץ...', { id: 'file-upload' });
     try {
       const { file_url } = await base44.integrations.Core.UploadFile({ file });
-
-      await base44.functions.invoke('sendWhatsApp', {
-        phone,
-        fileUrl: file_url,
-        fileName: file.name,
-        message: ''
-      });
-
+      await base44.functions.invoke('sendWhatsApp', { phone, fileUrl: file_url, fileName: file.name, message: '' });
       await base44.entities.ChatMessage.create({
         contact_id: selectedContact.id,
         contact_phone: phone,
+        link_status: 'linked',
         direction: 'sent',
         message_type: file.type.startsWith('image/') ? 'image' : 'document',
         content: file_url,
-        timestamp: new Date().toISOString()
+        timestamp: new Date().toISOString(),
       });
-
       toast.success('הקובץ נשלח בהצלחה!', { id: 'file-upload' });
       if (fileInput) fileInput.value = '';
       queryClient.invalidateQueries({ queryKey: ['chatMessages', selectedContact.id] });
       queryClient.invalidateQueries({ queryKey: ['contacts'] });
     } catch (error) {
       toast.error('שגיאה בשליחת הקובץ: ' + (error?.response?.data?.error || error.message), { id: 'file-upload' });
-      console.error('File upload error:', error);
     }
   };
 
-  // Auto-scroll to latest message
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
-  // Polling כל 30 שניות למשיכת הודעות נכנסות מ-Green API
+  // ==========================================
+  // Polling כל 30 שניות
+  // ==========================================
   useEffect(() => {
     const poll = async () => {
       try {
         await base44.functions.invoke('pollGreenAPIMessages', {});
-        // רענן הודעות ורשימת שיחות לאחר כל polling
         queryClient.invalidateQueries({ queryKey: ['contacts'] });
         if (selectedContact?.id) {
           queryClient.invalidateQueries({ queryKey: ['chatMessages', selectedContact.id] });
@@ -252,104 +298,67 @@ export default function WhatsAppChat() {
         console.error('[Poll] Error:', e);
       }
     };
-
-    // הרץ פעם ראשונה מיד
     poll();
-
     const interval = setInterval(poll, 30000);
     return () => clearInterval(interval);
   }, [selectedContact?.id, queryClient]);
 
-  // Sync WhatsApp profile image when contact is selected
+  // ==========================================
+  // Sync profile image
+  // ==========================================
   useEffect(() => {
-    if (!selectedContact?.id) return;
-
+    if (!selectedContact?.id || selectedContact._isUnlinked) return;
     const syncProfileImage = async () => {
       try {
         const primaryPhone = selectedContact.owner_phone || selectedContact.tenant_phone;
         if (!primaryPhone) return;
-
-        // Check if already synced recently (within 24 hours)
         if (selectedContact.whatsapp_profile_last_synced_at) {
           const lastSync = new Date(selectedContact.whatsapp_profile_last_synced_at);
-          const now = new Date();
-          if (now - lastSync < 24 * 60 * 60 * 1000) {
-            return; // Skip if synced less than 24 hours ago
-          }
+          if (new Date() - lastSync < 24 * 60 * 60 * 1000) return;
         }
-
-        // Step 1: Try GetAvatar (primary method)
         let hasUsefulImage = false;
-        const updateData = {
-          whatsapp_profile_last_synced_at: new Date().toISOString()
-        };
-
+        const updateData = { whatsapp_profile_last_synced_at: new Date().toISOString() };
         try {
-          const avatarResponse = await base44.functions.invoke('getWhatsAppAvatar', {
-            phoneNumber: primaryPhone
-          });
-
+          const avatarResponse = await base44.functions.invoke('getWhatsAppAvatar', { phoneNumber: primaryPhone });
           if (avatarResponse?.available === true && avatarResponse?.urlAvatar) {
-            // Avatar exists and has useful URL
             updateData.whatsapp_profile_image_url = avatarResponse.urlAvatar;
             updateData.whatsapp_profile_sync_status = 'synced';
             updateData.whatsapp_profile_sync_error = null;
             hasUsefulImage = true;
-          } else {
-            // No useful image from GetAvatar
-            hasUsefulImage = false;
           }
-
-        } catch (avatarError) {
-          console.log('[WhatsApp] GetAvatar error, will try fallback');
-          hasUsefulImage = false;
-        }
-
-        // Step 2: Fallback to GetContactInfo if no useful image from GetAvatar
+        } catch { /* fallback */ }
         if (!hasUsefulImage) {
           try {
-            const contactInfoResponse = await base44.functions.invoke('getWhatsAppContactInfo', {
-              phoneNumber: primaryPhone
-            });
-
+            const contactInfoResponse = await base44.functions.invoke('getWhatsAppContactInfo', { phoneNumber: primaryPhone });
             if (contactInfoResponse?.avatar) {
-              // GetContactInfo has avatar
               updateData.whatsapp_profile_image_url = contactInfoResponse.avatar;
               updateData.whatsapp_profile_sync_status = 'synced';
               updateData.whatsapp_profile_sync_error = null;
               hasUsefulImage = true;
             }
-
-          } catch (contactInfoError) {
-            console.log('[WhatsApp] GetContactInfo fallback also failed');
-          }
+          } catch { /* ignore */ }
         }
-
-        // Set final status if no useful image found
         if (!hasUsefulImage && !updateData.whatsapp_profile_image_url) {
           updateData.whatsapp_profile_sync_status = 'no_avatar';
           updateData.whatsapp_profile_sync_error = null;
         }
-
-        // Update contact with result
         await base44.entities.Contact.update(selectedContact.id, updateData);
-        
-        // Invalidate queries to refresh UI
         queryClient.invalidateQueries({ queryKey: ['contacts'] });
-        queryClient.invalidateQueries({ queryKey: ['chatMessages', selectedContact.id] });
-
       } catch (error) {
         console.error('[WhatsApp] Profile sync error:', error);
       }
     };
-
     syncProfileImage();
   }, [selectedContact?.id, queryClient]);
 
+  // ==========================================
+  // RENDER
+  // ==========================================
   return (
     <div className="min-h-screen bg-gray-100" dir="rtl" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Cpath d=\'M0 0h100v100H0z\' fill=\'%23ECE5DD\'/%3E%3Cpath d=\'M50 0L100 50L50 100L0 50z\' fill=\'%23E8DED2\' opacity=\'0.3\'/%3E%3C/svg%3E")', backgroundSize: '100px 100px' }}>
       <div className="h-screen flex gap-0">
-        {/* Contacts List - Right Side */}
+
+        {/* ---- רשימת שיחות ---- */}
         <div className="w-96 bg-white flex flex-col shadow-lg border-l border-gray-200">
           <div className="p-4 border-b border-gray-200 bg-white">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">הודעות</h2>
@@ -359,154 +368,183 @@ export default function WhatsAppChat() {
                 placeholder="חיפוש..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 bg-gray-100 border-0 rounded-full text-sm" />
-
+                className="pl-10 bg-gray-100 border-0 rounded-full text-sm"
+              />
             </div>
           </div>
 
           <div className="flex-1 overflow-y-auto divide-y divide-gray-100" style={{ scrollbarWidth: 'thin', scrollbarColor: '#3cb371 transparent' }}>
-            {filteredContacts.length === 0 ?
-            <div className="p-4 text-center text-gray-400 text-sm">
-                אין אנשי קשר
-              </div> :
+            {filteredConversations.length === 0 ? (
+              <div className="p-4 text-center text-gray-400 text-sm">אין שיחות</div>
+            ) : (
+              filteredConversations.map((conv) => {
+                const displayName = getPrimaryName(conv);
+                const secondaryInfo = getSecondaryInfo(conv);
+                const initials = displayName.split(' ').map((n) => n[0]).join('').substring(0, 2);
+                const isSelected = selectedContact?.id === conv.id;
+                const isUnlinked = conv._isUnlinked;
 
-            filteredContacts.map((contact) => {
-              const displayName = getPrimaryName(contact);
-              const secondaryInfo = getSecondaryInfo(contact, displayName);
-              const initials = displayName.split(' ').map((n) => n[0]).join('').substring(0, 2);
-              return (
-                <button
-                  key={contact.id}
-                  onClick={() => setSelectedContact(contact)}
-                  className={`w-full p-3 text-right hover:bg-gray-50 transition-colors flex items-center gap-3 border-r-4 ${
-                  selectedContact?.id === contact.id ? 'border-r-blue-500' : 'border-r-transparent'}`
-                  }
-                  style={selectedContact?.id === contact.id ? { backgroundColor: '#f9fff5' } : {}}>
-
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0 overflow-hidden">
-                      {contact.whatsapp_profile_image_url || contact.whatsapp_profile_image ?
-                    <img src={contact.whatsapp_profile_image_url || contact.whatsapp_profile_image} alt={displayName} className="w-full h-full object-cover" /> :
-                    initials
-                    }
+                return (
+                  <button
+                    key={conv.id}
+                    onClick={() => setSelectedContact(conv)}
+                    className={`w-full p-3 text-right hover:bg-gray-50 transition-colors flex items-center gap-3 border-r-4 ${isSelected ? 'border-r-blue-500' : 'border-r-transparent'}`}
+                    style={isSelected ? { backgroundColor: '#f9fff5' } : {}}
+                  >
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 overflow-hidden ${isUnlinked ? 'bg-gradient-to-br from-orange-400 to-orange-600' : 'bg-gradient-to-br from-blue-400 to-blue-600'}`}>
+                      {!isUnlinked && (conv.whatsapp_profile_image_url || conv.whatsapp_profile_image) ? (
+                        <img src={conv.whatsapp_profile_image_url || conv.whatsapp_profile_image} alt={displayName} className="w-full h-full object-cover" />
+                      ) : isUnlinked ? (
+                        <AlertCircle className="w-6 h-6" />
+                      ) : (
+                        initials
+                      )}
                     </div>
                     <div className="flex-1 text-right min-w-0">
-                      <div className="font-semibold text-gray-900 text-sm truncate">
-                        {displayName}
-                      </div>
-                      <div className="text-xs text-gray-600 mt-0.5 truncate">
-                        דירה {contact.apartment_number}
-                      </div>
-                      {secondaryInfo &&
-                    <div className="text-xs text-gray-500 mt-0.5 truncate">
-                          {secondaryInfo}
-                        </div>
-                    }
+                      <div className="font-semibold text-gray-900 text-sm truncate">{displayName}</div>
+                      {!isUnlinked ? (
+                        <div className="text-xs text-gray-600 mt-0.5 truncate">דירה {conv.apartment_number}</div>
+                      ) : (
+                        <div className="text-xs text-orange-600 mt-0.5 font-medium">לא משויך לאיש קשר</div>
+                      )}
+                      {secondaryInfo && (
+                        <div className="text-xs text-gray-500 mt-0.5 truncate">{secondaryInfo}</div>
+                      )}
                     </div>
-                  </button>);
+                  </button>
+                );
+              })
+            )}
+          </div>
+        </div>
 
-            })
-            }
-              </div>
-              </div>
-
-              {/* Chat Window */}
+        {/* ---- חלון צ'אט ---- */}
         <div className="flex-1 flex flex-col overflow-hidden" style={{ backgroundImage: `url('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69b3212f206c95cdd3b3e777/a209df2b7_BGWHATS.png')`, backgroundRepeat: 'repeat', backgroundSize: 'auto' }}>
-          {selectedContact ?
-          <>
-              {/* Chat Header */}
+          {selectedContact ? (
+            <>
+              {/* Header */}
               <div className="p-4 bg-white border-b border-gray-200 flex justify-between items-center shadow-sm">
                 <div className="flex items-center gap-3">
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <Info className="w-5 h-5 text-blue-600" />
-                  </Button>
+                  {selectedContact._isUnlinked ? (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-orange-600 border-orange-300 hover:bg-orange-50 gap-1.5"
+                      onClick={() => setLinkDialogOpen(true)}
+                    >
+                      <Link className="w-4 h-4" />
+                      שייך איש קשר
+                    </Button>
+                  ) : (
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <Info className="w-5 h-5 text-blue-600" />
+                    </Button>
+                  )}
                 </div>
                 <div className="text-right flex-1">
                   <h3 className="font-semibold text-gray-900">{getPrimaryName(selectedContact)}</h3>
-                  <LinkedContactInfo contact={selectedContact} />
+                  {!selectedContact._isUnlinked && <LinkedContactInfo contact={selectedContact} />}
+                  {selectedContact._isUnlinked && (
+                    <p className="text-xs text-orange-500">הודעות ממספר לא מזוהה — לא משויך לדייר</p>
+                  )}
                 </div>
                 <div className="flex items-center gap-3">
-                   <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-bold text-sm overflow-hidden">
-                    {selectedContact.whatsapp_profile_image_url || selectedContact.whatsapp_profile_image ?
-                  <img src={selectedContact.whatsapp_profile_image_url || selectedContact.whatsapp_profile_image} alt={getPrimaryName(selectedContact)} className="w-full h-full object-cover" /> :
-
-                  getPrimaryName(selectedContact).split(' ').map((n) => n[0]).join('').substring(0, 2)
-                  }
+                  <div className={`w-10 h-10 rounded-full flex items-center justify-center text-white font-bold text-sm overflow-hidden ${selectedContact._isUnlinked ? 'bg-gradient-to-br from-orange-400 to-orange-600' : 'bg-gradient-to-br from-blue-400 to-blue-600'}`}>
+                    {!selectedContact._isUnlinked && (selectedContact.whatsapp_profile_image_url || selectedContact.whatsapp_profile_image) ? (
+                      <img src={selectedContact.whatsapp_profile_image_url || selectedContact.whatsapp_profile_image} alt={getPrimaryName(selectedContact)} className="w-full h-full object-cover" />
+                    ) : selectedContact._isUnlinked ? (
+                      <AlertCircle className="w-5 h-5" />
+                    ) : (
+                      getPrimaryName(selectedContact).split(' ').map((n) => n[0]).join('').substring(0, 2)
+                    )}
                   </div>
                 </div>
               </div>
 
-              {/* Messages Area */}
-              <div className="flex-1 overflow-y-auto p-3 space-y-2 flex flex-col" style={{ backgroundImage: `url('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69b3212f206c95cdd3b3e777/a209df2b7_BGWHATS.png')`, backgroundRepeat: 'repeat', backgroundSize: 'auto', scrollbarWidth: 'thin', scrollbarColor: '#ccc transparent' }}>
-                {messages.length === 0 ?
-              <div className="flex items-center justify-center h-full">
+              {/* הודעות */}
+              <div
+                ref={messagesContainerRef}
+                onScroll={handleScroll}
+                className="flex-1 overflow-y-auto p-3 space-y-2 flex flex-col"
+                style={{ scrollbarWidth: 'thin', scrollbarColor: '#ccc transparent' }}
+              >
+                {messages.length === 0 ? (
+                  <div className="flex items-center justify-center h-full">
                     <div className="text-center text-gray-500">
                       <p className="text-lg">אין הודעות עדיין</p>
                       <p className="text-sm mt-1">התחל שיחה חדשה</p>
                     </div>
-                  </div> :
-
-              <>
+                  </div>
+                ) : (
+                  <>
                     {messages.map((msg, idx) => {
-                  const prevMsg = idx > 0 ? messages[idx - 1] : null;
-                  const showDate = !prevMsg ||
-                  format(new Date(msg.timestamp), 'yyyy-MM-dd') !==
-                  format(new Date(prevMsg.timestamp), 'yyyy-MM-dd');
-
-                  return (
-                    <div key={msg.id}>
-                          {showDate &&
-                      <div className="flex justify-center my-4">
+                      const prevMsg = idx > 0 ? messages[idx - 1] : null;
+                      const showDate = !prevMsg ||
+                        format(new Date(msg.timestamp), 'yyyy-MM-dd') !== format(new Date(prevMsg.timestamp), 'yyyy-MM-dd');
+                      return (
+                        <div key={msg.id}>
+                          {showDate && (
+                            <div className="flex justify-center my-4">
                               <span className="text-xs text-gray-600 bg-white bg-opacity-70 px-4 py-1 rounded-full shadow-sm">
                                 {format(new Date(msg.timestamp), 'd בMMMM yyyy', { locale: he })}
                               </span>
                             </div>
-                      }
+                          )}
                           <ChatMessageBubble message={msg} />
-                        </div>);
-
-                })}
+                        </div>
+                      );
+                    })}
                     <div ref={messagesEndRef} />
                   </>
-              }
+                )}
               </div>
 
-              {/* Input Area */}
+              {/* Input */}
               <div className="p-4 bg-white border-t border-gray-200 flex gap-3 shadow-lg">
-                <input
-                  ref={setFileInput}
-                  type="file"
-                  accept="image/*,.pdf"
-                  className="hidden"
-                  onChange={handleFileSelect}
-                />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-10 w-10 text-gray-600 hover:bg-gray-100"
-                  onClick={() => fileInput?.click()}
-                >
-                  <Paperclip className="w-5 h-5" />
-                </Button>
-                <Input
-                placeholder="הקלד הודעה..."
-                value={messageInput}
-                onChange={(e) => setMessageInput(e.target.value)}
-                onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                disabled={sendMessageMutation.isPending}
-                className="bg-gray-100 border-0 rounded-full text-sm" />
-
-                <Button
-                onClick={handleSendMessage}
-                disabled={!messageInput.trim() || sendMessageMutation.isPending}
-                size="icon"
-                className="bg-green-500 hover:bg-green-600 text-white rounded-full h-10 w-10">
-
-                  <Send className="w-5 h-5" />
-                </Button>
+                {selectedContact._isUnlinked ? (
+                  <div className="flex-1 flex items-center justify-center text-orange-500 text-sm gap-2 py-2">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>לא ניתן לשלוח הודעות לשיחה לא משויכת. יש לשייך לאיש קשר תחילה.</span>
+                  </div>
+                ) : (
+                  <>
+                    <input
+                      ref={setFileInput}
+                      type="file"
+                      accept="image/*,.pdf"
+                      className="hidden"
+                      onChange={handleFileSelect}
+                    />
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-10 w-10 text-gray-600 hover:bg-gray-100"
+                      onClick={() => fileInput?.click()}
+                    >
+                      <Paperclip className="w-5 h-5" />
+                    </Button>
+                    <Input
+                      placeholder="הקלד הודעה..."
+                      value={messageInput}
+                      onChange={(e) => setMessageInput(e.target.value)}
+                      onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                      disabled={sendMessageMutation.isPending}
+                      className="bg-gray-100 border-0 rounded-full text-sm"
+                    />
+                    <Button
+                      onClick={handleSendMessage}
+                      disabled={!messageInput.trim() || sendMessageMutation.isPending}
+                      size="icon"
+                      className="bg-green-500 hover:bg-green-600 text-white rounded-full h-10 w-10"
+                    >
+                      <Send className="w-5 h-5" />
+                    </Button>
+                  </>
+                )}
               </div>
-            </> :
-
-          <div className="flex items-center justify-center h-full text-gray-500">
+            </>
+          ) : (
+            <div className="flex items-center justify-center h-full text-gray-500">
               <div className="text-center">
                 <div className="w-24 h-24 rounded-full bg-gradient-to-br from-gray-300 to-gray-400 flex items-center justify-center mx-auto mb-6">
                   <div className="text-4xl">💬</div>
@@ -515,9 +553,24 @@ export default function WhatsAppChat() {
                 <p className="text-sm mt-2">בחר איש קשר מהרשימה בצד כדי להתחיל שיחה</p>
               </div>
             </div>
-          }
+          )}
         </div>
       </div>
-    </div>);
 
+      {/* דיאלוג שיוך רטרואקטיבי */}
+      {selectedContact?._isUnlinked && (
+        <LinkUnlinkedDialog
+          open={linkDialogOpen}
+          onClose={() => setLinkDialogOpen(false)}
+          senderPhone={selectedContact.phone}
+          senderChatId={selectedContact.chatId}
+          onLinked={(contact) => {
+            setSelectedContact(contact);
+            queryClient.invalidateQueries({ queryKey: ['contacts'] });
+            queryClient.invalidateQueries({ queryKey: ['chatMessages'] });
+          }}
+        />
+      )}
+    </div>
+  );
 }
