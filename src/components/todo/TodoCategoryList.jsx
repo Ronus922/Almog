@@ -174,48 +174,100 @@ export default function TodoCategoryList({
 
       {/* Create Dialog */}
       <Dialog open={showCreate} onOpenChange={setShowCreate}>
-        <DialogContent className="max-w-sm" dir="rtl">
-          <DialogHeader>
-            <DialogTitle>קטגוריה חדשה</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="שם הקטגוריה"
-              value={newName}
-              onChange={e => setNewName(e.target.value)}
-              autoFocus
-              dir="rtl"
-              onKeyDown={e => { if (e.key === 'Enter') handleCreate(); }}
-            />
-            <ColorPicker value={newColor} onChange={setNewColor} />
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => { setShowCreate(false); setNewName(''); setNewColor('blue'); }}>ביטול</Button>
-              <Button disabled={!newName.trim()} onClick={handleCreate} className="bg-blue-600 hover:bg-blue-700 text-white">צור</Button>
+        <DialogContent
+          className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] bg-background shadow-lg border p-0 overflow-hidden flex flex-col sm:rounded-lg"
+          style={{ maxWidth: '420px', width: '100%' }}
+          dir="rtl"
+        >
+          {/* כפתור סגירה */}
+          <button
+            onClick={() => { setShowCreate(false); setNewName(''); setNewColor('blue'); }}
+            className="absolute left-4 top-4 z-10 rounded-lg bg-white/20 p-1.5 hover:bg-white/40 transition-colors"
+          >
+            <X className="h-5 w-5 text-white" />
+            <span className="sr-only">סגור</span>
+          </button>
+          {/* כותרת */}
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-lg">
+            <DialogHeader className="sr-only"><DialogTitle>קטגוריה חדשה</DialogTitle></DialogHeader>
+            <p className="text-white text-lg font-bold">קטגוריה חדשה</p>
+          </div>
+          {/* תוכן */}
+          <div className="space-y-4 px-6 pt-5 pb-2 flex-1">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-slate-700">שם הקטגוריה <span className="text-red-500">*</span></label>
+              <Input
+                placeholder="לדוגמה: עבודה, אישי..."
+                value={newName}
+                onChange={e => setNewName(e.target.value)}
+                autoFocus
+                dir="rtl"
+                className="h-10 border-slate-200 rounded-lg"
+                onKeyDown={e => { if (e.key === 'Enter') handleCreate(); }}
+              />
             </div>
+            <ColorPicker value={newColor} onChange={setNewColor} />
+          </div>
+          {/* כפתורים */}
+          <div className="flex justify-end gap-2 px-6 py-4 border-t border-slate-100 bg-white flex-shrink-0">
+            <Button
+              disabled={!newName.trim()}
+              onClick={handleCreate}
+              className="bg-[#3563d0] text-white h-9 px-4 text-sm font-medium rounded-md shadow hover:bg-blue-700"
+            >
+              צור קטגוריה
+            </Button>
+            <Button variant="outline" className="h-9" onClick={() => { setShowCreate(false); setNewName(''); setNewColor('blue'); }}>ביטול</Button>
           </div>
         </DialogContent>
       </Dialog>
 
-      {/* Edit Color Dialog */}
+      {/* Edit Dialog */}
       <Dialog open={!!editingId} onOpenChange={(open) => { if (!open) setEditingId(null); }}>
-        <DialogContent className="max-w-sm" dir="rtl">
-          <DialogHeader>
-            <DialogTitle>עריכת קטגוריה</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <Input
-              placeholder="שם הקטגוריה"
-              value={editingName}
-              onChange={e => setEditingName(e.target.value)}
-              autoFocus
-              dir="rtl"
-              onKeyDown={e => { if (e.key === 'Enter') handleRename(editingId); }}
-            />
-            <ColorPicker value={editingColor} onChange={setEditingColor} />
-            <div className="flex gap-2 justify-end">
-              <Button variant="outline" onClick={() => setEditingId(null)}>ביטול</Button>
-              <Button disabled={!editingName.trim()} onClick={() => handleRename(editingId)} className="bg-blue-600 hover:bg-blue-700 text-white">שמור</Button>
+        <DialogContent
+          className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] bg-background shadow-lg border p-0 overflow-hidden flex flex-col sm:rounded-lg"
+          style={{ maxWidth: '420px', width: '100%' }}
+          dir="rtl"
+        >
+          {/* כפתור סגירה */}
+          <button
+            onClick={() => setEditingId(null)}
+            className="absolute left-4 top-4 z-10 rounded-lg bg-white/20 p-1.5 hover:bg-white/40 transition-colors"
+          >
+            <X className="h-5 w-5 text-white" />
+            <span className="sr-only">סגור</span>
+          </button>
+          {/* כותרת */}
+          <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-lg">
+            <DialogHeader className="sr-only"><DialogTitle>עריכת קטגוריה</DialogTitle></DialogHeader>
+            <p className="text-white text-lg font-bold">עריכת קטגוריה</p>
+          </div>
+          {/* תוכן */}
+          <div className="space-y-4 px-6 pt-5 pb-2 flex-1">
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-slate-700">שם הקטגוריה <span className="text-red-500">*</span></label>
+              <Input
+                placeholder="שם הקטגוריה"
+                value={editingName}
+                onChange={e => setEditingName(e.target.value)}
+                autoFocus
+                dir="rtl"
+                className="h-10 border-slate-200 rounded-lg"
+                onKeyDown={e => { if (e.key === 'Enter') handleRename(editingId); }}
+              />
             </div>
+            <ColorPicker value={editingColor} onChange={setEditingColor} />
+          </div>
+          {/* כפתורים */}
+          <div className="flex justify-end gap-2 px-6 py-4 border-t border-slate-100 bg-white flex-shrink-0">
+            <Button
+              disabled={!editingName.trim()}
+              onClick={() => handleRename(editingId)}
+              className="bg-[#3563d0] text-white h-9 px-4 text-sm font-medium rounded-md shadow hover:bg-blue-700"
+            >
+              שמור שינויים
+            </Button>
+            <Button variant="outline" className="h-9" onClick={() => setEditingId(null)}>ביטול</Button>
           </div>
         </DialogContent>
       </Dialog>
