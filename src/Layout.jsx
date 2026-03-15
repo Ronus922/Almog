@@ -118,17 +118,19 @@ function LayoutContent({ children, currentPageName }) {
       }`}>
         
         {/* Header */}
-        <div className="p-3 border-b border-slate-700 flex items-center justify-between">
+        <div className="p-3 border-b border-slate-700">
           {!isCollapsed && (
             <h1 className="text-lg font-bold text-white">מערכת</h1>
           )}
-          <button
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="w-8 h-8 rounded-full bg-slate-700 hover:bg-slate-600 transition-colors text-slate-300 hover:text-white flex items-center justify-center flex-shrink-0"
-          >
-            <ChevronLeft className={`w-4 h-4 transition-transform ${isCollapsed ? 'rotate-180' : ''}`} />
-          </button>
         </div>
+
+        {/* Collapse Button - Floating on Side */}
+        <button
+          onClick={() => setIsCollapsed(!isCollapsed)}
+          className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2 w-10 h-10 rounded-full bg-slate-700 hover:bg-slate-600 transition-all duration-200 text-slate-300 hover:text-white flex items-center justify-center flex-shrink-0 shadow-lg border border-slate-600 hover:border-slate-500 z-50"
+        >
+          <ChevronLeft className={`w-5 h-5 transition-transform ${isCollapsed ? 'rotate-180' : ''}`} />
+        </button>
 
         {/* Search/Filter */}
         {!isCollapsed && (
