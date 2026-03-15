@@ -176,6 +176,7 @@ import WhatsAppChat from "./pages/WhatsAppChat.jsx";
 import Calendar from "./pages/Calendar.jsx";
 import Documents from "./pages/Documents.jsx";
 import SupplierManagement from "./pages/SupplierManagement.jsx";
+import TodoReminders from "./pages/TodoReminders.jsx";
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
