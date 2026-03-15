@@ -437,7 +437,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
               >
                 {saving ? "שומר..." : isEdit ? "שמור שינויים" : "צור משימה"}
               </Button>
-              <Button variant="outline" h-9 onClick={onClose}>ביטול</Button>
+              <Button variant="outline" className="h-9" onClick={onClose}>ביטול</Button>
             </div>
           </>
         )}
