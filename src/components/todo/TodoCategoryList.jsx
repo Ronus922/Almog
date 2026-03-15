@@ -134,13 +134,13 @@ export default function TodoCategoryList({
                     <span className="flex-1 text-sm font-medium truncate">{cat.name}</span>
                     }
 
-                        <div className={`flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity`}>
-
                         {count > 0 &&
-                    <span className={`text-sm px-2 py-1 rounded-full font-bold text-white ${colorObj.selected}`} style={{paddingTop: '5px', paddingBottom: '5px', paddingLeft: '8px', paddingRight: '8px'}}>
+                    <span className={`text-sm rounded-full font-bold text-white ${colorObj.selected}`} style={{paddingTop: '5px', paddingBottom: '5px', paddingLeft: '8px', paddingRight: '8px'}}>
                             {count}
                           </span>
                     }
+
+                        <div className={`flex gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity`}>
                           <button
                         onClick={(e) => startEdit(cat, e)}
                         className="p-1 rounded hover:bg-slate-200 transition-colors text-slate-500">
