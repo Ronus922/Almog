@@ -123,7 +123,7 @@ export default function SettingsPanel() {
     const validation = validateThresholds(settings);
     if (!validation.valid) {
       setError(validation.error);
-      toast.error(validation.error);
+      showAlert(validation.error, 'error');
       setIsSaving(false);
       return;
     }
