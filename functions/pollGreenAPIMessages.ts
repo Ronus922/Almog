@@ -77,7 +77,7 @@ Deno.serve(async (req) => {
       const receiptId = notification.receiptId;
       const body = notification.body;
 
-      console.log(`[POLL] #${i + 1} type=${body.typeWebhook} receiptId=${receiptId}`);
+      console.log(`[POLL] ✓ Notification #${i + 1}: type=${body.typeWebhook}, receiptId=${receiptId}`);
 
       // טפל רק בהודעות נכנסות
       if (body.typeWebhook === 'incomingMessageReceived') {
