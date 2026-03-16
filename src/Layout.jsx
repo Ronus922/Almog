@@ -140,7 +140,6 @@ function LayoutContent({ children, currentPageName }) {
         {/* Header */}
         <div className="p-3 border-b border-slate-700 flex items-center justify-between gap-2">
           {!isCollapsed && <h1 className="text-lg font-bold text-white">מערכת</h1>}
-          {currentUser && <NotificationBell currentUser={currentUser} />}
         </div>
 
         {/* Collapse Button - Floating on Side */}
