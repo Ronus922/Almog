@@ -24,7 +24,7 @@ export default function TaskAnalyticsDashboard() {
   });
 
   // קבל את כל הדירות לחישוב סך החובות
-  const { data: debtors = [] } = useQuery({
+  const { data: debtors = [], isLoading: debtorsLoading } = useQuery({
     queryKey: ['debtors'],
     queryFn: async () => {
       const result = await base44.entities.DebtorRecord.list('-updated_date', 10000);
@@ -33,7 +33,7 @@ export default function TaskAnalyticsDashboard() {
   });
 
   // קבל את הפגישות הפעילות
-  const { data: appointments = [] } = useQuery({
+  const { data: appointments = [], isLoading: appointmentsLoading } = useQuery({
     queryKey: ['appointments'],
     queryFn: async () => {
       const result = await base44.entities.Appointment.list('-updated_date', 1000);
@@ -42,7 +42,7 @@ export default function TaskAnalyticsDashboard() {
   });
 
   // קבל את הודעות הווטסאפ שטרם נקראו
-  const { data: chatMessages = [] } = useQuery({
+  const { data: chatMessages = [], isLoading: messagesLoading } = useQuery({
     queryKey: ['chatMessages'],
     queryFn: async () => {
       const result = await base44.entities.ChatMessage.list('-updated_date', 10000);
