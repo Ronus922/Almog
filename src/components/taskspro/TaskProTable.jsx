@@ -161,17 +161,10 @@ export default function TaskProTable({
                   {fmt(task.due_at)}
                 </td>
 
-                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                  <Select value={task.priority} onValueChange={(v) => onUpdatePriority(task.id, v)}>
-                    <SelectTrigger className={`w-24 h-7 text-xs font-semibold border ${PRIORITY_STYLE[task.priority] || ""}`}>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {["גבוהה","בינונית","נמוכה"].map((p) => (
-                        <SelectItem key={p} value={p}>{p}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <td className="px-4 py-3">
+                  <span className={`inline-block text-xs font-semibold px-2 py-1 rounded-full ${PRIORITY_STYLE[task.priority] || ""}`}>
+                    {task.priority}
+                  </span>
                 </td>
 
                 <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
