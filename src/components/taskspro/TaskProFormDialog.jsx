@@ -333,15 +333,6 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                       />
                     </div>
 
-                    {/* סוג משימה */}
-                    <div>
-                      <Label className="text-sm font-medium text-slate-700 mb-1.5 block">סוג משימה <span className="text-red-500">*</span></Label>
-                      <Select value={form.task_type} onValueChange={(v) => setF("task_type", v)}>
-                        <SelectTrigger className="h-10 bg-slate-50"><SelectValue /></SelectTrigger>
-                        <SelectContent>{TASK_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                      </Select>
-                    </div>
-
                     {/* עדיפות - תגית בלבד */}
                     <div>
                       <Label className="text-sm font-medium text-slate-700 mb-2 block">עדיפות</Label>
@@ -358,55 +349,41 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                         <SelectContent>{STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                       </Select>
                     </div>
+                  </div>
+                </div>
+              </div>}
 
-                    {/* תאריך יעד */}
-                    <div>
-                      <Label className="text-sm font-medium text-slate-700 mb-1.5 block">
-                        תאריך יעד <span className="text-slate-400 text-xs font-normal">(אופציונלי)</span>
-                      </Label>
-                      <Input
-                        type="datetime-local"
-                        className="h-10 bg-slate-50 focus:bg-white transition-colors"
-                        value={form.due_at}
-                        onChange={(e) => setF("due_at", e.target.value)}
-                      />
+              {activeTab === "attendees" && <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+                {/* משתתפים */}
+                <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
+                  <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                    <span className="w-1.5 h-4 bg-indigo-500 rounded-full inline-block"></span>
+                    משתתפים נוספים
+                  </p>
+                  <MultiSelectAttendees
+                    users={userOptions}
+                    selected={attendees}
+                    onChange={setAttendees}
+                  />
+                </div>
+
+                {/* קישור לדייר */}
+                <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-3">
+                  <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                    <span className="w-1.5 h-4 bg-teal-500 rounded-full inline-block"></span>
+                    קישור לדירה / דייר
+                  </p>
+                  <DebtorSelectSearch
+                    debtors={debtors}
+                    value={form.debtor_record_id}
+                    onChange={handleDebtorChange}
+                  />
+                  {form.apartment_number && (
+                    <div className="flex items-center gap-2 text-xs text-teal-700 bg-teal-50 border border-teal-200 rounded-lg px-3 py-2">
+                      <span className="font-semibold">דירה {form.apartment_number}</span>
+                      {form.owner_name && <span className="text-teal-500">– {form.owner_name}</span>}
                     </div>
-                  </div>
-
-                  {/* משתתפים */}
-                  <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
-                    <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                      <span className="w-1.5 h-4 bg-indigo-500 rounded-full inline-block"></span>
-                      משתתפים
-                    </p>
-                    <div>
-                      <Label className="text-sm font-medium text-slate-700 mb-1.5 block">משתתפים נוספים</Label>
-                      <MultiSelectAttendees
-                        users={userOptions}
-                        selected={attendees}
-                        onChange={setAttendees}
-                      />
-                    </div>
-                  </div>
-
-                  {/* קישור לדייר */}
-                  <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-3">
-                    <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
-                      <span className="w-1.5 h-4 bg-teal-500 rounded-full inline-block"></span>
-                      קישור לדירה / דייר
-                    </p>
-                    <DebtorSelectSearch
-                      debtors={debtors}
-                      value={form.debtor_record_id}
-                      onChange={handleDebtorChange}
-                    />
-                    {form.apartment_number && (
-                      <div className="flex items-center gap-2 text-xs text-teal-700 bg-teal-50 border border-teal-200 rounded-lg px-3 py-2">
-                        <span className="font-semibold">דירה {form.apartment_number}</span>
-                        {form.owner_name && <span className="text-teal-500">– {form.owner_name}</span>}
-                      </div>
-                    )}
-                  </div>
+                  )}
                 </div>
               </div>}
 
