@@ -295,7 +295,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                 ))}
               </div>
 
-              <TabsContent value="details" className="flex-1 overflow-y-auto px-6 py-5 space-y-5 m-0">
+              {activeTab === "details" && <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
                 {/* Content in details tab */}
                 <div className="space-y-5">
                   {/* פרטי משימה */}
