@@ -25,21 +25,21 @@ export default function BroadcastDialog({ open, onClose }) {
   const [campaignId, setCampaignId] = useState(null);
 
   const { data: contacts = [] } = useQuery({
-    queryKey: ['contacts'],
+    queryKey: ['broadcast-contacts'],
     queryFn: () => base44.entities.Contact.list(),
     staleTime: 1000 * 60,
     enabled: open,
   });
 
   const { data: operators = [] } = useQuery({
-    queryKey: ['operators'],
+    queryKey: ['broadcast-operators'],
     queryFn: () => base44.entities.Operator.list(),
     staleTime: 1000 * 60,
     enabled: open,
   });
 
   const { data: suppliers = [] } = useQuery({
-    queryKey: ['suppliers'],
+    queryKey: ['broadcast-suppliers'],
     queryFn: () => base44.entities.Supplier.list(),
     staleTime: 1000 * 60,
     enabled: open,
