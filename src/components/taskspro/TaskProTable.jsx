@@ -44,12 +44,17 @@ function SortHeader({ label, field, sortField, sortDir, onSort }) {
   );
 }
 
+const ASSIGNED_BY_DISPLAY = (name, email) => {
+  if (email === "r@bios.co.il" || name === "r@bios.co.il") return "רונן משולם";
+  return name || email || "—";
+};
+
 export default function TaskProTable({
   tasks = [], isLoading, sortField, sortDir, onSort,
   onRowClick, onEdit, onDelete, onArchive, onUnarchive,
   onUpdateStatus, onUpdatePriority,
   selectedIds, onToggleSelect, onToggleSelectAll,
-  isAdmin, attendeesMap = {}
+  isAdmin, attendeesMap = {}, currentUsername = ""
 }) {
   const today = getTodayStr();
 
