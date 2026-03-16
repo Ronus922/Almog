@@ -128,6 +128,7 @@ Deno.serve(async (req) => {
 
         if (contact) {
           // מספר מוכר — שמור עם contact_id אמיתי
+          console.log(`[POLL] 🔗 Found contact: ${contact.apartment_number} - ${contact.owner_name || contact.tenant_name}`);
           await base44.asServiceRole.entities.ChatMessage.create({
             contact_id: contact.id,
             contact_phone: senderPhone,
@@ -140,10 +141,11 @@ Deno.serve(async (req) => {
             timestamp
           });
           processedCount++;
-          console.log(`[POLL] ✓ Saved for contact: apartment ${contact.apartment_number}`);
+          console.log(`[POLL] ✅ SAVED AS LINKED - contact_id=${contact.id}`);
         } else {
           // מספר לא מוכר — שמור ללא contact_id (null), עם link_status=unlinked
           // ניתן לשיוך רטרואקטיבי בעתיד לפי sender_chat_id / contact_phone
+          console.log(`[POLL] 🔓 Unknown sender - saving as UNLINKED`);
           await base44.asServiceRole.entities.ChatMessage.create({
             contact_phone: senderPhone,
             sender_chat_id: senderRaw,
@@ -155,7 +157,7 @@ Deno.serve(async (req) => {
             timestamp
           });
           unknownCount++;
-          console.log(`[POLL] ⚠ Unknown sender ${senderPhone} — saved as unlinked (no contact_id)`);
+          console.log(`[POLL] ✅ SAVED AS UNLINKED - phone=${senderPhone}, sender_chat_id=${senderRaw}`);
         }
       } else {
         // סוג אחר (statusMessage, outgoingMessage וכו') — דלג
