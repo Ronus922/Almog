@@ -274,8 +274,8 @@ export default function TasksProPage() {
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
-            {/* View tabs */}
-            <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
+            {/* View tabs - צמודים לימין */}
+            <div className="flex items-center gap-1 bg-slate-100 border border-slate-200 rounded-xl p-1 shadow-sm">
               {[
                 { key: "tasks", label: "משימות" },
                 { key: "rules", label: "מחזוריות" },
@@ -283,7 +283,7 @@ export default function TasksProPage() {
                 <button
                   key={key}
                   onClick={() => setActiveView(key)}
-                  className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${activeView === key ? "bg-blue-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"}`}
+                  className={`px-4 py-2 rounded-lg text-sm font-semibold transition-all ${activeView === key ? "bg-blue-600 text-white shadow-sm" : "text-slate-500 hover:bg-white hover:text-slate-700"}`}
                 >
                   {label}
                 </button>
