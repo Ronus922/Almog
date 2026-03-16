@@ -117,6 +117,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
           assigned_by: currentUser?.username || currentUser?.email || "",
           completion_notes: ""
         });
+        setRecurrenceRule({ is_recurring: false });
       }
     }
   }, [open, task, debtorRecord, currentUser]);
