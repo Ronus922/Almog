@@ -381,6 +381,7 @@ export default function TasksProPage() {
                   onToggleSelectAll={toggleSelectAll}
                   isAdmin={isAdmin}
                   attendeesMap={attendeesMap}
+                  currentUsername={currentUser?.username}
                 />
               </div>
             )}
