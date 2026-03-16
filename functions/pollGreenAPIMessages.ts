@@ -53,7 +53,8 @@ Deno.serve(async (req) => {
       if (!receiveRes.ok) {
         const errorBody = await receiveRes.text();
         console.error(`[POLL] ❌ receiveNotification HTTP error: ${receiveRes.status}`);
-        console.error(`[POLL] Response body: ${errorBody.substring(0, 200)}`);
+        console.error(`[POLL] Response body: ${errorBody}`);
+        console.error(`[POLL] Headers: ${JSON.stringify(Object.fromEntries(receiveRes.headers))}`);
         // אל תעצור בגלל 400 — המשך לנסות
         if (i === 0) {
           // הפעם הראשונה — אולי זה בעיית אימות, חברה וחצי
