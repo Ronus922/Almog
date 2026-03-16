@@ -167,12 +167,15 @@ Deno.serve(async (req) => {
 
       // חובה: מחק את ההתראה מהתור לאחר עיבוד (גם אם דילגנו)
       // זה מונע תקיעת ה-FIFO
+      console.log(`[POLL] 🗑️ Deleting notification from queue - receiptId=${receiptId}`);
       const deleteRes = await fetch(
         `https://api.green-api.com/waInstance${instanceId}/deleteNotification/${token}/${receiptId}`,
         { method: 'DELETE' }
       );
       if (!deleteRes.ok) {
-        console.error(`[POLL] deleteNotification failed: ${deleteRes.status} for receiptId=${receiptId}`);
+        console.error(`[POLL] ❌ deleteNotification FAILED: HTTP ${deleteRes.status} for receiptId=${receiptId}`);
+      } else {
+        console.log(`[POLL] ✅ deleteNotification SUCCESS - queue cleaned`);
       }
     }
 
