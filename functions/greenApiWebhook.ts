@@ -36,18 +36,21 @@ Deno.serve(async (req) => {
       const base44 = createClientFromRequest(req);
 
       // קבל את ה-payload מ-Green API
+      console.log('[WEBHOOK] ▶️▶️▶️ START: Webhook received, parsing payload...');
       let payload;
       try {
         payload = await req.json();
+        console.log('[WEBHOOK] ✓ JSON parsed successfully');
       } catch (parseErr) {
-        console.error('[WEBHOOK] ❌ Failed to parse JSON:', parseErr.message);
+        console.error('[WEBHOOK] ❌ CHECKPOINT: JSON parse failed:', parseErr.message);
         return;
       }
 
       if (!payload || !payload.body) {
-        console.warn('[WEBHOOK] ⚠️ Empty or malformed payload');
+        console.warn('[WEBHOOK] ⚠️ CHECKPOINT: Empty or malformed payload');
         return;
       }
+      console.log('[WEBHOOK] ✓ Payload structure valid');
 
       const body = payload.body;
       const typeWebhook = body.typeWebhook;
