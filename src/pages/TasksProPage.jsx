@@ -491,16 +491,6 @@ export default function TasksProPage() {
           currentUser={currentUser}
           onSaved={() => queryClient.invalidateQueries({ queryKey: ["taskpro-tasks"] })}
         />
-
-        <TaskProQuickView
-          task={detailTask}
-          open={!!detailTask}
-          onClose={() => setDetailTask(null)}
-          onEdit={openEdit}
-          onArchive={doArchive}
-          onUnarchive={doUnarchive}
-          onComplete={handleCompleteTask}
-        />
       </div>
     </div>
   );
