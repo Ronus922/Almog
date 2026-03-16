@@ -140,14 +140,16 @@ Deno.serve(async (req) => {
       }
 
       // קבל את כל אנשי הקשר
+      console.log(`[WEBHOOK] ✓ CHECKPOINT: Starting contact search...`);
       const contacts = await base44.asServiceRole.entities.Contact.filter({});
-      console.log(`[WEBHOOK] 📋 Searching contacts (total: ${contacts.length})...`);
+      console.log(`[WEBHOOK] ✓ CHECKPOINT: Loaded ${contacts.length} contacts from DB`);
 
       // חפש איש קשר מתאים לפי טלפון
       const contact = contacts.find(c => {
         const phones = [c.owner_phone, c.tenant_phone].filter(p => p);
         return phones.some(p => p.replace(/[^0-9]/g, '') === senderPhoneClean);
       });
+      console.log(`[WEBHOOK] ✓ CHECKPOINT: Contact search completed (found: ${contact ? 'YES' : 'NO'})`);
 
       // שמור הודעה עם external_message_id כדי למנוע כפילויות של webhook redelivery
       let savedMessage;
