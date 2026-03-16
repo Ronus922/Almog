@@ -119,7 +119,46 @@ export default function TaskAnalyticsDashboard() {
 
   const COLORS = ['#3563d0', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
 
-  if (isLoading) {
+  // חישוב KPI חדשים
+  const buildingMetrics = useMemo(() => {
+    const totalDebt = debtors.reduce((sum, d) => sum + (d.totalDebt || 0), 0);
+    const activeAppointments = appointments.filter(a => {
+      const apptDate = new Date(a.date);
+      const today = new Date();
+      return apptDate >= today;
+    }).length;
+    const pendingMessages = chatMessages.filter(m => m.direction === 'received' && m.link_status === 'unlinked').length;
+    
+    return { totalDebt, activeAppointments, pendingMessages };
+  }, [debtors, appointments, chatMessages]);
+
+  // תרשים מגמת חובות (אחרונות 30 ימים)
+  const debtTrendData = useMemo(() => {
+    const today = new Date();
+    const days = [];
+    
+    for (let i = 29; i >= 0; i--) {
+      const date = new Date(today);
+      date.setDate(date.getDate() - i);
+      const dateStr = date.toLocaleDateString('he-IL');
+      
+      const dayDebtors = debtors.filter(d => {
+        if (!d.lastImportAt) return false;
+        const importDate = new Date(d.lastImportAt);
+        return importDate.toLocaleDateString('he-IL') === dateStr;
+      });
+      
+      const dayTotal = dayDebtors.reduce((sum, d) => sum + (d.totalDebt || 0), 0);
+      days.push({
+        date: date.toLocaleDateString('he-IL', { month: 'short', day: 'numeric' }),
+        סך_חוב: dayTotal || null
+      });
+    }
+    
+    return days.filter(d => d.סך_חוב !== null).length > 0 ? days : [];
+  }, [debtors]);
+
+  if (tasksLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
         <div className="text-center">
