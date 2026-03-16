@@ -283,20 +283,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
     }
   }, [formData, onSave, appointment, createNotificationsForAppointment]);
 
-  // Filter users and contacts
-  const filteredUsers = userSearchTerm.trim() === '' 
-    ? users 
-    : users.filter(u => {
-        const label = formatUserLabel(u).toLowerCase();
-        return label.includes(userSearchTerm.toLowerCase());
-      });
 
-  const filteredContacts = contactSearchTerm.trim() === '' 
-    ? contacts 
-    : contacts.filter(c => {
-        const label = formatContactLabel(c).toLowerCase();
-        return label.includes(contactSearchTerm.toLowerCase());
-      });
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5" dir="rtl">
