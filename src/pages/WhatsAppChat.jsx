@@ -73,6 +73,26 @@ export default function WhatsAppChat() {
   };
 
   // ==========================================
+  // קביעת קבוצת גורם לכל שיחה (לצורך פילטר)
+  // עדיפות: מפעיל > שוכר > בעל דירה
+  // ==========================================
+  const getConvGroup = useCallback((conv) => {
+    if (conv._isUnlinked) return 'unlinked';
+
+    // בדיקה האם זה ספק
+    if (conv._isSupplier) return 'suppliers';
+
+    // עדיפות: מפעיל
+    if (conv.operator_is_primary_contact && conv.operator_id) return 'operators';
+
+    // עדיפות: שוכר
+    if (conv.tenant_is_primary_contact && conv.tenant_name) return 'tenants';
+
+    // ברירת מחדל: בעל נכס
+    return 'owners';
+  }, []);
+
+  // ==========================================
   // שאילתת אנשי קשר + שיחות unlinked
   // מחשבת last activity אמיתי לכל שיחה
   // ==========================================
