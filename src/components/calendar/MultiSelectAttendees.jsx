@@ -1,6 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
 import { ChevronDown } from 'lucide-react';
 
 export default function MultiSelectAttendees({
