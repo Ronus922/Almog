@@ -110,6 +110,30 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
           </div>
         </div>
 
+        {/* Tabs */}
+        <div className="flex items-center gap-0 border-b border-slate-200 px-6 pt-4">
+          <button
+            onClick={() => setActiveTab("details")}
+            className={`pb-3 px-4 font-medium text-sm transition-colors border-b-2 ${
+              activeTab === "details"
+                ? "border-blue-600 text-blue-600"
+                : "border-transparent text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            פרטים
+          </button>
+          <button
+            onClick={() => setActiveTab("documents")}
+            className={`pb-3 px-4 font-medium text-sm transition-colors border-b-2 ${
+              activeTab === "documents"
+                ? "border-blue-600 text-blue-600"
+                : "border-transparent text-slate-600 hover:text-slate-900"
+            }`}
+          >
+            מסמכים
+          </button>
+        </div>
+
         {/* Content */}
         <div className="space-y-4 mt-2 flex-1 overflow-y-auto px-6 pt-4" dir="rtl">
           {/* Apartment + Resident Type */}
