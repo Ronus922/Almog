@@ -270,6 +270,21 @@ export default function Tasks() {
           </div>
         </div>
 
+        {/* תצוגת כללי מחזוריות */}
+        {activeView === "rules" && (
+          <Card className="border-0 shadow-sm bg-white">
+            <CardContent className="p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Repeat2 className="w-5 h-5 text-blue-600" />
+                <h2 className="text-lg font-bold text-slate-800">כללי מחזוריות פעילים</h2>
+              </div>
+              <RecurringRuleManager />
+            </CardContent>
+          </Card>
+        )}
+
+        {activeView !== "rules" && <>
+
         {/* KPI — לחיצה מפעילה activeKpiFilter */}
         <div className="grid grid-cols-3 gap-4">
           {[
