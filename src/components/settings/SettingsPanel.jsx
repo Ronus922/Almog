@@ -101,14 +101,14 @@ export default function SettingsPanel() {
 
       setRecalcSuccess(true);
       setRecalcMessage(`${updated} רשומות עודכנו מתוך ${allRecords.length}`);
-      toast.success(`${updated} רשומות עודכנו בהצלחה`);
+      showAlert(`${updated} רשומות עודכנו בהצלחה`, 'success');
       setTimeout(() => {
         setRecalcSuccess(false);
         setRecalcMessage('');
       }, 5000);
     } catch (err) {
       setError('שגיאה בחישוב מחדש של הסטטוסים: ' + err.message);
-      toast.error('שגיאה בחישוב מחדש');
+      showAlert('שגיאה בחישוב מחדש', 'error');
     } finally {
       setIsRecalculating(false);
     }
