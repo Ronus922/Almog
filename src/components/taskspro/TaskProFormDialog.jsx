@@ -504,14 +504,14 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                    </SelectContent>
                  </Select>
                </div>
-               )}
+              )}
 
               {/* פרטי משימה */}
               <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
-            <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
-              <span className="w-1.5 h-4 bg-blue-500 rounded-full inline-block"></span>
-              פרטי המשימה
-            </p>
+               <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                 <span className="w-1.5 h-4 bg-blue-500 rounded-full inline-block"></span>
+                 פרטי המשימה
+               </p>
 
                 {/* כותרת - חובה */}
                 <div>
