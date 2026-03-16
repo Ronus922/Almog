@@ -552,6 +552,8 @@ export default function Tasks() {
         </Card>
       </div>
 
+        </> }
+
       <TaskFormDialog
          open={showDialog}
          onClose={() => {setShowDialog(false);setEditTask(null);}}
@@ -560,6 +562,7 @@ export default function Tasks() {
          currentUser={currentUser}
          onSaved={(savedTask) => {
            queryClient.invalidateQueries({ queryKey: ["tasks"] });
+           queryClient.invalidateQueries({ queryKey: ["recurrence-rules"] });
            if (!editTask && savedTask) {
              window.dispatchEvent(new CustomEvent('newTask', { 
                detail: { task: savedTask } 
