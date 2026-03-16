@@ -82,11 +82,12 @@ export default function MultiSelectAttendees({
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => onToggle(itemId)}
                   >
-                    <Checkbox
+                    <input
+                      type="checkbox"
                       checked={isSelected}
-                      onCheckedChange={() => onToggle(itemId)}
+                      onChange={() => {}}
                       onClick={(e) => e.stopPropagation()}
-                      onPointerDown={(e) => e.stopPropagation()}
+                      className="w-4 h-4 rounded border-slate-300 accent-blue-600 cursor-pointer flex-shrink-0"
                     />
 
                     {/* Avatar */}
