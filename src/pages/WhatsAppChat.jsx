@@ -3,13 +3,15 @@ import { base44 } from '@/api/base44Client';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { Send, Search, Info, Paperclip, AlertCircle, Link } from 'lucide-react';
+import { Send, Search, Info, Paperclip, AlertCircle, Link, Radio } from 'lucide-react';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import ChatMessageBubble from '@/components/whatsapp/ChatMessageBubble';
 import LinkedContactInfo from '@/components/whatsapp/LinkedContactInfo';
 import LinkUnlinkedDialog from '@/components/whatsapp/LinkUnlinkedDialog';
+import ConversationGroupFilter from '@/components/whatsapp/ConversationGroupFilter';
+import BroadcastDialog from '@/components/whatsapp/BroadcastDialog';
 
 export default function WhatsAppChat() {
   const [selectedContact, setSelectedContact] = useState(null);
