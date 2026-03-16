@@ -310,71 +310,70 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
           )}
 
           {/* Additional Fields */}
-          {activeTab === "details" && (
           <div className="border-t border-slate-100 pt-4 space-y-4">
-            <div className="space-y-2">
-              <Label className="text-sm font-semibold text-slate-700">כתובת מגורים</Label>
-              <Input
-                value={form.address}
-                onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
-                className="h-9 border border-slate-200 rounded-lg bg-white text-sm text-slate-700 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder:text-muted-foreground"
-                dir="rtl"
-                placeholder="כתובת מגורים (אופציונלי)"
-              />
-            </div>
+           <div className="space-y-2">
+             <Label className="text-sm font-semibold text-slate-700">כתובת מגורים</Label>
+             <Input
+               value={form.address}
+               onChange={e => setForm(f => ({ ...f, address: e.target.value }))}
+               className="h-9 border border-slate-200 rounded-lg bg-white text-sm text-slate-700 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder:text-muted-foreground"
+               dir="rtl"
+               placeholder="כתובת מגורים (אופציונלי)"
+             />
+           </div>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-semibold text-slate-700">הערות</Label>
-              <Textarea
-                value={form.notes}
-                onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
-                className="border border-slate-200 rounded-lg bg-white text-sm text-slate-700 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder:text-muted-foreground resize-none"
-                dir="rtl"
-                rows={3}
-                placeholder="הערות נוספות..."
-              />
-            </div>
+           <div className="space-y-2">
+             <Label className="text-sm font-semibold text-slate-700">הערות</Label>
+             <Textarea
+               value={form.notes}
+               onChange={e => setForm(f => ({ ...f, notes: e.target.value }))}
+               className="border border-slate-200 rounded-lg bg-white text-sm text-slate-700 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder:text-muted-foreground resize-none"
+               dir="rtl"
+               rows={3}
+               placeholder="הערות נוספות..."
+             />
+           </div>
 
-            <div className="space-y-2">
-              <Label className="text-sm font-semibold text-slate-700">תגיות</Label>
-              <div className="flex gap-2 flex-row-reverse">
-                <Button variant="outline" size="icon" onClick={addTag} className="h-9 w-9 flex-shrink-0">
-                  <Plus className="w-4 h-4" />
-                </Button>
-                <Input
-                  value={tagInput}
-                  onChange={e => setTagInput(e.target.value)}
-                  onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addTag())}
-                  placeholder="הוסף תגית..."
-                  dir="rtl"
-                  className="h-9 border border-slate-200 rounded-lg bg-white text-sm text-slate-700 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder:text-muted-foreground"
-                />
-              </div>
-              {form.tags.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {form.tags.map(tag => (
-                    <Badge
-                      key={tag}
-                      variant="secondary"
-                      className="gap-1 cursor-pointer hover:bg-slate-300 transition-colors"
-                      onClick={() => removeTag(tag)}
-                    >
-                      {tag} <X className="w-3 h-3" />
-                    </Badge>
-                  ))}
-                </div>
-              )}
-            </div>
+           <div className="space-y-2">
+             <Label className="text-sm font-semibold text-slate-700">תגיות</Label>
+             <div className="flex gap-2 flex-row-reverse">
+               <Button variant="outline" size="icon" onClick={addTag} className="h-9 w-9 flex-shrink-0">
+                 <Plus className="w-4 h-4" />
+               </Button>
+               <Input
+                 value={tagInput}
+                 onChange={e => setTagInput(e.target.value)}
+                 onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addTag())}
+                 placeholder="הוסף תגית..."
+                 dir="rtl"
+                 className="h-9 border border-slate-200 rounded-lg bg-white text-sm text-slate-700 focus:ring-1 focus:ring-blue-500 focus:border-blue-500 placeholder:text-muted-foreground"
+               />
+             </div>
+             {form.tags.length > 0 && (
+               <div className="flex flex-wrap gap-2 mt-2">
+                 {form.tags.map(tag => (
+                   <Badge
+                     key={tag}
+                     variant="secondary"
+                     className="gap-1 cursor-pointer hover:bg-slate-300 transition-colors"
+                     onClick={() => removeTag(tag)}
+                   >
+                     {tag} <X className="w-3 h-3" />
+                   </Badge>
+                 ))}
+               </div>
+             )}
+           </div>
           </div>
           )}
 
           {activeTab === "documents" && contact && (
-            <ContactDocumentsTab contact={contact} />
+           <ContactDocumentsTab contact={contact} />
           )}
           {activeTab === "documents" && !contact && (
-            <div className="text-center py-8 text-slate-500">
-              <p className="text-sm">שמור את הדירה קודם כדי להוסיף מסמכים</p>
-            </div>
+           <div className="text-center py-8 text-slate-500">
+             <p className="text-sm">שמור את הדירה קודם כדי להוסיף מסמכים</p>
+           </div>
           )}
           </div>
 
