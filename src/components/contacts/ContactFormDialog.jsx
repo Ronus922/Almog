@@ -365,6 +365,17 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
               )}
             </div>
           </div>
+          </>
+          )}
+
+          {activeTab === "documents" && contact && (
+            <ContactDocumentsTab contact={contact} />
+          )}
+          {activeTab === "documents" && !contact && (
+            <div className="text-center py-8 text-slate-500">
+              <p className="text-sm">שמור את הדירה קודם כדי להוסיף מסמכים</p>
+            </div>
+          )}
           </div>
 
           {/* Footer */}
