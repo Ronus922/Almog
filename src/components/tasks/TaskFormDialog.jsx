@@ -208,6 +208,42 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
           changed_by_name: changer.name,
           changes: "{}"
         });
+
+        // צור כלל מחזוריות אם נבחר
+        if (recurrenceRule?.is_recurring && recurrenceRule.frequency) {
+          const startDate = finalForm.due_date ? new Date(finalForm.due_date + "T00:00:00") : new Date();
+          const ruleData = {
+            title: `${finalForm.task_type}${finalForm.apartment_number ? ` – דירה ${finalForm.apartment_number}` : ""}`,
+            is_active: true,
+            is_paused: false,
+            frequency: recurrenceRule.frequency,
+            interval_value: recurrenceRule.interval_value || 1,
+            days_of_week_json: recurrenceRule.days_of_week?.length ? JSON.stringify(recurrenceRule.days_of_week) : null,
+            day_of_month: recurrenceRule.day_of_month || null,
+            month_of_year: recurrenceRule.month_of_year || null,
+            starts_at: startDate.toISOString(),
+            ends_mode: recurrenceRule.ends_mode || 'never',
+            ends_at: recurrenceRule.ends_at ? new Date(recurrenceRule.ends_at + "T00:00:00").toISOString() : null,
+            max_occurrences: recurrenceRule.max_occurrences || null,
+            generated_count: 0,
+            generate_mode: recurrenceRule.generate_mode || 'on_completion',
+            next_run_at: startDate.toISOString(),
+            template_task_id: newTask.id,
+            assigned_to: finalForm.assigned_to || null,
+            assigned_to_name: finalForm.assigned_to_name || null,
+            debtor_record_id: finalForm.debtor_record_id || null,
+            apartment_number: finalForm.apartment_number || null,
+            owner_name: finalForm.owner_name || null,
+            default_task_type: finalForm.task_type,
+            default_priority: finalForm.priority,
+            default_status: 'פתוחה',
+            default_description: finalForm.description || null,
+            created_by: changer.username,
+            created_by_name: changer.name
+          };
+          await base44.entities.TaskRecurrenceRule.create(ruleData);
+        }
+
         // שליחת התראה לנמען המשימה
         if (finalForm.assigned_to) {
           await base44.entities.Notification.create({
