@@ -311,8 +311,13 @@ export default function SettingsPanel() {
             <MessageCircle className="w-4 h-4 text-green-600" />
             WhatsApp – Green API
           </CardTitle>
+          <p className="text-xs text-slate-500 mt-2">הגדר את הפרטים להקשת הודעות נכנסות דרך WhatsApp</p>
         </CardHeader>
         <CardContent className="space-y-4">
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <p className="text-xs font-medium text-blue-900 mb-1">📌 Webhook URL ל-Green API Dashboard:</p>
+            <code className="text-xs text-blue-700 block break-all font-mono">https://69b3212f206c95cdd3b3e777.base44.io/api/greenApiWebhook</code>
+          </div>
           <div>
             <Label>Instance ID</Label>
             <Input
