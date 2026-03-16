@@ -79,15 +79,22 @@ function LayoutContent({ children, currentPageName }) {
       {items.map((item) => {
         const isActive = currentPageName === item.name;
         return (
-          <button
-            key={item.name}
-            onClick={() => handleNavigation(item.name)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-sm font-medium ${
-              isActive ? 'bg-slate-700/50 text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/30'
-            }`}>
-            <item.icon className="w-5 h-5 flex-shrink-0" />
-            {!isCollapsed && <span className="flex-1 text-right">{item.label}</span>}
-          </button>
+          <div key={item.name} className="relative group">
+            <button
+              onClick={() => handleNavigation(item.name)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-sm font-medium ${
+                isActive ? 'bg-slate-700/50 text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/30'
+              }`}>
+              <item.icon className="w-5 h-5 flex-shrink-0" />
+              {!isCollapsed && <span className="flex-1 text-right">{item.label}</span>}
+            </button>
+            {isCollapsed && (
+              <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 px-2.5 py-1.5 bg-slate-900 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none z-50 shadow-lg border border-slate-700">
+                {item.label}
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 w-1.5 h-1.5 bg-slate-900 border-r border-t border-slate-700 rotate-45" />
+              </div>
+            )}
+          </div>
         );
       })}
     </div>;
