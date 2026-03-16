@@ -136,6 +136,8 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
 
         {/* Content */}
         <div className="space-y-4 mt-2 flex-1 overflow-y-auto px-6 pt-4" dir="rtl">
+          {activeTab === "details" && (
+          <>
           {/* Apartment + Resident Type */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
