@@ -112,7 +112,14 @@ export default function Calendar() {
   const [itemTypeFilter, setItemTypeFilter] = useState('הכל');
   const [meetingTypeFilter, setMeetingTypeFilter] = useState('');
   const [userFilter, setUserFilter] = useState('');
+  const [allUsers, setAllUsers] = useState([]);
+  const previousAttendeeIdsRef = React.useRef([]);
   const queryClient = useQueryClient();
+
+  // טעינת משתמשים פעם אחת
+  useEffect(() => {
+    base44.entities.AppUser.list().then(setAllUsers).catch(console.error);
+  }, []);
 
   // Drag & Drop
   const [draggedAppointment, setDraggedAppointment] = useState(null);
