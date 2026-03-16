@@ -332,10 +332,12 @@ function LayoutContent({ children, currentPageName }) {
               size="icon"
               className="h-9 w-9"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-
               {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </Button>
             <h1 className="text-lg font-bold text-slate-900">מערכת</h1>
+            <div className="flex items-center bg-slate-700 rounded-lg px-1">
+              <NotificationBell currentUser={currentUser} />
+            </div>
           </div>
         </header>
 
