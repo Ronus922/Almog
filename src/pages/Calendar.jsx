@@ -384,37 +384,33 @@ export default function Calendar() {
   };
 
   const handleSaveAppointment = async (data) => {
+    let savedRecord = null;
+    const prevIds = previousAttendeeIdsRef.current || [];
+
     if (selectedAppointment) {
       // Edit existing
       if (selectedAppointment.series_id) {
         setEditMode(null);
         setShowEditDialog(true);
-        return null;
+        return; // recurring series dialog — no save yet
       } else {
-        const result = await updateMutation.mutateAsync({ id: selectedAppointment.id, data });
+        savedRecord = await updateMutation.mutateAsync({ id: selectedAppointment.id, data });
         setShowForm(false);
         setSelectedAppointment(null);
-        return result;
       }
     } else {
-      // Create new
+      // Create new — reset prev ids (יצירה חדשה — כל המשתתפים מקבלים הודעה)
+      previousAttendeeIdsRef.current = [];
       if (data.is_recurring && data.recurrence_count && data.recurrence_pattern) {
         const seriesId = `series_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
         const startDate = new Date(data.date);
         const interval = data.recurrence_interval || 1;
-
         const instances = [];
         for (let i = 0; i < data.recurrence_count; i++) {
           let nextDate = new Date(startDate);
-
-          if (data.recurrence_pattern === 'שבועי') {
-            nextDate = addWeeks(startDate, i * interval);
-          } else if (data.recurrence_pattern === 'חודשי') {
-            nextDate = addMonths(startDate, i * interval);
-          } else if (data.recurrence_pattern === 'שנתי') {
-            nextDate = addMonths(startDate, i * interval * 12);
-          }
-
+          if (data.recurrence_pattern === 'שבועי') nextDate = addWeeks(startDate, i * interval);
+          else if (data.recurrence_pattern === 'חודשי') nextDate = addMonths(startDate, i * interval);
+          else if (data.recurrence_pattern === 'שנתי') nextDate = addMonths(startDate, i * interval * 12);
           instances.push({
             ...data,
             date: format(nextDate, 'yyyy-MM-dd'),
@@ -424,16 +420,17 @@ export default function Calendar() {
             source_type: i === 0 ? 'manual' : 'generated_occurrence',
           });
         }
-
-        let lastResult = null;
         for (const instance of instances) {
-          lastResult = await createMutation.mutateAsync(instance);
+          savedRecord = await createMutation.mutateAsync(instance);
         }
-        return lastResult;
       } else {
-        const result = await createMutation.mutateAsync(data);
-        return result;
+        savedRecord = await createMutation.mutateAsync(data);
       }
+    }
+
+    // צור notifications מהrecord השמור בפועל — לא מ-formData
+    if (savedRecord) {
+      await createAppointmentNotifications(savedRecord, prevIds, allUsers, queryClient);
     }
   };
 
