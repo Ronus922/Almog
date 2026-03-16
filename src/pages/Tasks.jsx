@@ -250,6 +250,24 @@ export default function Tasks() {
             <h1 className="text-2xl font-bold text-slate-800">משימות לטיפול</h1>
             <p className="text-sm text-slate-500 mt-1">{kpiCounts.open} משימות פתוחות</p>
           </div>
+          <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
+            <button
+              onClick={() => setActiveView("tasks")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                activeView === "tasks" ? "bg-blue-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              <ClipboardList className="w-4 h-4" /> משימות
+            </button>
+            <button
+              onClick={() => setActiveView("rules")}
+              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                activeView === "rules" ? "bg-blue-600 text-white shadow-sm" : "text-slate-600 hover:bg-slate-100"
+              }`}
+            >
+              <Repeat2 className="w-4 h-4" /> כללי מחזוריות
+            </button>
+          </div>
         </div>
 
         {/* KPI — לחיצה מפעילה activeKpiFilter */}
