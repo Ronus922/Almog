@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { format } from "date-fns";
-import { MessageSquare, Paperclip, Activity, Bell, Pencil, Archive, RotateCcw, Repeat2, FileText, User, Users, Calendar, Tag } from "lucide-react";
+import { MessageSquare, Paperclip, Activity, Bell, Pencil, Archive, RotateCcw, Repeat2, FileText, User, Users, Calendar, Tag, MessagesSquare } from "lucide-react";
+import TaskChatSection from "@/components/chat/TaskChatSection";
 import { fetchComments, createComment, updateComment, deleteComment,
          fetchAttachments, uploadAttachment, deleteAttachment,
          fetchActivity, fetchAttendees, fetchReminders } from "./taskProApi";
@@ -186,6 +187,9 @@ export default function TaskProDetailsDialog({ task, open, onClose, onEdit, onAr
               <TabsTrigger value="activity" className="gap-1.5 text-xs">
                 <Activity className="w-3.5 h-3.5" />פעילות ({activity.length})
               </TabsTrigger>
+              <TabsTrigger value="chat" className="gap-1.5 text-xs">
+                <MessagesSquare className="w-3.5 h-3.5" />צ'אט משימה
+              </TabsTrigger>
             </TabsList>
 
             {/* Comments */}
@@ -309,6 +313,12 @@ export default function TaskProDetailsDialog({ task, open, onClose, onEdit, onAr
                   </div>
                 </div>
               ))}
+            </TabsContent>
+            {/* Task Chat */}
+            <TabsContent value="chat" className="mt-4">
+              <div className="bg-slate-50 rounded-xl overflow-hidden border border-slate-200" style={{ height: '380px' }}>
+                <TaskChatSection taskId={task.id} currentUser={currentUser} />
+              </div>
             </TabsContent>
           </Tabs>
         </div>
