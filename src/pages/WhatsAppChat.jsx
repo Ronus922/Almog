@@ -293,7 +293,11 @@ export default function WhatsAppChat() {
         (conv.apartment_number || '').toLowerCase().includes(q)
       );
     })
-    .filter((conv) => conv.lastMessageTime !== null) // הצג רק שיחות עם פעילות
+    .filter((conv) => {
+      // הצג רק שיחות שיש להן הודעות — אך אל תסנן contacts ללא הודעות שנמצאים בחיפוש
+      if (searchQuery.trim() !== '') return true; // אם יש חיפוש — הצג הכל
+      return conv.lastMessageTime !== null;
+    })
     .filter((conv) => {
       // פילטר קבוצות
       if (groupFilter === 'all') return true;
