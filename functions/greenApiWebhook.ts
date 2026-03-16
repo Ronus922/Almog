@@ -146,7 +146,7 @@ Deno.serve(async (req) => {
         return phones.some(p => p.replace(/[^0-9]/g, '') === senderPhoneClean);
       });
 
-      // שמור הודעה
+      // שמור הודעה עם external_message_id כדי למנוע כפילויות של webhook redelivery
       let savedMessage;
       if (contact) {
         console.log(`[WEBHOOK] 🔗 Found contact: ${contact.apartment_number} - ${contact.owner_name || contact.tenant_name}`);
@@ -155,26 +155,28 @@ Deno.serve(async (req) => {
           contact_phone: senderPhone,
           sender_chat_id: senderRaw,
           sender_phone_raw: senderRaw.split('@')[0],
+          external_message_id: messageId,
           link_status: 'linked',
           direction: 'received',
           message_type,
           content,
           timestamp
         });
-        console.log(`[WEBHOOK] ✅ SAVED AS LINKED - contact_id=${contact.id}, msg_id=${savedMessage.id}`);
+        console.log(`[WEBHOOK] ✅ SAVED AS LINKED - contact_id=${contact.id}, msg_id=${savedMessage.id}, ext_id=${messageId}`);
       } else {
         console.log(`[WEBHOOK] 🔓 Unknown sender - saving as UNLINKED`);
         savedMessage = await base44.asServiceRole.entities.ChatMessage.create({
           contact_phone: senderPhone,
           sender_chat_id: senderRaw,
           sender_phone_raw: senderRaw.split('@')[0],
+          external_message_id: messageId,
           link_status: 'unlinked',
           direction: 'received',
           message_type,
           content,
           timestamp
         });
-        console.log(`[WEBHOOK] ✅ SAVED AS UNLINKED - phone=${senderPhone}, msg_id=${savedMessage.id}`);
+        console.log(`[WEBHOOK] ✅ SAVED AS UNLINKED - phone=${senderPhone}, msg_id=${savedMessage.id}, ext_id=${messageId}`);
       }
 
       // עדכון UI בזמן אמת: Invalidate query ל-UI
