@@ -63,7 +63,7 @@ export default function SettingsPanel() {
     // Validate thresholds before recalculation
     const validation = validateThresholds(settings);
     if (!validation.valid) {
-      toast.error(validation.error);
+      showAlert(validation.error, 'error');
       return;
     }
 
