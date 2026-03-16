@@ -30,15 +30,13 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
  */
 
 Deno.serve(async (req) => {
-  // ===== MINIMAL TEST MODE =====
-  // לוג מיידי, return 200, אפס עיבוד
-  console.log('[WEBHOOK TEST HIT] - Endpoint is reachable and responding');
-  
-  // בדיקה זמנית - אחרי שזה יעבוד, נחזור ל-full parser
+  // חובה: החזרת 200 מייד, עיבוד אחרי כן
   const responsePromise = (async () => {
     try {
-      // ===== PARSER DISABLED FOR MINIMAL TEST =====
-      console.log('[WEBHOOK] Minimal test mode - no parsing');
+      const base44 = createClientFromRequest(req);
+
+      // קבל את ה-payload מ-Green API
+      console.log('[WEBHOOK] ▶️▶️▶️ START: Webhook received, parsing payload...');
       let payload;
       try {
         payload = await req.json();
