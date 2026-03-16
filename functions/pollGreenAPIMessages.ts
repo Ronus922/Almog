@@ -45,13 +45,15 @@ Deno.serve(async (req) => {
     for (let i = 0; i < 50; i++) {
       console.log(`[POLL] Attempt ${i + 1}/50 - polling receiveNotification...`);
       
-      const receiveRes = await fetch(
-        `https://api.green-api.com/waInstance${instanceId}/receiveNotification/${token}`,
-        { method: 'GET' }
-      );
+      const url = `https://api.green-api.com/waInstance${instanceId}/receiveNotification/${token}`;
+      console.log(`[POLL] URL: ${url.substring(0, 80)}...`);
+      
+      const receiveRes = await fetch(url, { method: 'GET' });
 
       if (!receiveRes.ok) {
+        const errorBody = await receiveRes.text();
         console.error(`[POLL] ❌ receiveNotification HTTP error: ${receiveRes.status}`);
+        console.error(`[POLL] Response body: ${errorBody.substring(0, 200)}`);
         // אל תעצור בגלל 400 — המשך לנסות
         if (i === 0) {
           // הפעם הראשונה — אולי זה בעיית אימות, חברה וחצי
