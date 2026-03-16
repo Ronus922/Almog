@@ -406,9 +406,9 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                     )}
                   </div>
                 </div>
-              </TabsContent>
+              </div>}
 
-              <TabsContent value="comments" className="flex-1 overflow-y-auto p-0 m-0">
+              {activeTab === "comments" && <div className="flex-1 overflow-y-auto p-0">
                 <div className="px-6 py-5 space-y-3 h-full flex flex-col">
                   <div className="flex-1 overflow-y-auto space-y-2">
                     {comments.length === 0 ? (
