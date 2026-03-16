@@ -445,9 +445,9 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                     </Button>
                   </div>
                 </div>
-              </TabsContent>
+              </div>}
 
-              <TabsContent value="attachments" className="flex-1 overflow-y-auto p-0 m-0">
+              {activeTab === "attachments" && <div className="flex-1 overflow-y-auto p-0">
                 <div className="px-6 py-5 space-y-3 h-full flex flex-col">
                   <div className="flex-1 overflow-y-auto space-y-1">
                     {attachments.length === 0 ? (
