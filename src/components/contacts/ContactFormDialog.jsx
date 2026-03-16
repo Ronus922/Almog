@@ -19,6 +19,7 @@ import { format } from 'date-fns';
 import { he } from 'date-fns/locale';
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import ContactDocumentsTab from "./ContactDocumentsTab";
 
 export default function ContactFormDialog({ open, onClose, contact, onSave }) {
   const [form, setForm] = useState({
