@@ -152,43 +152,47 @@ Deno.serve(async (req) => {
       console.log(`[WEBHOOK] ✓ CHECKPOINT: Contact search completed (found: ${contact ? 'YES' : 'NO'})`);
 
       // שמור הודעה עם external_message_id כדי למנוע כפילויות של webhook redelivery
+      console.log(`[WEBHOOK] ✓ CHECKPOINT: Ready to save message to ChatMessage entity`);
       let savedMessage;
-      if (contact) {
-        console.log(`[WEBHOOK] 🔗 Found contact: ${contact.apartment_number} - ${contact.owner_name || contact.tenant_name}`);
-        savedMessage = await base44.asServiceRole.entities.ChatMessage.create({
-          contact_id: contact.id,
-          contact_phone: senderPhone,
-          sender_chat_id: senderRaw,
-          sender_phone_raw: senderRaw.split('@')[0],
-          external_message_id: messageId,
-          link_status: 'linked',
-          direction: 'received',
-          message_type,
-          content,
-          timestamp
-        });
-        console.log(`[WEBHOOK] ✅ SAVED AS LINKED - contact_id=${contact.id}, msg_id=${savedMessage.id}, ext_id=${messageId}`);
-      } else {
-        console.log(`[WEBHOOK] 🔓 Unknown sender - saving as UNLINKED`);
-        savedMessage = await base44.asServiceRole.entities.ChatMessage.create({
-          contact_phone: senderPhone,
-          sender_chat_id: senderRaw,
-          sender_phone_raw: senderRaw.split('@')[0],
-          external_message_id: messageId,
-          link_status: 'unlinked',
-          direction: 'received',
-          message_type,
-          content,
-          timestamp
-        });
-        console.log(`[WEBHOOK] ✅ SAVED AS UNLINKED - phone=${senderPhone}, msg_id=${savedMessage.id}, ext_id=${messageId}`);
+      try {
+        if (contact) {
+          console.log(`[WEBHOOK] 🔗 Found contact: ${contact.apartment_number} - ${contact.owner_name || contact.tenant_name}`);
+          savedMessage = await base44.asServiceRole.entities.ChatMessage.create({
+            contact_id: contact.id,
+            contact_phone: senderPhone,
+            sender_chat_id: senderRaw,
+            sender_phone_raw: senderRaw.split('@')[0],
+            external_message_id: messageId,
+            link_status: 'linked',
+            direction: 'received',
+            message_type,
+            content,
+            timestamp
+          });
+          console.log(`[WEBHOOK] ✅ SAVED AS LINKED - contact_id=${contact.id}, msg_id=${savedMessage.id}, ext_id=${messageId}`);
+        } else {
+          console.log(`[WEBHOOK] 🔓 Unknown sender - saving as UNLINKED`);
+          savedMessage = await base44.asServiceRole.entities.ChatMessage.create({
+            contact_phone: senderPhone,
+            sender_chat_id: senderRaw,
+            sender_phone_raw: senderRaw.split('@')[0],
+            external_message_id: messageId,
+            link_status: 'unlinked',
+            direction: 'received',
+            message_type,
+            content,
+            timestamp
+          });
+          console.log(`[WEBHOOK] ✅ SAVED AS UNLINKED - phone=${senderPhone}, msg_id=${savedMessage.id}, ext_id=${messageId}`);
+        }
+      } catch (saveErr) {
+        console.error('[WEBHOOK] ❌ CHECKPOINT: ChatMessage.create() failed:', saveErr.message);
+        throw saveErr;
       }
 
-      // עדכון UI בזמן אמת: Invalidate query ל-UI
-      // (Base44 יטפל בעדכון מודרני דרך subscription)
-      console.log(`[WEBHOOK] 🔄 Invalidating UI queries...`);
-      
-      console.log(`[WEBHOOK] ✅ WEBHOOK PROCESSING COMPLETE - msg saved: ${savedMessage.id}`);
+      // UI עדכון בזמן אמת - subscription יטפל בזה
+      console.log(`[WEBHOOK] ✓ CHECKPOINT: Message saved, subscription will trigger UI update`);
+      console.log(`[WEBHOOK] ▶️▶️▶️ COMPLETE: Webhook processing finished successfully`);
 
     } catch (error) {
       console.error('[WEBHOOK] Fatal error:', error.message);
