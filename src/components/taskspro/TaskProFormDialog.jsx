@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { X, ClipboardList, Repeat2 } from "lucide-react";
 import MultiSelectAttendees from "./MultiSelectAttendees";
+import DebtorSelectSearch from "./DebtorSelectSearch";
 import { createTask, updateTask, replaceAttendees, fetchTemplates, fetchAttendees, logActivity, createRule } from "./taskProApi";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 
 const TASK_TYPES = ["שיחת טלפון", "שליחת מכתב התראה", "פגישה", "מעקב תשלום", "הגשת תביעה", "משימה כללית", "אחר"];
 const PRIORITIES = ["גבוהה", "בינונית", "נמוכה"];
-const STATUSES = ["פתוחה", "בטיפול", "ממתינה"];
+const STATUSES = ["פתוחה", "בטיפול", "ממתינה", "הושלמה", "בוטלה"];
 const FREQ_LABELS = { daily: "יומי", weekly: "שבועי", monthly: "חודשי", yearly: "שנתי" };
 const DAYS_HE = [
   { key: "sunday", label: "א'" }, { key: "monday", label: "ב'" }, { key: "tuesday", label: "ג'" },
@@ -22,8 +24,8 @@ const DAYS_HE = [
 
 const defaultForm = {
   title: "", task_type: "שיחת טלפון", status: "פתוחה", priority: "בינונית",
-  description: "", assigned_to: "", assigned_to_name: "",
-  due_at: "", debtor_record_id: "", apartment_number: "", owner_name: "",
+  description: "", due_at: "",
+  debtor_record_id: "", apartment_number: "", owner_name: "",
   source: "manual", template_id: "", is_recurring: false,
 };
 
@@ -31,6 +33,9 @@ const defaultRecurrence = {
   frequency: "weekly", interval_value: 1, generate_mode: "fixed_schedule",
   days_of_week: [], day_of_month: 1, ends_mode: "never", ends_at: "", max_occurrences: "",
 };
+
+const PRIORITY_COLOR = { "גבוהה": "bg-red-100 text-red-700", "בינונית": "bg-yellow-100 text-yellow-700", "נמוכה": "bg-green-100 text-green-700" };
+const STATUS_COLOR = { "פתוחה": "bg-blue-100 text-blue-700", "בטיפול": "bg-orange-100 text-orange-700", "הושלמה": "bg-green-100 text-green-700", "בוטלה": "bg-slate-100 text-slate-600", "ממתינה": "bg-purple-100 text-purple-700" };
 
 export default function TaskProFormDialog({ open, onClose, task, currentUser, onSaved }) {
   const queryClient = useQueryClient();
@@ -70,8 +75,6 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
         status: task.status || "פתוחה",
         priority: task.priority || "בינונית",
         description: task.description || "",
-        assigned_to: task.assigned_to || "",
-        assigned_to_name: task.assigned_to_name || "",
         due_at: task.due_at ? task.due_at.slice(0, 16) : "",
         debtor_record_id: task.debtor_record_id || "",
         apartment_number: task.apartment_number || "",
@@ -97,15 +100,10 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
     const d = debtors.find((x) => x.id === id);
     setForm((f) => ({
       ...f,
-      debtor_record_id: id,
+      debtor_record_id: id || "",
       apartment_number: d?.apartmentNumber || "",
       owner_name: d?.ownerName || "",
     }));
-  };
-
-  const handleAssignedChange = (username) => {
-    const u = userOptions.find((x) => x.username === username);
-    setForm((f) => ({ ...f, assigned_to: username, assigned_to_name: u?.name || username }));
   };
 
   const handleTemplateChange = (id) => {
@@ -118,8 +116,6 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
       priority: t.default_priority || f.priority,
       status: t.default_status || f.status,
       description: t.default_description || f.description,
-      assigned_to: t.default_assigned_to || f.assigned_to,
-      assigned_to_name: t.default_assigned_to_name || f.assigned_to_name,
       source: "template",
       due_at: t.due_days_from_now
         ? new Date(Date.now() + t.due_days_from_now * 86400000).toISOString().slice(0, 16)
@@ -139,11 +135,9 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
     const payload = {
       title: form.title.trim(),
       task_type: form.task_type,
-      status: form.status,
+      status: task ? form.status : "פתוחה",
       priority: form.priority,
       description: form.description,
-      assigned_to: form.assigned_to,
-      assigned_to_name: form.assigned_to_name,
       assigned_by: actor.username,
       assigned_by_name: actor.name,
       due_at: form.due_at ? new Date(form.due_at).toISOString() : null,
@@ -163,10 +157,8 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
       await logActivity(saved.id, "created", actor);
     }
 
-    // attendees
     await replaceAttendees(saved.id, attendees);
 
-    // recurrence rule
     if (!task && form.is_recurring) {
       const startDate = form.due_at ? new Date(form.due_at) : new Date();
       const nextRun = new Date(startDate);
@@ -186,8 +178,6 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
         template_task_type: form.task_type,
         template_priority: form.priority,
         template_description: form.description,
-        assigned_to: form.assigned_to,
-        assigned_to_name: form.assigned_to_name,
         debtor_record_id: form.debtor_record_id || null,
         apartment_number: form.apartment_number,
         owner_name: form.owner_name,
@@ -203,22 +193,52 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
     onClose();
   };
 
+  const isEdit = !!task;
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-bold text-slate-800">
-            {task ? "עריכת משימה" : "משימה חדשה"}
-          </DialogTitle>
-        </DialogHeader>
+      <DialogContent className="max-w-2xl max-h-[92vh] overflow-hidden flex flex-col p-0 gap-0 rounded-2xl" dir="rtl">
+        
+        {/* Header */}
+        <div className="bg-gradient-to-l from-blue-600 to-blue-700 px-6 py-5 flex-shrink-0">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
+                <ClipboardList className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-white">{isEdit ? "עריכת משימה" : "משימה חדשה"}</h2>
+                {isEdit && form.title && (
+                  <p className="text-blue-200 text-sm mt-0.5 truncate max-w-xs">{form.title}</p>
+                )}
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              {isEdit && (
+                <>
+                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${STATUS_COLOR[form.status]}`}>{form.status}</span>
+                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${PRIORITY_COLOR[form.priority]}`}>{form.priority}</span>
+                </>
+              )}
+              <button
+                onClick={onClose}
+                className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/25 transition-colors flex items-center justify-center text-white"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
 
-        <div className="space-y-5 pt-2">
+        {/* Body */}
+        <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5 bg-slate-50">
+
           {/* Template picker */}
-          {!task && templates.length > 0 && (
+          {!isEdit && templates.length > 0 && (
             <div className="bg-violet-50 border border-violet-200 rounded-xl p-4">
               <Label className="text-sm font-semibold text-violet-700 mb-2 block">בחר תבנית (אופציונלי)</Label>
               <Select value={form.template_id} onValueChange={handleTemplateChange}>
-                <SelectTrigger className="h-10 bg-white">
+                <SelectTrigger className="h-10 bg-white border-violet-200">
                   <SelectValue placeholder="בחר תבנית..." />
                 </SelectTrigger>
                 <SelectContent>
@@ -230,68 +250,88 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
             </div>
           )}
 
-          {/* Section: פרטים בסיסיים */}
-          <div className="bg-slate-50 rounded-xl p-4 space-y-4">
-            <p className="text-sm font-bold text-slate-600">פרטי משימה</p>
+          {/* פרטי משימה */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
+            <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
+              <span className="w-1.5 h-4 bg-blue-500 rounded-full inline-block"></span>
+              פרטי המשימה
+            </p>
+
+            {/* כותרת - חובה */}
             <div>
-              <Label className="text-sm font-medium text-slate-700 mb-1.5 block">כותרת המשימה *</Label>
+              <Label className="text-sm font-medium text-slate-700 mb-1.5 block">
+                כותרת המשימה <span className="text-red-500">*</span>
+              </Label>
               <Input
-                className="h-10"
-                placeholder="כותרת המשימה..."
+                className="h-10 bg-slate-50 focus:bg-white transition-colors"
+                placeholder="הזן כותרת מתארת..."
                 value={form.title}
                 onChange={(e) => setF("title", e.target.value)}
               />
             </div>
+
+            {/* תיאור - לא חובה */}
+            <div>
+              <Label className="text-sm font-medium text-slate-700 mb-1.5 block">
+                תיאור <span className="text-slate-400 text-xs font-normal">(אופציונלי)</span>
+              </Label>
+              <Textarea
+                className="min-h-[80px] resize-none bg-slate-50 focus:bg-white transition-colors"
+                placeholder="פרט את המשימה, הערות חשובות..."
+                value={form.description}
+                onChange={(e) => setF("description", e.target.value)}
+              />
+            </div>
+
+            {/* סוג ועדיפות */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <Label className="text-sm font-medium text-slate-700 mb-1.5 block">סוג משימה *</Label>
+                <Label className="text-sm font-medium text-slate-700 mb-1.5 block">סוג משימה <span className="text-red-500">*</span></Label>
                 <Select value={form.task_type} onValueChange={(v) => setF("task_type", v)}>
-                  <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-10 bg-slate-50"><SelectValue /></SelectTrigger>
                   <SelectContent>{TASK_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
               <div>
                 <Label className="text-sm font-medium text-slate-700 mb-1.5 block">עדיפות</Label>
                 <Select value={form.priority} onValueChange={(v) => setF("priority", v)}>
-                  <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-10 bg-slate-50"><SelectValue /></SelectTrigger>
                   <SelectContent>{PRIORITIES.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
+            </div>
+
+            {/* סטטוס - רק בעריכה */}
+            {isEdit && (
               <div>
                 <Label className="text-sm font-medium text-slate-700 mb-1.5 block">סטטוס</Label>
                 <Select value={form.status} onValueChange={(v) => setF("status", v)}>
-                  <SelectTrigger className="h-10"><SelectValue /></SelectTrigger>
+                  <SelectTrigger className="h-10 bg-slate-50"><SelectValue /></SelectTrigger>
                   <SelectContent>{STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-              <div>
-                <Label className="text-sm font-medium text-slate-700 mb-1.5 block">תאריך יעד</Label>
-                <Input type="datetime-local" className="h-10" value={form.due_at} onChange={(e) => setF("due_at", e.target.value)} />
-              </div>
-            </div>
+            )}
+
+            {/* תאריך יעד */}
             <div>
-              <Label className="text-sm font-medium text-slate-700 mb-1.5 block">תיאור</Label>
-              <Textarea
-                className="min-h-20 resize-none"
-                placeholder="תיאור המשימה..."
-                value={form.description}
-                onChange={(e) => setF("description", e.target.value)}
+              <Label className="text-sm font-medium text-slate-700 mb-1.5 block">
+                תאריך יעד <span className="text-slate-400 text-xs font-normal">(אופציונלי)</span>
+              </Label>
+              <Input
+                type="datetime-local"
+                className="h-10 bg-slate-50 focus:bg-white transition-colors"
+                value={form.due_at}
+                onChange={(e) => setF("due_at", e.target.value)}
               />
             </div>
           </div>
 
-          {/* Section: הקצאה */}
-          <div className="bg-slate-50 rounded-xl p-4 space-y-4">
-            <p className="text-sm font-bold text-slate-600">הקצאה ומשתתפים</p>
-            <div>
-              <Label className="text-sm font-medium text-slate-700 mb-1.5 block">משויך ראשי</Label>
-              <Select value={form.assigned_to} onValueChange={handleAssignedChange}>
-                <SelectTrigger className="h-10 bg-white"><SelectValue placeholder="בחר עובד..." /></SelectTrigger>
-                <SelectContent>
-                  {userOptions.map((u) => <SelectItem key={u.username} value={u.username}>{u.name}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
+          {/* משתתפים */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
+            <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
+              <span className="w-1.5 h-4 bg-indigo-500 rounded-full inline-block"></span>
+              משתתפים
+            </p>
             <div>
               <Label className="text-sm font-medium text-slate-700 mb-1.5 block">משתתפים נוספים</Label>
               <MultiSelectAttendees
@@ -302,31 +342,38 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
             </div>
           </div>
 
-          {/* Section: דירה/חייב */}
-          <div className="bg-slate-50 rounded-xl p-4 space-y-4">
-            <p className="text-sm font-bold text-slate-600">קישור לדייר / דירה</p>
-            <Select value={form.debtor_record_id} onValueChange={handleDebtorChange}>
-              <SelectTrigger className="h-10 bg-white"><SelectValue placeholder="בחר דירה / דייר..." /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value={null}>ללא קישור</SelectItem>
-                {debtors.map((d) => (
-                  <SelectItem key={d.id} value={d.id}>
-                    דירה {d.apartmentNumber} – {d.ownerName}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          {/* קישור לדייר */}
+          <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-3">
+            <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
+              <span className="w-1.5 h-4 bg-teal-500 rounded-full inline-block"></span>
+              קישור לדירה / דייר
+            </p>
+            <DebtorSelectSearch
+              debtors={debtors}
+              value={form.debtor_record_id}
+              onChange={handleDebtorChange}
+            />
+            {form.apartment_number && (
+              <div className="flex items-center gap-2 text-xs text-teal-700 bg-teal-50 border border-teal-200 rounded-lg px-3 py-2">
+                <span className="font-semibold">דירה {form.apartment_number}</span>
+                {form.owner_name && <span className="text-teal-500">– {form.owner_name}</span>}
+              </div>
+            )}
           </div>
 
-          {/* Section: מחזוריות (רק ביצירה) */}
-          {!task && (
-            <div className="bg-blue-50 border border-blue-200 rounded-xl p-4 space-y-4">
+          {/* מחזוריות (רק ביצירה) */}
+          {!isEdit && (
+            <div className={`rounded-xl border p-5 space-y-4 transition-colors ${form.is_recurring ? "bg-blue-50 border-blue-200" : "bg-white border-slate-200"}`}>
               <div className="flex items-center justify-between">
-                <p className="text-sm font-bold text-blue-700">הפוך למשימה מחזורית</p>
+                <div className="flex items-center gap-2">
+                  <Repeat2 className={`w-4 h-4 ${form.is_recurring ? "text-blue-600" : "text-slate-400"}`} />
+                  <p className={`text-sm font-bold ${form.is_recurring ? "text-blue-700" : "text-slate-700"}`}>משימה מחזורית</p>
+                </div>
                 <Switch checked={form.is_recurring} onCheckedChange={(v) => setF("is_recurring", v)} />
               </div>
+
               {form.is_recurring && (
-                <div className="space-y-3 pt-2">
+                <div className="space-y-3 pt-1">
                   <div className="grid grid-cols-2 gap-3">
                     <div>
                       <Label className="text-xs font-medium text-slate-600 mb-1 block">תדירות</Label>
@@ -398,16 +445,23 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
               )}
             </div>
           )}
+        </div>
 
-          {/* Actions */}
-          <div className="flex gap-3 justify-end pt-2">
-            <Button variant="outline" onClick={onClose} disabled={saving}>ביטול</Button>
+        {/* Footer */}
+        <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-slate-200 bg-white flex-shrink-0">
+          <p className="text-xs text-slate-400">
+            {!form.title.trim() ? "נדרשת כותרת למשימה" : ""}
+          </p>
+          <div className="flex gap-3">
+            <Button variant="outline" onClick={onClose} disabled={saving} className="h-10 px-5">
+              ביטול
+            </Button>
             <Button
-              className="bg-blue-600 hover:bg-blue-700 text-white min-w-24"
+              className="bg-blue-600 hover:bg-blue-700 text-white h-10 px-6 font-semibold"
               onClick={handleSave}
               disabled={saving || !form.title.trim()}
             >
-              {saving ? "שומר..." : task ? "עדכן" : "צור משימה"}
+              {saving ? "שומר..." : isEdit ? "עדכן משימה" : "צור משימה"}
             </Button>
           </div>
         </div>
