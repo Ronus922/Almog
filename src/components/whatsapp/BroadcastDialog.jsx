@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { base44 } from '@/api/base44Client';
@@ -220,14 +220,13 @@ export default function BroadcastDialog({ open, onClose }) {
   return (
     <Dialog open={open} onOpenChange={handleClose}>
       <DialogContent className="max-w-lg" dir="rtl">
-        {/* כותרת */}
-        <div className="bg-gradient-to-l from-green-600 to-emerald-600 -mx-6 -mt-6 px-6 py-5 rounded-t-lg mb-4">
+        <DialogHeader className="bg-gradient-to-l from-green-600 to-emerald-600 -mx-6 -mt-6 px-6 py-5 rounded-t-lg mb-4">
           <DialogTitle className="text-white text-lg font-bold flex items-center gap-2">
             <Send className="w-5 h-5" />
             מרכז תפוצה
           </DialogTitle>
-          <p className="text-green-100 text-sm mt-1">שליחת הודעות לקבוצות</p>
-        </div>
+          <DialogDescription className="text-green-100">שליחת הודעות לקבוצות נבחרות</DialogDescription>
+        </DialogHeader>
 
         {/* סרגל שלבים */}
         {!results && (
