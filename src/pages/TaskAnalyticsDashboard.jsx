@@ -51,7 +51,7 @@ export default function TaskAnalyticsDashboard() {
 
   // סינון משימות לפי תאריכים וסטטוס
   const filteredTasks = useMemo(() => {
-    return tasks.filter(task => {
+    return tasks.filter((task) => {
       if (filterStartDate && task.due_date && new Date(task.due_date) < new Date(filterStartDate)) {
         return false;
       }
@@ -70,13 +70,13 @@ export default function TaskAnalyticsDashboard() {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    const active = filteredTasks.filter(t => t.status !== 'הושלמה' && t.status !== 'בוטלה').length;
-    const overdue = filteredTasks.filter(t => {
+    const active = filteredTasks.filter((t) => t.status !== 'הושלמה' && t.status !== 'בוטלה').length;
+    const overdue = filteredTasks.filter((t) => {
       if (!t.due_date || t.status === 'הושלמה') return false;
       return new Date(t.due_date) < today;
     }).length;
-    const completed = filteredTasks.filter(t => t.status === 'הושלמה').length;
-    const dueToday = filteredTasks.filter(t => {
+    const completed = filteredTasks.filter((t) => t.status === 'הושלמה').length;
+    const dueToday = filteredTasks.filter((t) => {
       if (!t.due_date || t.status === 'הושלמה') return false;
       const tDate = new Date(t.due_date);
       tDate.setHours(0, 0, 0, 0);
@@ -89,7 +89,7 @@ export default function TaskAnalyticsDashboard() {
   // התפלגות לפי סטטוס
   const statusDistribution = useMemo(() => {
     const dist = {};
-    filteredTasks.forEach(t => {
+    filteredTasks.forEach((t) => {
       dist[t.status] = (dist[t.status] || 0) + 1;
     });
     return Object.entries(dist).map(([name, value]) => ({ name, value }));
@@ -98,7 +98,7 @@ export default function TaskAnalyticsDashboard() {
   // התפלגות לפי עדיפות
   const priorityDistribution = useMemo(() => {
     const dist = {};
-    filteredTasks.forEach(t => {
+    filteredTasks.forEach((t) => {
       dist[t.priority || 'ללא'] = (dist[t.priority || 'ללא'] || 0) + 1;
     });
     return Object.entries(dist).map(([name, value]) => ({ name, value }));
@@ -107,14 +107,14 @@ export default function TaskAnalyticsDashboard() {
   // משימות לפי מחוקק
   const tasksByAssignee = useMemo(() => {
     const dist = {};
-    filteredTasks.forEach(t => {
+    filteredTasks.forEach((t) => {
       const assignee = t.assigned_to_name || 'לא הוקצה';
       dist[assignee] = (dist[assignee] || 0) + 1;
     });
-    return Object.entries(dist)
-      .map(([name, value]) => ({ name, value }))
-      .sort((a, b) => b.value - a.value)
-      .slice(0, 8);
+    return Object.entries(dist).
+    map(([name, value]) => ({ name, value })).
+    sort((a, b) => b.value - a.value).
+    slice(0, 8);
   }, [filteredTasks]);
 
   const COLORS = ['#3563d0', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
@@ -122,13 +122,13 @@ export default function TaskAnalyticsDashboard() {
   // חישוב KPI חדשים
   const buildingMetrics = useMemo(() => {
     const totalDebt = debtors.reduce((sum, d) => sum + (d.totalDebt || 0), 0);
-    const activeAppointments = appointments.filter(a => {
+    const activeAppointments = appointments.filter((a) => {
       const apptDate = new Date(a.date);
       const today = new Date();
       return apptDate >= today;
     }).length;
-    const pendingMessages = chatMessages.filter(m => m.direction === 'received' && m.link_status === 'unlinked').length;
-    
+    const pendingMessages = chatMessages.filter((m) => m.direction === 'received' && m.link_status === 'unlinked').length;
+
     return { totalDebt, activeAppointments, pendingMessages };
   }, [debtors, appointments, chatMessages]);
 
@@ -136,26 +136,26 @@ export default function TaskAnalyticsDashboard() {
   const debtTrendData = useMemo(() => {
     const today = new Date();
     const days = [];
-    
+
     for (let i = 29; i >= 0; i--) {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
       const dateStr = date.toLocaleDateString('he-IL');
-      
-      const dayDebtors = debtors.filter(d => {
+
+      const dayDebtors = debtors.filter((d) => {
         if (!d.lastImportAt) return false;
         const importDate = new Date(d.lastImportAt);
         return importDate.toLocaleDateString('he-IL') === dateStr;
       });
-      
+
       const dayTotal = dayDebtors.reduce((sum, d) => sum + (d.totalDebt || 0), 0);
       days.push({
         date: date.toLocaleDateString('he-IL', { month: 'short', day: 'numeric' }),
         סך_חוב: dayTotal || null
       });
     }
-    
-    return days.filter(d => d.סך_חוב !== null).length > 0 ? days : [];
+
+    return days.filter((d) => d.סך_חוב !== null).length > 0 ? days : [];
   }, [debtors]);
 
   if (tasksLoading) {
@@ -165,8 +165,8 @@ export default function TaskAnalyticsDashboard() {
           <div className="w-12 h-12 rounded-full bg-blue-100 mx-auto mb-4 animate-spin"></div>
           <p className="text-slate-600 font-medium">טוען נתונים...</p>
         </div>
-      </div>
-    );
+      </div>);
+
   }
 
   return (
@@ -188,8 +188,8 @@ export default function TaskAnalyticsDashboard() {
                   type="date"
                   value={filterStartDate}
                   onChange={(e) => setFilterStartDate(e.target.value)}
-                  className="h-9 rounded-lg border-slate-200"
-                />
+                  className="h-9 rounded-lg border-slate-200" />
+
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">עד תאריך</label>
@@ -197,8 +197,8 @@ export default function TaskAnalyticsDashboard() {
                   type="date"
                   value={filterEndDate}
                   onChange={(e) => setFilterEndDate(e.target.value)}
-                  className="h-9 rounded-lg border-slate-200"
-                />
+                  className="h-9 rounded-lg border-slate-200" />
+
               </div>
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">סטטוס</label>
@@ -224,8 +224,8 @@ export default function TaskAnalyticsDashboard() {
                     setFilterEndDate('');
                     setFilterStatus('all');
                   }}
-                  className="h-9 w-full rounded-lg"
-                >
+                  className="h-9 w-full rounded-lg">
+
                   איפוס סינונים
                 </Button>
               </div>
@@ -335,8 +335,8 @@ export default function TaskAnalyticsDashboard() {
         </div>
 
         {/* תרשים מגמת חובות */}
-        {debtTrendData.length > 0 && (
-          <Card className="bg-white border-slate-200 rounded-xl shadow-sm mb-6">
+        {debtTrendData.length > 0 &&
+        <Card className="bg-white border-slate-200 rounded-xl shadow-sm mb-6">
             <CardHeader>
               <CardTitle className="text-lg font-bold text-slate-900">מגמת חובות בבניין (30 ימים אחרונים)</CardTitle>
             </CardHeader>
@@ -353,89 +353,89 @@ export default function TaskAnalyticsDashboard() {
               </ResponsiveContainer>
             </CardContent>
           </Card>
-        )}
+        }
 
         {/* גרפים */}
-         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-           {/* התפלגות לפי סטטוס */}
-          <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg font-bold text-slate-900">התפלגות לפי סטטוס</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {statusDistribution.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={statusDistribution}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, value }) => `${name}: ${value}`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {statusDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="h-[300px] flex items-center justify-center text-slate-500">אין נתונים</div>
-              )}
-            </CardContent>
-          </Card>
+         
 
-          {/* התפלגות לפי עדיפות */}
-          <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg font-bold text-slate-900">התפלגות לפי עדיפות</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {priorityDistribution.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={priorityDistribution}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="value" fill="#3563d0" radius={[8, 8, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="h-[300px] flex items-center justify-center text-slate-500">אין נתונים</div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
         {/* משימות לפי מחוקק */}
         <Card className="bg-white border-slate-200 rounded-xl shadow-sm mb-6">
-          <CardHeader>
-            <CardTitle className="text-lg font-bold text-slate-900">משימות לפי מחוקק</CardTitle>
-          </CardHeader>
-          <CardContent>
-            {tasksByAssignee.length > 0 ? (
-              <ResponsiveContainer width="100%" height={350}>
-                <BarChart
-                  data={tasksByAssignee}
-                  layout="vertical"
-                  margin={{ top: 5, right: 30, left: 300, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis type="number" />
-                  <YAxis dataKey="name" type="category" width={290} />
-                  <Tooltip />
-                  <Bar dataKey="value" fill="#3563d0" radius={[0, 8, 8, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="h-[350px] flex items-center justify-center text-slate-500">אין נתונים</div>
-            )}
-          </CardContent>
+          
+
+
+          
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
         </Card>
 
         {/* טבלה ממוזערת של משימות אחרונות */}
@@ -456,55 +456,55 @@ export default function TaskAnalyticsDashboard() {
                   </tr>
                 </thead>
                 <tbody>
-                  {filteredTasks
-                    .filter(t => t.status !== 'הושלמה' && t.status !== 'בוטלה')
-                    .sort((a, b) => {
-                      if (!a.due_date) return 1;
-                      if (!b.due_date) return -1;
-                      return new Date(a.due_date) - new Date(b.due_date);
-                    })
-                    .slice(0, 10)
-                    .map(task => {
-                      const isOverdue = task.due_date && !['הושלמה', 'בוטלה'].includes(task.status) && new Date(task.due_date) < new Date();
-                      return (
-                        <tr key={task.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                  {filteredTasks.
+                  filter((t) => t.status !== 'הושלמה' && t.status !== 'בוטלה').
+                  sort((a, b) => {
+                    if (!a.due_date) return 1;
+                    if (!b.due_date) return -1;
+                    return new Date(a.due_date) - new Date(b.due_date);
+                  }).
+                  slice(0, 10).
+                  map((task) => {
+                    const isOverdue = task.due_date && !['הושלמה', 'בוטלה'].includes(task.status) && new Date(task.due_date) < new Date();
+                    return (
+                      <tr key={task.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                           <td className="py-3 px-4 text-slate-900 font-medium">{task.title}</td>
                           <td className={`py-3 px-4 ${isOverdue ? 'text-red-600 font-medium' : 'text-slate-600'}`}>
                             {task.due_date ? new Date(task.due_date).toLocaleDateString('he-IL') : '—'}
                           </td>
                           <td className="py-3 px-4">
                             <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                              task.priority === 'גבוהה' ? 'bg-red-100 text-red-700' :
-                              task.priority === 'בינונית' ? 'bg-amber-100 text-amber-700' :
-                              'bg-green-100 text-green-700'
-                            }`}>
+                          task.priority === 'גבוהה' ? 'bg-red-100 text-red-700' :
+                          task.priority === 'בינונית' ? 'bg-amber-100 text-amber-700' :
+                          'bg-green-100 text-green-700'}`
+                          }>
                               {task.priority || 'ללא'}
                             </span>
                           </td>
                           <td className="py-3 px-4 text-slate-600">{task.assigned_to_name || '—'}</td>
                           <td className="py-3 px-4">
                             <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                              task.status === 'פתוחה' ? 'bg-blue-100 text-blue-700' :
-                              task.status === 'בטיפול' ? 'bg-amber-100 text-amber-700' :
-                              'bg-slate-100 text-slate-700'
-                            }`}>
+                          task.status === 'פתוחה' ? 'bg-blue-100 text-blue-700' :
+                          task.status === 'בטיפול' ? 'bg-amber-100 text-amber-700' :
+                          'bg-slate-100 text-slate-700'}`
+                          }>
                               {task.status}
                             </span>
                           </td>
-                        </tr>
-                      );
-                    })}
+                        </tr>);
+
+                  })}
                 </tbody>
               </table>
-              {filteredTasks.filter(t => t.status !== 'הושלמה' && t.status !== 'בוטלה').length === 0 && (
-                <div className="text-center py-12 text-slate-500">
+              {filteredTasks.filter((t) => t.status !== 'הושלמה' && t.status !== 'בוטלה').length === 0 &&
+              <div className="text-center py-12 text-slate-500">
                   <p>אין משימות פעילות</p>
                 </div>
-              )}
+              }
             </div>
           </CardContent>
         </Card>
       </div>
-    </div>
-  );
+    </div>);
+
 }
