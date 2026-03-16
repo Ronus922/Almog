@@ -374,7 +374,7 @@ export default function TasksProPage() {
                   sortField={sortField}
                   sortDir={sortDir}
                   onSort={handleSort}
-                  onRowClick={(t) => setDetailTask(t)}
+                  onRowClick={handleRowClick}
                   onEdit={openEdit}
                   onDelete={doDelete}
                   onArchive={doArchive}
