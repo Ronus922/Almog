@@ -427,9 +427,20 @@ export default function WhatsAppChat() {
         {/* ---- רשימת שיחות ---- */}
         <div className="w-96 bg-white flex flex-col shadow-lg border-l border-gray-200">
           <div className="p-4 border-b border-gray-200 bg-white">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">הודעות</h2>
-            <div className="relative">
-              <Search className="absolute left-3 top-3 w-5 h-5 text-gray-400" />
+            <div className="flex items-center justify-between mb-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setBroadcastOpen(true)}
+                className="text-green-600 hover:bg-green-50 gap-1.5 text-xs px-2 h-8"
+              >
+                <Radio className="w-4 h-4" />
+                תפוצה
+              </Button>
+              <h2 className="text-xl font-bold text-gray-800">הודעות</h2>
+            </div>
+            <div className="relative mb-3">
+              <Search className="absolute left-3 top-3 w-4 h-4 text-gray-400" />
               <Input
                 placeholder="חיפוש..."
                 value={searchQuery}
@@ -437,6 +448,7 @@ export default function WhatsAppChat() {
                 className="pl-10 bg-gray-100 border-0 rounded-full text-sm"
               />
             </div>
+            <ConversationGroupFilter activeGroup={groupFilter} onChange={setGroupFilter} />
           </div>
 
           <div className="flex-1 overflow-y-auto divide-y divide-gray-100" style={{ scrollbarWidth: 'thin', scrollbarColor: '#3cb371 transparent' }}>
