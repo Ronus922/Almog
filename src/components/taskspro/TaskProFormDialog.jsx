@@ -513,215 +513,215 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
               פרטי המשימה
             </p>
 
-            {/* כותרת - חובה */}
-            <div>
-              <Label className="text-sm font-medium text-slate-700 mb-1.5 block">
-                כותרת המשימה <span className="text-red-500">*</span>
-              </Label>
-              <Input
-                className="h-10 bg-slate-50 focus:bg-white transition-colors"
-                placeholder="הזן כותרת מתארת..."
-                value={form.title}
-                onChange={(e) => setF("title", e.target.value)}
-              />
-            </div>
-
-            {/* תיאור - לא חובה */}
-            <div>
-              <Label className="text-sm font-medium text-slate-700 mb-1.5 block">
-                תיאור <span className="text-slate-400 text-xs font-normal">(אופציונלי)</span>
-              </Label>
-              <Textarea
-                className="min-h-[80px] resize-none bg-slate-50 focus:bg-white transition-colors"
-                placeholder="פרט את המשימה, הערות חשובות..."
-                value={form.description}
-                onChange={(e) => setF("description", e.target.value)}
-              />
-            </div>
-
-            {/* סוג משימה */}
-            <div>
-              <Label className="text-sm font-medium text-slate-700 mb-1.5 block">סוג משימה <span className="text-red-500">*</span></Label>
-              <Select value={form.task_type} onValueChange={(v) => setF("task_type", v)}>
-                <SelectTrigger className="h-10 bg-slate-50"><SelectValue /></SelectTrigger>
-                <SelectContent>{TASK_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-              </Select>
-            </div>
-
-            {/* עדיפות - תגית בלבד */}
-            {!isEdit && (
+              {/* כותרת - חובה */}
               <div>
-                <Label className="text-sm font-medium text-slate-700 mb-2 block">עדיפות</Label>
-                <div className="flex gap-2">
-                  {PRIORITIES.map((p) => (
-                    <button
-                      key={p}
-                      onClick={() => setF("priority", p)}
-                      className={`transition-all px-3 py-1.5 rounded-lg text-xs font-semibold border-2 ${
-                        form.priority === p
-                          ? PRIORITY_COLOR[p] + " border-current"
-                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                      }`}
-                    >
-                      {p}
-                    </button>
-                  ))}
-                </div>
+                <Label className="text-sm font-medium text-slate-700 mb-1.5 block">
+                  כותרת המשימה <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  className="h-10 bg-slate-50 focus:bg-white transition-colors"
+                  placeholder="הזן כותרת מתארת..."
+                  value={form.title}
+                  onChange={(e) => setF("title", e.target.value)}
+                />
               </div>
-            )}
-            {isEdit && (
-              <div>
-                <Label className="text-sm font-medium text-slate-700 mb-2 block">עדיפות</Label>
-                <Badge className={`text-xs font-semibold px-3 py-1.5 ${PRIORITY_COLOR[form.priority]}`}>
-                  {form.priority}
-                </Badge>
-              </div>
-            )}
 
-            {/* סטטוס - רק בעריכה */}
-            {isEdit && (
+              {/* תיאור - לא חובה */}
               <div>
-                <Label className="text-sm font-medium text-slate-700 mb-1.5 block">סטטוס</Label>
-                <Select value={form.status} onValueChange={(v) => setF("status", v)}>
+                <Label className="text-sm font-medium text-slate-700 mb-1.5 block">
+                  תיאור <span className="text-slate-400 text-xs font-normal">(אופציונלי)</span>
+                </Label>
+                <Textarea
+                  className="min-h-[80px] resize-none bg-slate-50 focus:bg-white transition-colors"
+                  placeholder="פרט את המשימה, הערות חשובות..."
+                  value={form.description}
+                  onChange={(e) => setF("description", e.target.value)}
+                />
+              </div>
+
+              {/* סוג משימה */}
+              <div>
+                <Label className="text-sm font-medium text-slate-700 mb-1.5 block">סוג משימה <span className="text-red-500">*</span></Label>
+                <Select value={form.task_type} onValueChange={(v) => setF("task_type", v)}>
                   <SelectTrigger className="h-10 bg-slate-50"><SelectValue /></SelectTrigger>
-                  <SelectContent>{STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                  <SelectContent>{TASK_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
                 </Select>
               </div>
-            )}
 
-            {/* תאריך יעד */}
-            <div>
-              <Label className="text-sm font-medium text-slate-700 mb-1.5 block">
-                תאריך יעד <span className="text-slate-400 text-xs font-normal">(אופציונלי)</span>
-              </Label>
-              <Input
-                type="datetime-local"
-                className="h-10 bg-slate-50 focus:bg-white transition-colors"
-                value={form.due_at}
-                onChange={(e) => setF("due_at", e.target.value)}
-              />
-            </div>
-          </div>
-
-          {/* משתתפים */}
-          <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
-            <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
-              <span className="w-1.5 h-4 bg-indigo-500 rounded-full inline-block"></span>
-              משתתפים
-            </p>
-            <div>
-              <Label className="text-sm font-medium text-slate-700 mb-1.5 block">משתתפים נוספים</Label>
-              <MultiSelectAttendees
-                users={userOptions}
-                selected={attendees}
-                onChange={setAttendees}
-              />
-            </div>
-          </div>
-
-          {/* קישור לדייר */}
-          <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-3">
-            <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
-              <span className="w-1.5 h-4 bg-teal-500 rounded-full inline-block"></span>
-              קישור לדירה / דייר
-            </p>
-            <DebtorSelectSearch
-              debtors={debtors}
-              value={form.debtor_record_id}
-              onChange={handleDebtorChange}
-            />
-            {form.apartment_number && (
-              <div className="flex items-center gap-2 text-xs text-teal-700 bg-teal-50 border border-teal-200 rounded-lg px-3 py-2">
-                <span className="font-semibold">דירה {form.apartment_number}</span>
-                {form.owner_name && <span className="text-teal-500">– {form.owner_name}</span>}
-              </div>
-            )}
-          </div>
-
-          {/* מחזוריות (רק ביצירה) */}
-          {!isEdit && (
-            <div className={`rounded-xl border p-5 space-y-4 transition-colors ${form.is_recurring ? "bg-blue-50 border-blue-200" : "bg-white border-slate-200"}`}>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Repeat2 className={`w-4 h-4 ${form.is_recurring ? "text-blue-600" : "text-slate-400"}`} />
-                  <p className={`text-sm font-bold ${form.is_recurring ? "text-blue-700" : "text-slate-700"}`}>משימה מחזורית</p>
+              {/* עדיפות - תגית בלבד */}
+              {!isEdit && (
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 mb-2 block">עדיפות</Label>
+                  <div className="flex gap-2">
+                    {PRIORITIES.map((p) => (
+                      <button
+                        key={p}
+                        onClick={() => setF("priority", p)}
+                        className={`transition-all px-3 py-1.5 rounded-lg text-xs font-semibold border-2 ${
+                          form.priority === p
+                            ? PRIORITY_COLOR[p] + " border-current"
+                            : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                        }`}
+                      >
+                        {p}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-                <Switch checked={form.is_recurring} onCheckedChange={(v) => setF("is_recurring", v)} />
+              )}
+              {isEdit && (
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 mb-2 block">עדיפות</Label>
+                  <Badge className={`text-xs font-semibold px-3 py-1.5 ${PRIORITY_COLOR[form.priority]}`}>
+                    {form.priority}
+                  </Badge>
+                </div>
+              )}
+
+              {/* סטטוס - רק בעריכה */}
+              {isEdit && (
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 mb-1.5 block">סטטוס</Label>
+                  <Select value={form.status} onValueChange={(v) => setF("status", v)}>
+                    <SelectTrigger className="h-10 bg-slate-50"><SelectValue /></SelectTrigger>
+                    <SelectContent>{STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
+                  </Select>
+                </div>
+              )}
+
+              {/* תאריך יעד */}
+              <div>
+                <Label className="text-sm font-medium text-slate-700 mb-1.5 block">
+                  תאריך יעד <span className="text-slate-400 text-xs font-normal">(אופציונלי)</span>
+                </Label>
+                <Input
+                  type="datetime-local"
+                  className="h-10 bg-slate-50 focus:bg-white transition-colors"
+                  value={form.due_at}
+                  onChange={(e) => setF("due_at", e.target.value)}
+                />
+              </div>
               </div>
 
-              {form.is_recurring && (
-                <div className="space-y-3 pt-1">
-                  <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <Label className="text-xs font-medium text-slate-600 mb-1 block">תדירות</Label>
-                      <Select value={recurrence.frequency} onValueChange={(v) => setR("frequency", v)}>
-                        <SelectTrigger className="h-9 bg-white"><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(FREQ_LABELS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
+              {/* משתתפים */}
+              <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
+                <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                  <span className="w-1.5 h-4 bg-indigo-500 rounded-full inline-block"></span>
+                  משתתפים
+                </p>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 mb-1.5 block">משתתפים נוספים</Label>
+                  <MultiSelectAttendees
+                    users={userOptions}
+                    selected={attendees}
+                    onChange={setAttendees}
+                  />
+                </div>
+              </div>
+
+              {/* קישור לדייר */}
+              <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-3">
+                <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                  <span className="w-1.5 h-4 bg-teal-500 rounded-full inline-block"></span>
+                  קישור לדירה / דייר
+                </p>
+                <DebtorSelectSearch
+                  debtors={debtors}
+                  value={form.debtor_record_id}
+                  onChange={handleDebtorChange}
+                />
+                {form.apartment_number && (
+                  <div className="flex items-center gap-2 text-xs text-teal-700 bg-teal-50 border border-teal-200 rounded-lg px-3 py-2">
+                    <span className="font-semibold">דירה {form.apartment_number}</span>
+                    {form.owner_name && <span className="text-teal-500">– {form.owner_name}</span>}
+                  </div>
+                )}
+              </div>
+
+              {/* מחזוריות (רק ביצירה) */}
+              {!isEdit && (
+                <div className={`rounded-xl border p-5 space-y-4 transition-colors ${form.is_recurring ? "bg-blue-50 border-blue-200" : "bg-white border-slate-200"}`}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <Repeat2 className={`w-4 h-4 ${form.is_recurring ? "text-blue-600" : "text-slate-400"}`} />
+                      <p className={`text-sm font-bold ${form.is_recurring ? "text-blue-700" : "text-slate-700"}`}>משימה מחזורית</p>
                     </div>
-                    <div>
-                      <Label className="text-xs font-medium text-slate-600 mb-1 block">כל כמה</Label>
-                      <Input
-                        type="number" min={1} className="h-9 bg-white"
-                        value={recurrence.interval_value}
-                        onChange={(e) => setR("interval_value", parseInt(e.target.value) || 1)}
-                      />
-                    </div>
+                    <Switch checked={form.is_recurring} onCheckedChange={(v) => setF("is_recurring", v)} />
                   </div>
 
-                  {recurrence.frequency === "weekly" && (
-                    <div>
-                      <Label className="text-xs font-medium text-slate-600 mb-2 block">ימים בשבוע</Label>
-                      <div className="flex gap-1.5 flex-wrap">
-                        {DAYS_HE.map((d) => (
-                          <button
-                            key={d.key}
-                            type="button"
-                            onClick={() => {
-                              const days = recurrence.days_of_week.includes(d.key)
-                                ? recurrence.days_of_week.filter((x) => x !== d.key)
-                                : [...recurrence.days_of_week, d.key];
-                              setR("days_of_week", days);
-                            }}
-                            className={`w-9 h-9 rounded-full text-xs font-semibold transition-all border ${recurrence.days_of_week.includes(d.key) ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-600 border-slate-200 hover:bg-blue-50"}`}
-                          >
-                            {d.label}
-                          </button>
-                        ))}
+                  {form.is_recurring && (
+                    <div className="space-y-3 pt-1">
+                      <div className="grid grid-cols-2 gap-3">
+                        <div>
+                          <Label className="text-xs font-medium text-slate-600 mb-1 block">תדירות</Label>
+                          <Select value={recurrence.frequency} onValueChange={(v) => setR("frequency", v)}>
+                            <SelectTrigger className="h-9 bg-white"><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              {Object.entries(FREQ_LABELS).map(([k, v]) => <SelectItem key={k} value={k}>{v}</SelectItem>)}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        <div>
+                          <Label className="text-xs font-medium text-slate-600 mb-1 block">כל כמה</Label>
+                          <Input
+                            type="number" min={1} className="h-9 bg-white"
+                            value={recurrence.interval_value}
+                            onChange={(e) => setR("interval_value", parseInt(e.target.value) || 1)}
+                          />
+                        </div>
                       </div>
-                    </div>
-                  )}
 
-                  {recurrence.frequency === "monthly" && (
-                    <div>
-                      <Label className="text-xs font-medium text-slate-600 mb-1 block">יום בחודש</Label>
-                      <Input type="number" min={1} max={31} className="h-9 w-24 bg-white" value={recurrence.day_of_month} onChange={(e) => setR("day_of_month", parseInt(e.target.value) || 1)} />
-                    </div>
-                  )}
+                      {recurrence.frequency === "weekly" && (
+                        <div>
+                          <Label className="text-xs font-medium text-slate-600 mb-2 block">ימים בשבוע</Label>
+                          <div className="flex gap-1.5 flex-wrap">
+                            {DAYS_HE.map((d) => (
+                              <button
+                                key={d.key}
+                                type="button"
+                                onClick={() => {
+                                  const days = recurrence.days_of_week.includes(d.key)
+                                    ? recurrence.days_of_week.filter((x) => x !== d.key)
+                                    : [...recurrence.days_of_week, d.key];
+                                  setR("days_of_week", days);
+                                }}
+                                className={`w-9 h-9 rounded-full text-xs font-semibold transition-all border ${recurrence.days_of_week.includes(d.key) ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-600 border-slate-200 hover:bg-blue-50"}`}
+                              >
+                                {d.label}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
-                  <div>
-                    <Label className="text-xs font-medium text-slate-600 mb-1 block">סיום</Label>
-                    <Select value={recurrence.ends_mode} onValueChange={(v) => setR("ends_mode", v)}>
-                      <SelectTrigger className="h-9 bg-white"><SelectValue /></SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="never">ללא סיום</SelectItem>
-                        <SelectItem value="on_date">בתאריך</SelectItem>
-                        <SelectItem value="after_count">אחרי מספר פעמים</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  {recurrence.ends_mode === "on_date" && (
-                    <Input type="date" className="h-9 bg-white" value={recurrence.ends_at} onChange={(e) => setR("ends_at", e.target.value)} />
-                  )}
-                  {recurrence.ends_mode === "after_count" && (
-                    <Input type="number" min={1} className="h-9 w-28 bg-white" placeholder="מס' פעמים" value={recurrence.max_occurrences} onChange={(e) => setR("max_occurrences", e.target.value)} />
+                      {recurrence.frequency === "monthly" && (
+                        <div>
+                          <Label className="text-xs font-medium text-slate-600 mb-1 block">יום בחודש</Label>
+                          <Input type="number" min={1} max={31} className="h-9 w-24 bg-white" value={recurrence.day_of_month} onChange={(e) => setR("day_of_month", parseInt(e.target.value) || 1)} />
+                        </div>
+                      )}
+
+                      <div>
+                        <Label className="text-xs font-medium text-slate-600 mb-1 block">סיום</Label>
+                        <Select value={recurrence.ends_mode} onValueChange={(v) => setR("ends_mode", v)}>
+                          <SelectTrigger className="h-9 bg-white"><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="never">ללא סיום</SelectItem>
+                            <SelectItem value="on_date">בתאריך</SelectItem>
+                            <SelectItem value="after_count">אחרי מספר פעמים</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      {recurrence.ends_mode === "on_date" && (
+                        <Input type="date" className="h-9 bg-white" value={recurrence.ends_at} onChange={(e) => setR("ends_at", e.target.value)} />
+                      )}
+                      {recurrence.ends_mode === "after_count" && (
+                        <Input type="number" min={1} className="h-9 w-28 bg-white" placeholder="מס' פעמים" value={recurrence.max_occurrences} onChange={(e) => setR("max_occurrences", e.target.value)} />
+                      )}
+                    </div>
                   )}
                 </div>
               )}
-            </div>
-          )}
             </div>
           )}
         </div>
