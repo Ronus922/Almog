@@ -330,6 +330,7 @@ export default function Calendar() {
       if (selectedAppointment.series_id) {
         setEditMode(null);
         setShowEditDialog(true);
+        return null;
       } else {
         const result = await updateMutation.mutateAsync({ id: selectedAppointment.id, data });
         setShowForm(false);
@@ -370,7 +371,7 @@ export default function Calendar() {
           lastResult = await createMutation.mutateAsync(instance);
         }
         return lastResult;
-      } else if (!data.is_recurring) {
+      } else {
         const result = await createMutation.mutateAsync(data);
         return result;
       }
