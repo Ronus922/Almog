@@ -138,7 +138,30 @@ export default function WhatsAppChat() {
         };
       });
 
-      return [...linkedConvs, ...unlinkedConvs];
+      // --- שיחות ספקים ---
+      // ספקים שיש להם מספר טלפון וואטסאפ
+      const suppliersList = await base44.entities.Supplier.list();
+      const supplierConvs = suppliersList
+        .filter((s) => s.contact_mobile_whatsapp || s.company_phone)
+        .map((s) => {
+          const phone = s.contact_mobile_whatsapp || s.company_phone;
+          const msgs = allMessages.filter((m) => {
+            const mPhone = (m.contact_phone || '').replace(/\D/g, '');
+            return mPhone && mPhone === phone.replace(/\D/g, '');
+          });
+          const lastMsg = msgs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp))[0];
+          return {
+            ...s,
+            _isSupplier: true,
+            id: 'supplier_' + s.id,
+            _supplierId: s.id,
+            _supplierPhone: phone,
+            lastMessageTime: lastMsg?.timestamp || null,
+            lastMessage: lastMsg || null,
+          };
+        });
+
+      return [...linkedConvs, ...unlinkedConvs, ...supplierConvs];
     },
     staleTime: 1000 * 15,
     gcTime: 1000 * 60,
