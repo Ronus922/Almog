@@ -40,7 +40,8 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
     completion_notes: ""
   });
   const [saving, setSaving] = useState(false);
-   const [activeTab, setActiveTab] = useState("form");
+  const [activeTab, setActiveTab] = useState("form");
+  const [recurrenceRule, setRecurrenceRule] = useState({ is_recurring: false });
 
    const [showUserDropdown, setShowUserDropdown] = useState(false);
    const [userSearchTerm, setUserSearchTerm] = useState("");
