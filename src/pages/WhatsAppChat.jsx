@@ -20,6 +20,8 @@ export default function WhatsAppChat() {
   const [messageInput, setMessageInput] = useState('');
   const [fileInput, setFileInput] = useState(null);
   const [linkDialogOpen, setLinkDialogOpen] = useState(false);
+  const [groupFilter, setGroupFilter] = useState('all');
+  const [broadcastOpen, setBroadcastOpen] = useState(false);
   const queryClient = useQueryClient();
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
