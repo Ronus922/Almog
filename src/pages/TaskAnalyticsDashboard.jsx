@@ -14,10 +14,37 @@ export default function TaskAnalyticsDashboard() {
   const [filterStatus, setFilterStatus] = useState('all');
 
   // קבל את כל המשימות
-  const { data: tasks = [], isLoading } = useQuery({
+  const { data: tasks = [], isLoading: tasksLoading } = useQuery({
     queryKey: ['tasksPro'],
     queryFn: async () => {
       const result = await base44.entities.TaskPro.list('-due_date', 1000);
+      return result || [];
+    }
+  });
+
+  // קבל את כל הדירות לחישוב סך החובות
+  const { data: debtors = [] } = useQuery({
+    queryKey: ['debtors'],
+    queryFn: async () => {
+      const result = await base44.entities.DebtorRecord.list('-updated_date', 10000);
+      return result || [];
+    }
+  });
+
+  // קבל את הפגישות הפעילות
+  const { data: appointments = [] } = useQuery({
+    queryKey: ['appointments'],
+    queryFn: async () => {
+      const result = await base44.entities.Appointment.list('-updated_date', 1000);
+      return result || [];
+    }
+  });
+
+  // קבל את הודעות הווטסאפ שטרם נקראו
+  const { data: chatMessages = [] } = useQuery({
+    queryKey: ['chatMessages'],
+    queryFn: async () => {
+      const result = await base44.entities.ChatMessage.list('-updated_date', 10000);
       return result || [];
     }
   });
