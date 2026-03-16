@@ -35,6 +35,13 @@ export default function WhatsAppChat() {
     staleTime: 1000 * 60 * 5,
   });
 
+  // Get suppliers for group filter
+  const { data: suppliers = [] } = useQuery({
+    queryKey: ['suppliers'],
+    queryFn: () => base44.entities.Supplier.list(),
+    staleTime: 1000 * 60 * 5,
+  });
+
   // Helper: get primary display name
   const getPrimaryName = (contact) => {
     if (!contact) return '';
