@@ -659,6 +659,12 @@ export default function WhatsAppChat() {
           }}
         />
       )}
+
+      {/* מרכז תפוצה */}
+      <BroadcastDialog
+        open={broadcastOpen}
+        onClose={() => setBroadcastOpen(false)}
+      />
     </div>
   );
 }
