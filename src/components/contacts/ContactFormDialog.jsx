@@ -22,6 +22,7 @@ import { base44 } from "@/api/base44Client";
 import ContactDocumentsTab from "./ContactDocumentsTab";
 
 export default function ContactFormDialog({ open, onClose, contact, onSave }) {
+  const [activeTab, setActiveTab] = useState("details");
   const [form, setForm] = useState({
     apartment_number: "",
     owner_name: "",
