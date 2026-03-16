@@ -158,15 +158,15 @@ export default function TaskAnalyticsDashboard() {
     return days.filter((d) => d.סך_חוב !== null).length > 0 ? days : [];
   }, [debtors]);
 
-  if (tasksLoading) {
+  if (tasksLoading || debtorsLoading || appointmentsLoading || messagesLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
         <div className="text-center">
           <div className="w-12 h-12 rounded-full bg-blue-100 mx-auto mb-4 animate-spin"></div>
           <p className="text-slate-600 font-medium">טוען נתונים...</p>
         </div>
-      </div>);
-
+      </div>
+    );
   }
 
   return (
@@ -356,9 +356,61 @@ export default function TaskAnalyticsDashboard() {
         }
 
         {/* גרפים */}
-         
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* התפלגות לפי סטטוס */}
+          <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-lg font-bold text-slate-900">התפלגות לפי סטטוס</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {statusDistribution.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={statusDistribution}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, value }) => `${name}: ${value}`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {statusDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-[300px] flex items-center justify-center text-slate-500">אין נתונים</div>
+              )}
+            </CardContent>
+          </Card>
 
-
+          {/* התפלגות לפי עדיפות */}
+          <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-lg font-bold text-slate-900">התפלגות לפי עדיפות</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {priorityDistribution.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={priorityDistribution}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="#3563d0" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-[300px] flex items-center justify-center text-slate-500">אין נתונים</div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
 
 
@@ -491,9 +543,9 @@ export default function TaskAnalyticsDashboard() {
                               {task.status}
                             </span>
                           </td>
-                        </tr>);
-
-                  })}
+                        </tr>
+                        );
+                        })}
                 </tbody>
               </table>
               {filteredTasks.filter((t) => t.status !== 'הושלמה' && t.status !== 'בוטלה').length === 0 &&
@@ -505,6 +557,6 @@ export default function TaskAnalyticsDashboard() {
           </CardContent>
         </Card>
       </div>
-    </div>);
-
-}
+    </div>
+    );
+    }
