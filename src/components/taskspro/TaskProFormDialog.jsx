@@ -542,14 +542,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                    </div>
                  </div>
               }
-               {isEdit &&
-              <div>
-                   <Label className="text-sm font-medium text-slate-700 mb-2 block">עדיפות</Label>
-                   <Badge className={`text-xs font-semibold px-3 py-1.5 ${PRIORITY_COLOR[form.priority]}`}>
-                     {form.priority}
-                   </Badge>
-                 </div>
-              }
+
 
                {/* סטטוס - רק בעריכה */}
                {isEdit &&
