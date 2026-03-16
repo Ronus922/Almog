@@ -174,18 +174,35 @@ export default function WhatsAppChat() {
   const { data: messages = [] } = useQuery({
     queryKey: ['chatMessages', selectedContact?.id],
     queryFn: async () => {
-      if (!selectedContact) return [];
+      if (!selectedContact) {
+        console.log('[WhatsAppChat] No contact selected, skipping message fetch');
+        return [];
+      }
+      console.log('[WhatsAppChat] ✓ Starting message fetch for contact:', selectedContact.id);
       let msgs;
-      if (selectedContact._isUnlinked) {
-        // שיחה unlinked: filter לפי phone
-        const all = await base44.entities.ChatMessage.filter({ link_status: 'unlinked' });
-        const phone = selectedContact.phone;
-        msgs = all.filter((m) => (m.contact_phone || m.sender_phone_raw) === phone);
-      } else {
-        msgs = await base44.entities.ChatMessage.filter({ contact_id: selectedContact.id }, 'timestamp');
+      try {
+        if (selectedContact._isUnlinked) {
+          // שיחה unlinked: filter לפי phone
+          console.log('[WhatsAppChat] ✓ Loading unlinked messages...');
+          const all = await base44.entities.ChatMessage.filter({ link_status: 'unlinked' });
+          console.log(`[WhatsAppChat] ✓ Unlinked messages loaded: ${all.length}`);
+          const phone = selectedContact.phone;
+          msgs = all.filter((m) => (m.contact_phone || m.sender_phone_raw) === phone);
+          console.log(`[WhatsAppChat] ✓ Filtered by phone ${phone}: ${msgs.length} messages`);
+        } else {
+          // שיחה linked: filter לפי contact_id
+          console.log('[WhatsAppChat] ✓ Loading linked messages for contact:', selectedContact.id);
+          msgs = await base44.entities.ChatMessage.filter({ contact_id: selectedContact.id }, 'timestamp');
+          console.log(`[WhatsAppChat] ✓ Linked messages loaded: ${msgs.length}`);
+        }
+      } catch (fetchErr) {
+        console.error('[WhatsAppChat] ❌ Failed to fetch messages:', fetchErr.message);
+        return [];
       }
       // מיון עתיק ראשון
-      return msgs.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      const sorted = msgs.sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+      console.log(`[WhatsAppChat] ✓ Messages sorted, total: ${sorted.length}`);
+      return sorted;
     },
     enabled: !!selectedContact,
     staleTime: 0,
