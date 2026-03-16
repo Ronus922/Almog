@@ -469,8 +469,14 @@ export default function WhatsAppChat() {
                     className={`w-full p-3 text-right hover:bg-gray-50 transition-colors flex items-center gap-3 border-r-4 ${isSelected ? 'border-r-blue-500' : 'border-r-transparent'}`}
                     style={isSelected ? { backgroundColor: '#f9fff5' } : {}}
                   >
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 overflow-hidden ${isUnlinked ? 'bg-gradient-to-br from-orange-400 to-orange-600' : 'bg-gradient-to-br from-blue-400 to-blue-600'}`}>
-                      {!isUnlinked && (conv.whatsapp_profile_image_url || conv.whatsapp_profile_image) ? (
+                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 overflow-hidden ${
+                      isUnlinked
+                        ? 'bg-gradient-to-br from-orange-400 to-orange-600'
+                        : conv._isSupplier
+                          ? 'bg-gradient-to-br from-purple-400 to-purple-600'
+                          : 'bg-gradient-to-br from-blue-400 to-blue-600'
+                    }`}>
+                      {!isUnlinked && !conv._isSupplier && (conv.whatsapp_profile_image_url || conv.whatsapp_profile_image) ? (
                         <img src={conv.whatsapp_profile_image_url || conv.whatsapp_profile_image} alt={displayName} className="w-full h-full object-cover" />
                       ) : isUnlinked ? (
                         <AlertCircle className="w-6 h-6" />
@@ -480,9 +486,13 @@ export default function WhatsAppChat() {
                     </div>
                     <div className="flex-1 text-right min-w-0">
                       <div className="font-semibold text-gray-900 text-sm truncate">{displayName}</div>
-                      {!isUnlinked ? (
+                      {!isUnlinked && !conv._isSupplier && (
                         <div className="text-xs text-gray-600 mt-0.5 truncate">דירה {conv.apartment_number}</div>
-                      ) : (
+                      )}
+                      {conv._isSupplier && (
+                        <div className="text-xs text-purple-600 mt-0.5 font-medium">ספק</div>
+                      )}
+                      {isUnlinked && (
                         <div className="text-xs text-orange-600 mt-0.5 font-medium">לא משויך לאיש קשר</div>
                       )}
                       {secondaryInfo && (
