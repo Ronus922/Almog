@@ -43,30 +43,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
 
 
-  useEffect(() => {
-    const handleEscape = (e) => {
-      if (e.key === 'Escape') {
-        setShowUserSearch(false);
-        setShowContactSearch(false);
-      }
-    };
-    
-    const handleClickOutside = (e) => {
-      if (userDropdownRef.current && !userDropdownRef.current.contains(e.target)) {
-        setShowUserSearch(false);
-      }
-      if (contactDropdownRef.current && !contactDropdownRef.current.contains(e.target)) {
-        setShowContactSearch(false);
-      }
-    };
-    
-    document.addEventListener('keydown', handleEscape);
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('keydown', handleEscape);
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
+
 
   useEffect(() => {
     if (appointment) {
