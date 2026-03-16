@@ -374,7 +374,6 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
              <p className="text-sm">שמור את הדירה קודם כדי להוסיף מסמכים</p>
            </div>
           )}
-          </div>
 
           {/* Footer */}
           <div className="px-6 py-4 border-t border-slate-100 bg-white flex justify-end gap-2 flex-shrink-0">
@@ -388,6 +387,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
             >
               {contact ? "שמור שינויים" : "הוסף איש קשר"}
             </Button>
+          </div>
           </div>
           </DialogContent>
           </Dialog>
