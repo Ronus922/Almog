@@ -17,7 +17,7 @@ import TaskProKanban from "@/components/taskspro/TaskProKanban";
 import TaskProCalendarView from "@/components/taskspro/TaskProCalendarView";
 import TaskProBulkBar from "@/components/taskspro/TaskProBulkBar";
 import TaskProFormDialog from "@/components/taskspro/TaskProFormDialog";
-import TaskProDetailsDialog from "@/components/taskspro/TaskProDetailsDialog";
+import TaskProQuickView from "@/components/taskspro/TaskProQuickView";
 import { base44 } from "@/api/base44Client";
 
 const DEFAULT_FILTERS = {
@@ -261,6 +261,10 @@ export default function TasksProPage() {
 
   const openNew = () => { setEditTask(null); setShowForm(true); };
   const openEdit = (task) => { setEditTask(task); setShowForm(true); setDetailTask(null); };
+  const handleCompleteTask = async (task) => {
+    await statusMutation.mutateAsync({ id: task.id, status: "הושלמה" });
+    setDetailTask(null);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 p-4 md:p-6" dir="rtl">
@@ -487,13 +491,14 @@ export default function TasksProPage() {
           onSaved={() => queryClient.invalidateQueries({ queryKey: ["taskpro-tasks"] })}
         />
 
-        <TaskProDetailsDialog
+        <TaskProQuickView
           task={detailTask}
           open={!!detailTask}
           onClose={() => setDetailTask(null)}
           onEdit={openEdit}
           onArchive={doArchive}
           onUnarchive={doUnarchive}
+          onComplete={handleCompleteTask}
         />
       </div>
     </div>
