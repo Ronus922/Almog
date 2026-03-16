@@ -136,7 +136,10 @@ export default function NotificationBell({ currentUser }) {
                   key={n.id}
                   onClick={async () => {
                     await markRead(n);
-                    if (n.task_id) {
+                    if (n.task_pro_id) {
+                      setOpen(false);
+                      navigate('/TasksPro');
+                    } else if (n.task_id) {
                       setOpen(false);
                       navigate('/Tasks');
                     }
