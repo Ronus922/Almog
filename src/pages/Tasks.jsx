@@ -552,7 +552,9 @@ export default function Tasks() {
           </Card>
           </> }
 
-          <TaskFormDialog
+      </div>
+
+      <TaskFormDialog
          open={showDialog}
          onClose={() => {setShowDialog(false);setEditTask(null);}}
          task={editTask}
