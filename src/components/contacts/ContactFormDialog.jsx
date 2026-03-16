@@ -310,7 +310,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
           )}
 
           {/* Additional Fields */}
-          <>
+          {activeTab === "details" && (
           <div className="border-t border-slate-100 pt-4 space-y-4">
             <div className="space-y-2">
               <Label className="text-sm font-semibold text-slate-700">כתובת מגורים</Label>
