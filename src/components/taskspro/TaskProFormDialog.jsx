@@ -483,8 +483,8 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                     </label>
                   </div>
                 </div>
-              </TabsContent>
-            </Tabs>
+              </div>}
+            </div>
           ) : (
             /* Non-Edit Mode - Original Layout */
             <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
