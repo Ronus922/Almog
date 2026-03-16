@@ -364,10 +364,9 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
                </div>
              )}
            </div>
-          </div>
-          )}
+           </div>
 
-          {activeTab === "documents" && contact && (
+           {activeTab === "documents" && contact && (
            <ContactDocumentsTab contact={contact} />
           )}
           {activeTab === "documents" && !contact && (
