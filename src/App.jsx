@@ -170,6 +170,7 @@ window.documentService = {
 };
 
 import Tasks from "./pages/Tasks.jsx";
+import InternalChat from "./pages/InternalChat.jsx";
 import TasksProPage from "./pages/TasksProPage.jsx";
 import WhatsAppTemplates from "./pages/WhatsAppTemplates";
 import Contacts from "./pages/Contacts.jsx";
@@ -238,6 +239,7 @@ const AuthenticatedApp = () => {
       <Route path="/SupplierManagement" element={<LayoutWrapper currentPageName="SupplierManagement"><SupplierManagement /></LayoutWrapper>} />
       <Route path="/TodoReminders" element={<LayoutWrapper currentPageName="TodoReminders"><TodoReminders /></LayoutWrapper>} />
       <Route path="/TasksPro" element={<LayoutWrapper currentPageName="TasksPro"><TasksProPage /></LayoutWrapper>} />
+      <Route path="/InternalChat" element={<LayoutWrapper currentPageName="InternalChat"><InternalChat /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

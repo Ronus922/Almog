@@ -46,6 +46,7 @@ function LayoutContent({ children, currentPageName }) {
     { name: 'Import', label: 'ייבוא', icon: Upload, adminOnly: true, section: 'admin' },
     { name: 'Tasks', label: 'משימות (ישן)', icon: ClipboardList, adminOnly: false, section: 'main' },
     { name: 'TasksPro', label: 'משימות Pro', icon: ClipboardList, adminOnly: false, section: 'main' },
+    { name: 'InternalChat', label: "צ'אט פנימי", icon: MessageCircle, adminOnly: false, section: 'main' },
     { name: 'Calendar', label: 'יומן', icon: Clock, adminOnly: false, section: 'main' },
     { name: 'Documents', label: 'מסמכים', icon: BookOpen, adminOnly: false, section: 'main' },
     { name: 'Contacts', label: 'אנשי קשר', icon: ContactRound, adminOnly: false, section: 'main' },
