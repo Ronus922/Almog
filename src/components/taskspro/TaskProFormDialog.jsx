@@ -277,16 +277,16 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
           {isEdit ? (
             /* Tabs in Edit Mode */
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-              <TabsList className="w-full justify-start gap-1 bg-white border-b border-slate-200 p-0 h-auto rounded-none px-6">
-                <TabsTrigger value="details" className="rounded-t-lg gap-1.5">
+              <TabsList className="w-full justify-start gap-0 bg-white rounded-none px-6">
+                <TabsTrigger value="details" className="gap-1.5 data-[state=active]:border-b-2 data-[state=active]:border-blue-600">
                   <ClipboardList className="w-4 h-4" />
                   פרטי משימה
                 </TabsTrigger>
-                <TabsTrigger value="comments" className="rounded-t-lg gap-1.5">
+                <TabsTrigger value="comments" className="gap-1.5 data-[state=active]:border-b-2 data-[state=active]:border-blue-600">
                   <MessageSquare className="w-4 h-4" />
                   הערות ({comments.length})
                 </TabsTrigger>
-                <TabsTrigger value="attachments" className="rounded-t-lg gap-1.5">
+                <TabsTrigger value="attachments" className="gap-1.5 data-[state=active]:border-b-2 data-[state=active]:border-blue-600">
                   <Paperclip className="w-4 h-4" />
                   קבצים ({attachments.length})
                 </TabsTrigger>
