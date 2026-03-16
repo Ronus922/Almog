@@ -48,10 +48,13 @@
  * The mainPage value must match a key in the PAGES object exactly.
  */
 import AppLogin from './pages/AppLogin';
+import Calendar from './pages/Calendar';
+import Contacts from './pages/Contacts';
 import Dashboard from './pages/Dashboard';
 import DataAudit from './pages/DataAudit';
 import DebtorReport from './pages/DebtorReport';
 import DeduplicateRecords from './pages/DeduplicateRecords';
+import Documents from './pages/Documents';
 import Home from './pages/Home';
 import Import from './pages/Import';
 import LegalStatusMigration from './pages/LegalStatusMigration';
@@ -61,17 +64,26 @@ import ShareDashboard from './pages/ShareDashboard';
 import SmartImport from './pages/SmartImport';
 import StatusManagement from './pages/StatusManagement';
 import StatusWorkflow from './pages/StatusWorkflow';
+import SupplierManagement from './pages/SupplierManagement';
+import Suppliers from './pages/Suppliers';
+import Tasks from './pages/Tasks';
+import TodoReminders from './pages/TodoReminders';
 import UserManagement from './pages/UserManagement';
+import WhatsAppChat from './pages/WhatsAppChat';
+import WhatsAppTemplates from './pages/WhatsAppTemplates';
 import app from './pages/_app';
 import __Layout from './Layout.jsx';
 
 
 export const PAGES = {
     "AppLogin": AppLogin,
+    "Calendar": Calendar,
+    "Contacts": Contacts,
     "Dashboard": Dashboard,
     "DataAudit": DataAudit,
     "DebtorReport": DebtorReport,
     "DeduplicateRecords": DeduplicateRecords,
+    "Documents": Documents,
     "Home": Home,
     "Import": Import,
     "LegalStatusMigration": LegalStatusMigration,
@@ -81,7 +93,13 @@ export const PAGES = {
     "SmartImport": SmartImport,
     "StatusManagement": StatusManagement,
     "StatusWorkflow": StatusWorkflow,
+    "SupplierManagement": SupplierManagement,
+    "Suppliers": Suppliers,
+    "Tasks": Tasks,
+    "TodoReminders": TodoReminders,
     "UserManagement": UserManagement,
+    "WhatsAppChat": WhatsAppChat,
+    "WhatsAppTemplates": WhatsAppTemplates,
     "_app": app,
 }
 

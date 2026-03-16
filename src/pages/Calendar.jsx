@@ -49,6 +49,54 @@ const HEBREW_HOLIDAYS = [
   { date: '2027-01-01', name: 'חנוכה' },
 ];
 
+// יצירת notifications מתוך הrecord השמור — בעלות מלאה ב-Calendar
+async function createAppointmentNotifications(savedRecord, previousAttendeeIds, allUsers, queryClient) {
+  const attendees = savedRecord.attendees_users || [];
+  const isEdit = previousAttendeeIds.length > 0;
+
+  // בעריכה: רק משתתפים חדשים שלא היו קודם
+  let targetAttendees = isEdit
+    ? attendees.filter(a => {
+        const id = String(a?.id ?? a ?? '').trim();
+        return id && !previousAttendeeIds.includes(id);
+      })
+    : attendees;
+
+  // dedupe
+  const seenIds = new Set();
+  targetAttendees = targetAttendees.filter(a => {
+    const id = String(a?.id ?? a ?? '').trim();
+    if (!id || seenIds.has(id)) return false;
+    seenIds.add(id);
+    return true;
+  });
+
+  for (const attendee of targetAttendees) {
+    const normId = String(attendee?.id ?? attendee ?? '').trim();
+    if (!normId) continue;
+    const userObj = allUsers.find(u => String(u.id ?? '').trim() === normId);
+    if (!userObj?.username) {
+      console.error('[Notifications] לא נמצא username עבור attendee id:', normId, 'allUsers:', allUsers.map(u => u.id));
+      continue;
+    }
+    const payload = {
+      user_username: userObj.username,
+      type: 'task_assigned',
+      message: `הוקצתה לך פגישה: ${savedRecord.title || ''}`,
+      task_id: savedRecord.id || null,
+      task_type: 'פגישה',
+      assigner_name: 'מערכת',
+      is_read: false,
+    };
+    try {
+      await base44.entities.Notification.create(payload);
+    } catch (err) {
+      console.error('[Notifications] שגיאה ביצירת notification:', JSON.stringify(payload), err);
+    }
+  }
+  queryClient.invalidateQueries({ queryKey: ['notifications'] });
+}
+
 export default function Calendar() {
   const { toast } = useToast();
   const [currentMonth, setCurrentMonth] = useState(new Date());
