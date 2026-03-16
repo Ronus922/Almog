@@ -567,12 +567,7 @@ export default function Calendar() {
 
       {/* Appointment Form Dialog */}
       <Dialog open={showForm} onOpenChange={setShowForm}>
-        <DialogContent
-          className="max-w-2xl max-h-[90vh] overflow-y-auto p-0"
-          dir="rtl"
-          onPointerDownOutside={(e) => e.preventDefault()}
-          onInteractOutside={(e) => e.preventDefault()}
-        >
+        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0" dir="rtl">
           <div className="bg-gradient-to-l from-blue-600 to-indigo-600 px-6 py-6 text-white rounded-t-lg">
             <h2 className="text-2xl font-bold">
               {selectedAppointment ? 'עריכת פגישה' : 'פגישה חדשה'}
