@@ -199,6 +199,7 @@ export default function WhatsAppChat() {
   useEffect(() => {
     if (!selectedContact?.id) return;
     const unsubscribe = base44.entities.ChatMessage.subscribe((event) => {
+      // linked messages
       if (event.data?.contact_id === selectedContact.id) {
         queryClient.setQueryData(['chatMessages', selectedContact.id], (old = []) => {
           const exists = old.find((m) => m.id === event.data.id);
@@ -207,9 +208,22 @@ export default function WhatsAppChat() {
         });
         queryClient.invalidateQueries({ queryKey: ['contacts'] });
       }
+      // unlinked messages - התאם לפי contact_phone
+      if (selectedContact._isUnlinked && event.data?.link_status === 'unlinked') {
+        const phone = selectedContact.phone;
+        const msgPhone = event.data.contact_phone || event.data.sender_phone_raw;
+        if (msgPhone === phone) {
+          queryClient.setQueryData(['chatMessages', selectedContact.id], (old = []) => {
+            const exists = old.find((m) => m.id === event.data.id);
+            if (exists) return old;
+            return [...old, event.data].sort((a, b) => new Date(a.timestamp) - new Date(b.timestamp));
+          });
+          queryClient.invalidateQueries({ queryKey: ['contacts'] });
+        }
+      }
     });
     return () => unsubscribe?.();
-  }, [selectedContact?.id, queryClient]);
+  }, [selectedContact?.id, selectedContact?._isUnlinked, selectedContact?.phone, queryClient]);
 
   // ==========================================
   // Scroll לתחתית — רק כשצריך
