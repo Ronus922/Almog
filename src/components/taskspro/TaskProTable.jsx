@@ -31,14 +31,14 @@ function SortHeader({ label, field, sortField, sortDir, onSort }) {
   const active = sortField === field;
   return (
     <th
-      className="text-right px-4 py-3 font-semibold text-slate-600 cursor-pointer select-none hover:bg-slate-100 transition-colors whitespace-nowrap"
+      className={`text-right px-4 py-3.5 font-semibold cursor-pointer select-none hover:bg-slate-100 transition-colors whitespace-nowrap text-xs uppercase tracking-wide ${active ? "text-blue-600" : "text-slate-500"}`}
       onClick={() => onSort(field)}
     >
       <span className="inline-flex items-center gap-1">
         {label}
         {active
-          ? sortDir === "asc" ? <ChevronUp className="w-3.5 h-3.5 text-blue-600" /> : <ChevronDown className="w-3.5 h-3.5 text-blue-600" />
-          : <ChevronsUpDown className="w-3.5 h-3.5 text-slate-300" />}
+          ? sortDir === "asc" ? <ChevronUp className="w-3 h-3 text-blue-600" /> : <ChevronDown className="w-3 h-3 text-blue-600" />
+          : <ChevronsUpDown className="w-3 h-3 text-slate-300" />}
       </span>
     </th>
   );
