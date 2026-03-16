@@ -260,33 +260,15 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
       <DialogContent className="max-w-2xl max-h-[92vh] overflow-hidden flex flex-col p-0 gap-0 rounded-2xl" dir="rtl">
         
         {/* Header */}
-        <div className="bg-gradient-to-l from-blue-600 to-blue-700 px-6 py-5 flex-shrink-0">
+        <div className="bg-gradient-to-l from-blue-600 to-blue-700 px-6 py-4 flex-shrink-0">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-white/20 flex items-center justify-center">
-                <ClipboardList className="w-5 h-5 text-white" />
-              </div>
-              <div>
-                <h2 className="text-lg font-bold text-white">{isEdit ? "עריכת משימה" : "משימה חדשה"}</h2>
-                {isEdit && form.title && (
-                  <p className="text-blue-200 text-sm mt-0.5 truncate max-w-xs">{form.title}</p>
-                )}
-              </div>
-            </div>
-            <div className="flex items-center gap-2">
-              {isEdit && (
-                <>
-                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${STATUS_COLOR[form.status]}`}>{form.status}</span>
-                  <span className={`text-xs font-semibold px-2.5 py-1 rounded-full ${PRIORITY_COLOR[form.priority]}`}>{form.priority}</span>
-                </>
-              )}
-              <button
-                onClick={onClose}
-                className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/25 transition-colors flex items-center justify-center text-white"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+            <h2 className="text-lg font-bold text-white">{isEdit ? "עריכת משימה" : "משימה חדשה"}</h2>
+            <button
+              onClick={onClose}
+              className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/25 transition-colors flex items-center justify-center text-white"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
