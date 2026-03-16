@@ -6,12 +6,16 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { X, ClipboardList, Repeat2 } from "lucide-react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Badge } from "@/components/ui/badge";
+import { X, ClipboardList, Repeat2, MessageSquare, Paperclip } from "lucide-react";
 import MultiSelectAttendees from "./MultiSelectAttendees";
 import DebtorSelectSearch from "./DebtorSelectSearch";
-import { createTask, updateTask, replaceAttendees, fetchTemplates, fetchAttendees, logActivity, createRule } from "./taskProApi";
+import { createTask, updateTask, replaceAttendees, fetchTemplates, fetchAttendees, logActivity, createRule, fetchComments, createComment, fetchAttachments, uploadAttachment, deleteAttachment } from "./taskProApi";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { toast } from "sonner";
+import { useAuth } from "@/components/auth/AuthContext";
 
 const TASK_TYPES = ["שיחת טלפון", "שליחת מכתב התראה", "פגישה", "מעקב תשלום", "הגשת תביעה", "משימה כללית", "אחר"];
 const PRIORITIES = ["גבוהה", "בינונית", "נמוכה"];
@@ -38,11 +42,18 @@ const PRIORITY_COLOR = { "גבוהה": "bg-red-100 text-red-700", "בינוני�
 const STATUS_COLOR = { "פתוחה": "bg-blue-100 text-blue-700", "בטיפול": "bg-orange-100 text-orange-700", "הושלמה": "bg-green-100 text-green-700", "בוטלה": "bg-slate-100 text-slate-600", "ממתינה": "bg-purple-100 text-purple-700" };
 
 export default function TaskProFormDialog({ open, onClose, task, currentUser, onSaved }) {
+  const { currentUser: authUser } = useAuth();
   const queryClient = useQueryClient();
   const [form, setForm] = useState(defaultForm);
   const [recurrence, setRecurrence] = useState(defaultRecurrence);
   const [attendees, setAttendees] = useState([]);
   const [saving, setSaving] = useState(false);
+  const [comments, setComments] = useState([]);
+  const [attachments, setAttachments] = useState([]);
+  const [newComment, setNewComment] = useState("");
+  const [loadingComment, setLoadingComment] = useState(false);
+  const [uploadingFile, setUploadingFile] = useState(false);
+  const [activeTab, setActiveTab] = useState("details");
 
   const { data: appUsers = [] } = useQuery({
     queryKey: ["appUsers"],
@@ -86,9 +97,13 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
       fetchAttendees(task.id).then((list) =>
         setAttendees(list.map((a) => ({ username: a.user_username, name: a.user_name, email: a.user_email })))
       );
+      fetchComments(task.id).then(setComments);
+      fetchAttachments(task.id).then(setAttachments);
     } else {
       setForm(defaultForm);
       setAttendees([]);
+      setComments([]);
+      setAttachments([]);
     }
     setRecurrence(defaultRecurrence);
   }, [open, task?.id]);
@@ -191,6 +206,50 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
     onSaved?.(saved);
     setSaving(false);
     onClose();
+  };
+
+  const handleAddComment = async () => {
+    if (!newComment.trim() || !task) return;
+    setLoadingComment(true);
+    try {
+      const c = await createComment(task.id, newComment, {
+        username: authUser?.username,
+        name: authUser?.first_name ? `${authUser.first_name} ${authUser.last_name || ""}` : authUser?.username,
+      });
+      setComments((prev) => [...prev, c]);
+      setNewComment("");
+    } catch (e) {
+      toast.error("שגיאה בהוספת הערה");
+    } finally {
+      setLoadingComment(false);
+    }
+  };
+
+  const handleUpload = async (e) => {
+    const file = e.target.files?.[0];
+    if (!file || !task) return;
+    setUploadingFile(true);
+    try {
+      const att = await uploadAttachment(task.id, file, {
+        username: authUser?.username,
+        name: authUser?.first_name ? `${authUser.first_name} ${authUser.last_name || ""}` : authUser?.username,
+      });
+      setAttachments((prev) => [...prev, att]);
+      toast.success("קובץ צורף בהצלחה");
+    } catch (e) {
+      toast.error("שגיאה בצירוף קובץ");
+    } finally {
+      setUploadingFile(false);
+    }
+  };
+
+  const handleDeleteAttachment = async (id) => {
+    try {
+      await deleteAttachment(id);
+      setAttachments((prev) => prev.filter((a) => a.id !== id));
+    } catch (e) {
+      toast.error("שגיאה במחיקת קובץ");
+    }
   };
 
   const isEdit = !!task;
