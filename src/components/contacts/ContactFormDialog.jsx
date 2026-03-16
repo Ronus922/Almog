@@ -376,9 +376,8 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
            </div>
           )}
           </div>
-          )}
 
-        {/* Footer */}
+          {/* Footer */}
         <div className="flex justify-end gap-2 px-6 py-4 border-t border-slate-100 bg-white flex-shrink-0">
           <Button variant="outline" onClick={onClose} className="h-9">
             ביטול
