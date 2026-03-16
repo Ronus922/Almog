@@ -393,14 +393,14 @@ export default function TasksProPage() {
             {viewMode === "kanban" && (
               <TaskProKanban
                 tasks={sorted}
-                onRowClick={(t) => setDetailTask(t)}
+                onRowClick={handleRowClick}
               />
             )}
 
             {viewMode === "calendar" && (
               <TaskProCalendarView
                 tasks={sorted}
-                onTaskClick={(t) => setDetailTask(t)}
+                onTaskClick={handleRowClick}
               />
             )}
           </>
