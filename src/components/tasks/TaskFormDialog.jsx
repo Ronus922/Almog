@@ -470,6 +470,14 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
                   <Textarea value={form.completion_notes || ""} onChange={(e) => set("completion_notes", e.target.value)} placeholder="מה בוצע / למה בוטל..." rows={3} className="border-slate-200 rounded-lg resize-none" />
                 </div>
               }
+
+              {/* מחזוריות — רק ביצירת משימה חדשה */}
+              {!isEdit && (
+                <RecurrenceSection
+                  value={recurrenceRule}
+                  onChange={setRecurrenceRule}
+                />
+              )}
             </div>
 
             <div className="flex justify-end gap-2 px-6 py-4 border-t border-slate-100 bg-white flex-shrink-0">
