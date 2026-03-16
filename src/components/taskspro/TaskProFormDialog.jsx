@@ -258,6 +258,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent className="max-w-2xl max-h-[92vh] overflow-hidden flex flex-col p-0 gap-0 rounded-2xl" dir="rtl">
+        <DialogTitle className="hidden">{isEdit ? "עריכת משימה" : "משימה חדשה"}</DialogTitle>
         
         {/* Header */}
         <div className="bg-gradient-to-l from-blue-600 to-blue-700 px-6 py-4 flex-shrink-0">
