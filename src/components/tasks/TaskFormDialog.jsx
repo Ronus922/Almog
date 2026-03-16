@@ -97,6 +97,7 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
           due_date: task.due_date || "",
           completion_notes: task.completion_notes || ""
         }));
+        setRecurrenceRule({ is_recurring: false });
       } else {
         const assignerDisplayName = currentUser?.first_name ?
         `${currentUser.first_name}${currentUser.last_name ? " " + currentUser.last_name : ""}` :
