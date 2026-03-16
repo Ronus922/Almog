@@ -114,7 +114,7 @@ export default function Calendar() {
   const [meetingTypeFilter, setMeetingTypeFilter] = useState('');
   const [userFilter, setUserFilter] = useState('');
   const [allUsers, setAllUsers] = useState([]);
-  const previousAttendeeIdsRef = React.useRef([]);
+  const previousAttendeeIdsRef = useRef([]);
   const queryClient = useQueryClient();
 
   // טעינת משתמשים פעם אחת
