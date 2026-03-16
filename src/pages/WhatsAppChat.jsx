@@ -363,23 +363,23 @@ export default function WhatsAppChat() {
   };
 
   // ==========================================
-  // Polling כל 30 שניות
+  // Webhook mode עכשיו יותר חזק - subscription כל הזמן
+  // Polling הוצא כברירת מחדל (webhook הוא מקור האמת)
   // ==========================================
   useEffect(() => {
-    const poll = async () => {
-      try {
-        await base44.functions.invoke('pollGreenAPIMessages', {});
+    // חזק את קבלת הודעות דרך subscription
+    // (polling הוא fallback בלבד, לא primary)
+    const unsubAll = base44.entities.ChatMessage.subscribe((event) => {
+      if (event.type === 'create') {
+        console.log('[Webhook] Real-time message received via subscription:', event.data?.id);
         queryClient.invalidateQueries({ queryKey: ['contacts'] });
         if (selectedContact?.id) {
           queryClient.invalidateQueries({ queryKey: ['chatMessages', selectedContact.id] });
         }
-      } catch (e) {
-        console.error('[Poll] Error:', e);
       }
-    };
-    poll();
-    const interval = setInterval(poll, 30000);
-    return () => clearInterval(interval);
+    });
+    
+    return () => unsubAll?.();
   }, [selectedContact?.id, queryClient]);
 
   // ==========================================
