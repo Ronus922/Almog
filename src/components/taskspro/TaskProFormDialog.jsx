@@ -492,19 +492,19 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
               {/* Template picker */}
               {!isEdit && templates.length > 0 && (
                <div className="bg-violet-50 border border-violet-200 rounded-xl p-4">
-              <Label className="text-sm font-semibold text-violet-700 mb-2 block">בחר תבנית (אופציונלי)</Label>
-              <Select value={form.template_id} onValueChange={handleTemplateChange}>
-                <SelectTrigger className="h-10 bg-white border-violet-200">
-                  <SelectValue placeholder="בחר תבנית..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {templates.map((t) => (
-                    <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+                 <Label className="text-sm font-semibold text-violet-700 mb-2 block">בחר תבנית (אופציונלי)</Label>
+                 <Select value={form.template_id} onValueChange={handleTemplateChange}>
+                   <SelectTrigger className="h-10 bg-white border-violet-200">
+                     <SelectValue placeholder="בחר תבנית..." />
+                   </SelectTrigger>
+                   <SelectContent>
+                     {templates.map((t) => (
+                       <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                     ))}
+                   </SelectContent>
+                 </Select>
+               </div>
+               )}
 
               {/* פרטי משימה */}
               <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
