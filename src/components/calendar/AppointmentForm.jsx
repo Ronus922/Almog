@@ -526,89 +526,28 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
       {/* Users - Multi Select */}
       <div>
-        <Label className="block mb-3 font-bold text-slate-900 text-sm">משתמשים</Label>
-        <div className="relative" ref={userDropdownRef}>
-          <button
-            type="button"
-            onClick={() => setShowUserSearch(!showUserSearch)}
-            className="w-full h-10 border border-slate-200 rounded-lg px-3 flex items-center justify-between hover:border-slate-300 bg-white text-right transition-all"
-          >
-            <ChevronDown className={`w-4 h-4 text-slate-600 transition-transform ${showUserSearch ? 'rotate-180' : ''}`} />
-            <span className="text-sm text-slate-700 flex-1 text-right">
-              {formData.attendees_users.length > 0 
-                ? `${formData.attendees_users.length} משתמשים נבחרו`
-                : 'בחר משתמשים...'}
-            </span>
-          </button>
-
-          {showUserSearch && (
-            <div className="absolute top-full right-0 left-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-50">
-              <div className="p-3 border-b border-slate-200">
-                <div className="relative">
-                  <Search className="absolute right-2.5 top-2.5 w-4 h-4 text-slate-400" />
-                  <Input
-                    type="text"
-                    placeholder="חפש משתמש..."
-                    value={userSearchTerm}
-                    onChange={(e) => setUserSearchTerm(e.target.value)}
-                    dir="rtl"
-                    className="pr-9 pl-3 h-9 text-sm"
-                    autoFocus
-                  />
-                </div>
-              </div>
-
-              <div className="max-h-56 overflow-y-auto p-2">
-                {filteredUsers.length > 0 ? (
-                  filteredUsers.map((user) => {
-                    const isSelected = formData.attendees_users.some(u => u.id === user.id);
-                    return (
-                      <div 
-                        key={user.id} 
-                        className={`flex items-center gap-3 p-2 rounded cursor-pointer transition-colors ${isSelected ? 'bg-blue-50' : 'hover:bg-slate-50'}`}
-                        dir="rtl"
-                        onMouseDown={(e) => e.preventDefault()}
-                        onClick={() => handleUserToggle(user.id)}
-                      >
-                        <Checkbox
-                          checked={isSelected}
-                          onCheckedChange={() => handleUserToggle(user.id)}
-                          onClick={(e) => e.stopPropagation()}
-                        />
-                        <span className="text-sm text-slate-700 flex-1 select-none">{formatUserLabel(user)}</span>
-                        {isSelected && <span className="text-blue-500 text-xs font-bold">✓</span>}
-                      </div>
-                    );
-                  })
-                ) : (
-                  <p className="text-sm text-slate-500 text-center py-3">לא נמצאו משתמשים</p>
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Selected Users Tags */}
-        {formData.attendees_users.length > 0 && (
-          <div className="flex flex-wrap gap-2 mt-2 justify-end">
-            {formData.attendees_users.map((attendee) => {
-              const displayName = typeof attendee === 'object' ? attendee.name : attendee;
-              const attendeeId = typeof attendee === 'object' ? attendee.id : attendee;
-              return (
-                <div key={attendeeId} className="flex items-center gap-1.5 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200">
-                  <span>{displayName}</span>
-                  <button
-                    type="button"
-                    onClick={() => handleUserToggle(attendeeId)}
-                    className="text-slate-500 hover:text-slate-700"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        )}
+        <Label className="block mb-1 font-bold text-slate-900 text-sm">משתמשים</Label>
+        <MultiSelectAttendees
+          label=""
+          items={users}
+          selectedIds={formData.attendees_users.map(u => String(u?.id ?? u))}
+          onToggle={(userId) => {
+            const user = users.find(u => String(u.id) === String(userId));
+            if (!user) return;
+            setFormData(prev => {
+              const exists = prev.attendees_users.some(u => String(u?.id ?? u) === String(userId));
+              return {
+                ...prev,
+                attendees_users: exists
+                  ? prev.attendees_users.filter(u => String(u?.id ?? u) !== String(userId))
+                  : [...prev.attendees_users, { id: userId, name: formatUserLabel(user), email: user.email || '' }],
+              };
+            });
+          }}
+          searchPlaceholder="חפש משתמש..."
+          formatLabel={formatUserLabel}
+          getAvatarColor={() => '#3B82F6'}
+        />
       </div>
 
       {/* Contacts - Multi Select */}
