@@ -342,23 +342,44 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
               />
             </div>
 
-            {/* סוג ועדיפות */}
-            <div className="grid grid-cols-2 gap-3">
-              <div>
-                <Label className="text-sm font-medium text-slate-700 mb-1.5 block">סוג משימה <span className="text-red-500">*</span></Label>
-                <Select value={form.task_type} onValueChange={(v) => setF("task_type", v)}>
-                  <SelectTrigger className="h-10 bg-slate-50"><SelectValue /></SelectTrigger>
-                  <SelectContent>{TASK_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
-              <div>
-                <Label className="text-sm font-medium text-slate-700 mb-1.5 block">עדיפות</Label>
-                <Select value={form.priority} onValueChange={(v) => setF("priority", v)}>
-                  <SelectTrigger className="h-10 bg-slate-50"><SelectValue /></SelectTrigger>
-                  <SelectContent>{PRIORITIES.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
-                </Select>
-              </div>
+            {/* סוג משימה */}
+            <div>
+              <Label className="text-sm font-medium text-slate-700 mb-1.5 block">סוג משימה <span className="text-red-500">*</span></Label>
+              <Select value={form.task_type} onValueChange={(v) => setF("task_type", v)}>
+                <SelectTrigger className="h-10 bg-slate-50"><SelectValue /></SelectTrigger>
+                <SelectContent>{TASK_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+              </Select>
             </div>
+
+            {/* עדיפות - תגית בלבד */}
+            {!isEdit && (
+              <div>
+                <Label className="text-sm font-medium text-slate-700 mb-2 block">עדיפות</Label>
+                <div className="flex gap-2">
+                  {PRIORITIES.map((p) => (
+                    <button
+                      key={p}
+                      onClick={() => setF("priority", p)}
+                      className={`transition-all px-3 py-1.5 rounded-lg text-xs font-semibold border-2 ${
+                        form.priority === p
+                          ? PRIORITY_COLOR[p] + " border-current"
+                          : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
+                      }`}
+                    >
+                      {p}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+            {isEdit && (
+              <div>
+                <Label className="text-sm font-medium text-slate-700 mb-2 block">עדיפות</Label>
+                <Badge className={`text-xs font-semibold px-3 py-1.5 ${PRIORITY_COLOR[form.priority]}`}>
+                  {form.priority}
+                </Badge>
+              </div>
+            )}
 
             {/* סטטוס - רק בעריכה */}
             {isEdit && (
