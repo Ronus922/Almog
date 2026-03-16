@@ -79,11 +79,15 @@ export default function MultiSelectAttendees({
                 return (
                   <div
                     key={itemId}
-                    className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded text-right"
+                    className={`flex items-center gap-3 p-2 rounded text-right cursor-pointer transition-colors ${isSelected ? 'bg-blue-50' : 'hover:bg-slate-50'}`}
+                    onMouseDown={(e) => e.preventDefault()}
+                    onClick={() => onToggle(itemId)}
                   >
                     <Checkbox
                       checked={isSelected}
                       onCheckedChange={() => onToggle(itemId)}
+                      onClick={(e) => e.stopPropagation()}
+                      onPointerDown={(e) => e.stopPropagation()}
                     />
 
                     {/* Avatar */}
