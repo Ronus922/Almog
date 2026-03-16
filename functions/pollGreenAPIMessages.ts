@@ -28,31 +28,51 @@ Deno.serve(async (req) => {
 
     // קבל את כל אנשי הקשר פעם אחת
     const contacts = await base44.asServiceRole.entities.Contact.filter({});
-    console.log(`[POLL] Contacts in DB: ${contacts.length}`);
+    console.log(`[POLL] ✓ Contacts in DB: ${contacts.length}`);
 
     let processedCount = 0;
     let skippedCount = 0;
     let unknownCount = 0;
+    let emptyCount = 0;
 
     // pull עד 50 הודעות מהתור בכל ריצה
     for (let i = 0; i < 50; i++) {
+      console.log(`[POLL] Attempt ${i + 1}/50 - polling receiveNotification...`);
+      
       const receiveRes = await fetch(
         `https://api.green-api.com/waInstance${instanceId}/receiveNotification/${token}`,
         { method: 'GET' }
       );
 
       if (!receiveRes.ok) {
-        console.error(`[POLL] receiveNotification HTTP error: ${receiveRes.status}`);
-        break;
+        console.error(`[POLL] ❌ receiveNotification HTTP error: ${receiveRes.status}`);
+        // אל תעצור בגלל 400 — המשך לנסות
+        if (i === 0) {
+          // הפעם הראשונה — אולי זה בעיית אימות, חברה וחצי
+          console.error('[POLL] First attempt failed with ' + receiveRes.status + ', stopping this run');
+          break;
+        }
+        // הפעמים הבאות — דלג על הודעה אחת ולא תעצור את כל הלולאה
+        continue;
       }
 
       const notification = await receiveRes.json();
 
       // אין יותר הודעות בתור
       if (!notification || !notification.body) {
-        console.log(`[POLL] Queue empty after ${i} items`);
-        break;
+        emptyCount++;
+        console.log(`[POLL] Empty response #${emptyCount} (queue likely empty, continuing...)`);
+        // אל תעצור! המשך לנסות עד 50
+        if (emptyCount >= 3) {
+          // אחרי 3 ריקים ברציפות, סביר שאין הודעות
+          console.log(`[POLL] 3 empty responses in a row - stopping this batch`);
+          break;
+        }
+        continue;
       }
+      
+      // reset empty counter כי קיבלנו הודעה
+      emptyCount = 0;
 
       const receiptId = notification.receiptId;
       const body = notification.body;
