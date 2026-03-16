@@ -198,7 +198,7 @@ export default function TaskProTable({
 
                 <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                   <Select value={task.status} onValueChange={(v) => onUpdateStatus(task.id, v)}>
-                    <SelectTrigger className={`w-28 h-7 text-xs font-semibold border ${STATUS_STYLE[task.status] || ""}`}>
+                    <SelectTrigger className={`w-28 h-7 text-xs font-semibold border rounded-full ${STATUS_STYLE[task.status] || ""}`}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
