@@ -179,6 +179,7 @@ import Calendar from "./pages/Calendar.jsx";
 import Documents from "./pages/Documents.jsx";
 import SupplierManagement from "./pages/SupplierManagement.jsx";
 import TodoReminders from "./pages/TodoReminders.jsx";
+import TaskAnalyticsDashboard from "./pages/TaskAnalyticsDashboard.jsx";
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -240,6 +241,7 @@ const AuthenticatedApp = () => {
       <Route path="/TodoReminders" element={<LayoutWrapper currentPageName="TodoReminders"><TodoReminders /></LayoutWrapper>} />
       <Route path="/TasksPro" element={<LayoutWrapper currentPageName="TasksPro"><TasksProPage /></LayoutWrapper>} />
       <Route path="/InternalChat" element={<LayoutWrapper currentPageName="InternalChat"><InternalChat /></LayoutWrapper>} />
+      <Route path="/TaskAnalyticsDashboard" element={<LayoutWrapper currentPageName="TaskAnalyticsDashboard"><TaskAnalyticsDashboard /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
