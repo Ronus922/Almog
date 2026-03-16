@@ -46,6 +46,7 @@ export default function WhatsAppChat() {
   const getPrimaryName = (contact) => {
     if (!contact) return '';
     if (contact._isUnlinked) return contact.phone || 'מספר לא מוכר';
+    if (contact._isSupplier) return contact.company_name || contact.contact_person_name || 'ספק';
     if (contact.operator_is_primary_contact && contact.operator_id) {
       const op = operators.find(o => o.id === contact.operator_id);
       if (op) return op.company_name || op.contact_name;
