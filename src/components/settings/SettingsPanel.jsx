@@ -139,7 +139,7 @@ export default function SettingsPanel() {
       }
 
       setSaveSuccess(true);
-      toast.success('ההגדרות נשמרו בהצלחה');
+      showAlert('ההגדרות נשמרו בהצלחה', 'success');
 
       // בדוק אם הספים השתנו
       const thresholdsChanged = oldSettings && (
@@ -150,7 +150,7 @@ export default function SettingsPanel() {
 
       if (thresholdsChanged) {
         // הפעל ריענון אוטומטי
-        toast.info('הספים השתנו - מעדכן סטטוסים אוטומטית...');
+        showAlert('הספים השתנו - מעדכן סטטוסים אוטומטית...', 'info');
         setTimeout(() => {
           recalculateAllStatuses();
         }, 500);
@@ -159,7 +159,7 @@ export default function SettingsPanel() {
       }
     } catch (err) {
       setError(err.message || 'שגיאה בשמירת ההגדרות');
-      toast.error('שגיאה בשמירת ההגדרות');
+      showAlert('שגיאה בשמירת ההגדרות', 'error');
     } finally {
       setIsSaving(false);
     }
