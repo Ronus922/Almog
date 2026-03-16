@@ -69,9 +69,10 @@ export default function Tasks() {
   const [showDialog, setShowDialog] = useState(false);
   const [editTask, setEditTask] = useState(null);
   const [sortField, setSortField] = useState("priority");
-    const [sortDir, setSortDir] = useState("asc");
-    const [viewedTasks, setViewedTasks] = useState(new Set());
-    const [filterRecurring, setFilterRecurring] = useState("");
+  const [sortDir, setSortDir] = useState("asc");
+  const [viewedTasks, setViewedTasks] = useState(new Set());
+  const [filterRecurring, setFilterRecurring] = useState("");
+  const [activeView, setActiveView] = useState("tasks"); // "tasks" | "rules"
 
   const handleKpiClick = (key) => {
     setActiveKpiFilter(prev => prev === key ? null : key);
