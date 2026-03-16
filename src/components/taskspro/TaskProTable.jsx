@@ -143,8 +143,17 @@ export default function TaskProTable({
                   </div>
                 </td>
 
-                <td className="px-4 py-3 text-slate-700 whitespace-nowrap">
-                  {task.assigned_to_name || task.assigned_to || "—"}
+                <td className="px-4 py-3 whitespace-nowrap">
+                  <div className="flex flex-col gap-0.5">
+                    <span className="font-medium text-slate-700 text-sm">
+                      {ASSIGNED_BY_DISPLAY(task.assigned_to_name, task.assigned_to)}
+                    </span>
+                    {task.assigned_by && (
+                      <span className="text-xs text-slate-400">
+                        ע"י {ASSIGNED_BY_DISPLAY(task.assigned_by_name, task.assigned_by)}
+                      </span>
+                    )}
+                  </div>
                 </td>
 
                 <td className="px-4 py-3">
