@@ -2,10 +2,17 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 /**
  * Green API - קבלת הודעות נכנסות
- * MODE: POLLING ONLY (ReceiveNotification + DeleteNotification)
- * אין webhook endpoints - כל הודעה מתקבלת דרך pull בלבד
- * ReceiveNotification כל פעם, DeleteNotification אחרי עיבוד להנקות תור
- * נשמרות גם הודעות ממספרים שלא מוכרים / שלא יזמנו איתם שיחה
+ * MODE: DISABLED WHEN WEBHOOK IS ACTIVE
+ * 
+ * IMPORTANT: When webhookUrl is configured in Green API dashboard:
+ * - ReceiveNotification/DeleteNotification CANNOT work in parallel
+ * - This polling function must NOT run as active fallback
+ * 
+ * STATUS: CODE KEPT FOR MANUAL DEBUG/RECOVERY ONLY
+ * Primary inbound mechanism is greenApiWebhook (webhook).
+ * This function may be called manually via dashboard if needed.
+ * 
+ * DO NOT automatically schedule or invoke this while webhookUrl is active.
  */
 Deno.serve(async (req) => {
   try {
