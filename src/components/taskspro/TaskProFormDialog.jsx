@@ -276,7 +276,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
         <div className="flex-1 overflow-hidden bg-slate-50 flex flex-col">
           {isEdit ? (
             /* Tabs in Edit Mode */
-            <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
+            <div className="flex-1 flex flex-col">
               <div className="flex items-center gap-0 border-b border-slate-200 bg-white px-6">
                 {["details", "comments", "attachments"].map((tab) => (
                   <button
