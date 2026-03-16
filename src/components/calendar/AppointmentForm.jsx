@@ -553,81 +553,23 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       {/* Contacts - Multi Select */}
       {contacts.length > 0 && (
         <div>
-          <Label className="block mb-3 font-bold text-slate-900 text-sm">אנשי קשר</Label>
-          <div className="relative" ref={contactDropdownRef}>
-            <button
-              type="button"
-              onClick={() => setShowContactSearch(!showContactSearch)}
-              className="w-full h-10 border border-slate-200 rounded-lg px-3 flex items-center justify-between hover:border-slate-300 bg-white text-right transition-all"
-            >
-              <ChevronDown className={`w-4 h-4 text-slate-600 transition-transform ${showContactSearch ? 'rotate-180' : ''}`} />
-              <span className="text-sm text-slate-700 flex-1 text-right">
-                {formData.attendees_contacts.length > 0 
-                  ? `${formData.attendees_contacts.length} אנשי קשר נבחרו`
-                  : 'בחר אנשי קשר...'}
-              </span>
-            </button>
-
-            {showContactSearch && (
-              <div className="absolute top-full right-0 left-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-lg z-50">
-                <div className="p-3 border-b border-slate-200">
-                  <div className="relative">
-                    <Search className="absolute right-3 top-2.5 w-4 h-4 text-slate-400" />
-                    <Input
-                      type="text"
-                      placeholder="חפש לפי שם או דירה..."
-                      value={contactSearchTerm}
-                      onChange={(e) => setContactSearchTerm(e.target.value)}
-                      dir="rtl"
-                      className="pr-9 pl-3 h-9 text-sm"
-                      autoFocus
-                    />
-                  </div>
-                </div>
-
-                <div className="max-h-56 overflow-y-auto p-2">
-                  {filteredContacts.length > 0 ? (
-                    filteredContacts.map((contact) => (
-                      <div 
-                        key={contact.id} 
-                        className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer transition-colors" 
-                        dir="rtl"
-                      >
-                        <Checkbox
-                          checked={formData.attendees_contacts.includes(contact.id)}
-                          onCheckedChange={() => handleContactToggle(contact.id)}
-                        />
-                        <span className="text-sm text-slate-700">{formatContactLabel(contact)}</span>
-                      </div>
-                    ))
-                  ) : (
-                    <p className="text-sm text-slate-500 text-center py-3">לא נמצאו אנשי קשר</p>
-                  )}
-                </div>
-              </div>
-            )}
-          </div>
-
-          {/* Selected Contacts Tags */}
-          {formData.attendees_contacts.length > 0 && (
-            <div className="flex flex-wrap gap-2 mt-2 justify-end">
-              {formData.attendees_contacts.map((contactId) => {
-                const contact = contacts.find(c => c.id === contactId);
-                return contact ? (
-                  <div key={contactId} className="flex items-center gap-1.5 bg-slate-100 text-slate-700 px-3 py-1.5 rounded-full text-xs font-medium border border-slate-200">
-                    <span>{formatContactLabel(contact)}</span>
-                    <button
-                      type="button"
-                      onClick={() => handleContactToggle(contactId)}
-                      className="text-slate-500 hover:text-slate-700"
-                    >
-                      <X className="w-3 h-3" />
-                    </button>
-                  </div>
-                ) : null;
-              })}
-            </div>
-          )}
+          <Label className="block mb-1 font-bold text-slate-900 text-sm">אנשי קשר</Label>
+          <MultiSelectAttendees
+            label=""
+            items={contacts}
+            selectedIds={formData.attendees_contacts.map(String)}
+            onToggle={(contactId) => {
+              setFormData(prev => ({
+                ...prev,
+                attendees_contacts: prev.attendees_contacts.map(String).includes(String(contactId))
+                  ? prev.attendees_contacts.filter(c => String(c) !== String(contactId))
+                  : [...prev.attendees_contacts, contactId],
+              }));
+            }}
+            searchPlaceholder="חפש לפי שם או דירה..."
+            formatLabel={formatContactLabel}
+            getAvatarColor={() => '#10B981'}
+          />
         </div>
       )}
 
