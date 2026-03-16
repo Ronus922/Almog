@@ -179,8 +179,14 @@ Deno.serve(async (req) => {
       }
     }
 
-    console.log(`[POLL] Done. processed=${processedCount}, unknown=${unknownCount}, skipped=${skippedCount}`);
-    return Response.json({ success: true, processedCount, unknownCount, skippedCount });
+    console.log(`[POLL] ✅ POLL COMPLETE - processed=${processedCount}, unlinked=${unknownCount}, skipped=${skippedCount}`);
+    return Response.json({ 
+      success: true, 
+      processedCount, 
+      unknownCount, 
+      skippedCount,
+      timestamp: new Date().toISOString()
+    });
 
   } catch (error) {
     console.error('[POLL] Fatal error:', error.message);
