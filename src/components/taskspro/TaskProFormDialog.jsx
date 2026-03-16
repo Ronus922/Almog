@@ -490,7 +490,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
               <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
 
               {/* Template picker */}
-          {!isEdit && templates.length > 0 && (
+              {!isEdit && templates.length > 0 && (
             <div className="bg-violet-50 border border-violet-200 rounded-xl p-4">
               <Label className="text-sm font-semibold text-violet-700 mb-2 block">בחר תבנית (אופציונלי)</Label>
               <Select value={form.template_id} onValueChange={handleTemplateChange}>
