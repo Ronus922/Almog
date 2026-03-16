@@ -12,6 +12,7 @@ import { StatusBadge } from "@/components/tasks/TaskBadge";
 import TaskFormDialog from "@/components/tasks/TaskFormDialog";
 import RecurringTaskBadge from "@/components/tasks/RecurringTaskBadge";
 import RecurringFilter from "@/components/tasks/RecurringFilter";
+import RecurringRuleManager from "@/components/tasks/RecurringRuleManager";
 import { format } from "date-fns";
 
 function SortableHeader({ label, field, sortField, sortDir, onSort }) {
