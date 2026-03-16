@@ -2,7 +2,9 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 /**
  * Green API - קבלת הודעות נכנסות
- * ReceiveNotification (pull-based) + DeleteNotification אחרי כל עיבוד
+ * MODE: POLLING ONLY (ReceiveNotification + DeleteNotification)
+ * אין webhook endpoints - כל הודעה מתקבלת דרך pull בלבד
+ * ReceiveNotification כל פעם, DeleteNotification אחרי עיבוד להנקות תור
  * נשמרות גם הודעות ממספרים שלא מוכרים / שלא יזמנו איתם שיחה
  */
 Deno.serve(async (req) => {
