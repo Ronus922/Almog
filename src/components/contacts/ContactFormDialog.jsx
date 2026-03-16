@@ -388,7 +388,6 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
               {contact ? "שמור שינויים" : "הוסף איש קשר"}
             </Button>
           </div>
-          </div>
           </DialogContent>
           </Dialog>
   );
