@@ -233,7 +233,7 @@ export default function BroadcastDialog({ open, onClose }) {
         {!results && (
           <div className="flex items-center justify-between mb-5 px-1">
             {STEPS.slice(0, 3).map((s, i) => (
-              <React.Fragment key={i}>
+              <div key={i} className="flex items-center gap-0">
                 <div className={`flex flex-col items-center gap-1 ${i === step ? 'opacity-100' : i < step ? 'opacity-60' : 'opacity-30'}`}>
                   <div className={`w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold ${i <= step ? 'bg-green-600 text-white' : 'bg-gray-200 text-gray-500'}`}>
                     {i < step ? '✓' : i + 1}
@@ -241,7 +241,7 @@ export default function BroadcastDialog({ open, onClose }) {
                   <span className="text-xs text-gray-600 whitespace-nowrap">{s}</span>
                 </div>
                 {i < 2 && <div className={`flex-1 h-0.5 mx-2 ${i < step ? 'bg-green-500' : 'bg-gray-200'}`} />}
-              </React.Fragment>
+              </div>
             ))}
           </div>
         )}
