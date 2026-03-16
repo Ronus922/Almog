@@ -19,6 +19,8 @@ export const deleteTask = (id) => T.delete(id);
 export const updateStatus = (id, status) =>
   T.update(id, { status, ...(status === "הושלמה" ? { completed_at: new Date().toISOString() } : {}) });
 
+export const updateManualOrder = (id, order) => T.update(id, { manual_order: order });
+
 export const updatePriority = (id, priority) => T.update(id, { priority });
 
 export const archiveTask = (id, reason, by) =>
