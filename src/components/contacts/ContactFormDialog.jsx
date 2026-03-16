@@ -364,7 +364,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
                 </div>
               )}
             </div>
-          </>
+          </div>
           )}
 
           {activeTab === "documents" && contact && (
