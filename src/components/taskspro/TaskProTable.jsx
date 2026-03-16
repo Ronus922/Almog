@@ -105,17 +105,19 @@ export default function TaskProTable({
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
-          {tasks.map((task) => {
+          {tasks.map((task, idx) => {
             const isOverdue = task.due_at && task.due_at.slice(0,10) < today && task.status !== "הושלמה" && task.status !== "בוטלה";
             const attendees = attendeesMap[task.id] || [];
+            const canEditPriority = task.created_by === currentUsername || !task.created_by;
 
             return (
               <tr
                 key={task.id}
-                className={`transition-colors cursor-pointer ${
-                  task.is_archived ? "opacity-60 bg-slate-50" :
-                  isOverdue ? "bg-red-50/60 hover:bg-red-50" : "hover:bg-blue-50/30"
-                } ${selectedIds.has(task.id) ? "bg-blue-50/50" : ""}`}
+                className={`transition-all cursor-pointer group ${
+                  task.is_archived ? "opacity-50 bg-slate-50/80" :
+                  isOverdue ? "bg-red-50/40 hover:bg-red-50/70" :
+                  idx % 2 === 0 ? "bg-white hover:bg-blue-50/30" : "bg-slate-50/40 hover:bg-blue-50/30"
+                } ${selectedIds.has(task.id) ? "!bg-blue-50 ring-1 ring-inset ring-blue-200" : ""}`}
                 onClick={() => onRowClick(task)}
               >
                 <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
