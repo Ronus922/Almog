@@ -277,20 +277,23 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
           {isEdit ? (
             /* Tabs in Edit Mode */
             <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col">
-              <TabsList className="w-full justify-start gap-0 bg-white rounded-none px-6">
-                <TabsTrigger value="details" className="gap-1.5 data-[state=active]:border-b-2 data-[state=active]:border-blue-600">
-                  <ClipboardList className="w-4 h-4" />
-                  פרטי משימה
-                </TabsTrigger>
-                <TabsTrigger value="comments" className="gap-1.5 data-[state=active]:border-b-2 data-[state=active]:border-blue-600">
-                  <MessageSquare className="w-4 h-4" />
-                  הערות ({comments.length})
-                </TabsTrigger>
-                <TabsTrigger value="attachments" className="gap-1.5 data-[state=active]:border-b-2 data-[state=active]:border-blue-600">
-                  <Paperclip className="w-4 h-4" />
-                  קבצים ({attachments.length})
-                </TabsTrigger>
-              </TabsList>
+              <div className="flex items-center gap-0 border-b border-slate-200 bg-white px-6">
+                {["details", "comments", "attachments"].map((tab) => (
+                  <button
+                    key={tab}
+                    onClick={() => setActiveTab(tab)}
+                    className={`flex items-center gap-1.5 px-4 py-3 text-sm font-semibold transition-colors relative ${
+                      activeTab === tab
+                        ? "text-blue-600 border-b-2 border-blue-600 -mb-px"
+                        : "text-slate-600 hover:text-slate-900 border-b-2 border-transparent"
+                    }`}
+                  >
+                    {tab === "details" && <><ClipboardList className="w-4 h-4" /> פרטי משימה</>}
+                    {tab === "comments" && <><MessageSquare className="w-4 h-4" /> הערות ({comments.length})</>}
+                    {tab === "attachments" && <><Paperclip className="w-4 h-4" /> קבצים ({attachments.length})</>}
+                  </button>
+                ))}
+              </div>
 
               <TabsContent value="details" className="flex-1 overflow-y-auto px-6 py-5 space-y-5 m-0">
                 {/* Content in details tab */}
