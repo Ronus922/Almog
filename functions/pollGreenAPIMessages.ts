@@ -73,6 +73,8 @@ Deno.serve(async (req) => {
     console.log(`  - Instance ID: ${instanceId}`);
     console.log(`  - Token length: ${token.length} chars`);
     console.log(`  - First 8 chars of token: ${token.substring(0, 8)}...`);
+    console.warn(`[POLL] ⚠️ WARNING: This is a MANUAL/DEBUG function. When webhookUrl is configured in Green API dashboard, polling MUST NOT run automatically.`);
+    console.warn(`[POLL] ⚠️ Primary inbound is: greenApiWebhook endpoint (https://copy-d3b3e777.base44.app/api/functions/greenApiWebhook)`);
 
     // קבל את כל אנשי הקשר פעם אחת
     const contacts = await base44.asServiceRole.entities.Contact.filter({});
@@ -84,6 +86,7 @@ Deno.serve(async (req) => {
     let emptyCount = 0;
 
     // pull עד 50 הודעות מהתור בכל ריצה
+    // NOTE: This only works if webhookUrl is NOT set in Green API dashboard
     for (let i = 0; i < 50; i++) {
       console.log(`[POLL] Attempt ${i + 1}/50 - polling receiveNotification...`);
       
