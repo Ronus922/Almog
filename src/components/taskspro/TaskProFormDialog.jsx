@@ -8,7 +8,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 
 import { Badge } from "@/components/ui/badge";
-import { X, ClipboardList, Repeat2, MessageSquare, Paperclip } from "lucide-react";
+import { X, ClipboardList, Repeat2, MessageSquare, Paperclip, Users } from "lucide-react";
 import MultiSelectAttendees from "./MultiSelectAttendees";
 import DebtorSelectSearch from "./DebtorSelectSearch";
 import { createTask, updateTask, replaceAttendees, fetchTemplates, fetchAttendees, logActivity, createRule, fetchComments, createComment, fetchAttachments, uploadAttachment, deleteAttachment } from "./taskProApi";
