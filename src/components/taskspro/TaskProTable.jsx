@@ -85,10 +85,10 @@ export default function TaskProTable({
 
   return (
     <div className="overflow-x-auto" dir="rtl">
-      <table className="w-full text-sm">
+      <table className="w-full text-sm border-collapse">
         <thead>
-          <tr className="bg-slate-50 border-b border-slate-200">
-            <th className="px-4 py-3 w-10">
+          <tr className="bg-gradient-to-l from-slate-100 to-slate-50 border-b-2 border-slate-200">
+            <th className="px-4 py-3.5 w-10">
               <Checkbox
                 checked={allSelected}
                 onCheckedChange={(v) => onToggleSelectAll(v)}
@@ -96,12 +96,12 @@ export default function TaskProTable({
             </th>
             <SortHeader label="כותרת / משימה" field="title" sortField={sortField} sortDir={sortDir} onSort={onSort} />
             <SortHeader label="משויך" field="assigned_to_name" sortField={sortField} sortDir={sortDir} onSort={onSort} />
-            <th className="text-right px-4 py-3 font-semibold text-slate-600 whitespace-nowrap">משתתפים</th>
+            <th className="text-right px-4 py-3.5 font-semibold text-slate-600 whitespace-nowrap text-xs uppercase tracking-wide">משתתפים</th>
             <SortHeader label="תאריך יעד" field="due_at" sortField={sortField} sortDir={sortDir} onSort={onSort} />
             <SortHeader label="עדיפות" field="priority" sortField={sortField} sortDir={sortDir} onSort={onSort} />
             <SortHeader label="סטטוס" field="status" sortField={sortField} sortDir={sortDir} onSort={onSort} />
-            <th className="text-right px-4 py-3 font-semibold text-slate-600 whitespace-nowrap">מקור</th>
-            <th className="text-right px-4 py-3 font-semibold text-slate-600 w-10"></th>
+            <th className="text-right px-4 py-3.5 font-semibold text-slate-600 whitespace-nowrap text-xs uppercase tracking-wide">מקור</th>
+            <th className="text-right px-4 py-3.5 font-semibold text-slate-600 w-10"></th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
