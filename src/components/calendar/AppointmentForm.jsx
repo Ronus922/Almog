@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { format } from 'date-fns';
-import { Upload, X } from 'lucide-react';
+import { Upload } from 'lucide-react';
 import DateTimePicker from '@/components/ui/DateTimePicker';
 import MultiSelectAttendees from '@/components/calendar/MultiSelectAttendees';
 
