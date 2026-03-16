@@ -333,13 +333,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
 
                     </div>
 
-                    {/* עדיפות - תגית בלבד */}
-                    <div>
-                      <Label className="text-sm font-medium text-slate-700 mb-2 block">עדיפות</Label>
-                      <Badge className={`text-xs font-semibold px-3 py-1.5 ${PRIORITY_COLOR[form.priority]}`}>
-                        {form.priority}
-                      </Badge>
-                    </div>
+                    {/* עדיפות הוסרה - תוצג בכותרת */}
 
                     {/* סטטוס */}
                     <div>
