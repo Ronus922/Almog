@@ -22,20 +22,20 @@ const PRIORITIES = ["גבוהה", "בינונית", "נמוכה"];
 const STATUSES = ["פתוחה", "בטיפול", "ממתינה", "הושלמה", "בוטלה"];
 const FREQ_LABELS = { daily: "יומי", weekly: "שבועי", monthly: "חודשי", yearly: "שנתי" };
 const DAYS_HE = [
-  { key: "sunday", label: "א'" }, { key: "monday", label: "ב'" }, { key: "tuesday", label: "ג'" },
-  { key: "wednesday", label: "ד'" }, { key: "thursday", label: "ה'" }, { key: "friday", label: "ו'" }, { key: "saturday", label: "ש'" },
-];
+{ key: "sunday", label: "א'" }, { key: "monday", label: "ב'" }, { key: "tuesday", label: "ג'" },
+{ key: "wednesday", label: "ד'" }, { key: "thursday", label: "ה'" }, { key: "friday", label: "ו'" }, { key: "saturday", label: "ש'" }];
+
 
 const defaultForm = {
   title: "", task_type: "שיחת טלפון", status: "פתוחה", priority: "בינונית",
   description: "", due_at: "",
   debtor_record_id: "", apartment_number: "", owner_name: "",
-  source: "manual", template_id: "", is_recurring: false,
+  source: "manual", template_id: "", is_recurring: false
 };
 
 const defaultRecurrence = {
   frequency: "weekly", interval_value: 1, generate_mode: "fixed_schedule",
-  days_of_week: [], day_of_month: 1, ends_mode: "never", ends_at: "", max_occurrences: "",
+  days_of_week: [], day_of_month: 1, ends_mode: "never", ends_at: "", max_occurrences: ""
 };
 
 const PRIORITY_COLOR = { "גבוהה": "bg-red-100 text-red-700", "בינונית": "bg-yellow-100 text-yellow-700", "נמוכה": "bg-green-100 text-green-700" };
@@ -58,23 +58,23 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
   const { data: appUsers = [] } = useQuery({
     queryKey: ["appUsers"],
     queryFn: () => base44.entities.AppUser.list(),
-    enabled: open,
+    enabled: open
   });
   const { data: templates = [] } = useQuery({
     queryKey: ["taskpro-templates"],
     queryFn: fetchTemplates,
-    enabled: open,
+    enabled: open
   });
   const { data: debtors = [] } = useQuery({
     queryKey: ["debtors"],
     queryFn: () => base44.entities.DebtorRecord.list(),
-    enabled: open,
+    enabled: open
   });
 
   const userOptions = appUsers.map((u) => ({
     username: u.username,
     name: u.email === "r@bios.co.il" ? "רונן משולם" : [u.first_name, u.last_name].filter(Boolean).join(" ") || u.username,
-    email: u.email,
+    email: u.email
   }));
 
   useEffect(() => {
@@ -92,10 +92,10 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
         owner_name: task.owner_name || "",
         source: task.source || "manual",
         template_id: task.template_id || "",
-        is_recurring: false,
+        is_recurring: false
       });
       fetchAttendees(task.id).then((list) =>
-        setAttendees(list.map((a) => ({ username: a.user_username, name: a.user_name, email: a.user_email })))
+      setAttendees(list.map((a) => ({ username: a.user_username, name: a.user_name, email: a.user_email })))
       );
       fetchComments(task.id).then(setComments);
       fetchAttachments(task.id).then(setAttachments);
@@ -117,7 +117,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
       ...f,
       debtor_record_id: id || "",
       apartment_number: d?.apartmentNumber || "",
-      owner_name: d?.ownerName || "",
+      owner_name: d?.ownerName || ""
     }));
   };
 
@@ -132,9 +132,9 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
       status: t.default_status || f.status,
       description: t.default_description || f.description,
       source: "template",
-      due_at: t.due_days_from_now
-        ? new Date(Date.now() + t.due_days_from_now * 86400000).toISOString().slice(0, 16)
-        : f.due_at,
+      due_at: t.due_days_from_now ?
+      new Date(Date.now() + t.due_days_from_now * 86400000).toISOString().slice(0, 16) :
+      f.due_at
     }));
   };
 
@@ -144,7 +144,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
 
     const actor = {
       username: currentUser?.username || "",
-      name: currentUser?.first_name ? `${currentUser.first_name} ${currentUser.last_name || ""}`.trim() : currentUser?.username || "",
+      name: currentUser?.first_name ? `${currentUser.first_name} ${currentUser.last_name || ""}`.trim() : currentUser?.username || ""
     };
 
     const payload = {
@@ -161,7 +161,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
       owner_name: form.owner_name,
       source: form.source,
       template_id: form.template_id || null,
-      manual_order: task?.manual_order || 0,
+      manual_order: task?.manual_order || 0
     };
 
     let saved;
@@ -198,7 +198,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
         apartment_number: form.apartment_number,
         owner_name: form.owner_name,
         created_by: actor.username,
-        created_by_name: actor.name,
+        created_by_name: actor.name
       });
     }
 
@@ -215,7 +215,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
     try {
       const c = await createComment(task.id, newComment, {
         username: authUser?.username,
-        name: authUser?.first_name ? `${authUser.first_name} ${authUser.last_name || ""}` : authUser?.username,
+        name: authUser?.first_name ? `${authUser.first_name} ${authUser.last_name || ""}` : authUser?.username
       });
       setComments((prev) => [...prev, c]);
       setNewComment("");
@@ -233,7 +233,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
     try {
       const att = await uploadAttachment(task.id, file, {
         username: authUser?.username,
-        name: authUser?.first_name ? `${authUser.first_name} ${authUser.last_name || ""}` : authUser?.username,
+        name: authUser?.first_name ? `${authUser.first_name} ${authUser.last_name || ""}` : authUser?.username
       });
       setAttachments((prev) => [...prev, att]);
       toast.success("קובץ צורף בהצלחה");
@@ -264,37 +264,37 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
         <div className="bg-gradient-to-l from-blue-600 to-blue-700 px-6 py-4 flex-shrink-0">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-white">{isEdit ? "עריכת משימה" : "משימה חדשה"}</h2>
-            <button
-              onClick={onClose}
-              className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/25 transition-colors flex items-center justify-center text-white"
-            >
-              <X className="w-4 h-4" />
-            </button>
+            
+
+
+
+
+
           </div>
         </div>
 
         {/* Body */}
         <div className="flex-1 overflow-hidden bg-slate-50 flex flex-col">
           {isEdit ? (
-            /* Tabs in Edit Mode */
-            <div className="flex-1 flex flex-col">
+          /* Tabs in Edit Mode */
+          <div className="flex-1 flex flex-col">
               <div className="flex items-center gap-0 border-b border-slate-200 bg-white px-6">
-                {["details", "attendees", "comments", "attachments"].map((tab) => (
-                  <button
-                    key={tab}
-                    onClick={() => setActiveTab(tab)}
-                    className={`flex items-center gap-1.5 px-4 py-3 text-sm font-semibold transition-colors relative ${
-                      activeTab === tab
-                        ? "text-blue-600 border-b-2 border-blue-600 -mb-px"
-                        : "text-slate-600 hover:text-slate-900 border-b-2 border-transparent"
-                    }`}
-                  >
+                {["details", "attendees", "comments", "attachments"].map((tab) =>
+              <button
+                key={tab}
+                onClick={() => setActiveTab(tab)}
+                className={`flex items-center gap-1.5 px-4 py-3 text-sm font-semibold transition-colors relative ${
+                activeTab === tab ?
+                "text-blue-600 border-b-2 border-blue-600 -mb-px" :
+                "text-slate-600 hover:text-slate-900 border-b-2 border-transparent"}`
+                }>
+
                     {tab === "details" && <><ClipboardList className="w-4 h-4" /> פרטי משימה</>}
                     {tab === "attendees" && <><Users className="w-4 h-4" /> משתתפים</>}
                     {tab === "comments" && <><MessageSquare className="w-4 h-4" /> הערות ({comments.length})</>}
                     {tab === "attachments" && <><Paperclip className="w-4 h-4" /> קבצים ({attachments.length})</>}
                   </button>
-                ))}
+              )}
               </div>
 
               {activeTab === "details" && <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
@@ -313,11 +313,11 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                         כותרת המשימה <span className="text-red-500">*</span>
                       </Label>
                       <Input
-                        className="h-10 bg-slate-50 focus:bg-white transition-colors"
-                        placeholder="הזן כותרת מתארת..."
-                        value={form.title}
-                        onChange={(e) => setF("title", e.target.value)}
-                      />
+                      className="h-10 bg-slate-50 focus:bg-white transition-colors"
+                      placeholder="הזן כותרת מתארת..."
+                      value={form.title}
+                      onChange={(e) => setF("title", e.target.value)} />
+
                     </div>
 
                     {/* תיאור */}
@@ -326,11 +326,11 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                         תיאור <span className="text-slate-400 text-xs font-normal">(אופציונלי)</span>
                       </Label>
                       <Textarea
-                        className="min-h-[80px] resize-none bg-slate-50 focus:bg-white transition-colors"
-                        placeholder="פרט את המשימה, הערות חשובות..."
-                        value={form.description}
-                        onChange={(e) => setF("description", e.target.value)}
-                      />
+                      className="min-h-[80px] resize-none bg-slate-50 focus:bg-white transition-colors"
+                      placeholder="פרט את המשימה, הערות חשובות..."
+                      value={form.description}
+                      onChange={(e) => setF("description", e.target.value)} />
+
                     </div>
 
                     {/* עדיפות - תגית בלבד */}
@@ -361,10 +361,10 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                     משתתפים נוספים
                   </p>
                   <MultiSelectAttendees
-                    users={userOptions}
-                    selected={attendees}
-                    onChange={setAttendees}
-                  />
+                  users={userOptions}
+                  selected={attendees}
+                  onChange={setAttendees} />
+
                 </div>
 
                 {/* קישור לדייר */}
@@ -374,52 +374,52 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                     קישור לדירה / דייר
                   </p>
                   <DebtorSelectSearch
-                    debtors={debtors}
-                    value={form.debtor_record_id}
-                    onChange={handleDebtorChange}
-                  />
-                  {form.apartment_number && (
-                    <div className="flex items-center gap-2 text-xs text-teal-700 bg-teal-50 border border-teal-200 rounded-lg px-3 py-2">
+                  debtors={debtors}
+                  value={form.debtor_record_id}
+                  onChange={handleDebtorChange} />
+
+                  {form.apartment_number &&
+                <div className="flex items-center gap-2 text-xs text-teal-700 bg-teal-50 border border-teal-200 rounded-lg px-3 py-2">
                       <span className="font-semibold">דירה {form.apartment_number}</span>
                       {form.owner_name && <span className="text-teal-500">– {form.owner_name}</span>}
                     </div>
-                  )}
+                }
                 </div>
               </div>}
 
               {activeTab === "comments" && <div className="flex-1 overflow-y-auto p-0">
                 <div className="px-6 py-5 space-y-3 h-full flex flex-col">
                   <div className="flex-1 overflow-y-auto space-y-2">
-                    {comments.length === 0 ? (
-                      <p className="text-xs text-slate-400">אין הערות עדיין</p>
-                    ) : (
-                      comments.map((c) => (
-                        <div key={c.id} className="bg-slate-50 rounded-lg p-3 border border-slate-200">
+                    {comments.length === 0 ?
+                  <p className="text-xs text-slate-400">אין הערות עדיין</p> :
+
+                  comments.map((c) =>
+                  <div key={c.id} className="bg-slate-50 rounded-lg p-3 border border-slate-200">
                           <div className="flex items-center justify-between mb-1">
                             <span className="text-xs font-semibold text-slate-700">{c.created_by_name || c.created_by_username}</span>
                           </div>
                           <p className="text-sm text-slate-700">{c.comment_text}</p>
                         </div>
-                      ))
-                    )}
+                  )
+                  }
                   </div>
 
                   {/* Add comment */}
                   <div className="space-y-2 border-t border-slate-200 pt-3">
                     <textarea
-                      className="w-full rounded-lg border border-slate-300 p-2 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-blue-400"
-                      rows={2}
-                      placeholder="הוסף הערה..."
-                      value={newComment}
-                      onChange={(e) => setNewComment(e.target.value)}
-                      dir="rtl"
-                    />
+                    className="w-full rounded-lg border border-slate-300 p-2 text-sm resize-none focus:outline-none focus:ring-1 focus:ring-blue-400"
+                    rows={2}
+                    placeholder="הוסף הערה..."
+                    value={newComment}
+                    onChange={(e) => setNewComment(e.target.value)}
+                    dir="rtl" />
+
                     <Button
-                      size="sm"
-                      className="bg-blue-600 hover:bg-blue-700 text-white h-8 w-full"
-                      disabled={!newComment.trim() || loadingComment}
-                      onClick={handleAddComment}
-                    >
+                    size="sm"
+                    className="bg-blue-600 hover:bg-blue-700 text-white h-8 w-full"
+                    disabled={!newComment.trim() || loadingComment}
+                    onClick={handleAddComment}>
+
                       {loadingComment ? "שולח..." : "הוסף הערה"}
                     </Button>
                   </div>
@@ -429,28 +429,28 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
               {activeTab === "attachments" && <div className="flex-1 overflow-y-auto p-0">
                 <div className="px-6 py-5 space-y-3 h-full flex flex-col">
                   <div className="flex-1 overflow-y-auto space-y-1">
-                    {attachments.length === 0 ? (
-                      <p className="text-xs text-slate-400">אין קבצים</p>
-                    ) : (
-                      attachments.map((a) => (
-                        <div key={a.id} className="flex items-center justify-between gap-2 bg-slate-50 rounded-lg p-2 border border-slate-200">
+                    {attachments.length === 0 ?
+                  <p className="text-xs text-slate-400">אין קבצים</p> :
+
+                  attachments.map((a) =>
+                  <div key={a.id} className="flex items-center justify-between gap-2 bg-slate-50 rounded-lg p-2 border border-slate-200">
                           <a
-                            href={a.file_url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="flex-1 text-xs text-blue-600 hover:underline truncate"
-                          >
+                      href={a.file_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="flex-1 text-xs text-blue-600 hover:underline truncate">
+
                             {a.file_display_name || a.file_name}
                           </a>
                           <button
-                            onClick={() => handleDeleteAttachment(a.id)}
-                            className="text-xs text-red-500 hover:text-red-700"
-                          >
+                      onClick={() => handleDeleteAttachment(a.id)}
+                      className="text-xs text-red-500 hover:text-red-700">
+
                             ×
                           </button>
                         </div>
-                      ))
-                    )}
+                  )
+                  }
                   </div>
 
                   {/* Upload file */}
@@ -463,27 +463,27 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                   </div>
                 </div>
               </div>}
-              </div>
-              ) : (
-              /* Non-Edit Mode - Original Layout */
-              <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+              </div>) : (
+
+          /* Non-Edit Mode - Original Layout */
+          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
 
               {/* Template picker */}
-              {!isEdit && templates.length > 0 && (
-               <div className="bg-violet-50 border border-violet-200 rounded-xl p-4">
+              {!isEdit && templates.length > 0 &&
+            <div className="bg-violet-50 border border-violet-200 rounded-xl p-4">
                  <Label className="text-sm font-semibold text-violet-700 mb-2 block">בחר תבנית (אופציונלי)</Label>
                  <Select value={form.template_id} onValueChange={handleTemplateChange}>
                    <SelectTrigger className="h-10 bg-white border-violet-200">
                      <SelectValue placeholder="בחר תבנית..." />
                    </SelectTrigger>
                    <SelectContent>
-                     {templates.map((t) => (
-                       <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
-                     ))}
+                     {templates.map((t) =>
+                  <SelectItem key={t.id} value={t.id}>{t.name}</SelectItem>
+                  )}
                    </SelectContent>
                  </Select>
                </div>
-              )}
+            }
 
               {/* פרטי משימה */}
               <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
@@ -498,11 +498,11 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                    כותרת המשימה <span className="text-red-500">*</span>
                  </Label>
                  <Input
-                   className="h-10 bg-slate-50 focus:bg-white transition-colors"
-                   placeholder="הזן כותרת מתארת..."
-                   value={form.title}
-                   onChange={(e) => setF("title", e.target.value)}
-                 />
+                  className="h-10 bg-slate-50 focus:bg-white transition-colors"
+                  placeholder="הזן כותרת מתארת..."
+                  value={form.title}
+                  onChange={(e) => setF("title", e.target.value)} />
+
                </div>
 
                {/* תיאור - לא חובה */}
@@ -511,11 +511,11 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                    תיאור <span className="text-slate-400 text-xs font-normal">(אופציונלי)</span>
                  </Label>
                  <Textarea
-                   className="min-h-[80px] resize-none bg-slate-50 focus:bg-white transition-colors"
-                   placeholder="פרט את המשימה, הערות חשובות..."
-                   value={form.description}
-                   onChange={(e) => setF("description", e.target.value)}
-                 />
+                  className="min-h-[80px] resize-none bg-slate-50 focus:bg-white transition-colors"
+                  placeholder="פרט את המשימה, הערות חשובות..."
+                  value={form.description}
+                  onChange={(e) => setF("description", e.target.value)} />
+
                </div>
 
                {/* סוג משימה */}
@@ -528,45 +528,45 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                </div>
 
                {/* עדיפות - תגית בלבד */}
-               {!isEdit && (
-                 <div>
+               {!isEdit &&
+              <div>
                    <Label className="text-sm font-medium text-slate-700 mb-2 block">עדיפות</Label>
                    <div className="flex gap-2">
-                     {PRIORITIES.map((p) => (
-                       <button
-                         key={p}
-                         onClick={() => setF("priority", p)}
-                         className={`transition-all px-3 py-1.5 rounded-lg text-xs font-semibold border-2 ${
-                           form.priority === p
-                             ? PRIORITY_COLOR[p] + " border-current"
-                             : "border-slate-200 bg-white text-slate-600 hover:border-slate-300"
-                         }`}
-                       >
+                     {PRIORITIES.map((p) =>
+                  <button
+                    key={p}
+                    onClick={() => setF("priority", p)}
+                    className={`transition-all px-3 py-1.5 rounded-lg text-xs font-semibold border-2 ${
+                    form.priority === p ?
+                    PRIORITY_COLOR[p] + " border-current" :
+                    "border-slate-200 bg-white text-slate-600 hover:border-slate-300"}`
+                    }>
+
                          {p}
                        </button>
-                     ))}
+                  )}
                    </div>
                  </div>
-               )}
-               {isEdit && (
-                 <div>
+              }
+               {isEdit &&
+              <div>
                    <Label className="text-sm font-medium text-slate-700 mb-2 block">עדיפות</Label>
                    <Badge className={`text-xs font-semibold px-3 py-1.5 ${PRIORITY_COLOR[form.priority]}`}>
                      {form.priority}
                    </Badge>
                  </div>
-               )}
+              }
 
                {/* סטטוס - רק בעריכה */}
-               {isEdit && (
-                 <div>
+               {isEdit &&
+              <div>
                    <Label className="text-sm font-medium text-slate-700 mb-1.5 block">סטטוס</Label>
                    <Select value={form.status} onValueChange={(v) => setF("status", v)}>
                      <SelectTrigger className="h-10 bg-slate-50"><SelectValue /></SelectTrigger>
                      <SelectContent>{STATUSES.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                    </Select>
                  </div>
-               )}
+              }
 
                {/* תאריך יעד */}
                <div>
@@ -574,11 +574,11 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                    תאריך יעד <span className="text-slate-400 text-xs font-normal">(אופציונלי)</span>
                  </Label>
                  <Input
-                   type="datetime-local"
-                   className="h-10 bg-slate-50 focus:bg-white transition-colors"
-                   value={form.due_at}
-                   onChange={(e) => setF("due_at", e.target.value)}
-                 />
+                  type="datetime-local"
+                  className="h-10 bg-slate-50 focus:bg-white transition-colors"
+                  value={form.due_at}
+                  onChange={(e) => setF("due_at", e.target.value)} />
+
                </div>
                </div>
 
@@ -591,10 +591,10 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                <div>
                  <Label className="text-sm font-medium text-slate-700 mb-1.5 block">משתתפים נוספים</Label>
                  <MultiSelectAttendees
-                   users={userOptions}
-                   selected={attendees}
-                   onChange={setAttendees}
-                 />
+                  users={userOptions}
+                  selected={attendees}
+                  onChange={setAttendees} />
+
                </div>
                </div>
 
@@ -605,21 +605,21 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                  קישור לדירה / דייר
                </p>
                <DebtorSelectSearch
-                 debtors={debtors}
-                 value={form.debtor_record_id}
-                 onChange={handleDebtorChange}
-               />
-               {form.apartment_number && (
-                 <div className="flex items-center gap-2 text-xs text-teal-700 bg-teal-50 border border-teal-200 rounded-lg px-3 py-2">
+                debtors={debtors}
+                value={form.debtor_record_id}
+                onChange={handleDebtorChange} />
+
+               {form.apartment_number &&
+              <div className="flex items-center gap-2 text-xs text-teal-700 bg-teal-50 border border-teal-200 rounded-lg px-3 py-2">
                    <span className="font-semibold">דירה {form.apartment_number}</span>
                    {form.owner_name && <span className="text-teal-500">– {form.owner_name}</span>}
                  </div>
-               )}
+              }
                </div>
 
                {/* מחזוריות (רק ביצירה) */}
-               {!isEdit && (
-               <div className={`rounded-xl border p-5 space-y-4 transition-colors ${form.is_recurring ? "bg-blue-50 border-blue-200" : "bg-white border-slate-200"}`}>
+               {!isEdit &&
+            <div className={`rounded-xl border p-5 space-y-4 transition-colors ${form.is_recurring ? "bg-blue-50 border-blue-200" : "bg-white border-slate-200"}`}>
                  <div className="flex items-center justify-between">
                    <div className="flex items-center gap-2">
                      <Repeat2 className={`w-4 h-4 ${form.is_recurring ? "text-blue-600" : "text-slate-400"}`} />
@@ -628,8 +628,8 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                    <Switch checked={form.is_recurring} onCheckedChange={(v) => setF("is_recurring", v)} />
                  </div>
 
-                 {form.is_recurring && (
-                   <div className="space-y-3 pt-1">
+                 {form.is_recurring &&
+              <div className="space-y-3 pt-1">
                      <div className="grid grid-cols-2 gap-3">
                        <div>
                          <Label className="text-xs font-medium text-slate-600 mb-1 block">תדירות</Label>
@@ -643,42 +643,42 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                        <div>
                          <Label className="text-xs font-medium text-slate-600 mb-1 block">כל כמה</Label>
                          <Input
-                           type="number" min={1} className="h-9 bg-white"
-                           value={recurrence.interval_value}
-                           onChange={(e) => setR("interval_value", parseInt(e.target.value) || 1)}
-                         />
+                      type="number" min={1} className="h-9 bg-white"
+                      value={recurrence.interval_value}
+                      onChange={(e) => setR("interval_value", parseInt(e.target.value) || 1)} />
+
                        </div>
                      </div>
 
-                     {recurrence.frequency === "weekly" && (
-                       <div>
+                     {recurrence.frequency === "weekly" &&
+                <div>
                          <Label className="text-xs font-medium text-slate-600 mb-2 block">ימים בשבוע</Label>
                          <div className="flex gap-1.5 flex-wrap">
-                           {DAYS_HE.map((d) => (
-                             <button
-                               key={d.key}
-                               type="button"
-                               onClick={() => {
-                                 const days = recurrence.days_of_week.includes(d.key)
-                                   ? recurrence.days_of_week.filter((x) => x !== d.key)
-                                   : [...recurrence.days_of_week, d.key];
-                                 setR("days_of_week", days);
-                               }}
-                               className={`w-9 h-9 rounded-full text-xs font-semibold transition-all border ${recurrence.days_of_week.includes(d.key) ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-600 border-slate-200 hover:bg-blue-50"}`}
-                             >
+                           {DAYS_HE.map((d) =>
+                    <button
+                      key={d.key}
+                      type="button"
+                      onClick={() => {
+                        const days = recurrence.days_of_week.includes(d.key) ?
+                        recurrence.days_of_week.filter((x) => x !== d.key) :
+                        [...recurrence.days_of_week, d.key];
+                        setR("days_of_week", days);
+                      }}
+                      className={`w-9 h-9 rounded-full text-xs font-semibold transition-all border ${recurrence.days_of_week.includes(d.key) ? "bg-blue-600 text-white border-blue-600" : "bg-white text-slate-600 border-slate-200 hover:bg-blue-50"}`}>
+
                                {d.label}
                              </button>
-                           ))}
+                    )}
                          </div>
                        </div>
-                     )}
+                }
 
-                     {recurrence.frequency === "monthly" && (
-                       <div>
+                     {recurrence.frequency === "monthly" &&
+                <div>
                          <Label className="text-xs font-medium text-slate-600 mb-1 block">יום בחודש</Label>
                          <Input type="number" min={1} max={31} className="h-9 w-24 bg-white" value={recurrence.day_of_month} onChange={(e) => setR("day_of_month", parseInt(e.target.value) || 1)} />
                        </div>
-                     )}
+                }
 
                      <div>
                        <Label className="text-xs font-medium text-slate-600 mb-1 block">סיום</Label>
@@ -691,18 +691,18 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                          </SelectContent>
                        </Select>
                      </div>
-                     {recurrence.ends_mode === "on_date" && (
-                       <Input type="date" className="h-9 bg-white" value={recurrence.ends_at} onChange={(e) => setR("ends_at", e.target.value)} />
-                     )}
-                     {recurrence.ends_mode === "after_count" && (
-                       <Input type="number" min={1} className="h-9 w-28 bg-white" placeholder="מס' פעמים" value={recurrence.max_occurrences} onChange={(e) => setR("max_occurrences", e.target.value)} />
-                     )}
+                     {recurrence.ends_mode === "on_date" &&
+                <Input type="date" className="h-9 bg-white" value={recurrence.ends_at} onChange={(e) => setR("ends_at", e.target.value)} />
+                }
+                     {recurrence.ends_mode === "after_count" &&
+                <Input type="number" min={1} className="h-9 w-28 bg-white" placeholder="מס' פעמים" value={recurrence.max_occurrences} onChange={(e) => setR("max_occurrences", e.target.value)} />
+                }
                    </div>
-                 )}
+              }
                </div>
-               )}
-               </div>
-               )}
+            }
+               </div>)
+          }
         </div>
 
         {/* Footer */}
@@ -714,41 +714,41 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
             <Button variant="outline" onClick={onClose} disabled={saving} className="h-10 px-5">
               ביטול
             </Button>
-            {isEdit && form.status !== "הושלמה" && (
-              <Button
-                className="bg-green-600 hover:bg-green-700 text-white h-10 px-6 font-semibold"
-                onClick={async () => {
-                  setSaving(true);
-                  try {
-                    await updateTask(task.id, { status: "הושלמה", completed_at: new Date().toISOString() });
-                    const actor = {
-                      username: currentUser?.username || "",
-                      name: currentUser?.first_name ? `${currentUser.first_name} ${currentUser.last_name || ""}`.trim() : currentUser?.username || "",
-                    };
-                    await logActivity(task.id, "completed", actor);
-                    queryClient.invalidateQueries({ queryKey: ["taskpro-tasks"] });
-                    setSaving(false);
-                    onClose();
-                  } catch (e) {
-                    setSaving(false);
-                    toast.error("שגיאה בסימון כהושלמה");
-                  }
-                }}
-                disabled={saving}
-              >
+            {isEdit && form.status !== "הושלמה" &&
+            <Button
+              className="bg-green-600 hover:bg-green-700 text-white h-10 px-6 font-semibold"
+              onClick={async () => {
+                setSaving(true);
+                try {
+                  await updateTask(task.id, { status: "הושלמה", completed_at: new Date().toISOString() });
+                  const actor = {
+                    username: currentUser?.username || "",
+                    name: currentUser?.first_name ? `${currentUser.first_name} ${currentUser.last_name || ""}`.trim() : currentUser?.username || ""
+                  };
+                  await logActivity(task.id, "completed", actor);
+                  queryClient.invalidateQueries({ queryKey: ["taskpro-tasks"] });
+                  setSaving(false);
+                  onClose();
+                } catch (e) {
+                  setSaving(false);
+                  toast.error("שגיאה בסימון כהושלמה");
+                }
+              }}
+              disabled={saving}>
+
                 הושלמה
               </Button>
-            )}
+            }
             <Button
               className="bg-blue-600 hover:bg-blue-700 text-white h-10 px-6 font-semibold"
               onClick={handleSave}
-              disabled={saving || !form.title.trim()}
-            >
+              disabled={saving || !form.title.trim()}>
+
               {saving ? "שומר..." : isEdit ? "שמור שינויים" : "צור משימה"}
             </Button>
           </div>
         </div>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 }
