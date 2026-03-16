@@ -69,6 +69,10 @@ export default function MultiSelectAttendees({
             e.preventDefault();
             e.stopPropagation();
           }}
+          onPointerDown={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+          }}
         >
           {/* Search */}
           <div className="p-2 border-b border-slate-100">
