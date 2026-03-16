@@ -1,6 +1,4 @@
-import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { base44 } from '@/api/base44Client';
-import { useQueryClient } from '@tanstack/react-query';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -10,6 +8,7 @@ import { format } from 'date-fns';
 import { Upload } from 'lucide-react';
 import DateTimePicker from '@/components/ui/DateTimePicker';
 import MultiSelectAttendees from '@/components/calendar/MultiSelectAttendees';
+import { base44 } from '@/api/base44Client';
 
 const COLOR_PALETTE = [
   '#3B82F6', '#EF4444', '#10B981', '#F59E0B',
@@ -17,11 +16,9 @@ const COLOR_PALETTE = [
 ];
 
 export default function AppointmentForm({ appointment, selectedDate, onSave, onCancel, isLoading }) {
-  const queryClient = useQueryClient();
   const [users, setUsers] = useState([]);
   const [contacts, setContacts] = useState([]);
   const [dragActive, setDragActive] = useState(false);
-  const [previousAttendeeIds, setPreviousAttendeeIds] = useState([]);
 
   const [formData, setFormData] = useState({
     title: '',
@@ -36,27 +33,19 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
     event_color: '#3B82F6',
     is_recurring: false,
     recurrence_pattern: '',
+    recurrence_interval: 1,
+    recurrence_count: '',
     attendees_users: [],
     attendees_contacts: [],
     attachments: [],
   });
 
-
-
-
-
   useEffect(() => {
     if (appointment) {
-      // נטפל בשני פורמטים: מחרוזות (legacy) ואובייקטים (חדש)
       const normalizedAttendees = (appointment.attendees_users || []).map(attendee => {
         if (typeof attendee === 'object') return attendee;
         return { id: attendee, name: attendee, email: '' };
       });
-
-      // עקוב אחרי IDs של משתתפים הקודמים
-      const prevIds = normalizedAttendees.map(a => String(a.id || a).trim());
-      setPreviousAttendeeIds(prevIds);
-
       setFormData({
         title: appointment.title || '',
         appointment_type: appointment.appointment_type || 'פגישה',
@@ -81,209 +70,73 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         ...prev,
         date: format(selectedDate, 'yyyy-MM-dd'),
       }));
-      setPreviousAttendeeIds([]);
     }
   }, [appointment, selectedDate]);
 
   useEffect(() => {
-    const loadUsers = async () => {
-      try {
-        const usersList = await base44.entities.AppUser.list();
-        setUsers(usersList);
-      } catch (error) {
-        console.error('Failed to load users:', error);
-      }
-    };
-
-    const loadContacts = async () => {
-      try {
-        const contactsList = await base44.entities.Contact.list();
-        setContacts(contactsList);
-      } catch (error) {
-        console.error('Failed to load contacts:', error);
-      }
-    };
-
-    loadUsers();
-    loadContacts();
+    base44.entities.AppUser.list().then(setUsers).catch(console.error);
+    base44.entities.Contact.list().then(setContacts).catch(console.error);
   }, []);
 
   const handleChange = useCallback((field, value) => {
-    setFormData(prev => ({
-      ...prev,
-      [field]: value,
-    }));
+    setFormData(prev => ({ ...prev, [field]: value }));
   }, []);
 
-  const formatUserLabel = useCallback((user) => 
+  const formatUserLabel = useCallback((user) =>
     user.first_name && user.last_name ? `${user.first_name} ${user.last_name}` : user.username,
     []
   );
 
   const formatContactLabel = useCallback((contact) =>
-    `דירה ${contact.apartment_number} - ${contact.owner_name || contact.tenant_name}`,
+    `דירה ${contact.apartment_number} - ${contact.owner_name || contact.tenant_name || ''}`,
     []
   );
-
-  const handleUserToggle = useCallback((userId) => {
-   const user = users.find(u => u.id === userId);
-   setFormData(prev => {
-     const exists = prev.attendees_users.some(u => u.id === userId);
-     return {
-       ...prev,
-       attendees_users: exists
-         ? prev.attendees_users.filter(u => u.id !== userId)
-         : [...prev.attendees_users, {
-             id: userId,
-             name: formatUserLabel(user),
-             email: user.email || ''
-           }],
-     };
-   });
-  }, [users, formatUserLabel]);
-
-  const handleContactToggle = useCallback((contactId) => {
-    setFormData(prev => ({
-      ...prev,
-      attendees_contacts: prev.attendees_contacts.includes(contactId)
-        ? prev.attendees_contacts.filter(c => c !== contactId)
-        : [...prev.attendees_contacts, contactId],
-    }));
-  }, []);
 
   const handleDrag = useCallback((e) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.type === 'dragenter' || e.type === 'dragover') {
-      setDragActive(true);
-    } else if (e.type === 'dragleave') {
-      setDragActive(false);
-    }
+    if (e.type === 'dragenter' || e.type === 'dragover') setDragActive(true);
+    else if (e.type === 'dragleave') setDragActive(false);
   }, []);
 
   const handleDrop = useCallback(async (e) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
-
-    const files = Array.from(e.dataTransfer.files);
-    for (const file of files) {
-      await uploadFile(file);
+    for (const file of Array.from(e.dataTransfer.files)) {
+      const response = await base44.integrations.Core.UploadFile({ file });
+      setFormData(prev => ({ ...prev, attachments: [...prev.attachments, response.file_url] }));
     }
   }, []);
 
   const handleFileSelect = useCallback(async (e) => {
-    const files = Array.from(e.target.files);
-    for (const file of files) {
-      await uploadFile(file);
+    for (const file of Array.from(e.target.files)) {
+      const response = await base44.integrations.Core.UploadFile({ file });
+      setFormData(prev => ({ ...prev, attachments: [...prev.attachments, response.file_url] }));
     }
   }, []);
-
-  const uploadFile = async (file) => {
-    try {
-      const response = await base44.integrations.Core.UploadFile({ file });
-      setFormData(prev => ({
-        ...prev,
-        attachments: [...prev.attachments, response.file_url],
-      }));
-    } catch (error) {
-      console.error('Failed to upload file:', error);
-    }
-  };
 
   const removeAttachment = useCallback((index) => {
-    setFormData(prev => ({
-      ...prev,
-      attachments: prev.attachments.filter((_, i) => i !== index),
-    }));
+    setFormData(prev => ({ ...prev, attachments: prev.attachments.filter((_, i) => i !== index) }));
   }, []);
-
-  const createNotificationsForAppointment = useCallback(async (appointmentTitle, attendeesList, isUpdate = false) => {
-    try {
-      let targetAttendees = attendeesList || [];
-      
-      if (isUpdate && previousAttendeeIds.length > 0) {
-        const currentIds = targetAttendees.map(a => String(a?.id ?? a ?? '').trim());
-        targetAttendees = targetAttendees.filter(a => {
-          const aId = String(a?.id ?? a ?? '').trim();
-          return aId && !previousAttendeeIds.includes(aId);
-        });
-      }
-
-      // dedupe by normalized id
-      const seenIds = new Set();
-      const deduped = targetAttendees.filter(a => {
-        const aId = String(a?.id ?? a ?? '').trim();
-        if (!aId || seenIds.has(aId)) return false;
-        seenIds.add(aId);
-        return true;
-      });
-
-      for (const attendee of deduped) {
-        const userId = attendee?.id ?? attendee;
-        const userIdNorm = String(userId ?? '').trim();
-        if (!userIdNorm) continue;
-
-        // normalize lookup by string comparison
-        const userObj = users.find(u => String(u.id ?? '').trim() === userIdNorm);
-        if (!userObj?.username) continue;
-
-        await base44.entities.Notification.create({
-          user_username: userObj.username,
-          type: 'task_assigned',
-          message: `הוקצתה לך פגישה חדשה: ${appointmentTitle}`,
-          task_id: null,
-          task_type: 'פגישה',
-          assigner_name: 'מערכת',
-          is_read: false,
-        });
-      }
-
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-    } catch (error) {
-      console.error('Failed to create notifications:', error);
-    }
-  }, [users, previousAttendeeIds, queryClient]);
 
   const handleSubmit = useCallback(async (e) => {
     e.preventDefault();
 
-    // Validate recurring appointments
     if (formData.is_recurring) {
-      if (!formData.recurrence_pattern) {
-        alert('אנא בחר תדירות חזרה');
-        return;
-      }
-      if (!formData.recurrence_count || formData.recurrence_count < 1) {
-        alert('אנא הזן מספר חזרות חוקי (לפחות 1)');
-        return;
-      }
+      if (!formData.recurrence_pattern) { alert('אנא בחר תדירות חזרה'); return; }
+      if (!formData.recurrence_count || formData.recurrence_count < 1) { alert('אנא הזן מספר חזרות חוקי (לפחות 1)'); return; }
     }
 
-    // Convert recurrence_count to integer
     const submitData = {
       ...formData,
       recurrence_count: formData.recurrence_count ? parseInt(formData.recurrence_count) : null,
       recurrence_interval: formData.recurrence_interval ? parseInt(formData.recurrence_interval) : 1,
     };
 
-    // בצע save דרך parent callback עם await להחזרת הנתון השמור
-    try {
-      const savedData = await onSave(submitData);
-      // צור notifications מהנתון השמור בפועל, לא מ-formData
-      if (savedData) {
-        const isEdit = !!appointment;
-        const appointmentTitle = savedData.title ?? submitData.title ?? '';
-        const attendeesList = savedData.attendees_users ?? submitData.attendees_users ?? [];
-        await createNotificationsForAppointment(appointmentTitle, attendeesList, isEdit);
-      }
-    } catch (error) {
-      console.error('Failed to save appointment:', error);
-      throw error;
-    }
-  }, [formData, onSave, appointment, createNotificationsForAppointment]);
-
-
+    // AppointmentForm שולחת את הנתונים בלבד — Calendar.jsx אחראי על save + notifications
+    await onSave(submitData);
+  }, [formData, onSave]);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5" dir="rtl">
@@ -305,8 +158,8 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label className="block mb-2 font-bold text-slate-900 text-sm">סוג</Label>
-          <select 
-            value={formData.appointment_type} 
+          <select
+            value={formData.appointment_type}
             onChange={(e) => handleChange('appointment_type', e.target.value)}
             dir="rtl"
             className="w-full h-10 border border-slate-200 rounded-lg px-3 py-2 text-right bg-white text-slate-900 font-medium"
@@ -384,11 +237,10 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         </div>
         {formData.is_recurring && (
           <div className="space-y-4">
-            {/* Pattern Selection */}
             <div>
               <Label className="block mb-2 font-bold text-slate-900 text-sm">תדירות חזרה *</Label>
-              <select 
-                value={formData.recurrence_pattern} 
+              <select
+                value={formData.recurrence_pattern}
                 onChange={(e) => handleChange('recurrence_pattern', e.target.value)}
                 dir="rtl"
                 className="w-full h-10 border border-slate-200 rounded-lg px-3 py-2 text-right bg-white text-slate-900 font-medium"
@@ -400,10 +252,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
                 <option value="שנתי">שנתי</option>
               </select>
             </div>
-
-            {/* Interval & Count Selection - Side by Side */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {/* Interval Selection */}
               <div>
                 <Label htmlFor="recurrence_interval" className="block mb-2 font-bold text-slate-900 text-sm">כל כמה יחידות *</Label>
                 <div className="flex items-center gap-2">
@@ -418,16 +267,13 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
                   />
                   {formData.recurrence_pattern && (
                     <span className="text-slate-700 font-medium text-sm">
-                      {formData.recurrence_pattern === 'יומי' ? 'ימים' : 
+                      {formData.recurrence_pattern === 'יומי' ? 'ימים' :
                        formData.recurrence_pattern === 'שבועי' ? 'שבועות' :
-                       formData.recurrence_pattern === 'חודשי' ? 'חודשים' :
-                       'שנים'}
+                       formData.recurrence_pattern === 'חודשי' ? 'חודשים' : 'שנים'}
                     </span>
                   )}
                 </div>
               </div>
-
-              {/* Recurrence Count */}
               <div>
                 <Label htmlFor="recurrence_count" className="block mb-2 font-bold text-slate-900 text-sm">מספר חזרות *</Label>
                 <input
@@ -442,18 +288,14 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
                 />
               </div>
             </div>
-            {formData.recurrence_count && <p className="text-xs text-slate-500 mt-1.5">לדוגמה: 6 חזרות</p>}
-
-            {/* Preview */}
             {formData.recurrence_pattern && formData.recurrence_count && (
               <div className="bg-blue-100 border border-blue-300 rounded-lg p-3 mt-3">
                 <p className="text-sm text-blue-900 font-medium text-right">
                   האירוע ייווצר {formData.recurrence_count} פעמים,{' '}
                   {formData.recurrence_interval > 1 ? `כל ${formData.recurrence_interval} ` : 'כל '}
-                  {formData.recurrence_pattern === 'יומי' ? 'ימים' : 
+                  {formData.recurrence_pattern === 'יומי' ? 'ימים' :
                    formData.recurrence_pattern === 'שבועי' ? 'שבועות' :
-                   formData.recurrence_pattern === 'חודשי' ? 'חודשים' :
-                   'שנים'}
+                   formData.recurrence_pattern === 'חודשי' ? 'חודשים' : 'שנים'}
                 </p>
               </div>
             )}
@@ -483,8 +325,8 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       <div className="grid grid-cols-2 gap-4">
         <div>
           <Label className="block mb-2 font-bold text-slate-900 text-sm">תזכורת לפני</Label>
-          <select 
-            value={formData.reminder_before} 
+          <select
+            value={formData.reminder_before}
             onChange={(e) => handleChange('reminder_before', e.target.value)}
             dir="rtl"
             className="w-full h-10 border border-slate-200 rounded-lg px-3 py-2 text-right bg-white text-slate-900 font-medium"
@@ -497,8 +339,8 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         </div>
         <div>
           <Label className="block mb-2 font-bold text-slate-900 text-sm">אופן התזכורת</Label>
-          <select 
-            value={formData.reminder_method} 
+          <select
+            value={formData.reminder_method}
             onChange={(e) => handleChange('reminder_method', e.target.value)}
             dir="rtl"
             className="w-full h-10 border border-slate-200 rounded-lg px-3 py-2 text-right bg-white text-slate-900 font-medium"
@@ -511,7 +353,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         </div>
       </div>
 
-      {/* Users - Multi Select */}
+      {/* Users Multi Select */}
       <div>
         <Label className="block mb-1 font-bold text-slate-900 text-sm">משתמשים</Label>
         <MultiSelectAttendees
@@ -519,15 +361,16 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
           items={users}
           selectedIds={formData.attendees_users.map(u => String(u?.id ?? u))}
           onToggle={(userId) => {
-            const user = users.find(u => String(u.id) === String(userId));
+            const normId = String(userId ?? '').trim();
+            const user = users.find(u => String(u.id ?? '').trim() === normId);
             if (!user) return;
             setFormData(prev => {
-              const exists = prev.attendees_users.some(u => String(u?.id ?? u) === String(userId));
+              const exists = prev.attendees_users.some(u => String(u?.id ?? u).trim() === normId);
               return {
                 ...prev,
                 attendees_users: exists
-                  ? prev.attendees_users.filter(u => String(u?.id ?? u) !== String(userId))
-                  : [...prev.attendees_users, { id: userId, name: formatUserLabel(user), email: user.email || '' }],
+                  ? prev.attendees_users.filter(u => String(u?.id ?? u).trim() !== normId)
+                  : [...prev.attendees_users, { id: normId, name: formatUserLabel(user), email: user.email || '' }],
               };
             });
           }}
@@ -537,7 +380,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         />
       </div>
 
-      {/* Contacts - Multi Select */}
+      {/* Contacts Multi Select */}
       {contacts.length > 0 && (
         <div>
           <Label className="block mb-1 font-bold text-slate-900 text-sm">אנשי קשר</Label>
@@ -546,12 +389,16 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
             items={contacts}
             selectedIds={formData.attendees_contacts.map(String)}
             onToggle={(contactId) => {
-              setFormData(prev => ({
-                ...prev,
-                attendees_contacts: prev.attendees_contacts.map(String).includes(String(contactId))
-                  ? prev.attendees_contacts.filter(c => String(c) !== String(contactId))
-                  : [...prev.attendees_contacts, contactId],
-              }));
+              const normId = String(contactId ?? '').trim();
+              setFormData(prev => {
+                const exists = prev.attendees_contacts.map(c => String(c).trim()).includes(normId);
+                return {
+                  ...prev,
+                  attendees_contacts: exists
+                    ? prev.attendees_contacts.filter(c => String(c).trim() !== normId)
+                    : [...prev.attendees_contacts, normId],
+                };
+              });
             }}
             searchPlaceholder="חפש לפי שם או דירה..."
             formatLabel={formatContactLabel}
@@ -560,7 +407,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
         </div>
       )}
 
-      {/* File Upload - Drag & Drop */}
+      {/* File Upload */}
       <div>
         <Label className="block mb-3 font-bold text-slate-900 text-sm">קבצים מצורפים</Label>
         <div
@@ -569,26 +416,16 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
           onDragOver={handleDrag}
           onDrop={handleDrop}
           className={`border-2 border-dashed rounded-xl p-8 text-center transition-all cursor-pointer ${
-            dragActive
-              ? 'border-blue-500 bg-blue-50'
-              : 'border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-blue-50'
+            dragActive ? 'border-blue-500 bg-blue-50' : 'border-slate-300 bg-slate-50 hover:border-blue-400 hover:bg-blue-50'
           }`}
         >
-          <input
-            type="file"
-            multiple
-            onChange={handleFileSelect}
-            className="hidden"
-            id="file-input"
-          />
+          <input type="file" multiple onChange={handleFileSelect} className="hidden" id="file-input" />
           <label htmlFor="file-input" className="cursor-pointer block">
             <Upload className="w-10 h-10 mx-auto mb-2 text-slate-400" />
             <p className="text-sm font-semibold text-slate-700">גרור קבצים לכאן או לחץ לבחירה</p>
             <p className="text-xs text-slate-500 mt-1">תמך בכל סוגי הקבצים</p>
           </label>
         </div>
-
-        {/* Attachments List */}
         {formData.attachments.length > 0 && (
           <div className="mt-4 space-y-2">
             <p className="text-sm font-bold text-slate-700">קבצים מועלים:</p>
@@ -598,13 +435,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
                   <span>📎</span>
                   <span className="text-slate-700 truncate flex-1">{url.split('/').pop()}</span>
                 </div>
-                <button
-                  type="button"
-                  onClick={() => removeAttachment(idx)}
-                  className="text-red-600 hover:text-red-800 text-xs font-semibold"
-                >
-                  הסר
-                </button>
+                <button type="button" onClick={() => removeAttachment(idx)} className="text-red-600 hover:text-red-800 text-xs font-semibold">הסר</button>
               </div>
             ))}
           </div>
@@ -613,9 +444,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
       {/* Actions */}
       <div className="flex gap-3 justify-end pt-6 border-t border-slate-200 mt-8">
-        <Button type="button" variant="outline" onClick={onCancel} className="h-10 px-6">
-          ביטול
-        </Button>
+        <Button type="button" variant="outline" onClick={onCancel} className="h-10 px-6">ביטול</Button>
         <Button type="submit" disabled={isLoading} className="bg-blue-600 hover:bg-blue-700 text-white h-10 px-6">
           {isLoading ? 'שומר...' : appointment ? 'עדכן' : 'צור'}
         </Button>

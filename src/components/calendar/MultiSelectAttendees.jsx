@@ -1,5 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Input } from '@/components/ui/input';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { ChevronDown, X } from 'lucide-react';
 
 export default function MultiSelectAttendees({
@@ -13,18 +12,28 @@ export default function MultiSelectAttendees({
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const containerRef = useRef(null);
+  const triggerRef = useRef(null);
+  const panelRef = useRef(null);
 
-  // סגור רק בלחיצה מחוץ לcontainer
+  // סגירה רק בלחיצה מחוץ לטריגר ומחוץ לפאנל
   useEffect(() => {
-    const handleClickOutside = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
-        setIsOpen(false);
-        setSearchTerm('');
+    const handleOutside = (e) => {
+      const target = e.target;
+      if (
+        triggerRef.current?.contains(target) ||
+        panelRef.current?.contains(target)
+      ) {
+        return; // לחיצה בתוך הרכיב — לא סוגרים
       }
+      setIsOpen(false);
+      setSearchTerm('');
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    document.addEventListener('mousedown', handleOutside);
+    document.addEventListener('pointerdown', handleOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleOutside);
+      document.removeEventListener('pointerdown', handleOutside);
+    };
   }, []);
 
   const filteredItems = items.filter(item =>
@@ -32,27 +41,30 @@ export default function MultiSelectAttendees({
   );
 
   const selectedItems = items.filter(item => {
-    const id = String(item.id || item.email || '');
-    return selectedIds.includes(id);
+    const id = String(item.id ?? item.email ?? '').trim();
+    return selectedIds.map(s => String(s).trim()).includes(id);
   });
 
+  const handleToggle = useCallback((itemId) => {
+    const normalizedId = String(itemId ?? '').trim();
+    if (!normalizedId) return;
+    onToggle(normalizedId);
+  }, [onToggle]);
+
   return (
-    <div ref={containerRef} className="relative w-full" dir="rtl">
+    <div className="relative w-full" dir="rtl">
       {label && (
         <label className="text-sm font-medium text-slate-700 block mb-2">
           {label}
         </label>
       )}
 
-      {/* Trigger Button */}
+      {/* Trigger */}
       <button
+        ref={triggerRef}
         type="button"
-        onMouseDown={(e) => {
-          e.preventDefault();
-          e.stopPropagation();
-          setIsOpen(prev => !prev);
-        }}
-        className="w-full border border-slate-200 rounded-lg px-3 h-10 text-right flex items-center justify-between hover:border-slate-300 bg-white transition-colors"
+        onClick={() => setIsOpen(prev => !prev)}
+        className="w-full border border-slate-200 rounded-lg px-3 h-10 text-right flex items-center justify-between hover:border-blue-400 bg-white transition-colors"
       >
         <ChevronDown className={`w-4 h-4 text-slate-400 flex-shrink-0 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
         <span className="text-slate-600 text-sm">
@@ -60,19 +72,14 @@ export default function MultiSelectAttendees({
         </span>
       </button>
 
-      {/* Dropdown Panel — onMouseDown עם preventDefault על כל הPanel */}
+      {/* Panel — stopPropagation על mousedown + pointerdown כדי לבלום כל listener חיצוני */}
       {isOpen && (
         <div
-          className="absolute top-full right-0 left-0 mt-1 bg-white border border-slate-200 rounded-lg shadow-xl z-[9999]"
-          onMouseDown={(e) => {
-            // מונע את סגירת הdropdown בכל לחיצה בתוך הpanel
-            e.preventDefault();
-            e.stopPropagation();
-          }}
-          onPointerDown={(e) => {
-            e.preventDefault();
-            e.stopPropagation();
-          }}
+          ref={panelRef}
+          className="absolute top-full right-0 left-0 mt-1 bg-white border border-slate-200 rounded-xl shadow-2xl z-[9999]"
+          onMouseDown={(e) => { e.stopPropagation(); }}
+          onPointerDown={(e) => { e.stopPropagation(); }}
+          onClick={(e) => { e.stopPropagation(); }}
         >
           {/* Search */}
           <div className="p-2 border-b border-slate-100">
@@ -84,24 +91,38 @@ export default function MultiSelectAttendees({
               dir="rtl"
               className="w-full h-9 px-3 text-sm border border-slate-200 rounded-lg outline-none focus:border-blue-400 bg-slate-50"
               autoFocus
+              onMouseDown={(e) => e.stopPropagation()}
+              onPointerDown={(e) => e.stopPropagation()}
             />
           </div>
 
-          {/* Items */}
+          {/* Items List */}
           <div className="max-h-52 overflow-y-auto p-1">
             {filteredItems.length > 0 ? (
               filteredItems.map((item) => {
-                const itemId = String(item.id || item.email || '');
-                const isSelected = selectedIds.includes(itemId);
+                const itemId = String(item.id ?? item.email ?? '').trim();
+                const isSelected = selectedIds.map(s => String(s).trim()).includes(itemId);
                 return (
                   <div
                     key={itemId}
-                    onClick={() => onToggle(itemId)}
-                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer transition-colors ${
+                    onMouseDown={(e) => {
+                      // מונע focus-race ואירועי document
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onPointerDown={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                    }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleToggle(itemId);
+                    }}
+                    className={`flex items-center gap-3 px-3 py-2.5 rounded-lg cursor-pointer select-none transition-colors ${
                       isSelected ? 'bg-blue-50 text-blue-700' : 'hover:bg-slate-50 text-slate-700'
                     }`}
                   >
-                    {/* Checkbox ויזואלי בלבד */}
+                    {/* Checkbox ויזואלי — ללא רכיב Radix */}
                     <div className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${
                       isSelected ? 'bg-blue-600 border-blue-600' : 'border-slate-300'
                     }`}>
@@ -120,7 +141,6 @@ export default function MultiSelectAttendees({
                       {formatLabel(item)[0]}
                     </div>
 
-                    {/* Label */}
                     <span className="text-sm truncate">{formatLabel(item)}</span>
                   </div>
                 );
@@ -132,11 +152,11 @@ export default function MultiSelectAttendees({
         </div>
       )}
 
-      {/* Tags of selected items */}
+      {/* Tags */}
       {selectedItems.length > 0 && (
         <div className="mt-2 flex flex-wrap gap-1.5">
           {selectedItems.map((item) => {
-            const itemId = String(item.id || item.email || '');
+            const itemId = String(item.id ?? item.email ?? '').trim();
             return (
               <div
                 key={itemId}
@@ -152,8 +172,9 @@ export default function MultiSelectAttendees({
                 <button
                   type="button"
                   onMouseDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
-                  onClick={() => onToggle(itemId)}
-                  className="text-blue-500 hover:text-blue-800 ml-0.5"
+                  onPointerDown={(e) => { e.preventDefault(); e.stopPropagation(); }}
+                  onClick={(e) => { e.stopPropagation(); handleToggle(itemId); }}
+                  className="text-blue-400 hover:text-blue-800 mr-0.5"
                 >
                   <X className="w-3 h-3" />
                 </button>
