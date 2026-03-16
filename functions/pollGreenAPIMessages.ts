@@ -11,25 +11,58 @@ Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
 
-    // קבל פרטי Green API מה-Settings או env
-    let instanceId = Deno.env.get('GREEN_API_INSTANCE_ID');
-    let token = Deno.env.get('GREEN_API_TOKEN');
+    // קבל פרטי Green API: ראשית מ-Settings, אחרי כן fallback ל-env
+    let instanceId = null;
+    let token = null;
+    let credentialsSource = 'unknown';
 
+    // 1. קרא מ-Settings entity (מקור האמת הראשי)
     try {
       const settingsList = await base44.asServiceRole.entities.Settings.list();
       if (settingsList.length > 0) {
         const s = settingsList[0];
-        if (s.greenApiInstanceId) instanceId = s.greenApiInstanceId;
-        if (s.greenApiToken) token = s.greenApiToken;
+        if (s.greenApiInstanceId && s.greenApiToken) {
+          instanceId = s.greenApiInstanceId;
+          token = s.greenApiToken;
+          credentialsSource = 'Settings Entity';
+        }
       }
-    } catch { /* fallback to env */ }
-
-    if (!instanceId || !token) {
-      console.error('[POLL] ❌ Green API credentials NOT configured - missing instanceId or token');
-      return Response.json({ error: 'Green API credentials not configured' }, { status: 500 });
+    } catch (err) {
+      console.warn('[POLL] ⚠️ Failed to fetch from Settings entity:', err.message);
     }
 
-    console.log(`[POLL] ✓ Green API Credentials loaded:`);
+    // 2. Fallback ל-env variables אם חסר מ-Settings
+    if (!instanceId) {
+      const envInstanceId = Deno.env.get('GREEN_API_INSTANCE_ID');
+      if (envInstanceId) {
+        instanceId = envInstanceId;
+        credentialsSource = 'Environment Variable (GREEN_API_INSTANCE_ID)';
+      }
+    }
+    if (!token) {
+      const envToken = Deno.env.get('GREEN_API_TOKEN');
+      if (envToken) {
+        token = envToken;
+        if (credentialsSource === 'Environment Variable (GREEN_API_INSTANCE_ID)') {
+          credentialsSource = 'Environment Variables (both)';
+        } else {
+          credentialsSource = 'Environment Variable (GREEN_API_TOKEN)';
+        }
+      }
+    }
+
+    // 3. אם עדיין חסר - שגיאה ברורה
+    if (!instanceId || !token) {
+      const missingFields = [];
+      if (!instanceId) missingFields.push('GREEN_API_INSTANCE_ID / Settings.greenApiInstanceId');
+      if (!token) missingFields.push('GREEN_API_TOKEN / Settings.greenApiToken');
+      
+      const errorMsg = `Missing Green API credentials: ${missingFields.join(', ')}`;
+      console.error(`[POLL] ❌ ${errorMsg}`);
+      return Response.json({ error: errorMsg }, { status: 500 });
+    }
+
+    console.log(`[POLL] ✓ Green API Credentials loaded from: ${credentialsSource}`);
     console.log(`  - Instance ID: ${instanceId}`);
     console.log(`  - Token length: ${token.length} chars`);
     console.log(`  - First 8 chars of token: ${token.substring(0, 8)}...`);
