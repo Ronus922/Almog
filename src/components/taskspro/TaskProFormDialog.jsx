@@ -716,8 +716,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
             </Button>
             {isEdit && form.status !== "הושלמה" && (
               <Button
-                variant="outline"
-                className="h-10 px-5 text-green-600 border-green-300 hover:bg-green-50"
+                className="bg-green-600 hover:bg-green-700 text-white h-10 px-6 font-semibold"
                 onClick={async () => {
                   setSaving(true);
                   try {
@@ -737,7 +736,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                 }}
                 disabled={saving}
               >
-                סמן כהושלמה
+                הושלמה
               </Button>
             )}
             <Button
