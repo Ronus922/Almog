@@ -74,7 +74,11 @@ export default function NotificationBell({ currentUser }) {
     setOpen(o => !o);
   };
 
-  const typeIcon = (type) => type === 'task_due_soon' ? '⏰' : '📋';
+  const typeIcon = (type) => {
+    if (type === 'task_due_soon' || type === 'task_pro_due_soon') return '⏰';
+    if (type === 'task_pro_completed') return '✅';
+    return '📋';
+  };
 
   const formatDate = (dt) => {
     if (!dt) return '';
