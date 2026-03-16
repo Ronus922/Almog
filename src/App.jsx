@@ -170,6 +170,7 @@ window.documentService = {
 };
 
 import Tasks from "./pages/Tasks.jsx";
+import TasksProPage from "./pages/TasksProPage.jsx";
 import WhatsAppTemplates from "./pages/WhatsAppTemplates";
 import Contacts from "./pages/Contacts.jsx";
 import WhatsAppChat from "./pages/WhatsAppChat.jsx";
