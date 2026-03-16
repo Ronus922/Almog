@@ -280,6 +280,12 @@ export default function WhatsAppChat() {
     .filter((conv) => {
       const q = searchQuery.toLowerCase();
       if (conv._isUnlinked) return conv.phone?.includes(q) || q === '';
+      if (conv._isSupplier) {
+        return (
+          (conv.company_name || '').toLowerCase().includes(q) ||
+          (conv.contact_person_name || '').toLowerCase().includes(q)
+        );
+      }
       return (
         (conv.owner_name || '').toLowerCase().includes(q) ||
         (conv.tenant_name || '').toLowerCase().includes(q) ||
@@ -287,6 +293,11 @@ export default function WhatsAppChat() {
       );
     })
     .filter((conv) => conv.lastMessageTime !== null) // הצג רק שיחות עם פעילות
+    .filter((conv) => {
+      // פילטר קבוצות
+      if (groupFilter === 'all') return true;
+      return getConvGroup(conv) === groupFilter;
+    })
     .sort((a, b) => {
       const tA = a.lastMessageTime ? new Date(a.lastMessageTime) : new Date(0);
       const tB = b.lastMessageTime ? new Date(b.lastMessageTime) : new Date(0);
