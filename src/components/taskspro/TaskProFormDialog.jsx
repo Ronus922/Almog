@@ -754,10 +754,21 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                 variant="outline"
                 className="h-10 px-5 text-green-600 border-green-300 hover:bg-green-50"
                 onClick={async () => {
-                  await handleSave();
-                  await updateTask(task.id, { status: "הושלמה", completed_at: new Date().toISOString() });
-                  queryClient.invalidateQueries({ queryKey: ["taskpro-tasks"] });
-                  onClose();
+                  setSaving(true);
+                  try {
+                    await updateTask(task.id, { status: "הושלמה", completed_at: new Date().toISOString() });
+                    const actor = {
+                      username: currentUser?.username || "",
+                      name: currentUser?.first_name ? `${currentUser.first_name} ${currentUser.last_name || ""}`.trim() : currentUser?.username || "",
+                    };
+                    await logActivity(task.id, "completed", actor);
+                    queryClient.invalidateQueries({ queryKey: ["taskpro-tasks"] });
+                    setSaving(false);
+                    onClose();
+                  } catch (e) {
+                    setSaving(false);
+                    toast.error("שגיאה בסימון כהושלמה");
+                  }
                 }}
                 disabled={saving}
               >
