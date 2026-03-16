@@ -89,7 +89,7 @@ Deno.serve(async (req) => {
           senderPhone = '0' + senderPhone.substring(3);
         }
 
-        console.log(`[POLL] Incoming from: ${senderPhone}`);
+        console.log(`[POLL] 📨 Incoming from: ${senderPhone} (sender=${senderRaw})`);
 
         // חלץ תוכן ההודעה לפי סוג
         let content = '';
@@ -98,20 +98,26 @@ Deno.serve(async (req) => {
 
         if (msgData.typeMessage === 'textMessage') {
           content = msgData.textMessageData?.textMessage || '';
+          console.log(`[POLL] Message type: textMessage, content: "${content.substring(0, 50)}..."`);
         } else if (msgData.typeMessage === 'imageMessage') {
           content = msgData.imageMessageData?.downloadUrl || msgData.imageMessageData?.jpegThumbnail || '';
           message_type = 'image';
+          console.log(`[POLL] Message type: imageMessage`);
         } else if (msgData.typeMessage === 'documentMessage') {
           content = msgData.documentMessageData?.downloadUrl || msgData.documentMessageData?.fileName || '';
           message_type = 'document';
+          console.log(`[POLL] Message type: documentMessage`);
         } else if (msgData.typeMessage === 'extendedTextMessage') {
           content = msgData.extendedTextMessageData?.text || '';
+          console.log(`[POLL] Message type: extendedTextMessage, content: "${content.substring(0, 50)}..."`);
         } else if (msgData.typeMessage === 'audioMessage' || msgData.typeMessage === 'voiceMessage') {
           content = msgData.audioMessageData?.downloadUrl || msgData.fileMessageData?.downloadUrl || '';
           message_type = 'document';
+          console.log(`[POLL] Message type: audioMessage/voiceMessage`);
         }
 
         const timestamp = new Date((body.timestamp || Date.now() / 1000) * 1000).toISOString();
+        console.log(`[POLL] Timestamp: ${timestamp}`);
 
         // חפש איש קשר מתאים לפי טלפון
         const senderPhoneClean = senderPhone.replace(/[^0-9]/g, '');
