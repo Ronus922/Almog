@@ -21,13 +21,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
   const [users, setUsers] = useState([]);
   const [contacts, setContacts] = useState([]);
   const [dragActive, setDragActive] = useState(false);
-  const [showUserSearch, setShowUserSearch] = useState(false);
-  const [showContactSearch, setShowContactSearch] = useState(false);
-  const [userSearchTerm, setUserSearchTerm] = useState('');
-  const [contactSearchTerm, setContactSearchTerm] = useState('');
   const [previousAttendeeIds, setPreviousAttendeeIds] = useState([]);
-  const userDropdownRef = useRef(null);
-  const contactDropdownRef = useRef(null);
 
   const [formData, setFormData] = useState({
     title: '',
