@@ -31,30 +31,25 @@ function SortHeader({ label, field, sortField, sortDir, onSort }) {
   const active = sortField === field;
   return (
     <th
-      className={`text-right px-4 py-3.5 font-semibold cursor-pointer select-none hover:bg-slate-100 transition-colors whitespace-nowrap text-xs uppercase tracking-wide ${active ? "text-blue-600" : "text-slate-500"}`}
+      className="text-right px-4 py-3 font-semibold text-slate-600 cursor-pointer select-none hover:bg-slate-100 transition-colors whitespace-nowrap"
       onClick={() => onSort(field)}
     >
       <span className="inline-flex items-center gap-1">
         {label}
         {active
-          ? sortDir === "asc" ? <ChevronUp className="w-3 h-3 text-blue-600" /> : <ChevronDown className="w-3 h-3 text-blue-600" />
-          : <ChevronsUpDown className="w-3 h-3 text-slate-300" />}
+          ? sortDir === "asc" ? <ChevronUp className="w-3.5 h-3.5 text-blue-600" /> : <ChevronDown className="w-3.5 h-3.5 text-blue-600" />
+          : <ChevronsUpDown className="w-3.5 h-3.5 text-slate-300" />}
       </span>
     </th>
   );
 }
-
-const ASSIGNED_BY_DISPLAY = (name, email) => {
-  if (email === "r@bios.co.il" || name === "r@bios.co.il") return "רונן משולם";
-  return name || email || "—";
-};
 
 export default function TaskProTable({
   tasks = [], isLoading, sortField, sortDir, onSort,
   onRowClick, onEdit, onDelete, onArchive, onUnarchive,
   onUpdateStatus, onUpdatePriority,
   selectedIds, onToggleSelect, onToggleSelectAll,
-  isAdmin, attendeesMap = {}, currentUsername = ""
+  isAdmin, attendeesMap = {}
 }) {
   const today = getTodayStr();
 
@@ -85,10 +80,10 @@ export default function TaskProTable({
 
   return (
     <div className="overflow-x-auto" dir="rtl">
-      <table className="w-full text-sm border-collapse">
+      <table className="w-full text-sm">
         <thead>
-          <tr className="bg-gradient-to-l from-slate-100 to-slate-50 border-b-2 border-slate-200">
-            <th className="px-4 py-3.5 w-10">
+          <tr className="bg-slate-50 border-b border-slate-200">
+            <th className="px-4 py-3 w-10">
               <Checkbox
                 checked={allSelected}
                 onCheckedChange={(v) => onToggleSelectAll(v)}
@@ -96,28 +91,26 @@ export default function TaskProTable({
             </th>
             <SortHeader label="כותרת / משימה" field="title" sortField={sortField} sortDir={sortDir} onSort={onSort} />
             <SortHeader label="משויך" field="assigned_to_name" sortField={sortField} sortDir={sortDir} onSort={onSort} />
-            <th className="text-right px-4 py-3.5 font-semibold text-slate-600 whitespace-nowrap text-xs uppercase tracking-wide">משתתפים</th>
+            <th className="text-right px-4 py-3 font-semibold text-slate-600 whitespace-nowrap">משתתפים</th>
             <SortHeader label="תאריך יעד" field="due_at" sortField={sortField} sortDir={sortDir} onSort={onSort} />
             <SortHeader label="עדיפות" field="priority" sortField={sortField} sortDir={sortDir} onSort={onSort} />
             <SortHeader label="סטטוס" field="status" sortField={sortField} sortDir={sortDir} onSort={onSort} />
-            <th className="text-right px-4 py-3.5 font-semibold text-slate-600 whitespace-nowrap text-xs uppercase tracking-wide">מקור</th>
-            <th className="text-right px-4 py-3.5 font-semibold text-slate-600 w-10"></th>
+            <th className="text-right px-4 py-3 font-semibold text-slate-600 whitespace-nowrap">מקור</th>
+            <th className="text-right px-4 py-3 font-semibold text-slate-600 w-10"></th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
-          {tasks.map((task, idx) => {
+          {tasks.map((task) => {
             const isOverdue = task.due_at && task.due_at.slice(0,10) < today && task.status !== "הושלמה" && task.status !== "בוטלה";
             const attendees = attendeesMap[task.id] || [];
-            const canEditPriority = task.created_by === currentUsername || !task.created_by;
 
             return (
               <tr
                 key={task.id}
-                className={`transition-all cursor-pointer group ${
-                  task.is_archived ? "opacity-50 bg-slate-50/80" :
-                  isOverdue ? "bg-red-50/40 hover:bg-red-50/70" :
-                  idx % 2 === 0 ? "bg-white hover:bg-blue-50/30" : "bg-slate-50/40 hover:bg-blue-50/30"
-                } ${selectedIds.has(task.id) ? "!bg-blue-50 ring-1 ring-inset ring-blue-200" : ""}`}
+                className={`transition-colors cursor-pointer ${
+                  task.is_archived ? "opacity-60 bg-slate-50" :
+                  isOverdue ? "bg-red-50/60 hover:bg-red-50" : "hover:bg-blue-50/30"
+                } ${selectedIds.has(task.id) ? "bg-blue-50/50" : ""}`}
                 onClick={() => onRowClick(task)}
               >
                 <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
@@ -143,17 +136,8 @@ export default function TaskProTable({
                   </div>
                 </td>
 
-                <td className="px-4 py-3 whitespace-nowrap">
-                  <div className="flex flex-col gap-0.5">
-                    <span className="font-medium text-slate-700 text-sm">
-                      {ASSIGNED_BY_DISPLAY(task.assigned_to_name, task.assigned_to)}
-                    </span>
-                    {task.assigned_by && (
-                      <span className="text-xs text-slate-400">
-                        ע"י {ASSIGNED_BY_DISPLAY(task.assigned_by_name, task.assigned_by)}
-                      </span>
-                    )}
-                  </div>
+                <td className="px-4 py-3 text-slate-700 whitespace-nowrap">
+                  {task.assigned_to_name || task.assigned_to || "—"}
                 </td>
 
                 <td className="px-4 py-3">
@@ -178,27 +162,21 @@ export default function TaskProTable({
                 </td>
 
                 <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                  {canEditPriority ? (
-                    <Select value={task.priority} onValueChange={(v) => onUpdatePriority(task.id, v)}>
-                      <SelectTrigger className={`w-24 h-7 text-xs font-semibold border rounded-full ${PRIORITY_STYLE[task.priority] || ""}`}>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {["גבוהה","בינונית","נמוכה"].map((p) => (
-                          <SelectItem key={p} value={p}>{p}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  ) : (
-                    <span className={`inline-block text-xs font-semibold px-2.5 py-1 rounded-full border ${PRIORITY_STYLE[task.priority] || ""}`}>
-                      {task.priority}
-                    </span>
-                  )}
+                  <Select value={task.priority} onValueChange={(v) => onUpdatePriority(task.id, v)}>
+                    <SelectTrigger className={`w-24 h-7 text-xs font-semibold border ${PRIORITY_STYLE[task.priority] || ""}`}>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {["גבוהה","בינונית","נמוכה"].map((p) => (
+                        <SelectItem key={p} value={p}>{p}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </td>
 
                 <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                   <Select value={task.status} onValueChange={(v) => onUpdateStatus(task.id, v)}>
-                    <SelectTrigger className={`w-28 h-7 text-xs font-semibold border rounded-full ${STATUS_STYLE[task.status] || ""}`}>
+                    <SelectTrigger className={`w-28 h-7 text-xs font-semibold border ${STATUS_STYLE[task.status] || ""}`}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -217,22 +195,22 @@ export default function TaskProTable({
                 </td>
 
                 <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                  <div className="flex items-center gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button onClick={() => onEdit(task)} className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all">
-                      <Pencil className="w-3.5 h-3.5" />
+                  <div className="flex items-center gap-1.5 justify-end">
+                    <button onClick={() => onEdit(task)} className="text-slate-300 hover:text-blue-600 transition-colors">
+                      <Pencil className="w-4 h-4" />
                     </button>
                     {task.is_archived ? (
-                      <button onClick={() => onUnarchive(task)} className="p-1.5 rounded-lg text-slate-400 hover:text-green-600 hover:bg-green-50 transition-all">
-                        <RotateCcw className="w-3.5 h-3.5" />
+                      <button onClick={() => onUnarchive(task)} className="text-slate-300 hover:text-green-600 transition-colors">
+                        <RotateCcw className="w-4 h-4" />
                       </button>
                     ) : (
-                      <button onClick={() => onArchive(task)} className="p-1.5 rounded-lg text-slate-400 hover:text-orange-500 hover:bg-orange-50 transition-all">
-                        <Archive className="w-3.5 h-3.5" />
+                      <button onClick={() => onArchive(task)} className="text-slate-300 hover:text-orange-500 transition-colors">
+                        <Archive className="w-4 h-4" />
                       </button>
                     )}
                     {isAdmin && (
-                      <button onClick={() => onDelete(task.id)} className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all">
-                        <Trash2 className="w-3.5 h-3.5" />
+                      <button onClick={() => onDelete(task.id)} className="text-slate-300 hover:text-red-500 transition-colors">
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     )}
                   </div>
