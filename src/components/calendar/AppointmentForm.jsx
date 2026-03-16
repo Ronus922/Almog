@@ -588,19 +588,26 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
 
               <div className="max-h-56 overflow-y-auto p-2">
                 {filteredUsers.length > 0 ? (
-                  filteredUsers.map((user) => (
-                    <div 
-                      key={user.id} 
-                      className="flex items-center gap-3 p-2 hover:bg-slate-50 rounded cursor-pointer transition-colors" 
-                      dir="rtl"
-                    >
-                      <Checkbox
-                        checked={formData.attendees_users.some(u => u.id === user.id)}
-                        onCheckedChange={() => handleUserToggle(user.id)}
-                      />
-                      <span className="text-sm text-slate-700">{formatUserLabel(user)}</span>
-                    </div>
-                  ))
+                  filteredUsers.map((user) => {
+                    const isSelected = formData.attendees_users.some(u => u.id === user.id);
+                    return (
+                      <div 
+                        key={user.id} 
+                        className={`flex items-center gap-3 p-2 rounded cursor-pointer transition-colors ${isSelected ? 'bg-blue-50' : 'hover:bg-slate-50'}`}
+                        dir="rtl"
+                        onMouseDown={(e) => e.preventDefault()}
+                        onClick={() => handleUserToggle(user.id)}
+                      >
+                        <Checkbox
+                          checked={isSelected}
+                          onCheckedChange={() => handleUserToggle(user.id)}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                        <span className="text-sm text-slate-700 flex-1 select-none">{formatUserLabel(user)}</span>
+                        {isSelected && <span className="text-blue-500 text-xs font-bold">✓</span>}
+                      </div>
+                    );
+                  })
                 ) : (
                   <p className="text-sm text-slate-500 text-center py-3">לא נמצאו משתמשים</p>
                 )}
