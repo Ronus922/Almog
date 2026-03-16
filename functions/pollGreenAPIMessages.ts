@@ -23,8 +23,14 @@ Deno.serve(async (req) => {
     } catch { /* fallback to env */ }
 
     if (!instanceId || !token) {
+      console.error('[POLL] ❌ Green API credentials NOT configured - missing instanceId or token');
       return Response.json({ error: 'Green API credentials not configured' }, { status: 500 });
     }
+
+    console.log(`[POLL] ✓ Green API Credentials loaded:`);
+    console.log(`  - Instance ID: ${instanceId}`);
+    console.log(`  - Token length: ${token.length} chars`);
+    console.log(`  - First 8 chars of token: ${token.substring(0, 8)}...`);
 
     // קבל את כל אנשי הקשר פעם אחת
     const contacts = await base44.asServiceRole.entities.Contact.filter({});
