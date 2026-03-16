@@ -161,6 +161,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
       owner_name: form.owner_name,
       source: form.source,
       template_id: form.template_id || null,
+      manual_order: task?.manual_order || 0,
     };
 
     let saved;
