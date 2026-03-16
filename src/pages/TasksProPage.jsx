@@ -261,9 +261,10 @@ export default function TasksProPage() {
 
   const openNew = () => { setEditTask(null); setShowForm(true); };
   const openEdit = (task) => { setEditTask(task); setShowForm(true); setDetailTask(null); };
+  const handleRowClick = (task) => { openEdit(task); };
   const handleCompleteTask = async (task) => {
     await statusMutation.mutateAsync({ id: task.id, status: "הושלמה" });
-    setDetailTask(null);
+    setShowForm(false);
   };
 
   return (
