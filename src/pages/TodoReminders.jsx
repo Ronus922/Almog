@@ -234,17 +234,16 @@ export default function TodoReminders() {
 
       <div className="max-w-6xl mx-auto px-4 md:px-8 py-6">
         {/* Filter Tabs */}
-          <div className="flex gap-3 mb-6 overflow-x-auto pb-2">
+          <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm mb-6 w-fit">
             {FILTERS.map((f) =>
             <button
               key={f.key}
               onClick={() => setActiveFilter(f.key)}
-              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap flex-shrink-0 ${
+              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap ${
               activeFilter === f.key ?
-              'bg-blue-600 text-white shadow-md hover:shadow-lg' :
-              'bg-white text-slate-600 border border-slate-200 hover:bg-slate-50 hover:border-slate-300'}`
+              'bg-blue-600 text-white shadow-sm' :
+              'text-slate-600 hover:bg-slate-100'}`
               }>
-
                 {f.label}
               </button>
             )}
