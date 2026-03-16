@@ -279,7 +279,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
             /* Tabs in Edit Mode */
             <div className="flex-1 flex flex-col">
               <div className="flex items-center gap-0 border-b border-slate-200 bg-white px-6">
-                {["details", "comments", "attachments"].map((tab) => (
+                {["details", "attendees", "comments", "attachments"].map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setActiveTab(tab)}
@@ -290,6 +290,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                     }`}
                   >
                     {tab === "details" && <><ClipboardList className="w-4 h-4" /> פרטי משימה</>}
+                    {tab === "attendees" && <><Users className="w-4 h-4" /> משתתפים</>}
                     {tab === "comments" && <><MessageSquare className="w-4 h-4" /> הערות ({comments.length})</>}
                     {tab === "attachments" && <><Paperclip className="w-4 h-4" /> קבצים ({attachments.length})</>}
                   </button>
