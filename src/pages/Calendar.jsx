@@ -354,6 +354,9 @@ export default function Calendar() {
   };
 
   const handleAppointmentClick = (appointment) => {
+    // שמור את רשימת המשתתפים הנוכחיים לצורך delta בעת עריכה
+    const prevIds = (appointment.attendees_users || []).map(a => String(a?.id ?? a ?? '').trim()).filter(Boolean);
+    previousAttendeeIdsRef.current = prevIds;
     setSelectedAppointment(appointment);
   };
 
