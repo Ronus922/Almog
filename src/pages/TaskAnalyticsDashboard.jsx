@@ -233,8 +233,50 @@ export default function TaskAnalyticsDashboard() {
           </CardContent>
         </Card>
 
-        {/* KPI Cards */}
+        {/* KPI Cards - Building Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="pt-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm font-medium text-purple-700 mb-1">סך הכל חובות בבניין</p>
+                  <p className="text-3xl font-bold text-purple-900">₪{(buildingMetrics.totalDebt / 1000).toFixed(0)}K</p>
+                </div>
+                <div className="w-12 h-12 rounded-lg bg-purple-200 flex items-center justify-center">
+                  <TrendingUp className="w-6 h-6 text-purple-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="pt-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm font-medium text-cyan-700 mb-1">פגישות פעילות</p>
+                  <p className="text-3xl font-bold text-cyan-900">{buildingMetrics.activeAppointments}</p>
+                </div>
+                <div className="w-12 h-12 rounded-lg bg-cyan-200 flex items-center justify-center">
+                  <Calendar className="w-6 h-6 text-cyan-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+            <CardContent className="pt-6">
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-sm font-medium text-green-700 mb-1">הודעות וואטסאפ ממתינות</p>
+                  <p className="text-3xl font-bold text-green-900">{buildingMetrics.pendingMessages}</p>
+                </div>
+                <div className="w-12 h-12 rounded-lg bg-green-200 flex items-center justify-center">
+                  <MessageCircle className="w-6 h-6 text-green-600" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
           <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="pt-6">
               <div className="flex items-start justify-between">
