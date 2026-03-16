@@ -217,22 +217,22 @@ export default function TaskProTable({
                 </td>
 
                 <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                  <div className="flex items-center gap-1.5 justify-end">
-                    <button onClick={() => onEdit(task)} className="text-slate-300 hover:text-blue-600 transition-colors">
-                      <Pencil className="w-4 h-4" />
+                  <div className="flex items-center gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button onClick={() => onEdit(task)} className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 transition-all">
+                      <Pencil className="w-3.5 h-3.5" />
                     </button>
                     {task.is_archived ? (
-                      <button onClick={() => onUnarchive(task)} className="text-slate-300 hover:text-green-600 transition-colors">
-                        <RotateCcw className="w-4 h-4" />
+                      <button onClick={() => onUnarchive(task)} className="p-1.5 rounded-lg text-slate-400 hover:text-green-600 hover:bg-green-50 transition-all">
+                        <RotateCcw className="w-3.5 h-3.5" />
                       </button>
                     ) : (
-                      <button onClick={() => onArchive(task)} className="text-slate-300 hover:text-orange-500 transition-colors">
-                        <Archive className="w-4 h-4" />
+                      <button onClick={() => onArchive(task)} className="p-1.5 rounded-lg text-slate-400 hover:text-orange-500 hover:bg-orange-50 transition-all">
+                        <Archive className="w-3.5 h-3.5" />
                       </button>
                     )}
                     {isAdmin && (
-                      <button onClick={() => onDelete(task.id)} className="text-slate-300 hover:text-red-500 transition-colors">
-                        <Trash2 className="w-4 h-4" />
+                      <button onClick={() => onDelete(task.id)} className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-red-50 transition-all">
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     )}
                   </div>
