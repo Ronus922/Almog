@@ -376,7 +376,6 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
            </div>
           )}
           </div>
-          </DialogContent>
 
           {/* Footer */}
           <div className="px-6 py-4 border-t border-slate-100 bg-white flex justify-end gap-2 flex-shrink-0">
