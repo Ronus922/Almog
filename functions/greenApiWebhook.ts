@@ -2,12 +2,31 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 /**
  * Green API - Webhook לקבלת הודעות נכנסות בזמן אמת
- * MODE: WEBHOOK PRIMARY (מעכשיו ה-endpoint הראשי לאינקומינג)
- * חובה:
- * 1. להחזיר 200 מייד (לפני עיבוד)
- * 2. לשמור הודעה linked/unlinked
- * 3. למנוע כפילויות
- * 4. לעדכן UI בזמן אמת
+ * 
+ * PRODUCTION ENDPOINT: https://copy-d3b3e777.base44.app/api/functions/greenApiWebhook
+ * 
+ * ARCHITECTURE:
+ * - Webhook is the ONLY active inbound mechanism for incoming messages
+ * - Returns HTTP 200 immediately (before processing)
+ * - Processes asynchronously: parse → link → deduplicate → store
+ * - Real-time subscriptions handle UI refresh
+ * - Polling (pollGreenAPIMessages) is disabled when webhookUrl is active
+ * 
+ * REQUIRED GREEN API DASHBOARD SETTINGS:
+ * - webhookUrl = https://copy-d3b3e777.base44.app/api/functions/greenApiWebhook
+ * - incomingWebhook = yes
+ * - outgoingWebhook = no (status updates via subscription)
+ * - stateWebhook = no
+ * - deviceWebhook = no
+ * - webhookUrlToken = not required (webhook endpoint doesn't validate tokens)
+ * 
+ * HANDLES:
+ * 1. Incoming text messages
+ * 2. Incoming media (image/document/audio)
+ * 3. Linked contacts (matched by phone)
+ * 4. Unlinked messages (no matching contact)
+ * 5. Duplicate prevention (content + timestamp + direction match)
+ * 6. Malformed payloads (logged, no crash)
  */
 
 Deno.serve(async (req) => {
