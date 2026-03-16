@@ -104,22 +104,35 @@ Deno.serve(async (req) => {
 
       const timestamp = new Date((body.timestamp || Date.now() / 1000) * 1000).toISOString();
 
-      // בדיקת כפילות: האם הודעה עם אותו idMessage כבר קיימת?
+      // בדיקת כפילות באמצעות external_message_id (idMessage מ-Green API)
+      // זה המזהה החיצוני האמיתי של Green API
       const senderPhoneClean = senderPhone.replace(/[^0-9]/g, '');
+      
+      // בדיקה: האם הודעה עם אותו external_message_id כבר קיימת?
+      // (זה הדרך הנכונה לטפל בכפילויות של webhook redelivery)
+      const existingByExternalId = await base44.asServiceRole.entities.ChatMessage.filter({
+        external_message_id: messageId,
+        direction: 'received'
+      });
+
+      if (existingByExternalId.length > 0) {
+        console.log(`[WEBHOOK] ⚠️ DUPLICATE MESSAGE - already exists with external_message_id=${messageId}`);
+        return;
+      }
+      
+      // fallback dedup: content + timestamp (in case external_message_id isn't stored properly)
       const existingMessages = await base44.asServiceRole.entities.ChatMessage.filter({
         contact_phone: senderPhone,
         direction: 'received'
       });
 
-      // בדיקה: האם קיימת הודעה עם אותו sender, direction ו-timestamp זהה (כדי לזהות כפילות)
-      const isDuplicate = existingMessages.some(m => {
-        // השוואה: אם אותו sender, אותו כיוון ותוכן זהה -> כפילות
+      const isDuplicateByContent = existingMessages.some(m => {
         return m.content === content && 
                new Date(m.timestamp).getTime() === new Date(timestamp).getTime();
       });
 
-      if (isDuplicate) {
-        console.log(`[WEBHOOK] ⚠️ DUPLICATE MESSAGE - skipping (content + timestamp match)`);
+      if (isDuplicateByContent) {
+        console.log(`[WEBHOOK] ⚠️ DUPLICATE MESSAGE - content + timestamp match (fallback dedup)`);
         return;
       }
 
