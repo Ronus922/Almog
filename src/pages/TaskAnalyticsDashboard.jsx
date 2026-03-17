@@ -130,64 +130,6 @@ export default function TaskAnalyticsDashboard() {
 
   const COLORS = ['#3563d0', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
 
-  // קטגוריות הכרטיסים
-  const cardItems = {
-    tasks: {
-      id: 'tasks',
-      title: 'משימות פתוחות בטיפול',
-      icon: Clock,
-      color: 'bg-blue-50'
-    },
-    reminders: {
-      id: 'reminders',
-      title: 'תזכורות פתוחות',
-      icon: Bell,
-      color: 'bg-amber-50'
-    },
-    appointments: {
-      id: 'appointments',
-      title: 'פגישות פעילות',
-      icon: Calendar,
-      color: 'bg-cyan-50'
-    },
-    messages: {
-      id: 'messages',
-      title: 'הודעות וואטסאפ שלא נענו',
-      icon: MessageCircle,
-      color: 'bg-green-50'
-    }
-  };
-
-  const handleDragStart = (e, cardId) => {
-    setDraggedCard(cardId);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e) => {
-    e.preventDefault();
-    e.dataTransfer.dropEffect = 'move';
-  };
-
-  const handleDrop = (e, targetCardId) => {
-    e.preventDefault();
-    if (!draggedCard || draggedCard === targetCardId) {
-      setDraggedCard(null);
-      return;
-    }
-
-    const newOrder = [...cardOrder];
-    const draggedIndex = newOrder.indexOf(draggedCard);
-    const targetIndex = newOrder.indexOf(targetCardId);
-
-    [newOrder[draggedIndex], newOrder[targetIndex]] = [newOrder[targetIndex], newOrder[draggedIndex]];
-    setCardOrder(newOrder);
-    setDraggedCard(null);
-  };
-
-  const handleDragEnd = () => {
-    setDraggedCard(null);
-  };
-
   // חישוב KPI חדשים
   const buildingMetrics = useMemo(() => {
     const totalDebt = debtors.reduce((sum, d) => sum + (d.totalDebt || 0), 0);
@@ -227,6 +169,36 @@ export default function TaskAnalyticsDashboard() {
     return days.filter((d) => d.סך_חוב !== null).length > 0 ? days : [];
   }, [debtors]);
 
+  const handleDragStart = (e, cardId) => {
+    setDraggedCard(cardId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e, targetCardId) => {
+    e.preventDefault();
+    if (!draggedCard || draggedCard === targetCardId) {
+      setDraggedCard(null);
+      return;
+    }
+
+    const newOrder = [...cardOrder];
+    const draggedIndex = newOrder.indexOf(draggedCard);
+    const targetIndex = newOrder.indexOf(targetCardId);
+
+    [newOrder[draggedIndex], newOrder[targetIndex]] = [newOrder[targetIndex], newOrder[draggedIndex]];
+    setCardOrder(newOrder);
+    setDraggedCard(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedCard(null);
+  };
+
   if (tasksLoading || debtorsLoading || appointmentsLoading || messagesLoading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 flex items-center justify-center">
@@ -237,6 +209,254 @@ export default function TaskAnalyticsDashboard() {
       </div>
     );
   }
+
+  // רינדור כרטיס לפי סוג
+  const renderCard = (cardId) => {
+    switch (cardId) {
+      case 'tasks':
+        return (
+          <div
+            key={cardId}
+            draggable
+            onDragStart={(e) => handleDragStart(e, cardId)}
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, cardId)}
+            onDragEnd={handleDragEnd}
+            className={`cursor-move transition-all ${draggedCard === cardId ? 'opacity-50' : 'opacity-100'}`}
+          >
+            <Card className="bg-white border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+              <div className="flex items-center justify-between px-4 pt-4">
+                <CardTitle className="text-lg font-bold text-slate-900">משימות פתוחות בטיפול</CardTitle>
+                <GripVertical className="w-4 h-4 text-slate-400 group-hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </div>
+              <CardContent className="p-0">
+                <div className="overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead>
+                      <tr className="border-b border-slate-200 bg-slate-50">
+                        <th className="text-right py-2.5 px-4 font-semibold text-slate-700">כותרת</th>
+                        <th className="text-right py-2.5 px-4 font-semibold text-slate-700">תאריך יעד</th>
+                        <th className="text-right py-2.5 px-4 font-semibold text-slate-700">עדיפות</th>
+                        <th className="text-right py-2.5 px-4 font-semibold text-slate-700">מוקצה ל</th>
+                        <th className="text-right py-2.5 px-4 font-semibold text-slate-700">סטטוס</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {filteredTasks
+                        .filter((t) => t.status !== 'הושלמה' && t.status !== 'בוטלה')
+                        .sort((a, b) => {
+                          if (!a.due_date) return 1;
+                          if (!b.due_date) return -1;
+                          return new Date(a.due_date) - new Date(b.due_date);
+                        })
+                        .slice(0, 10)
+                        .map((task) => {
+                          const isOverdue = task.due_date && !['הושלמה', 'בוטלה'].includes(task.status) && new Date(task.due_date) < new Date();
+                          return (
+                            <tr key={task.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                              <td className="py-2.5 px-4 text-slate-900 font-medium truncate max-w-[140px]">{task.title}</td>
+                              <td className={`py-2.5 px-4 whitespace-nowrap ${isOverdue ? 'text-red-600 font-medium' : 'text-slate-600'}`}>
+                                {task.due_date ? new Date(task.due_date).toLocaleDateString('he-IL') : '—'}
+                              </td>
+                              <td className="py-2.5 px-4">
+                                <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
+                                  task.priority === 'גבוהה' ? 'bg-red-100 text-red-700' :
+                                  task.priority === 'בינונית' ? 'bg-amber-100 text-amber-700' :
+                                  'bg-green-100 text-green-700'}`}>
+                                  {task.priority || 'ללא'}
+                                </span>
+                              </td>
+                              <td className="py-2.5 px-4 text-slate-600 text-xs">{task.assigned_to_name || '—'}</td>
+                              <td className="py-2.5 px-4">
+                                <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
+                                  task.status === 'פתוחה' ? 'bg-blue-100 text-blue-700' :
+                                  task.status === 'בטיפול' ? 'bg-amber-100 text-amber-700' :
+                                  'bg-slate-100 text-slate-700'}`}>
+                                  {task.status}
+                                </span>
+                              </td>
+                            </tr>
+                          );
+                        })}
+                    </tbody>
+                  </table>
+                  {filteredTasks.filter((t) => t.status !== 'הושלמה' && t.status !== 'בוטלה').length === 0 && (
+                    <div className="text-center py-10 text-slate-500">אין משימות פעילות</div>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        );
+      
+      case 'reminders':
+        const openTodos = todoItems.filter((t) => t.status === 'open').slice(0, 8);
+        return (
+          <div
+            key={cardId}
+            draggable
+            onDragStart={(e) => handleDragStart(e, cardId)}
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, cardId)}
+            onDragEnd={handleDragEnd}
+            className={`cursor-move transition-all ${draggedCard === cardId ? 'opacity-50' : 'opacity-100'}`}
+          >
+            <Card className="bg-white border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+              <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <Bell className="w-5 h-5 text-amber-500" />
+                  תזכורות פתוחות
+                  {openTodos.length > 0 && (
+                    <span className="mr-1 bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                      {openTodos.length}
+                    </span>
+                  )}
+                </CardTitle>
+                <GripVertical className="w-4 h-4 text-slate-400 group-hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </CardHeader>
+              <CardContent className="p-0">
+                {openTodos.length > 0 ? (
+                  <div className="divide-y divide-slate-100">
+                    {openTodos.map((item) => (
+                      <div key={item.id} className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
+                        <div className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm text-slate-800 font-medium truncate">{item.title}</p>
+                          {item.description && (
+                            <p className="text-xs text-slate-500 truncate mt-0.5">{item.description}</p>
+                          )}
+                        </div>
+                        <span className="text-xs text-slate-400 whitespace-nowrap">
+                          {item.owner_user_id || '—'}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-slate-500 text-sm">אין תזכורות פתוחות</div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        );
+      
+      case 'appointments':
+        return (
+          <div
+            key={cardId}
+            draggable
+            onDragStart={(e) => handleDragStart(e, cardId)}
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, cardId)}
+            onDragEnd={handleDragEnd}
+            className={`cursor-move transition-all ${draggedCard === cardId ? 'opacity-50' : 'opacity-100'}`}
+          >
+            <Card className="bg-white border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+              <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-cyan-600" />
+                  פגישות פעילות
+                </CardTitle>
+                <GripVertical className="w-4 h-4 text-slate-400 group-hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </CardHeader>
+              <CardContent className="p-0">
+                {appointments
+                  .filter((a) => new Date(a.date) >= new Date())
+                  .sort((a, b) => new Date(a.date) - new Date(b.date))
+                  .slice(0, 5)
+                  .length > 0 ? (
+                  <div className="divide-y divide-slate-100">
+                    {appointments
+                      .filter((a) => new Date(a.date) >= new Date())
+                      .sort((a, b) => new Date(a.date) - new Date(b.date))
+                      .slice(0, 5)
+                      .map((appt) => (
+                        <div key={appt.id} className="flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-slate-900 text-sm truncate">{appt.title}</p>
+                            <p className="text-xs text-slate-500 mt-0.5">{appt.location || '—'}</p>
+                          </div>
+                          <div className="text-left flex flex-col items-end mr-3">
+                            <span className="text-xs font-semibold text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded-full">
+                              {new Date(appt.date).toLocaleDateString('he-IL')}
+                            </span>
+                            {appt.start_time && (
+                              <span className="text-xs text-slate-500 mt-1">{appt.start_time}</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-slate-500 text-sm">אין פגישות קרובות</div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        );
+      
+      case 'messages':
+        return (
+          <div
+            key={cardId}
+            draggable
+            onDragStart={(e) => handleDragStart(e, cardId)}
+            onDragOver={handleDragOver}
+            onDrop={(e) => handleDrop(e, cardId)}
+            onDragEnd={handleDragEnd}
+            className={`cursor-move transition-all ${draggedCard === cardId ? 'opacity-50' : 'opacity-100'}`}
+          >
+            <Card className="bg-white border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+              <CardHeader className="pb-3 flex flex-row items-center justify-between">
+                <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <MessageCircle className="w-5 h-5 text-green-600" />
+                  הודעות וואטסאפ שלא נענו
+                  {buildingMetrics.pendingMessages > 0 && (
+                    <span className="mr-1 bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                      {buildingMetrics.pendingMessages}
+                    </span>
+                  )}
+                </CardTitle>
+                <GripVertical className="w-4 h-4 text-slate-400 group-hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+              </CardHeader>
+              <CardContent className="p-0">
+                {chatMessages
+                  .filter((m) => m.direction === 'received' && m.link_status === 'unlinked')
+                  .sort((a, b) => new Date(b.timestamp || b.created_date) - new Date(a.timestamp || a.created_date))
+                  .slice(0, 6)
+                  .length > 0 ? (
+                  <div className="divide-y divide-slate-100">
+                    {chatMessages
+                      .filter((m) => m.direction === 'received' && m.link_status === 'unlinked')
+                      .sort((a, b) => new Date(b.timestamp || b.created_date) - new Date(a.timestamp || a.created_date))
+                      .slice(0, 6)
+                      .map((msg) => (
+                        <div key={msg.id} className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
+                          <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <MessageCircle className="w-4 h-4 text-green-600" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-semibold text-slate-700">{msg.contact_phone || '—'}</p>
+                            <p className="text-sm text-slate-800 truncate mt-0.5">{msg.content || '(הודעה ללא תוכן)'}</p>
+                          </div>
+                          <span className="text-xs text-slate-400 whitespace-nowrap mt-1">
+                            {msg.timestamp ? new Date(msg.timestamp).toLocaleDateString('he-IL') : '—'}
+                          </span>
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-slate-500 text-sm">אין הודעות שלא נענו</div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+        );
+      
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6" dir="rtl">
@@ -481,290 +701,9 @@ export default function TaskAnalyticsDashboard() {
           </Card>
         </div>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        {/* משימות לפי מחוקק */}
-        <Card className="bg-white border-slate-200 rounded-xl shadow-sm mb-6">
-          
-
-
-          
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        </Card>
-
         {/* שורה תחתונה: משימות + תזכורות / פגישות + וואטסאפ - עם Drag & Drop */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {cardOrder.map((cardId) => {
-            if (cardId === 'tasks') return (
-              <div
-                key={cardId}
-                draggable
-                onDragStart={(e) => handleDragStart(e, cardId)}
-                onDragOver={handleDragOver}
-                onDrop={(e) => handleDrop(e, cardId)}
-                onDragEnd={handleDragEnd}
-                className={`cursor-move transition-all ${draggedCard === cardId ? 'opacity-50' : 'opacity-100'}`}
-              >
-                <Card className="bg-white border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
-                  <div className="flex items-center gap-2 px-4 pt-4">
-                    <GripVertical className="w-4 h-4 text-slate-400 group-hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  </div>
-            <CardHeader>
-              <CardTitle className="text-lg font-bold text-slate-900">משימות פתוחות בטיפול</CardTitle>
-            </CardHeader>
-            <CardContent className="p-0">
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead>
-                    <tr className="border-b border-slate-200 bg-slate-50">
-                      <th className="text-right py-2.5 px-4 font-semibold text-slate-700">כותרת</th>
-                      <th className="text-right py-2.5 px-4 font-semibold text-slate-700">תאריך יעד</th>
-                      <th className="text-right py-2.5 px-4 font-semibold text-slate-700">עדיפות</th>
-                      <th className="text-right py-2.5 px-4 font-semibold text-slate-700">מוקצה ל</th>
-                      <th className="text-right py-2.5 px-4 font-semibold text-slate-700">סטטוס</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {filteredTasks
-                      .filter((t) => t.status !== 'הושלמה' && t.status !== 'בוטלה')
-                      .sort((a, b) => {
-                        if (!a.due_date) return 1;
-                        if (!b.due_date) return -1;
-                        return new Date(a.due_date) - new Date(b.due_date);
-                      })
-                      .slice(0, 10)
-                      .map((task) => {
-                        const isOverdue = task.due_date && !['הושלמה', 'בוטלה'].includes(task.status) && new Date(task.due_date) < new Date();
-                        return (
-                          <tr key={task.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                            <td className="py-2.5 px-4 text-slate-900 font-medium truncate max-w-[140px]">{task.title}</td>
-                            <td className={`py-2.5 px-4 whitespace-nowrap ${isOverdue ? 'text-red-600 font-medium' : 'text-slate-600'}`}>
-                              {task.due_date ? new Date(task.due_date).toLocaleDateString('he-IL') : '—'}
-                            </td>
-                            <td className="py-2.5 px-4">
-                              <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
-                                task.priority === 'גבוהה' ? 'bg-red-100 text-red-700' :
-                                task.priority === 'בינונית' ? 'bg-amber-100 text-amber-700' :
-                                'bg-green-100 text-green-700'}`}>
-                                {task.priority || 'ללא'}
-                              </span>
-                            </td>
-                            <td className="py-2.5 px-4 text-slate-600 text-xs">{task.assigned_to_name || '—'}</td>
-                            <td className="py-2.5 px-4">
-                              <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
-                                task.status === 'פתוחה' ? 'bg-blue-100 text-blue-700' :
-                                task.status === 'בטיפול' ? 'bg-amber-100 text-amber-700' :
-                                'bg-slate-100 text-slate-700'}`}>
-                                {task.status}
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                  </tbody>
-                </table>
-                {filteredTasks.filter((t) => t.status !== 'הושלמה' && t.status !== 'בוטלה').length === 0 && (
-                  <div className="text-center py-10 text-slate-500">אין משימות פעילות</div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* תזכורות פתוחות */}
-          {(() => {
-            const openTodos = todoItems.filter((t) => t.status === 'open').slice(0, 8);
-            return (
-              <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
-                  <CardHeader className="pb-3">
-                    <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                      <Bell className="w-5 h-5 text-amber-500" />
-                      תזכורות פתוחות
-                      {openTodos.length > 0 && (
-                        <span className="mr-1 bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full">
-                          {openTodos.length}
-                        </span>
-                      )}
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-0">
-                    {openTodos.length > 0 ? (
-                      <div className="divide-y divide-slate-100">
-                        {openTodos.map((item) => (
-                          <div key={item.id} className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
-                            <div className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm text-slate-800 font-medium truncate">{item.title}</p>
-                              {item.description && (
-                                <p className="text-xs text-slate-500 truncate mt-0.5">{item.description}</p>
-                              )}
-                            </div>
-                            <span className="text-xs text-slate-400 whitespace-nowrap">
-                              {item.owner_user_id || '—'}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-center py-8 text-slate-500 text-sm">אין תזכורות פתוחות</div>
-                    )}
-                  </CardContent>
-                </Card>
-            );
-          })()}
-
-          {/* פגישות פעילות */}
-          <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                  <Calendar className="w-5 h-5 text-cyan-600" />
-                  פגישות פעילות
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                {appointments
-                  .filter((a) => new Date(a.date) >= new Date())
-                  .sort((a, b) => new Date(a.date) - new Date(b.date))
-                  .slice(0, 5)
-                  .length > 0 ? (
-                  <div className="divide-y divide-slate-100">
-                    {appointments
-                      .filter((a) => new Date(a.date) >= new Date())
-                      .sort((a, b) => new Date(a.date) - new Date(b.date))
-                      .slice(0, 5)
-                      .map((appt) => (
-                        <div key={appt.id} className="flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors">
-                          <div className="flex-1 min-w-0">
-                            <p className="font-medium text-slate-900 text-sm truncate">{appt.title}</p>
-                            <p className="text-xs text-slate-500 mt-0.5">{appt.location || '—'}</p>
-                          </div>
-                          <div className="text-left flex flex-col items-end mr-3">
-                            <span className="text-xs font-semibold text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded-full">
-                              {new Date(appt.date).toLocaleDateString('he-IL')}
-                            </span>
-                            {appt.start_time && (
-                              <span className="text-xs text-slate-500 mt-1">{appt.start_time}</span>
-                            )}
-                          </div>
-                        </div>
-                      ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-slate-500 text-sm">אין פגישות קרובות</div>
-                )}
-              </CardContent>
-            </Card>
-
-          {/* הודעות וואטסאפ שלא נענו */}
-          <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                  <MessageCircle className="w-5 h-5 text-green-600" />
-                  הודעות וואטסאפ שלא נענו
-                  {buildingMetrics.pendingMessages > 0 && (
-                    <span className="mr-1 bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full">
-                      {buildingMetrics.pendingMessages}
-                    </span>
-                  )}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="p-0">
-                {chatMessages
-                  .filter((m) => m.direction === 'received' && m.link_status === 'unlinked')
-                  .sort((a, b) => new Date(b.timestamp || b.created_date) - new Date(a.timestamp || a.created_date))
-                  .slice(0, 6)
-                  .length > 0 ? (
-                  <div className="divide-y divide-slate-100">
-                    {chatMessages
-                      .filter((m) => m.direction === 'received' && m.link_status === 'unlinked')
-                      .sort((a, b) => new Date(b.timestamp || b.created_date) - new Date(a.timestamp || a.created_date))
-                      .slice(0, 6)
-                      .map((msg) => (
-                        <div key={msg.id} className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
-                          <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
-                            <MessageCircle className="w-4 h-4 text-green-600" />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-xs font-semibold text-slate-700">{msg.contact_phone || '—'}</p>
-                            <p className="text-sm text-slate-800 truncate mt-0.5">{msg.content || '(הודעה ללא תוכן)'}</p>
-                          </div>
-                          <span className="text-xs text-slate-400 whitespace-nowrap mt-1">
-                            {msg.timestamp ? new Date(msg.timestamp).toLocaleDateString('he-IL') : '—'}
-                          </span>
-                        </div>
-                      ))}
-                  </div>
-                ) : (
-                  <div className="text-center py-8 text-slate-500 text-sm">אין הודעות שלא נענו</div>
-                )}
-              </CardContent>
-            </Card>
+          {cardOrder.map((cardId) => renderCard(cardId))}
         </div>
 
       </div>
