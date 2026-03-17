@@ -1,46 +1,41 @@
 import { createClient } from 'npm:@base44/sdk@0.8.20';
 
-const base44 = createClient({
-  appId: Deno.env.get('BASE44_APP_ID'),
-  serviceRoleKey: 'none',
-});
-
 Deno.serve(async (req) => {
-  // קרא את ה-body
   let rawBody = '';
   try {
     rawBody = await req.text();
   } catch (e) {
-    console.error('[WH] Failed to read body:', e.message);
-    return Response.json({ ok: true }, { status: 200 });
+    return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   }
 
-  // parse JSON
   let payload;
   try {
     payload = JSON.parse(rawBody);
-    console.log('[WH] typeWebhook:', payload?.typeWebhook, '| idMessage:', payload?.idMessage);
   } catch (e) {
-    console.error('[WH] JSON parse error:', e.message);
-    return Response.json({ ok: true }, { status: 200 });
+    return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   }
 
-  // רק הודעות נכנסות
+  console.log('[WH] Received typeWebhook:', payload?.typeWebhook);
+
   if (payload?.typeWebhook !== 'incomingMessageReceived') {
-    return Response.json({ ok: true }, { status: 200 });
+    return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   }
 
   const idMessage = payload.idMessage;
   if (!idMessage) {
-    return Response.json({ ok: true }, { status: 200 });
+    return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   }
+
+  // יצירת client ישיר עם APP_ID בלבד (ללא auth)
+  const appId = Deno.env.get('BASE44_APP_ID');
+  const base44 = createClient({ appId });
 
   try {
     // בדיקת כפילות
     const existing = await base44.asServiceRole.entities.ChatMessage.filter({ external_message_id: idMessage });
     if (existing && existing.length > 0) {
-      console.log('[WH] Duplicate detected, skipping');
-      return Response.json({ ok: true }, { status: 200 });
+      console.log('[WH] Duplicate, skipping:', idMessage);
+      return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
     }
 
     // נרמול טלפון
@@ -48,7 +43,7 @@ Deno.serve(async (req) => {
     const senderChatId = payload.senderData?.chatId || '';
     let phone = senderRaw.replace('@c.us', '');
     if (phone.startsWith('972')) phone = '0' + phone.slice(3);
-    console.log('[WH] Phone normalized:', phone, 'from:', senderRaw);
+    console.log('[WH] Phone:', phone);
 
     // תוכן הודעה
     const typeMessage = payload.messageData?.typeMessage;
@@ -66,29 +61,21 @@ Deno.serve(async (req) => {
     } else {
       content = typeMessage || '';
     }
-    console.log('[WH] messageType:', messageType, 'content:', content.slice(0, 100));
 
     // חיפוש איש קשר
     let contactMatch = null;
     const rawPhone = senderRaw.replace('@c.us', '');
-    const attempts = [
-      { field: 'owner_phone', value: phone },
-      { field: 'owner_phone', value: rawPhone },
-      { field: 'tenant_phone', value: phone },
-      { field: 'tenant_phone', value: rawPhone },
-    ];
-    for (const attempt of attempts) {
+    for (const [field, val] of [
+      ['owner_phone', phone],
+      ['owner_phone', rawPhone],
+      ['tenant_phone', phone],
+      ['tenant_phone', rawPhone],
+    ]) {
       if (contactMatch) break;
-      const results = await base44.asServiceRole.entities.Contact.filter({ [attempt.field]: attempt.value });
-      if (results?.length > 0) {
-        contactMatch = results[0];
-        console.log('[WH] Contact found via', attempt.field, '=', attempt.value);
-      }
+      const res = await base44.asServiceRole.entities.Contact.filter({ [field]: val });
+      if (res?.length > 0) contactMatch = res[0];
     }
 
-    const linkStatus = contactMatch ? 'linked' : 'unlinked';
-
-    // יצירת ChatMessage
     await base44.asServiceRole.entities.ChatMessage.create({
       direction: 'received',
       external_message_id: idMessage,
@@ -96,19 +83,19 @@ Deno.serve(async (req) => {
       sender_phone_raw: senderRaw,
       contact_phone: phone,
       message_type: messageType,
-      content: content,
+      content,
       timestamp: payload.timestamp
         ? new Date(payload.timestamp * 1000).toISOString()
         : new Date().toISOString(),
-      link_status: linkStatus,
+      link_status: contactMatch ? 'linked' : 'unlinked',
       contact_id: contactMatch ? contactMatch.id : null,
     });
 
-    console.log('[WH] ✅ ChatMessage created successfully!');
-    return Response.json({ ok: true }, { status: 200 });
+    console.log('[WH] ✅ Saved message:', idMessage);
+    return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 
   } catch (err) {
     console.error('[WH] ❌ Error:', err.message);
-    return Response.json({ ok: true }, { status: 200 });
+    return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   }
 });
