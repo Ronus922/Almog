@@ -548,7 +548,7 @@ export default function WhatsAppChat() {
           {selectedContact ? (
             <>
               {/* Header */}
-              <div className="p-4 bg-white border-b border-gray-200 flex justify-between items-center shadow-sm">
+              <div className="p-4 bg-white border-b border-gray-200 flex justify-between items-center shadow-sm h-[30px]">
                 <div className="flex items-center gap-3">
                   {selectedContact._isUnlinked ? (
                     <Button
