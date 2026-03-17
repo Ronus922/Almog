@@ -51,40 +51,40 @@ export default function LastImportIndicator({ lastImportAt, isAdmin = false }) {
 
   return (
     <div 
-      className={`mb-6 p-4 rounded-xl border ${bgColors[severity]} ${borderColors[severity]}`}
+      className={`mb-6 px-5 py-3 rounded-xl border ${bgColors[severity]} ${borderColors[severity]}`}
       dir="rtl"
     >
-      <div className="flex flex-row items-center justify-between gap-3">
-        <div className="flex-1">
-          <div className="text-slate-800" style={{ fontSize: '20px', fontWeight: 800, lineHeight: 1.2 }}>
+      <div className="flex flex-row items-center justify-between gap-4">
+        {/* טקסט בצד ימין */}
+        <div className="flex-1 text-right">
+          <div className="text-slate-900 font-black" style={{ fontSize: '16px' }}>
             העדכון האחרון בוצע: {formattedDate}
           </div>
-
           {hoursSince !== null && hoursSince >= 48 && !noDate && (
-            <div className="mt-1 text-sm text-red-700 font-medium">
+            <div className="mt-0.5 text-sm text-red-700 font-medium">
               הנתונים לא עודכנו ב־48 השעות האחרונות – מומלץ לבצע ייבוא
             </div>
           )}
           {hoursSince !== null && hoursSince >= 24 && hoursSince < 48 && !noDate && (
-            <div className="mt-1 text-sm text-yellow-700 font-medium">
+            <div className="mt-0.5 text-sm text-yellow-800 font-medium">
               הנתונים לא עודכנו ב־24 השעות האחרונות – מומלץ לבצע ייבוא
             </div>
           )}
           {noDate && (
-            <div className="mt-1 text-sm text-red-700 font-semibold">
+            <div className="mt-0.5 text-sm text-red-700 font-semibold">
               נדרש לייבא נתונים מעדכניים
             </div>
           )}
         </div>
 
-        {/* כפתור - רק אחרי 24 שעות */}
+        {/* כפתור בצד שמאל */}
         {isAdmin && showWarning && (
           <Button 
             onClick={handleNavigateToImport}
-            className="bg-blue-600 hover:bg-blue-700 text-white h-9 px-4 rounded-lg font-bold text-sm flex-shrink-0"
+            className="bg-blue-600 hover:bg-blue-700 text-white h-9 px-4 rounded-lg font-bold text-sm flex-shrink-0 gap-2"
           >
-            <Upload className="w-4 h-4 ml-2" />
-            ייבא עכשיו
+            <Upload className="w-4 h-4" />
+            ייבוא נתונים
           </Button>
         )}
       </div>
