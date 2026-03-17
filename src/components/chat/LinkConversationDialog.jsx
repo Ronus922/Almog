@@ -32,10 +32,8 @@ export default function LinkUnlinkedDialog({ open, onClose, onLinked, senderPhon
   const filteredContacts = contacts.filter((contact) => {
     const query = searchQuery.toLowerCase();
     const ownerName = (contact.owner_name || '').toLowerCase();
-    const apartmentNumber = (contact.apartment_number || '').toLowerCase();
-    const ownerPhone = (contact.owner_phone || '').toLowerCase();
     
-    return ownerName.includes(query) || apartmentNumber.includes(query) || ownerPhone.includes(query);
+    return ownerName.includes(query);
   });
 
   const handleLink = async () => {
@@ -67,13 +65,13 @@ export default function LinkUnlinkedDialog({ open, onClose, onLinked, senderPhon
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent 
-        className="!p-0 w-full overflow-hidden flex flex-col border-0"
+        className="!p-0 w-full overflow-hidden flex flex-col border-0 sm:rounded-lg"
         style={{ 
           position: 'fixed',
           left: '50%',
           top: '50%',
           transform: 'translate(-50%, -50%)',
-          width: '520px',
+          width: '472px',
           maxWidth: '95vw',
           height: 'auto',
           maxHeight: '85vh',
@@ -82,11 +80,11 @@ export default function LinkUnlinkedDialog({ open, onClose, onLinked, senderPhon
         }}
         dir="rtl"
       >
-        {/* Header - כותרת כחולה */}
-        <div className="bg-blue-600 px-6 py-4 flex items-center justify-between relative h-14">
+        {/* Header - גרדיאנט כחול */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 flex items-center justify-between relative h-14">
           <button 
             onClick={onClose}
-            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/25 hover:bg-white/35 p-2 rounded transition-colors flex-shrink-0"
+            className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/20 hover:bg-white/30 p-2 rounded transition-colors flex-shrink-0"
           >
             <X className="h-5 w-5 text-white" />
           </button>
@@ -94,19 +92,16 @@ export default function LinkUnlinkedDialog({ open, onClose, onLinked, senderPhon
         </div>
 
         {/* Content Area */}
-        <div className="flex-1 overflow-y-auto px-6 py-5" dir="rtl">
-          {/* שורת חיפוש */}
-          <div className="space-y-3 mb-5">
-            <label className="text-sm font-semibold text-slate-700 block text-right">
-              חיפוש גורם
-            </label>
+        <div className="px-6 pt-5 pb-2 flex-1 overflow-y-auto" dir="rtl">
+          {/* שדה פילטר קבוע בראש הרשימה */}
+          <div className="mb-4 sticky top-0 bg-white pb-3 z-10">
             <div className="relative">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <Input
-                placeholder="חיפוש לפי שם, דירה או טלפון..."
+                placeholder="חפש לפי שם..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-10 pr-10 border border-slate-200 rounded-md text-sm"
+                className="h-10 pr-10 border border-slate-200 rounded-lg text-sm"
               />
             </div>
           </div>
@@ -123,10 +118,10 @@ export default function LinkUnlinkedDialog({ open, onClose, onLinked, senderPhon
               {filteredContacts.map((contact) => (
                 <label
                   key={contact.id}
-                  className={`flex items-center gap-3 p-3 border rounded-md cursor-pointer transition-all ${
+                  className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${
                     selectedContact?.id === contact.id
                       ? 'bg-blue-50 border-blue-300'
-                      : 'border-slate-200 hover:bg-slate-50'
+                      : 'border-slate-200 hover:border-slate-300'
                   }`}
                 >
                   <input
@@ -139,14 +134,9 @@ export default function LinkUnlinkedDialog({ open, onClose, onLinked, senderPhon
                   />
                   <div className="flex-1 text-right min-w-0">
                     <p className="font-medium text-slate-900 text-sm">{contact.owner_name || '—'}</p>
-                    <div className="flex gap-2 mt-1 text-xs text-slate-600 justify-end">
-                      {contact.apartment_number && (
-                        <span>דירה {contact.apartment_number}</span>
-                      )}
-                      {contact.owner_phone && (
-                        <span>{contact.owner_phone}</span>
-                      )}
-                    </div>
+                    {contact.apartment_number && (
+                      <p className="text-xs text-blue-600 font-medium mt-0.5">דירה {contact.apartment_number}</p>
+                    )}
                   </div>
                 </label>
               ))}
@@ -155,19 +145,19 @@ export default function LinkUnlinkedDialog({ open, onClose, onLinked, senderPhon
         </div>
 
         {/* Footer - כפתורים */}
-        <div className="flex gap-2 justify-end px-6 py-4 border-t border-slate-100 bg-white h-16 items-center">
+        <div className="border-t bg-white px-6 py-4 flex gap-2 justify-end">
           <Button 
             onClick={onClose}
-            className="h-9 px-5 border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-sm"
+            className="h-9 px-5 border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-sm rounded-lg"
           >
             ביטול
           </Button>
           <Button
             onClick={handleLink}
             disabled={!selectedContact}
-            className="h-9 px-5 bg-blue-500 hover:bg-blue-600 text-white font-medium text-sm"
+            className="h-9 px-5 bg-blue-500 hover:bg-blue-600 text-white font-medium text-sm rounded-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            שיוך
+            שמור
           </Button>
         </div>
       </DialogContent>
