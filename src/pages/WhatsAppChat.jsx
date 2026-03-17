@@ -566,7 +566,7 @@ export default function WhatsAppChat() {
                     <div className="text-xs text-gray-500 mt-0.5 truncate">{secondaryInfo}</div>
                     }
                     </div>
-                    {timeDisplay && <div className="text-xs text-blue-600 font-medium flex-shrink-0">{timeDisplay}</div>}
+                    {timeDisplay && <div className="text-slate-400 text-xs font-medium flex-shrink-0">{timeDisplay}</div>}
                   </button>);
 
             })
@@ -672,30 +672,30 @@ export default function WhatsAppChat() {
                   onChange={handleFileSelect} />
 
                     <Input
-                    placeholder="הקלד הודעה..."
-                    value={messageInput}
-                    onChange={(e) => setMessageInput(e.target.value)}
-                    onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
-                    disabled={sendMessageMutation.isPending}
-                    className="bg-gray-100 border-0 rounded-full text-sm" />
+                  placeholder="הקלד הודעה..."
+                  value={messageInput}
+                  onChange={(e) => setMessageInput(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSendMessage()}
+                  disabled={sendMessageMutation.isPending}
+                  className="bg-gray-100 border-0 rounded-full text-sm" />
 
                     <EmojiPicker onEmojiSelect={handleEmojiSelect} />
                     <QuickTemplatesMenu onSelectTemplate={handleTemplateSelect} />
 
                     <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-10 w-10 text-gray-600 hover:bg-gray-100"
-                    onClick={() => fileInput?.click()}>
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 text-gray-600 hover:bg-gray-100"
+                  onClick={() => fileInput?.click()}>
 
                       <Paperclip className="w-5 h-5" />
                     </Button>
 
                     <Button
-                    onClick={handleSendMessage}
-                    disabled={!messageInput.trim() || sendMessageMutation.isPending}
-                    size="icon"
-                    className="bg-green-500 hover:bg-green-600 text-white rounded-full h-10 w-10">
+                  onClick={handleSendMessage}
+                  disabled={!messageInput.trim() || sendMessageMutation.isPending}
+                  size="icon"
+                  className="bg-green-500 hover:bg-green-600 text-white rounded-full h-10 w-10">
 
                       <Send className="w-5 h-5" />
                     </Button>
