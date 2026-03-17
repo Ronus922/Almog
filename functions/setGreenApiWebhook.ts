@@ -6,7 +6,7 @@ Deno.serve(async (req) => {
     return Response.json({ error: 'GREEN_API_INSTANCE_ID or GREEN_API_TOKEN not set' }, { status: 500 });
   }
 
-  const WEBHOOK_URL = 'https://even-piranha-94-d6ej5fqpy72q.deno.dev/whatsappWebhook';
+  const WEBHOOK_URL = 'https://almogbilling.base44.app/api/functions/whatsappWebhook';
 
   // קודם בדוק מה ה-webhook URL הנוכחי
   const getRes = await fetch(`https://api.green-api.com/waInstance${instanceId}/getSettings/${token}`);
