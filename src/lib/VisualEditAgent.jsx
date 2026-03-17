@@ -268,11 +268,24 @@ export default function VisualEditAgent() {
 		elements.forEach(element => {
 			if (replace) {
 				// For reverts, replace classes completely
-				element.className = classes;
+				if (element.className?.baseVal !== undefined) {
+					// SVG element
+					element.setAttribute('class', classes);
+				} else {
+					// HTML element
+					element.className = classes;
+				}
 			} else {
 				// For normal updates, merge with existing classes
 				const currentClasses = element.className?.baseVal || element.className || '';
-				element.className = twMerge(currentClasses, classes);
+				const mergedClasses = twMerge(currentClasses, classes);
+				if (element.className?.baseVal !== undefined) {
+					// SVG element
+					element.setAttribute('class', mergedClasses);
+				} else {
+					// HTML element
+					element.className = mergedClasses;
+				}
 			}
 		});
 
