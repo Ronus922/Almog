@@ -1,8 +1,11 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 Deno.serve(async (req) => {
+  console.log('[WEBHOOK] === FUNCTION STARTED ===');
   try {
+    console.log('[WEBHOOK] Creating base44 client...');
     const base44 = createClientFromRequest(req);
+    console.log('[WEBHOOK] base44 client created OK');
     
     const rawBody = await req.text();
     console.log('[WEBHOOK] Raw body received:', rawBody?.slice(0, 500));
