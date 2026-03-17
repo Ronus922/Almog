@@ -37,7 +37,7 @@ Deno.serve(async (req) => {
   try {
     // בדיקת כפילות
     console.log('[WH] Checking duplicate for idMessage:', idMessage);
-    const existing = await base44.asServiceRole.entities.ChatMessage.filter({ external_message_id: idMessage });
+    const existing = await base44.entities.ChatMessage.filter({ external_message_id: idMessage });
     if (existing && existing.length > 0) {
       console.log('[WH] Duplicate detected, skipping');
       return Response.json({ ok: true }, { status: 200 });
