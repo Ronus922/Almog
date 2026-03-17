@@ -164,7 +164,7 @@ export default function WhatsAppChat() {
 
       return [...linkedConvs, ...unlinkedConvs, ...supplierConvs];
     },
-    staleTime: 1000 * 15,
+    staleTime: 0,
     gcTime: 1000 * 60,
   });
 
