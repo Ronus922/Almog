@@ -130,6 +130,64 @@ export default function TaskAnalyticsDashboard() {
 
   const COLORS = ['#3563d0', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
 
+  // קטגוריות הכרטיסים
+  const cardItems = {
+    tasks: {
+      id: 'tasks',
+      title: 'משימות פתוחות בטיפול',
+      icon: Clock,
+      color: 'bg-blue-50'
+    },
+    reminders: {
+      id: 'reminders',
+      title: 'תזכורות פתוחות',
+      icon: Bell,
+      color: 'bg-amber-50'
+    },
+    appointments: {
+      id: 'appointments',
+      title: 'פגישות פעילות',
+      icon: Calendar,
+      color: 'bg-cyan-50'
+    },
+    messages: {
+      id: 'messages',
+      title: 'הודעות וואטסאפ שלא נענו',
+      icon: MessageCircle,
+      color: 'bg-green-50'
+    }
+  };
+
+  const handleDragStart = (e, cardId) => {
+    setDraggedCard(cardId);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+  };
+
+  const handleDrop = (e, targetCardId) => {
+    e.preventDefault();
+    if (!draggedCard || draggedCard === targetCardId) {
+      setDraggedCard(null);
+      return;
+    }
+
+    const newOrder = [...cardOrder];
+    const draggedIndex = newOrder.indexOf(draggedCard);
+    const targetIndex = newOrder.indexOf(targetCardId);
+
+    [newOrder[draggedIndex], newOrder[targetIndex]] = [newOrder[targetIndex], newOrder[draggedIndex]];
+    setCardOrder(newOrder);
+    setDraggedCard(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedCard(null);
+  };
+
   // חישוב KPI חדשים
   const buildingMetrics = useMemo(() => {
     const totalDebt = debtors.reduce((sum, d) => sum + (d.totalDebt || 0), 0);
