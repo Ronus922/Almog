@@ -243,6 +243,7 @@ const AuthenticatedApp = () => {
       <Route path="/TasksPro" element={<LayoutWrapper currentPageName="TasksPro"><TasksProPage /></LayoutWrapper>} />
       <Route path="/InternalChat" element={<LayoutWrapper currentPageName="InternalChat"><InternalChat /></LayoutWrapper>} />
       <Route path="/TaskAnalyticsDashboard" element={<LayoutWrapper currentPageName="TaskAnalyticsDashboard"><TaskAnalyticsDashboard /></LayoutWrapper>} />
+      <Route path="/AllNotifications" element={<LayoutWrapper currentPageName="AllNotifications"><AllNotifications /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
