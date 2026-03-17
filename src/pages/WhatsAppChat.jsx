@@ -650,18 +650,6 @@ export default function WhatsAppChat() {
                   className="hidden"
                   onChange={handleFileSelect} />
 
-                    <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-10 w-10 text-gray-600 hover:bg-gray-100"
-                  onClick={() => fileInput?.click()}>
-
-                      <Paperclip className="w-5 h-5" />
-                    </Button>
-
-                    <EmojiPicker onEmojiSelect={handleEmojiSelect} />
-                    <QuickTemplatesMenu onSelectTemplate={handleTemplateSelect} />
-
                     <Input
                   placeholder="הקלד הודעה..."
                   value={messageInput}
@@ -677,6 +665,18 @@ export default function WhatsAppChat() {
                   className="bg-green-500 hover:bg-green-600 text-white rounded-full h-10 w-10">
 
                       <Send className="w-5 h-5" />
+                    </Button>
+
+                    <EmojiPicker onEmojiSelect={handleEmojiSelect} />
+                    <QuickTemplatesMenu onSelectTemplate={handleTemplateSelect} />
+
+                    <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-10 w-10 text-gray-600 hover:bg-gray-100"
+                  onClick={() => fileInput?.click()}>
+
+                      <Paperclip className="w-5 h-5" />
                     </Button>
                   </>
               }
