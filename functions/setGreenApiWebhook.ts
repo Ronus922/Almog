@@ -1,5 +1,3 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
-
 Deno.serve(async (req) => {
   const instanceId = Deno.env.get('GREEN_API_INSTANCE_ID');
   const token = Deno.env.get('GREEN_API_TOKEN');
