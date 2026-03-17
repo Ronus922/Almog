@@ -145,7 +145,7 @@ export default function LinkUnlinkedDialog({ open, onClose, onLinked, senderPhon
         </div>
 
         {/* Footer - כפתורים */}
-        <div className="border-t bg-white px-6 py-4 flex gap-2 justify-end">
+        <div className="border-t bg-white px-6 py-4 flex gap-2 justify-end items-center h-20">
           <Button 
             onClick={onClose}
             className="h-9 px-5 border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-sm rounded-lg"
