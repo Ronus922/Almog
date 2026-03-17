@@ -693,8 +693,6 @@ export default function TaskAnalyticsDashboard() {
                 )}
               </CardContent>
             </Card>
-
-          </div>
         </div>
 
       </div>
