@@ -1,10 +1,4 @@
-import { createClient } from 'npm:@base44/sdk@0.8.20';
-
-// יצירת client עם service role — ללא צורך ב-auth מהמשתמש
-const base44 = createClient({
-  appId: Deno.env.get('BASE44_APP_ID'),
-  serviceRoleKey: Deno.env.get('BASE44_SERVICE_TOKEN') || '',
-});
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 
 Deno.serve(async (req) => {
   let rawBody = '';
@@ -28,9 +22,11 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   }
 
+  const base44 = createClientFromRequest(req);
+
   try {
-    // בדיקת כפילות — שימוש ב-entities ישירות (ללא auth)
-    const existing = await base44.entities.ChatMessage.filter({ external_message_id: idMessage });
+    // בדיקת כפילות
+    const existing = await base44.asServiceRole.entities.ChatMessage.filter({ external_message_id: idMessage });
     if (existing && existing.length > 0) {
       console.log('[WH] Duplicate, skipping');
       return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
@@ -68,11 +64,11 @@ Deno.serve(async (req) => {
       ['tenant_phone', rawPhone],
     ]) {
       if (contactMatch) break;
-      const res = await base44.entities.Contact.filter({ [field]: val });
+      const res = await base44.asServiceRole.entities.Contact.filter({ [field]: val });
       if (res?.length > 0) contactMatch = res[0];
     }
 
-    await base44.entities.ChatMessage.create({
+    await base44.asServiceRole.entities.ChatMessage.create({
       direction: 'received',
       external_message_id: idMessage,
       sender_chat_id: senderChatId,
