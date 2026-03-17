@@ -54,78 +54,55 @@ export default function LinkConversationDialog({ isOpen, onClose, onLink, chatMe
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
-        className="!p-0 w-full overflow-hidden flex flex-col border-0 rounded-xl"
-        style={{ 
-          position: 'fixed',
-          left: '50%',
-          top: '50%',
-          transform: 'translate(-50%, -50%)',
-          width: '500px',
-          maxWidth: '95vw',
-          height: 'auto',
-          maxHeight: '90vh',
-          borderRadius: '12px',
-          boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 0 0 1px rgba(0, 0, 0, 0.05)'
-        }}
+        className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] bg-background shadow-lg border p-0 overflow-hidden flex flex-col sm:rounded-lg"
+        style={{ maxWidth: '472px', width: '100%' }}
         dir="rtl"
       >
-        {/* Header */}
-        <div className="px-6 py-5 border-b border-slate-100 bg-white">
-          <div className="flex items-center justify-between mb-2">
-            <button 
-              onClick={onClose}
-              className="text-slate-400 hover:text-slate-600 transition-colors p-1"
-              title="סגור"
-            >
-              <X className="h-5 w-5" />
-            </button>
-            <h2 className="text-lg font-bold text-slate-900">שיוך שיחה לגורם קיים</h2>
-          </div>
-          <p className="text-xs text-slate-500 text-right">בחר את הנתונים הטרום קיימים</p>
+        {/* כפתור X בפינה שמאלית עליונה */}
+        <button
+          onClick={onClose}
+          className="absolute left-4 top-4 z-10 rounded-lg bg-white/20 p-1.5 hover:bg-white/40 transition-colors"
+          title="סגור"
+        >
+          <X className="h-5 w-5 text-white" />
+        </button>
+
+        {/* כותרת עליונה עם גרדיאנט */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-lg">
+          <h2 className="text-white text-lg font-bold text-right">שיוך שיחה לגורם קיים</h2>
         </div>
 
-        {/* Content Area */}
-        <div className="flex-1 overflow-y-auto px-6 py-4" dir="rtl">
-          {/* תיבת אזהרה/מידע צהובה */}
-          <div className="mb-5 p-3.5 bg-yellow-50 border border-yellow-200 rounded-lg flex gap-3">
-            <AlertCircle className="w-5 h-5 text-yellow-700 flex-shrink-0 mt-0.5" />
-            <div className="text-xs text-yellow-800 text-right">
-              <p className="font-semibold mb-1">שיוך הוא צפוני:</p>
-              <p>פנטין לסנור ולהיישור את השיחה עם גורם קיים אחד לאחד וגם להציע ניתוח מעמיק.</p>
-            </div>
-          </div>
-
-          {/* שורת חיפוש */}
-          <div className="space-y-3 mb-5">
-            <label className="text-sm font-semibold text-slate-700 block text-right">
-              חפש לאנשי קשר
-            </label>
+        {/* אזור תוכן */}
+        <div className="space-y-4 px-6 pt-5 pb-2 flex-1 overflow-y-auto" dir="rtl">
+          {/* שדה פילטר קבוע בראש הרשימה */}
+          <div className="sticky top-0 bg-background z-10">
             <div className="relative">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
               <Input
-                placeholder="חיפוש לפי שם, דירה או טלפון..."
+                placeholder="חפש לפי שם..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-10 pr-10 border border-slate-200 rounded-lg text-sm focus:border-blue-400 focus:ring-1 focus:ring-blue-200"
+                className="h-10 pr-10 border border-slate-200 rounded-lg text-sm"
+                autoFocus
               />
             </div>
           </div>
 
           {/* רשימת אנשי קשר */}
           {isLoading ? (
-            <div className="text-center py-10 text-slate-500 text-sm">טוען אנשי קשר...</div>
+            <div className="text-center py-8 text-slate-500 text-sm">טוען אנשי קשר...</div>
           ) : filteredContacts.length === 0 ? (
-            <div className="text-center py-10 text-slate-500 text-sm">
+            <div className="text-center py-8 text-slate-500 text-sm">
               {contacts.length === 0 ? 'אין אנשי קשר זמינים' : 'לא נמצאו תוצאות'}
             </div>
           ) : (
-            <div className="space-y-2.5">
+            <div className="space-y-2">
               {filteredContacts.map((contact) => (
                 <label
                   key={contact.id}
-                  className={`flex items-start gap-3.5 p-3.5 border rounded-lg cursor-pointer transition-all ${
+                  className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${
                     selectedContact?.id === contact.id
-                      ? 'bg-blue-50 border-blue-300 shadow-sm'
+                      ? 'bg-blue-50 border-blue-300'
                       : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                   }`}
                 >
@@ -135,18 +112,13 @@ export default function LinkConversationDialog({ isOpen, onClose, onLink, chatMe
                     value={contact.id}
                     checked={selectedContact?.id === contact.id}
                     onChange={() => setSelectedContact(contact)}
-                    className="w-5 h-5 flex-shrink-0 mt-0.5 cursor-pointer accent-blue-600"
+                    className="w-4 h-4 flex-shrink-0 accent-blue-600"
                   />
                   <div className="flex-1 text-right min-w-0">
-                    <p className="font-semibold text-slate-900 text-sm">{contact.owner_name || '—'}</p>
-                    <div className="flex gap-2 mt-1.5 text-xs text-slate-500 justify-end flex-wrap">
-                      {contact.apartment_number && (
-                        <span className="bg-slate-100 px-2.5 py-1 rounded">דירה {contact.apartment_number}</span>
-                      )}
-                      {contact.owner_phone && (
-                        <span className="bg-slate-100 px-2.5 py-1 rounded">{contact.owner_phone}</span>
-                      )}
-                    </div>
+                    <p className="font-medium text-slate-900 text-sm">{contact.owner_name || '—'}</p>
+                    {contact.apartment_number && (
+                      <p className="text-xs text-blue-600 font-medium mt-0.5">דירה {contact.apartment_number}</p>
+                    )}
                   </div>
                 </label>
               ))}
@@ -154,22 +126,21 @@ export default function LinkConversationDialog({ isOpen, onClose, onLink, chatMe
           )}
         </div>
 
-        {/* Footer - כפתורים */}
-        <div className="flex gap-3 justify-end px-6 py-4 border-t border-slate-100 bg-white">
+        {/* footer תחתון */}
+        <div className="flex justify-end gap-2 px-6 py-4 border-t border-slate-100 bg-white flex-shrink-0">
           <Button 
             onClick={onClose}
             variant="outline"
-            className="h-10 px-6 border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 text-sm font-medium rounded-lg"
+            className="h-9"
           >
-            השאר לא לשיוך
+            ביטול
           </Button>
           <Button
             onClick={handleLink}
             disabled={!selectedContact}
-            className="h-10 px-6 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm rounded-lg disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+            className="h-9 bg-[#3563d0] text-white hover:bg-[#2852b5] px-4"
           >
-            <span>בחר גורם לשיוך</span>
-            <span className="flex-shrink-0">→</span>
+            שמור
           </Button>
         </div>
       </DialogContent>
