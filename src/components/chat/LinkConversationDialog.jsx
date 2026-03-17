@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { base44 } from '@/api/base44Client';
-import { Search, X, LinkIcon } from 'lucide-react';
+import { Search, X } from 'lucide-react';
 
 export default function LinkConversationDialog({ isOpen, onClose, onLink, chatMessage }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,36 +54,26 @@ export default function LinkConversationDialog({ isOpen, onClose, onLink, chatMe
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
-        className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] overflow-hidden flex flex-col rounded-lg p-0 border w-full sm:rounded-lg shadow-lg"
-        style={{ maxWidth: '472px', maxHeight: '780px', height: '92vh' }}
+        className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] p-0 w-full border-0 shadow-lg overflow-hidden flex flex-col"
+        style={{ maxWidth: '476px', height: '92vh', maxHeight: '780px', borderRadius: '8px' }}
         dir="rtl"
-        aria-describedby={undefined}
       >
-        {/* Header */}
-        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-lg text-white relative">
+        {/* Header - כותרת כחולה */}
+        <div className="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-3 flex items-center justify-between relative">
           <button 
             onClick={onClose}
-            className="absolute left-4 top-4 rounded-lg bg-white/20 p-1.5 hover:bg-white/40 transition-colors"
+            className="absolute left-4 top-3 bg-white/20 hover:bg-white/30 p-1.5 rounded transition-colors"
           >
             <X className="h-5 w-5 text-white" />
-            <span className="sr-only">סגור</span>
           </button>
-          <DialogHeader>
-            <DialogTitle className="text-right flex items-center gap-2 text-lg font-bold">
-              <LinkIcon className="w-5 h-5" />
-              שיוך שיחה לגורם קיים
-            </DialogTitle>
-            <DialogDescription className="text-right text-blue-100 text-sm mt-1">
-              בחר את הגורם לשיוך השיחה ממספר הטלפון {chatMessage?.contact_phone || ''}
-            </DialogDescription>
-          </DialogHeader>
+          <h2 className="text-white text-lg font-bold text-right flex-1">עריכת משימה</h2>
         </div>
 
-        {/* Content */}
-        <div className="space-y-4 overflow-y-auto flex-1 px-6 pt-4 pb-4" dir="rtl">
+        {/* Content Area */}
+        <div className="flex-1 overflow-y-auto px-6 py-4" dir="rtl">
           {/* שורת חיפוש */}
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-700 text-right block">
+          <div className="space-y-2 mb-4">
+            <label className="text-sm font-semibold text-slate-700 block text-right">
               חיפוש גורם
             </label>
             <div className="relative">
@@ -92,70 +82,62 @@ export default function LinkConversationDialog({ isOpen, onClose, onLink, chatMe
                 placeholder="חיפוש לפי שם, דירה או טלפון..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-9 pr-10 border-slate-200 rounded-lg"
-                dir="rtl"
+                className="h-10 pr-10 border border-slate-200 rounded-lg"
               />
             </div>
           </div>
 
           {/* רשימת אנשי קשר */}
-          <div className="border border-slate-200 rounded-lg max-h-64 overflow-y-auto">
-            {isLoading ? (
-              <div className="p-6 text-center text-slate-500 text-sm">טוען אנשי קשר...</div>
-            ) : filteredContacts.length === 0 ? (
-              <div className="p-6 text-center text-slate-500 text-sm">
-                {contacts.length === 0 ? 'אין אנשי קשר זמינים' : 'לא נמצאו תוצאות'}
-              </div>
-            ) : (
-              <div className="divide-y divide-slate-100">
-                {filteredContacts.map((contact) => (
-                  <label
-                    key={contact.id}
-                    className={`flex items-start gap-3 p-3 cursor-pointer transition-colors ${
-                      selectedContact?.id === contact.id
-                        ? 'bg-blue-50'
-                        : 'hover:bg-slate-50'
-                    }`}
-                  >
-                    <input
-                      type="radio"
-                      name="contact"
-                      value={contact.id}
-                      checked={selectedContact?.id === contact.id}
-                      onChange={() => setSelectedContact(contact)}
-                      className="mt-1 flex-shrink-0 w-4 h-4"
-                    />
-                    <div className="flex-1 min-w-0 text-right">
-                      <p className="font-medium text-slate-900 text-sm">{contact.owner_name || '—'}</p>
-                      <div className="flex gap-2 mt-0.5 text-xs text-slate-600 justify-end">
-                        {contact.apartment_number && (
-                          <span className="text-blue-600 font-medium">דירה {contact.apartment_number}</span>
-                        )}
-                        {contact.owner_phone && (
-                          <span className="text-blue-600">{contact.owner_phone}</span>
-                        )}
-                      </div>
-                    </div>
-                  </label>
-                ))}
-              </div>
-            )}
-          </div>
+          {isLoading ? (
+            <div className="text-center py-8 text-slate-500">טוען אנשי קשר...</div>
+          ) : filteredContacts.length === 0 ? (
+            <div className="text-center py-8 text-slate-500">
+              {contacts.length === 0 ? 'אין אנשי קשר זמינים' : 'לא נמצאו תוצאות'}
+            </div>
+          ) : (
+            <div className="space-y-2">
+              {filteredContacts.map((contact) => (
+                <label
+                  key={contact.id}
+                  className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${
+                    selectedContact?.id === contact.id
+                      ? 'bg-blue-50 border-blue-300'
+                      : 'border-slate-200 hover:border-slate-300'
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="contact"
+                    value={contact.id}
+                    checked={selectedContact?.id === contact.id}
+                    onChange={() => setSelectedContact(contact)}
+                    className="w-4 h-4 flex-shrink-0"
+                  />
+                  <div className="flex-1 text-right">
+                    <p className="font-medium text-slate-900 text-sm">{contact.owner_name || '—'}</p>
+                    {contact.apartment_number && (
+                      <p className="text-xs text-blue-600">דירה {contact.apartment_number}</p>
+                    )}
+                  </div>
+                </label>
+              ))}
+            </div>
+          )}
         </div>
 
-        {/* Footer */}
-        <div className="flex justify-end gap-2 px-6 py-4 border-t border-slate-100 bg-white flex-shrink-0">
+        {/* Footer - כפתורים */}
+        <div className="flex gap-2 justify-end px-6 py-4 border-t border-slate-200 bg-white">
           <Button 
             variant="outline" 
             onClick={onClose}
-            className="h-9"
+            className="h-9 px-6 text-slate-700"
           >
             ביטול
           </Button>
           <Button
             onClick={handleLink}
             disabled={!selectedContact}
-            className="h-9 bg-[#3563d0] hover:bg-[#2a50b0] text-white"
+            className="h-9 px-6 bg-[#3563d0] hover:bg-[#2a50b0] text-white font-semibold"
           >
             שיוך
           </Button>
