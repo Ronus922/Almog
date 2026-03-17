@@ -2,10 +2,11 @@ import { createClient } from 'npm:@base44/sdk@0.8.20';
 
 const base44 = createClient({
   appId: Deno.env.get('BASE44_APP_ID'),
+  serviceRoleKey: 'none',
 });
 
 Deno.serve(async (req) => {
-  // קרא את ה-body לפני הכל
+  // קרא את ה-body
   let rawBody = '';
   try {
     rawBody = await req.text();
@@ -36,13 +37,11 @@ Deno.serve(async (req) => {
 
   try {
     // בדיקת כפילות
-    console.log('[WH] Checking duplicate for idMessage:', idMessage);
-    const existing = await base44.entities.ChatMessage.filter({ external_message_id: idMessage });
+    const existing = await base44.asServiceRole.entities.ChatMessage.filter({ external_message_id: idMessage });
     if (existing && existing.length > 0) {
       console.log('[WH] Duplicate detected, skipping');
       return Response.json({ ok: true }, { status: 200 });
     }
-    console.log('[WH] No duplicate, proceeding...');
 
     // נרמול טלפון
     const senderRaw = payload.senderData?.sender || '';
@@ -80,7 +79,7 @@ Deno.serve(async (req) => {
     ];
     for (const attempt of attempts) {
       if (contactMatch) break;
-      const results = await base44.entities.Contact.filter({ [attempt.field]: attempt.value });
+      const results = await base44.asServiceRole.entities.Contact.filter({ [attempt.field]: attempt.value });
       if (results?.length > 0) {
         contactMatch = results[0];
         console.log('[WH] Contact found via', attempt.field, '=', attempt.value);
@@ -88,10 +87,9 @@ Deno.serve(async (req) => {
     }
 
     const linkStatus = contactMatch ? 'linked' : 'unlinked';
-    console.log('[WH] linkStatus:', linkStatus);
 
     // יצירת ChatMessage
-    await base44.entities.ChatMessage.create({
+    await base44.asServiceRole.entities.ChatMessage.create({
       direction: 'received',
       external_message_id: idMessage,
       sender_chat_id: senderChatId,
@@ -111,7 +109,6 @@ Deno.serve(async (req) => {
 
   } catch (err) {
     console.error('[WH] ❌ Error:', err.message);
-    console.error('[WH] Stack:', err.stack);
     return Response.json({ ok: true }, { status: 200 });
   }
 });
