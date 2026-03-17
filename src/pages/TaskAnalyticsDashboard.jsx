@@ -224,7 +224,7 @@ function TaskAnalyticsDashboard() {
             onDragEnd={handleDragEnd}
             className={`cursor-move transition-all ${draggedCard === cardId ? 'opacity-50' : 'opacity-100'}`}
           >
-            <Card className="bg-white border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+            <Card className="h-full bg-white border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
               <div className="flex items-center justify-between px-4 pt-4">
                 <CardTitle className="text-lg font-bold text-slate-900">משימות פתוחות בטיפול</CardTitle>
                 <GripVertical className="w-4 h-4 text-slate-400 group-hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -524,7 +524,7 @@ function TaskAnalyticsDashboard() {
 
         {/* KPI Cards - Building Metrics */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
-          <Card className="bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+          <Card className="h-full bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="pt-6">
               <div className="flex items-start justify-between">
                 <div>
@@ -538,7 +538,7 @@ function TaskAnalyticsDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+          <Card className="h-full bg-gradient-to-br from-cyan-50 to-cyan-100 border-cyan-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="pt-6">
               <div className="flex items-start justify-between">
                 <div>
@@ -552,7 +552,7 @@ function TaskAnalyticsDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+          <Card className="h-full bg-gradient-to-br from-green-50 to-green-100 border-green-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="pt-6">
               <div className="flex items-start justify-between">
                 <div>
@@ -566,7 +566,7 @@ function TaskAnalyticsDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+          <Card className="h-full bg-gradient-to-br from-blue-50 to-blue-100 border-blue-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="pt-6">
               <div className="flex items-start justify-between">
                 <div>
@@ -580,7 +580,7 @@ function TaskAnalyticsDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-red-50 to-red-100 border-red-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+          <Card className="h-full bg-gradient-to-br from-red-50 to-red-100 border-red-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="pt-6">
               <div className="flex items-start justify-between">
                 <div>
@@ -594,7 +594,7 @@ function TaskAnalyticsDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-green-50 to-green-100 border-green-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+          <Card className="h-full bg-gradient-to-br from-green-50 to-green-100 border-green-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="pt-6">
               <div className="flex items-start justify-between">
                 <div>
@@ -608,7 +608,7 @@ function TaskAnalyticsDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
+          <Card className="h-full bg-gradient-to-br from-amber-50 to-amber-100 border-amber-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="pt-6">
               <div className="flex items-start justify-between">
                 <div>
@@ -625,7 +625,7 @@ function TaskAnalyticsDashboard() {
 
         {/* תרשים מגמת חובות */}
         {debtTrendData.length > 0 &&
-        <Card className="bg-white border-slate-200 rounded-xl shadow-sm mb-6">
+        <Card className="h-full bg-white border-slate-200 rounded-xl shadow-sm mb-6">
             <CardHeader>
               <CardTitle className="text-lg font-bold text-slate-900">מגמת חובות בבניין (30 ימים אחרונים)</CardTitle>
             </CardHeader>
@@ -647,7 +647,7 @@ function TaskAnalyticsDashboard() {
         {/* גרפים */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {/* התפלגות לפי סטטוס */}
-          <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
+          <Card className="h-full bg-white border-slate-200 rounded-xl shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg font-bold text-slate-900">התפלגות לפי סטטוס</CardTitle>
             </CardHeader>
@@ -679,7 +679,7 @@ function TaskAnalyticsDashboard() {
           </Card>
 
           {/* התפלגות לפי עדיפות */}
-          <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
+          <Card className="h-full bg-white border-slate-200 rounded-xl shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg font-bold text-slate-900">התפלגות לפי עדיפות</CardTitle>
             </CardHeader>
