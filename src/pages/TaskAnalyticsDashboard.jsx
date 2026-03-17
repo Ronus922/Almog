@@ -565,10 +565,7 @@ export default function TaskAnalyticsDashboard() {
             </CardContent>
           </Card>
 
-          {/* גריד 2x2: משימות+תזכורות בשורה ראשונה, פגישות+וואטסאפ בשורה שניה */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-
-            {/* תזכורות פתוחות */}
+          {/* תזכורות פתוחות */}
             {(() => {
               const openTodos = todoItems.filter((t) => t.status === 'open').slice(0, 8);
               return (
