@@ -140,7 +140,7 @@ function LayoutContent({ children, currentPageName }) {
         
         {/* Header */}
         <div className="p-3 border-b border-slate-700 flex items-center justify-between gap-2">
-          {!isCollapsed && <h1 className="text-lg font-bold text-white">מערכת</h1>}
+          {!isCollapsed && <h1 className="text-2xl font-extrabold text-white">ניהול אלמוג</h1>}
         </div>
 
         {/* Collapse Button - Floating on Side */}
