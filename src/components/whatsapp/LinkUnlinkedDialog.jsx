@@ -87,100 +87,98 @@ export default function LinkUnlinkedDialog({ open, onClose, senderPhone, senderC
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-lg" dir="rtl">
-        <DialogHeader>
-          <DialogTitle className="text-lg font-bold">שיוך שיחה לגורם קיים</DialogTitle>
-          <DialogDescription>בחר את הגורם לשיוך הודעות מ-{senderPhone}</DialogDescription>
-        </DialogHeader>
+      <DialogContent
+        className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] bg-background shadow-lg border p-0 overflow-hidden flex flex-col sm:rounded-lg"
+        style={{ maxWidth: '472px', width: '100%' }}
+        dir="rtl"
+      >
+        {/* כפתור X בפינה שמאלית עליונה */}
+        <button
+          onClick={handleClose}
+          className="absolute left-4 top-4 z-10 rounded-lg bg-white/20 p-1.5 hover:bg-white/40 transition-colors"
+          title="סגור"
+        >
+          <X className="h-5 w-5 text-white" />
+        </button>
 
-        {/* הסבר — מדגיש שהשיוך אופציונלי */}
-        <div className="bg-amber-50 border border-amber-200 rounded-lg px-4 py-3 flex gap-3 items-start mb-1">
-          <AlertCircle className="w-4 h-4 text-amber-500 mt-0.5 flex-shrink-0" />
-          <div className="text-sm text-amber-800 leading-relaxed">
-            <span className="font-semibold">שיוך הוא אופציונלי.</span> ניתן לסגור חלון זה ולהשאיר את השיחה כ"לא משויכת" — זה מצב תקין.
-            שיוך יתבצע רק לאחר בחירת גורם ולחיצה על "שייך".
+        {/* כותרת עליונה עם גרדיאנט */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-lg">
+          <h2 className="text-white text-lg font-bold text-right">שיוך שיחה לגורם קיים</h2>
+        </div>
+
+        {/* אזור תוכן */}
+        <div className="space-y-4 px-6 pt-5 pb-2 flex-1 overflow-y-auto" dir="rtl">
+          {/* שדה פילטר קבוע בראש הרשימה */}
+          <div className="sticky top-0 bg-background z-10">
+            <div className="relative">
+              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+              <Input
+                placeholder="חפש לפי שם..."
+                value={search}
+                onChange={(e) => { setSearch(e.target.value); setSelectedContact(null); }}
+                className="h-10 pr-10 border border-slate-200 rounded-lg text-sm"
+                autoFocus
+              />
+            </div>
           </div>
-        </div>
 
-        <p className="text-sm text-gray-500 mb-2">
-          הודעות ממספר <span className="font-mono font-semibold text-gray-700">{senderPhone}</span>
-        </p>
-
-        {/* חיפוש */}
-        <div className="relative mb-2">
-          <Search className="absolute right-3 top-2.5 w-4 h-4 text-gray-400" />
-          <Input
-            placeholder="חיפוש לפי שם, מספר דירה או טלפון..."
-            value={search}
-            onChange={(e) => { setSearch(e.target.value); setSelectedContact(null); }}
-            className="pr-9"
-            autoFocus
-          />
-        </div>
-
-        {/* רשימת תוצאות — ללא auto-select */}
-        <div className="max-h-64 overflow-y-auto space-y-1 mb-3 border border-gray-100 rounded-lg p-1 bg-gray-50">
+          {/* רשימת אנשי קשר */}
           {isLoading ? (
-            <p className="text-center text-gray-400 text-sm py-6">טוען...</p>
+            <div className="text-center py-8 text-slate-500 text-sm">טוען אנשי קשר...</div>
           ) : filtered.length === 0 ? (
-            <div className="text-center py-6">
-              <p className="text-gray-400 text-sm">לא נמצאו תוצאות</p>
-              <p className="text-gray-400 text-xs mt-1">ניתן לסגור ולהשאיר unlinked</p>
+            <div className="text-center py-8 text-slate-500 text-sm">
+              {contacts.length === 0 ? 'אין אנשי קשר זמינים' : 'לא נמצאו תוצאות'}
             </div>
           ) : (
-            filtered.map((c) => {
-              const isChosen = selectedContact?.id === c.id;
-              return (
-                <button
-                  key={c.id}
-                  onClick={() => setSelectedContact(isChosen ? null : c)}
-                  disabled={linking}
-                  className={`w-full text-right px-3 py-2.5 rounded-lg flex items-center justify-between gap-2 border transition-all ${
-                    isChosen
-                      ? 'bg-blue-50 border-blue-300 shadow-sm'
-                      : 'bg-white border-transparent hover:bg-blue-50 hover:border-blue-200'
-                  }`}
-                >
-                  <div className="min-w-0">
-                    <div className="font-medium text-sm text-gray-900 truncate">
-                      {c.owner_name || c.tenant_name || 'ללא שם'}
+            <div className="space-y-2">
+              {filtered.map((c) => {
+                const isChosen = selectedContact?.id === c.id;
+                return (
+                  <label
+                    key={c.id}
+                    className={`flex items-center gap-3 p-3 border rounded-lg cursor-pointer transition-all ${
+                      isChosen
+                        ? 'bg-blue-50 border-blue-300'
+                        : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="contact"
+                      value={c.id}
+                      checked={isChosen}
+                      onChange={() => setSelectedContact(isChosen ? null : c)}
+                      disabled={linking}
+                      className="w-4 h-4 flex-shrink-0 accent-blue-600"
+                    />
+                    <div className="flex-1 text-right min-w-0">
+                      <p className="font-medium text-slate-900 text-sm">{c.owner_name || c.tenant_name || 'ללא שם'}</p>
+                      {c.apartment_number && (
+                        <p className="text-xs text-blue-600 font-medium mt-0.5">דירה {c.apartment_number}</p>
+                      )}
                     </div>
-                    <div className="text-xs text-gray-500 mt-0.5">
-                      דירה {c.apartment_number}
-                      {c.owner_phone && ` · ${c.owner_phone}`}
-                      {!c.owner_phone && c.tenant_phone && ` · ${c.tenant_phone}`}
-                    </div>
-                  </div>
-                  {isChosen ? (
-                    <div className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center flex-shrink-0">
-                      <div className="w-2 h-2 rounded-full bg-white" />
-                    </div>
-                  ) : (
-                    <div className="w-5 h-5 rounded-full border-2 border-gray-300 flex-shrink-0" />
-                  )}
-                </button>
-              );
-            })
+                  </label>
+                );
+              })}
+            </div>
           )}
         </div>
 
-        {/* פעולות — שתי אפשרויות ברורות */}
-        <div className="flex gap-2 justify-between items-center">
-          <Button
-            variant="outline"
+        {/* footer תחתון */}
+        <div className="flex justify-end gap-2 px-6 py-4 border-t border-slate-100 bg-white flex-shrink-0">
+          <Button 
             onClick={handleClose}
-            className="gap-1.5 text-gray-600"
+            variant="outline"
+            className="h-9"
           >
-            <X className="w-4 h-4" />
-            השאר לא משויך
+            ביטול
           </Button>
           <Button
             onClick={handleConfirmLink}
             disabled={!selectedContact || linking}
-            className="gap-1.5 bg-blue-600 hover:bg-blue-700 text-white"
+            className="h-9 bg-[#3563d0] text-white hover:bg-[#2852b5] px-4"
           >
-            <Link className="w-4 h-4" />
-            {linking ? 'משייך...' : selectedContact ? `שייך לדירה ${selectedContact.apartment_number}` : 'בחר גורם לשיוך'}
+            שמור
           </Button>
         </div>
       </DialogContent>
