@@ -5,48 +5,107 @@ Deno.serve(async (req) => {
     const base44 = createClientFromRequest(req);
     const payload = await req.json();
 
-    // Extract message from Green API webhook
-    const { from, body, timestamp, id } = payload;
-    
-    if (!from || !body) {
-      return Response.json({ message: "Invalid payload" }, { status: 400 });
+    const typeWebhook = payload.typeWebhook;
+    const idMessage = payload.idMessage;
+    const senderChatId = payload.senderData?.chatId || null;
+    const senderPhoneRaw = payload.senderData?.sender || null;
+    const timestamp = payload.timestamp;
+    const typeMessage = payload.messageData?.typeMessage;
+
+    console.log('[WEBHOOK] typeWebhook:', typeWebhook);
+    console.log('[WEBHOOK] idMessage:', idMessage);
+    console.log('[WEBHOOK] senderData.chatId:', senderChatId);
+    console.log('[WEBHOOK] senderData.sender:', senderPhoneRaw);
+    console.log('[WEBHOOK] messageData.typeMessage:', typeMessage);
+
+    // Process only real incoming messages
+    if (typeWebhook !== 'incomingMessageReceived') {
+      console.log('[WEBHOOK] Skipping non-incoming webhook:', typeWebhook);
+      return Response.json({ message: 'OK - skipped' }, { status: 200 });
     }
 
-    // Find contact by phone number - normalize to match stored format
-    let phone = from.replace('@c.us', '');
-    // Try to normalize: remove leading 972 and add 0
-    let normalizedPhone = phone;
-    if (phone.startsWith('972')) {
-      normalizedPhone = '0' + phone.slice(3);
+    if (!idMessage) {
+      console.log('[WEBHOOK] Missing idMessage, skipping');
+      return Response.json({ message: 'OK - no idMessage' }, { status: 200 });
     }
-    
+
+    // Dedup by external_message_id
+    const existing = await base44.asServiceRole.entities.ChatMessage.filter({
+      external_message_id: idMessage
+    });
+    if (existing && existing.length > 0) {
+      console.log('[WEBHOOK] Duplicate message, skipping:', idMessage);
+      return Response.json({ message: 'OK - duplicate' }, { status: 200 });
+    }
+
+    // Normalize phone number
+    let phone = senderPhoneRaw || '';
+    if (phone.endsWith('@c.us')) phone = phone.replace('@c.us', '');
+    if (phone.startsWith('972')) phone = '0' + phone.slice(3);
+
+    // Map message type and content
+    let messageType = 'text';
+    let content = '';
+    let mediaUrl = null;
+
+    const textTypes = ['textMessage', 'extendedTextMessage'];
+    const fileTypes = ['imageMessage', 'videoMessage', 'documentMessage', 'audioMessage', 'stickerMessage'];
+
+    if (textTypes.includes(typeMessage)) {
+      messageType = 'text';
+      content =
+        payload.messageData?.textMessageData?.textMessage ||
+        payload.messageData?.extendedTextMessageData?.text ||
+        '';
+    } else if (fileTypes.includes(typeMessage)) {
+      const fileData = payload.messageData?.fileMessageData || {};
+      mediaUrl = fileData.downloadUrl || null;
+      content = fileData.caption || fileData.fileName || '';
+      if (typeMessage === 'imageMessage') messageType = 'image';
+      else if (typeMessage === 'documentMessage') messageType = 'document';
+      else messageType = 'image'; // video/audio/sticker → image fallback for enum
+    } else {
+      console.log('[WEBHOOK] Unknown typeMessage:', typeMessage, '— saving as text');
+      messageType = 'text';
+      content = typeMessage || '';
+    }
+
+    // Find matching contact
+    const rawPhone = senderPhoneRaw?.replace('@c.us', '') || phone;
     const contacts = await base44.asServiceRole.entities.Contact.filter({
       "$or": [
         { "owner_phone": phone },
-        { "owner_phone": normalizedPhone },
+        { "owner_phone": rawPhone },
         { "tenant_phone": phone },
-        { "tenant_phone": normalizedPhone }
+        { "tenant_phone": rawPhone }
       ]
     });
 
-    if (contacts && contacts.length > 0) {
-      // Save message to ChatMessage entity
-      await base44.asServiceRole.entities.ChatMessage.create({
-        contact_id: contacts[0].id,
-        contact_phone: phone,
-        direction: 'received',
-        message_type: 'text',
-        content: body,
-        timestamp: new Date(timestamp * 1000).toISOString()
-      });
-      console.log(`Message saved from ${phone} to contact ${contacts[0].id}`);
-    } else {
-      console.warn(`No contact found for phone: ${phone} or ${normalizedPhone}`);
-    }
+    const contactMatch = contacts && contacts.length > 0 ? contacts[0] : null;
+    const linkStatus = contactMatch ? 'linked' : 'unlinked';
 
-    return Response.json({ message: "OK" }, { status: 200 });
+    const chatMessageData = {
+      direction: 'received',
+      external_message_id: idMessage,
+      sender_chat_id: senderChatId,
+      sender_phone_raw: senderPhoneRaw,
+      contact_phone: phone,
+      message_type: messageType,
+      content: content,
+      timestamp: timestamp ? new Date(timestamp * 1000).toISOString() : new Date().toISOString(),
+      link_status: linkStatus,
+      contact_id: contactMatch ? contactMatch.id : null,
+    };
+
+    await base44.asServiceRole.entities.ChatMessage.create(chatMessageData);
+
+    console.log('[WEBHOOK] CREATED ChatMessage with direction=received');
+    console.log('[WEBHOOK] external_message_id=' + idMessage);
+    console.log('[WEBHOOK] link_status=' + linkStatus + (contactMatch ? ' contact_id=' + contactMatch.id : ''));
+
+    return Response.json({ message: 'OK' }, { status: 200 });
   } catch (error) {
-    console.error("Webhook error:", error);
+    console.error('[WEBHOOK] Error:', error.message);
     return Response.json({ error: error.message }, { status: 500 });
   }
 });
