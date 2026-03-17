@@ -565,53 +565,53 @@ export default function TaskAnalyticsDashboard() {
             </CardContent>
           </Card>
 
-          {/* חלונית תזכורות */}
-          {(() => {
-            const openTodos = todoItems.filter((t) => t.status === 'open').slice(0, 8);
-            return (
-              <Card className="bg-white border-slate-200 rounded-xl shadow-sm mt-6">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
-                    <Bell className="w-5 h-5 text-amber-500" />
-                    תזכורות פתוחות
-                    {openTodos.length > 0 && (
-                      <span className="mr-1 bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full">
-                        {openTodos.length}
-                      </span>
-                    )}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  {openTodos.length > 0 ? (
-                    <div className="divide-y divide-slate-100">
-                      {openTodos.map((item) => (
-                        <div key={item.id} className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
-                          <div className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm text-slate-800 font-medium truncate">{item.title}</p>
-                            {item.description && (
-                              <p className="text-xs text-slate-500 truncate mt-0.5">{item.description}</p>
-                            )}
-                          </div>
-                          <span className="text-xs text-slate-400 whitespace-nowrap">
-                            {item.owner_user_id || '—'}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <div className="text-center py-8 text-slate-500 text-sm">אין תזכורות פתוחות</div>
-                  )}
-                </CardContent>
-              </Card>
-            );
-          })()}
+          {/* גריד 2x2: משימות+תזכורות בשורה ראשונה, פגישות+וואטסאפ בשורה שניה */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-          {/* פגישות + וואטסאפ זה לצד זה */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+            {/* תזכורות פתוחות */}
+            {(() => {
+              const openTodos = todoItems.filter((t) => t.status === 'open').slice(0, 8);
+              return (
+                <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                      <Bell className="w-5 h-5 text-amber-500" />
+                      תזכורות פתוחות
+                      {openTodos.length > 0 && (
+                        <span className="mr-1 bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                          {openTodos.length}
+                        </span>
+                      )}
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    {openTodos.length > 0 ? (
+                      <div className="divide-y divide-slate-100">
+                        {openTodos.map((item) => (
+                          <div key={item.id} className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
+                            <div className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm text-slate-800 font-medium truncate">{item.title}</p>
+                              {item.description && (
+                                <p className="text-xs text-slate-500 truncate mt-0.5">{item.description}</p>
+                              )}
+                            </div>
+                            <span className="text-xs text-slate-400 whitespace-nowrap">
+                              {item.owner_user_id || '—'}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-slate-500 text-sm">אין תזכורות פתוחות</div>
+                    )}
+                  </CardContent>
+                </Card>
+              );
+            })()}
 
             {/* פגישות פעילות */}
-            <Card className="bg-white border-slate-200 rounded-xl shadow-sm md:col-span-1">
+            <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-cyan-600" />
