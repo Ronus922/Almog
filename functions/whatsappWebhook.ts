@@ -91,7 +91,7 @@ Deno.serve(async (req) => {
     console.log('[WH] linkStatus:', linkStatus);
 
     // יצירת ChatMessage
-    await base44.asServiceRole.entities.ChatMessage.create({
+    await base44.entities.ChatMessage.create({
       direction: 'received',
       external_message_id: idMessage,
       sender_chat_id: senderChatId,
