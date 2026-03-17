@@ -490,73 +490,166 @@ export default function TaskAnalyticsDashboard() {
 
         </Card>
 
-        {/* טבלה ממוזערת של משימות אחרונות */}
-        <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
-          <CardHeader>
-            <CardTitle className="text-lg font-bold text-slate-900">משימות לדיוק (פתוחות בטיפול)</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="border-b border-slate-200">
-                    <th className="text-right py-3 px-4 font-semibold text-slate-700">כותרת</th>
-                    <th className="text-right py-3 px-4 font-semibold text-slate-700">תאריך יעד</th>
-                    <th className="text-right py-3 px-4 font-semibold text-slate-700">עדיפות</th>
-                    <th className="text-right py-3 px-4 font-semibold text-slate-700">מוקצה ל</th>
-                    <th className="text-right py-3 px-4 font-semibold text-slate-700">סטטוס</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredTasks.
-                  filter((t) => t.status !== 'הושלמה' && t.status !== 'בוטלה').
-                  sort((a, b) => {
-                    if (!a.due_date) return 1;
-                    if (!b.due_date) return -1;
-                    return new Date(a.due_date) - new Date(b.due_date);
-                  }).
-                  slice(0, 10).
-                  map((task) => {
-                    const isOverdue = task.due_date && !['הושלמה', 'בוטלה'].includes(task.status) && new Date(task.due_date) < new Date();
-                    return (
-                      <tr key={task.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-                          <td className="py-3 px-4 text-slate-900 font-medium">{task.title}</td>
-                          <td className={`py-3 px-4 ${isOverdue ? 'text-red-600 font-medium' : 'text-slate-600'}`}>
-                            {task.due_date ? new Date(task.due_date).toLocaleDateString('he-IL') : '—'}
-                          </td>
-                          <td className="py-3 px-4">
-                            <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                          task.priority === 'גבוהה' ? 'bg-red-100 text-red-700' :
-                          task.priority === 'בינונית' ? 'bg-amber-100 text-amber-700' :
-                          'bg-green-100 text-green-700'}`
-                          }>
-                              {task.priority || 'ללא'}
-                            </span>
-                          </td>
-                          <td className="py-3 px-4 text-slate-600">{task.assigned_to_name || '—'}</td>
-                          <td className="py-3 px-4">
-                            <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${
-                          task.status === 'פתוחה' ? 'bg-blue-100 text-blue-700' :
-                          task.status === 'בטיפול' ? 'bg-amber-100 text-amber-700' :
-                          'bg-slate-100 text-slate-700'}`
-                          }>
-                              {task.status}
-                            </span>
-                          </td>
-                        </tr>
+        {/* שורה תחתונה: משימות + פגישות/וואטסאפ */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+          {/* טבלת משימות פתוחות בטיפול */}
+          <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-lg font-bold text-slate-900">משימות פתוחות בטיפול</CardTitle>
+            </CardHeader>
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-slate-200 bg-slate-50">
+                      <th className="text-right py-2.5 px-4 font-semibold text-slate-700">כותרת</th>
+                      <th className="text-right py-2.5 px-4 font-semibold text-slate-700">תאריך יעד</th>
+                      <th className="text-right py-2.5 px-4 font-semibold text-slate-700">עדיפות</th>
+                      <th className="text-right py-2.5 px-4 font-semibold text-slate-700">מוקצה ל</th>
+                      <th className="text-right py-2.5 px-4 font-semibold text-slate-700">סטטוס</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredTasks
+                      .filter((t) => t.status !== 'הושלמה' && t.status !== 'בוטלה')
+                      .sort((a, b) => {
+                        if (!a.due_date) return 1;
+                        if (!b.due_date) return -1;
+                        return new Date(a.due_date) - new Date(b.due_date);
+                      })
+                      .slice(0, 10)
+                      .map((task) => {
+                        const isOverdue = task.due_date && !['הושלמה', 'בוטלה'].includes(task.status) && new Date(task.due_date) < new Date();
+                        return (
+                          <tr key={task.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                            <td className="py-2.5 px-4 text-slate-900 font-medium truncate max-w-[140px]">{task.title}</td>
+                            <td className={`py-2.5 px-4 whitespace-nowrap ${isOverdue ? 'text-red-600 font-medium' : 'text-slate-600'}`}>
+                              {task.due_date ? new Date(task.due_date).toLocaleDateString('he-IL') : '—'}
+                            </td>
+                            <td className="py-2.5 px-4">
+                              <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
+                                task.priority === 'גבוהה' ? 'bg-red-100 text-red-700' :
+                                task.priority === 'בינונית' ? 'bg-amber-100 text-amber-700' :
+                                'bg-green-100 text-green-700'}`}>
+                                {task.priority || 'ללא'}
+                              </span>
+                            </td>
+                            <td className="py-2.5 px-4 text-slate-600 text-xs">{task.assigned_to_name || '—'}</td>
+                            <td className="py-2.5 px-4">
+                              <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
+                                task.status === 'פתוחה' ? 'bg-blue-100 text-blue-700' :
+                                task.status === 'בטיפול' ? 'bg-amber-100 text-amber-700' :
+                                'bg-slate-100 text-slate-700'}`}>
+                                {task.status}
+                              </span>
+                            </td>
+                          </tr>
                         );
-                        })}
-                </tbody>
-              </table>
-              {filteredTasks.filter((t) => t.status !== 'הושלמה' && t.status !== 'בוטלה').length === 0 &&
-              <div className="text-center py-12 text-slate-500">
-                  <p>אין משימות פעילות</p>
-                </div>
-              }
-            </div>
-          </CardContent>
-        </Card>
+                      })}
+                  </tbody>
+                </table>
+                {filteredTasks.filter((t) => t.status !== 'הושלמה' && t.status !== 'בוטלה').length === 0 && (
+                  <div className="text-center py-10 text-slate-500">אין משימות פעילות</div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* עמודה ימנית: פגישות + וואטסאפ */}
+          <div className="flex flex-col gap-6">
+
+            {/* פגישות פעילות */}
+            <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <Calendar className="w-5 h-5 text-cyan-600" />
+                  פגישות פעילות
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                {appointments
+                  .filter((a) => new Date(a.date) >= new Date())
+                  .sort((a, b) => new Date(a.date) - new Date(b.date))
+                  .slice(0, 5)
+                  .length > 0 ? (
+                  <div className="divide-y divide-slate-100">
+                    {appointments
+                      .filter((a) => new Date(a.date) >= new Date())
+                      .sort((a, b) => new Date(a.date) - new Date(b.date))
+                      .slice(0, 5)
+                      .map((appt) => (
+                        <div key={appt.id} className="flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors">
+                          <div className="flex-1 min-w-0">
+                            <p className="font-medium text-slate-900 text-sm truncate">{appt.title}</p>
+                            <p className="text-xs text-slate-500 mt-0.5">{appt.location || '—'}</p>
+                          </div>
+                          <div className="text-left flex flex-col items-end mr-3">
+                            <span className="text-xs font-semibold text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded-full">
+                              {new Date(appt.date).toLocaleDateString('he-IL')}
+                            </span>
+                            {appt.start_time && (
+                              <span className="text-xs text-slate-500 mt-1">{appt.start_time}</span>
+                            )}
+                          </div>
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-slate-500 text-sm">אין פגישות קרובות</div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* הודעות וואטסאפ שלא נענו */}
+            <Card className="bg-white border-slate-200 rounded-xl shadow-sm flex-1">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  <MessageCircle className="w-5 h-5 text-green-600" />
+                  הודעות וואטסאפ שלא נענו
+                  {buildingMetrics.pendingMessages > 0 && (
+                    <span className="mr-1 bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                      {buildingMetrics.pendingMessages}
+                    </span>
+                  )}
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                {chatMessages
+                  .filter((m) => m.direction === 'received' && m.link_status === 'unlinked')
+                  .sort((a, b) => new Date(b.timestamp || b.created_date) - new Date(a.timestamp || a.created_date))
+                  .slice(0, 6)
+                  .length > 0 ? (
+                  <div className="divide-y divide-slate-100">
+                    {chatMessages
+                      .filter((m) => m.direction === 'received' && m.link_status === 'unlinked')
+                      .sort((a, b) => new Date(b.timestamp || b.created_date) - new Date(a.timestamp || a.created_date))
+                      .slice(0, 6)
+                      .map((msg) => (
+                        <div key={msg.id} className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
+                          <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+                            <MessageCircle className="w-4 h-4 text-green-600" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs font-semibold text-slate-700">{msg.contact_phone || '—'}</p>
+                            <p className="text-sm text-slate-800 truncate mt-0.5">{msg.content || '(הודעה ללא תוכן)'}</p>
+                          </div>
+                          <span className="text-xs text-slate-400 whitespace-nowrap mt-1">
+                            {msg.timestamp ? new Date(msg.timestamp).toLocaleDateString('he-IL') : '—'}
+                          </span>
+                        </div>
+                      ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-slate-500 text-sm">אין הודעות שלא נענו</div>
+                )}
+              </CardContent>
+            </Card>
+
+          </div>
+        </div>
+
       </div>
     </div>
-    );
-    }
+  );
+}
