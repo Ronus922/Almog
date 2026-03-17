@@ -12,6 +12,8 @@ import LinkedContactInfo from '@/components/whatsapp/LinkedContactInfo';
 import LinkUnlinkedDialog from '@/components/whatsapp/LinkUnlinkedDialog';
 import ConversationGroupFilter from '@/components/whatsapp/ConversationGroupFilter';
 import BroadcastDialog from '@/components/whatsapp/BroadcastDialog';
+import EmojiPicker from '@/components/whatsapp/EmojiPicker';
+import QuickTemplatesMenu from '@/components/whatsapp/QuickTemplatesMenu';
 
 export default function WhatsAppChat() {
   const [selectedContact, setSelectedContact] = useState(null);
