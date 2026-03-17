@@ -123,9 +123,9 @@ function TaskAnalyticsDashboard() {
       dist[assignee] = (dist[assignee] || 0) + 1;
     });
     return Object.entries(dist).
-    map(([name, value]) => ({ name, value })).
-    sort((a, b) => b.value - a.value).
-    slice(0, 8);
+      map(([name, value]) => ({ name, value })).
+      sort((a, b) => b.value - a.value).
+      slice(0, 8);
   }, [filteredTasks]);
 
   const COLORS = ['#3563d0', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#14b8a6', '#f97316'];
@@ -206,8 +206,8 @@ function TaskAnalyticsDashboard() {
           <div className="w-12 h-12 rounded-full bg-blue-100 mx-auto mb-4 animate-spin"></div>
           <p className="text-slate-600 font-medium">טוען נתונים...</p>
         </div>
-      </div>);
-
+      </div>
+    );
   }
 
   // רינדור כרטיס לפי סוג
@@ -222,8 +222,8 @@ function TaskAnalyticsDashboard() {
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, cardId)}
             onDragEnd={handleDragEnd}
-            className={`cursor-move transition-all ${draggedCard === cardId ? 'opacity-50' : 'opacity-100'}`}>
-            
+            className={`cursor-move transition-all ${draggedCard === cardId ? 'opacity-50' : 'opacity-100'}`}
+          >
             <Card className="h-full bg-white border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
               <div className="flex items-center justify-between px-4 pt-4">
                 <CardTitle className="text-lg font-bold text-slate-900">משימות פתוחות בטיפול</CardTitle>
@@ -242,53 +242,53 @@ function TaskAnalyticsDashboard() {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredTasks.
-                      filter((t) => t.status !== 'הושלמה' && t.status !== 'בוטלה').
-                      sort((a, b) => {
-                        if (!a.due_date) return 1;
-                        if (!b.due_date) return -1;
-                        return new Date(a.due_date) - new Date(b.due_date);
-                      }).
-                      slice(0, 10).
-                      map((task) => {
-                        const isOverdue = task.due_date && !['הושלמה', 'בוטלה'].includes(task.status) && new Date(task.due_date) < new Date();
-                        return (
-                          <tr key={task.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
+                      {filteredTasks
+                        .filter((t) => t.status !== 'הושלמה' && t.status !== 'בוטלה')
+                        .sort((a, b) => {
+                          if (!a.due_date) return 1;
+                          if (!b.due_date) return -1;
+                          return new Date(a.due_date) - new Date(b.due_date);
+                        })
+                        .slice(0, 10)
+                        .map((task) => {
+                          const isOverdue = task.due_date && !['הושלמה', 'בוטלה'].includes(task.status) && new Date(task.due_date) < new Date();
+                          return (
+                            <tr key={task.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
                               <td className="py-2.5 px-4 text-slate-900 font-medium truncate max-w-[140px]">{task.title}</td>
                               <td className={`py-2.5 px-4 whitespace-nowrap ${isOverdue ? 'text-red-600 font-medium' : 'text-slate-600'}`}>
                                 {task.due_date ? new Date(task.due_date).toLocaleDateString('he-IL') : '—'}
                               </td>
                               <td className="py-2.5 px-4">
                                 <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
-                              task.priority === 'גבוהה' ? 'bg-red-100 text-red-700' :
-                              task.priority === 'בינונית' ? 'bg-amber-100 text-amber-700' :
-                              'bg-green-100 text-green-700'}`}>
+                                  task.priority === 'גבוהה' ? 'bg-red-100 text-red-700' :
+                                  task.priority === 'בינונית' ? 'bg-amber-100 text-amber-700' :
+                                  'bg-green-100 text-green-700'}`}>
                                   {task.priority || 'ללא'}
                                 </span>
                               </td>
                               <td className="py-2.5 px-4 text-slate-600 text-xs">{task.assigned_to_name || '—'}</td>
                               <td className="py-2.5 px-4">
                                 <span className={`inline-block px-2 py-0.5 rounded-full text-xs font-medium ${
-                              task.status === 'פתוחה' ? 'bg-blue-100 text-blue-700' :
-                              task.status === 'בטיפול' ? 'bg-amber-100 text-amber-700' :
-                              'bg-slate-100 text-slate-700'}`}>
+                                  task.status === 'פתוחה' ? 'bg-blue-100 text-blue-700' :
+                                  task.status === 'בטיפול' ? 'bg-amber-100 text-amber-700' :
+                                  'bg-slate-100 text-slate-700'}`}>
                                   {task.status}
                                 </span>
                               </td>
-                            </tr>);
-
-                      })}
+                            </tr>
+                          );
+                        })}
                     </tbody>
                   </table>
-                  {filteredTasks.filter((t) => t.status !== 'הושלמה' && t.status !== 'בוטלה').length === 0 &&
-                  <div className="text-center py-10 text-slate-500">אין משימות פעילות</div>
-                  }
+                  {filteredTasks.filter((t) => t.status !== 'הושלמה' && t.status !== 'בוטלה').length === 0 && (
+                    <div className="text-center py-10 text-slate-500">אין משימות פעילות</div>
+                  )}
                 </div>
               </CardContent>
             </Card>
-          </div>);
-
-
+          </div>
+        );
+      
       case 'reminders':
         const openTodos = todoItems.filter((t) => t.status === 'open').slice(0, 8);
         return (
@@ -299,47 +299,47 @@ function TaskAnalyticsDashboard() {
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, cardId)}
             onDragEnd={handleDragEnd}
-            className={`cursor-move transition-all ${draggedCard === cardId ? 'opacity-50' : 'opacity-100'}`}>
-            
-            <Card className="bg-white border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+            className={`cursor-move transition-all ${draggedCard === cardId ? 'opacity-50' : 'opacity-100'}`}
+          >
+            <Card className="h-full bg-white border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
               <CardHeader className="pb-3 flex flex-row items-center justify-between">
                 <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
                   <Bell className="w-5 h-5 text-amber-500" />
                   תזכורות פתוחות
-                  {openTodos.length > 0 &&
-                  <span className="mr-1 bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                  {openTodos.length > 0 && (
+                    <span className="mr-1 bg-amber-100 text-amber-700 text-xs font-bold px-2 py-0.5 rounded-full">
                       {openTodos.length}
                     </span>
-                  }
+                  )}
                 </CardTitle>
                 <GripVertical className="w-4 h-4 text-slate-400 group-hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity" />
               </CardHeader>
               <CardContent className="p-0">
-                {openTodos.length > 0 ?
-                <div className="divide-y divide-slate-100">
-                    {openTodos.map((item) =>
-                  <div key={item.id} className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
+                {openTodos.length > 0 ? (
+                  <div className="divide-y divide-slate-100">
+                    {openTodos.map((item) => (
+                      <div key={item.id} className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
                         <div className="w-2 h-2 rounded-full bg-amber-400 flex-shrink-0" />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm text-slate-800 font-medium truncate">{item.title}</p>
-                          {item.description &&
-                      <p className="text-xs text-slate-500 truncate mt-0.5">{item.description}</p>
-                      }
+                          {item.description && (
+                            <p className="text-xs text-slate-500 truncate mt-0.5">{item.description}</p>
+                          )}
                         </div>
                         <span className="text-xs text-slate-400 whitespace-nowrap">
                           {item.owner_user_id || '—'}
                         </span>
                       </div>
-                  )}
-                  </div> :
-
-                <div className="text-center py-8 text-slate-500 text-sm">אין תזכורות פתוחות</div>
-                }
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-slate-500 text-sm">אין תזכורות פתוחות</div>
+                )}
               </CardContent>
             </Card>
-          </div>);
-
-
+          </div>
+        );
+      
       case 'appointments':
         return (
           <div
@@ -349,9 +349,9 @@ function TaskAnalyticsDashboard() {
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, cardId)}
             onDragEnd={handleDragEnd}
-            className={`cursor-move transition-all ${draggedCard === cardId ? 'opacity-50' : 'opacity-100'}`}>
-            
-            <Card className="bg-white border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+            className={`cursor-move transition-all ${draggedCard === cardId ? 'opacity-50' : 'opacity-100'}`}
+          >
+            <Card className="h-full bg-white border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
               <CardHeader className="pb-3 flex flex-row items-center justify-between">
                 <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-cyan-600" />
@@ -360,18 +360,18 @@ function TaskAnalyticsDashboard() {
                 <GripVertical className="w-4 h-4 text-slate-400 group-hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity" />
               </CardHeader>
               <CardContent className="p-0">
-                {appointments.
-                filter((a) => new Date(a.date) >= new Date()).
-                sort((a, b) => new Date(a.date) - new Date(b.date)).
-                slice(0, 5).
-                length > 0 ?
-                <div className="divide-y divide-slate-100">
-                    {appointments.
-                  filter((a) => new Date(a.date) >= new Date()).
-                  sort((a, b) => new Date(a.date) - new Date(b.date)).
-                  slice(0, 5).
-                  map((appt) =>
-                  <div key={appt.id} className="flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors">
+                {appointments
+                  .filter((a) => new Date(a.date) >= new Date())
+                  .sort((a, b) => new Date(a.date) - new Date(b.date))
+                  .slice(0, 5)
+                  .length > 0 ? (
+                  <div className="divide-y divide-slate-100">
+                    {appointments
+                      .filter((a) => new Date(a.date) >= new Date())
+                      .sort((a, b) => new Date(a.date) - new Date(b.date))
+                      .slice(0, 5)
+                      .map((appt) => (
+                        <div key={appt.id} className="flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors">
                           <div className="flex-1 min-w-0">
                             <p className="font-medium text-slate-900 text-sm truncate">{appt.title}</p>
                             <p className="text-xs text-slate-500 mt-0.5">{appt.location || '—'}</p>
@@ -380,21 +380,21 @@ function TaskAnalyticsDashboard() {
                             <span className="text-xs font-semibold text-cyan-700 bg-cyan-50 px-2 py-0.5 rounded-full">
                               {new Date(appt.date).toLocaleDateString('he-IL')}
                             </span>
-                            {appt.start_time &&
-                      <span className="text-xs text-slate-500 mt-1">{appt.start_time}</span>
-                      }
+                            {appt.start_time && (
+                              <span className="text-xs text-slate-500 mt-1">{appt.start_time}</span>
+                            )}
                           </div>
                         </div>
-                  )}
-                  </div> :
-
-                <div className="text-center py-8 text-slate-500 text-sm">אין פגישות קרובות</div>
-                }
+                      ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-slate-500 text-sm">אין פגישות קרובות</div>
+                )}
               </CardContent>
             </Card>
-          </div>);
-
-
+          </div>
+        );
+      
       case 'messages':
         return (
           <div
@@ -404,34 +404,34 @@ function TaskAnalyticsDashboard() {
             onDragOver={handleDragOver}
             onDrop={(e) => handleDrop(e, cardId)}
             onDragEnd={handleDragEnd}
-            className={`cursor-move transition-all ${draggedCard === cardId ? 'opacity-50' : 'opacity-100'}`}>
-            
-            <Card className="bg-white border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+            className={`cursor-move transition-all ${draggedCard === cardId ? 'opacity-50' : 'opacity-100'}`}
+          >
+            <Card className="h-full bg-white border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
               <CardHeader className="pb-3 flex flex-row items-center justify-between">
                 <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
                   <MessageCircle className="w-5 h-5 text-green-600" />
                   הודעות וואטסאפ שלא נענו
-                  {buildingMetrics.pendingMessages > 0 &&
-                  <span className="mr-1 bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full">
+                  {buildingMetrics.pendingMessages > 0 && (
+                    <span className="mr-1 bg-red-100 text-red-700 text-xs font-bold px-2 py-0.5 rounded-full">
                       {buildingMetrics.pendingMessages}
                     </span>
-                  }
+                  )}
                 </CardTitle>
                 <GripVertical className="w-4 h-4 text-slate-400 group-hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity" />
               </CardHeader>
               <CardContent className="p-0">
-                {chatMessages.
-                filter((m) => m.direction === 'received' && m.link_status === 'unlinked').
-                sort((a, b) => new Date(b.timestamp || b.created_date) - new Date(a.timestamp || a.created_date)).
-                slice(0, 6).
-                length > 0 ?
-                <div className="divide-y divide-slate-100">
-                    {chatMessages.
-                  filter((m) => m.direction === 'received' && m.link_status === 'unlinked').
-                  sort((a, b) => new Date(b.timestamp || b.created_date) - new Date(a.timestamp || a.created_date)).
-                  slice(0, 6).
-                  map((msg) =>
-                  <div key={msg.id} className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
+                {chatMessages
+                  .filter((m) => m.direction === 'received' && m.link_status === 'unlinked')
+                  .sort((a, b) => new Date(b.timestamp || b.created_date) - new Date(a.timestamp || a.created_date))
+                  .slice(0, 6)
+                  .length > 0 ? (
+                  <div className="divide-y divide-slate-100">
+                    {chatMessages
+                      .filter((m) => m.direction === 'received' && m.link_status === 'unlinked')
+                      .sort((a, b) => new Date(b.timestamp || b.created_date) - new Date(a.timestamp || a.created_date))
+                      .slice(0, 6)
+                      .map((msg) => (
+                        <div key={msg.id} className="flex items-start gap-3 px-4 py-3 hover:bg-slate-50 transition-colors">
                           <div className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center flex-shrink-0 mt-0.5">
                             <MessageCircle className="w-4 h-4 text-green-600" />
                           </div>
@@ -443,16 +443,16 @@ function TaskAnalyticsDashboard() {
                             {msg.timestamp ? new Date(msg.timestamp).toLocaleDateString('he-IL') : '—'}
                           </span>
                         </div>
-                  )}
-                  </div> :
-
-                <div className="text-center py-8 text-slate-500 text-sm">אין הודעות שלא נענו</div>
-                }
+                      ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-8 text-slate-500 text-sm">אין הודעות שלא נענו</div>
+                )}
               </CardContent>
             </Card>
-          </div>);
-
-
+          </div>
+        );
+      
       default:
         return null;
     }
@@ -625,7 +625,7 @@ function TaskAnalyticsDashboard() {
 
         {/* תרשים מגמת חובות */}
         {debtTrendData.length > 0 &&
-        <Card className="h-full bg-white border-slate-200 rounded-xl shadow-sm mb-6">
+          <Card className="h-full bg-white border-slate-200 rounded-xl shadow-sm mb-6">
             <CardHeader>
               <CardTitle className="text-lg font-bold text-slate-900">מגמת חובות בבניין (30 ימים אחרונים)</CardTitle>
             </CardHeader>
@@ -645,61 +645,61 @@ function TaskAnalyticsDashboard() {
         }
 
         {/* גרפים */}
-        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          {/* התפלגות לפי סטטוס */}
+          <Card className="h-full bg-white border-slate-200 rounded-xl shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-lg font-bold text-slate-900">התפלגות לפי סטטוס</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {statusDistribution.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={statusDistribution}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, value }) => `${name}: ${value}`}
+                      outerRadius={80}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {statusDistribution.map((entry, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-[300px] flex items-center justify-center text-slate-500">אין נתונים</div>
+              )}
+            </CardContent>
+          </Card>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        
+          {/* התפלגות לפי עדיפות */}
+          <Card className="h-full bg-white border-slate-200 rounded-xl shadow-sm">
+            <CardHeader>
+              <CardTitle className="text-lg font-bold text-slate-900">התפלגות לפי עדיפות</CardTitle>
+            </CardHeader>
+            <CardContent>
+              {priorityDistribution.length > 0 ? (
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={priorityDistribution}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                    <XAxis dataKey="name" />
+                    <YAxis />
+                    <Tooltip />
+                    <Bar dataKey="value" fill="#3563d0" radius={[8, 8, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              ) : (
+                <div className="h-[300px] flex items-center justify-center text-slate-500">אין נתונים</div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
         {/* שורה תחתונה: משימות + תזכורות / פגישות + וואטסאפ - עם Drag & Drop */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -707,8 +707,8 @@ function TaskAnalyticsDashboard() {
         </div>
 
       </div>
-    </div>);
-
+    </div>
+  );
 }
 
 export default TaskAnalyticsDashboard;
