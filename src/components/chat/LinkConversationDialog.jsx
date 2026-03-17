@@ -54,7 +54,8 @@ export default function LinkConversationDialog({ isOpen, onClose, onLink, chatMe
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent 
-        className="max-w-lg max-h-[92vh] overflow-hidden flex flex-col rounded-lg p-0"
+        className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] overflow-hidden flex flex-col rounded-lg p-0 border w-full sm:rounded-lg shadow-lg"
+        style={{ maxWidth: '472px', maxHeight: '780px', height: '92vh' }}
         dir="rtl"
         aria-describedby={undefined}
       >
