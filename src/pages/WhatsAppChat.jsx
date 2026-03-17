@@ -509,6 +509,26 @@ export default function WhatsAppChat() {
               const isSelected = selectedContact?.id === conv.id;
               const isUnlinked = conv._isUnlinked;
 
+              // חישוב השעה/אתמול/תאריך
+              let timeDisplay = '';
+              if (conv.lastMessageTime) {
+                const lastMsgDate = new Date(conv.lastMessageTime);
+                const today = new Date();
+                const yesterday = new Date(today);
+                yesterday.setDate(yesterday.getDate() - 1);
+
+                const isToday = lastMsgDate.toDateString() === today.toDateString();
+                const isYesterday = lastMsgDate.toDateString() === yesterday.toDateString();
+
+                if (isToday) {
+                  timeDisplay = format(lastMsgDate, 'HH:mm');
+                } else if (isYesterday) {
+                  timeDisplay = 'אתמול';
+                } else {
+                  timeDisplay = format(lastMsgDate, 'dd/MM/yyyy');
+                }
+              }
+
               return (
                 <button
                   key={conv.id}
@@ -546,6 +566,7 @@ export default function WhatsAppChat() {
                     <div className="text-xs text-gray-500 mt-0.5 truncate">{secondaryInfo}</div>
                     }
                     </div>
+                    {timeDisplay && <div className="text-xs text-blue-600 font-medium flex-shrink-0">{timeDisplay}</div>}
                   </button>);
 
             })
