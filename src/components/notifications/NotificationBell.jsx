@@ -124,6 +124,16 @@ export default function NotificationBell({ currentUser }) {
             </div>
           </div>
 
+          <button
+            onClick={() => {
+              setOpen(false);
+              navigate('/AllNotifications');
+            }}
+            className="w-full px-4 py-2.5 text-center text-xs font-medium text-blue-600 hover:bg-blue-50 border-t border-slate-100 transition-colors"
+          >
+            צפה בכל ההתראות
+          </button>
+
           <div className="max-h-96 overflow-y-auto">
             {unread.length === 0 ? (
               <div className="py-10 text-center text-slate-400 text-sm">
