@@ -604,11 +604,11 @@ export default function TaskAnalyticsDashboard() {
                     )}
                   </CardContent>
                 </Card>
-              );
-            })()}
+            );
+          })()}
 
-            {/* פגישות פעילות */}
-            <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
+          {/* פגישות פעילות */}
+          <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-cyan-600" />
