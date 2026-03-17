@@ -499,10 +499,10 @@ export default function TaskAnalyticsDashboard() {
 
         </Card>
 
-        {/* שורה תחתונה: משימות + פגישות/וואטסאפ */}
+        {/* שורה תחתונה: משימות + תזכורות / פגישות + וואטסאפ */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-          {/* טבלת משימות פתוחות בטיפול */}
+          {/* משימות פתוחות בטיפול */}
           <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
             <CardHeader>
               <CardTitle className="text-lg font-bold text-slate-900">משימות פתוחות בטיפול</CardTitle>
