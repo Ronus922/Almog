@@ -40,6 +40,15 @@ export default function TaskAnalyticsDashboard() {
     }
   });
 
+  // קבל תזכורות פתוחות
+  const { data: todoItems = [] } = useQuery({
+    queryKey: ['todoItems'],
+    queryFn: async () => {
+      const result = await base44.entities.TodoItem.list('-created_date', 100);
+      return result || [];
+    }
+  });
+
   // קבל את הודעות הווטסאפ שטרם נקראו
   const { data: chatMessages = [], isLoading: messagesLoading } = useQuery({
     queryKey: ['chatMessages'],
