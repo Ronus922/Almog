@@ -1,18 +1,14 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClient } from 'npm:@base44/sdk@0.8.20';
+
+const base44 = createClient({
+  appId: Deno.env.get('BASE44_APP_ID'),
+});
 
 Deno.serve(async (req) => {
-  // לוג ראשון - לפני כל דבר
-  console.log('[WH] ====== WEBHOOK HIT ======');
-  console.log('[WH] Method:', req.method);
-  console.log('[WH] URL:', req.url);
-  console.log('[WH] Time:', new Date().toISOString());
-
   // קרא את ה-body לפני הכל
   let rawBody = '';
   try {
     rawBody = await req.text();
-    console.log('[WH] Body length:', rawBody.length);
-    console.log('[WH] Body preview:', rawBody.slice(0, 500));
   } catch (e) {
     console.error('[WH] Failed to read body:', e.message);
     return Response.json({ ok: true }, { status: 200 });
@@ -22,8 +18,7 @@ Deno.serve(async (req) => {
   let payload;
   try {
     payload = JSON.parse(rawBody);
-    console.log('[WH] typeWebhook:', payload?.typeWebhook);
-    console.log('[WH] idMessage:', payload?.idMessage);
+    console.log('[WH] typeWebhook:', payload?.typeWebhook, '| idMessage:', payload?.idMessage);
   } catch (e) {
     console.error('[WH] JSON parse error:', e.message);
     return Response.json({ ok: true }, { status: 200 });
@@ -31,24 +26,11 @@ Deno.serve(async (req) => {
 
   // רק הודעות נכנסות
   if (payload?.typeWebhook !== 'incomingMessageReceived') {
-    console.log('[WH] Skipping typeWebhook:', payload?.typeWebhook);
     return Response.json({ ok: true }, { status: 200 });
   }
 
   const idMessage = payload.idMessage;
   if (!idMessage) {
-    console.log('[WH] No idMessage, skipping');
-    return Response.json({ ok: true }, { status: 200 });
-  }
-
-  // כאן נוצר הקליינט של base44
-  console.log('[WH] Creating base44 client...');
-  let base44;
-  try {
-    base44 = createClientFromRequest(req);
-    console.log('[WH] base44 client OK');
-  } catch (e) {
-    console.error('[WH] base44 client error:', e.message);
     return Response.json({ ok: true }, { status: 200 });
   }
 
