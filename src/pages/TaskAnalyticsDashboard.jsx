@@ -559,11 +559,23 @@ export default function TaskAnalyticsDashboard() {
 
         </Card>
 
-        {/* שורה תחתונה: משימות + תזכורות / פגישות + וואטסאפ */}
+        {/* שורה תחתונה: משימות + תזכורות / פגישות + וואטסאפ - עם Drag & Drop */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-          {/* משימות פתוחות בטיפול */}
-          <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
+          {cardOrder.map((cardId) => {
+            if (cardId === 'tasks') return (
+              <div
+                key={cardId}
+                draggable
+                onDragStart={(e) => handleDragStart(e, cardId)}
+                onDragOver={handleDragOver}
+                onDrop={(e) => handleDrop(e, cardId)}
+                onDragEnd={handleDragEnd}
+                className={`cursor-move transition-all ${draggedCard === cardId ? 'opacity-50' : 'opacity-100'}`}
+              >
+                <Card className="bg-white border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
+                  <div className="flex items-center gap-2 px-4 pt-4">
+                    <GripVertical className="w-4 h-4 text-slate-400 group-hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </div>
             <CardHeader>
               <CardTitle className="text-lg font-bold text-slate-900">משימות פתוחות בטיפול</CardTitle>
             </CardHeader>
