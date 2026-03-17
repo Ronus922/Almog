@@ -699,3 +699,5 @@ export default function TaskAnalyticsDashboard() {
     </div>
   );
 }
+
+export default TaskAnalyticsDashboard;
