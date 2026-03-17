@@ -3,7 +3,24 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const payload = await req.json();
+    
+    const rawBody = await req.text();
+    console.log('[WEBHOOK] Raw body received:', rawBody?.slice(0, 500));
+    console.log('[WEBHOOK] Method:', req.method);
+    console.log('[WEBHOOK] Content-Type:', req.headers.get('content-type'));
+
+    if (!rawBody || rawBody.trim() === '') {
+      console.log('[WEBHOOK] Empty body, skipping');
+      return Response.json({ message: 'OK - empty' }, { status: 200 });
+    }
+
+    let payload;
+    try {
+      payload = JSON.parse(rawBody);
+    } catch (e) {
+      console.error('[WEBHOOK] Failed to parse JSON:', e.message, 'Body was:', rawBody?.slice(0, 200));
+      return Response.json({ message: 'OK - parse error' }, { status: 200 });
+    }
 
     const typeWebhook = payload.typeWebhook;
     const idMessage = payload.idMessage;
