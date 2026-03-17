@@ -87,18 +87,30 @@ Deno.serve(async (req) => {
       content = typeMessage || '';
     }
 
-    // Find matching contact
+    // Find matching contact - run separate queries (no $or support)
     const rawPhone = senderPhoneRaw?.replace('@c.us', '') || phone;
-    const contacts = await base44.asServiceRole.entities.Contact.filter({
-      "$or": [
-        { "owner_phone": phone },
-        { "owner_phone": rawPhone },
-        { "tenant_phone": phone },
-        { "tenant_phone": rawPhone }
-      ]
-    });
+    let contactMatch = null;
 
-    const contactMatch = contacts && contacts.length > 0 ? contacts[0] : null;
+    const byOwnerPhone = await base44.asServiceRole.entities.Contact.filter({ owner_phone: phone });
+    if (byOwnerPhone && byOwnerPhone.length > 0) {
+      contactMatch = byOwnerPhone[0];
+    } else {
+      const byOwnerRaw = await base44.asServiceRole.entities.Contact.filter({ owner_phone: rawPhone });
+      if (byOwnerRaw && byOwnerRaw.length > 0) {
+        contactMatch = byOwnerRaw[0];
+      } else {
+        const byTenantPhone = await base44.asServiceRole.entities.Contact.filter({ tenant_phone: phone });
+        if (byTenantPhone && byTenantPhone.length > 0) {
+          contactMatch = byTenantPhone[0];
+        } else {
+          const byTenantRaw = await base44.asServiceRole.entities.Contact.filter({ tenant_phone: rawPhone });
+          if (byTenantRaw && byTenantRaw.length > 0) {
+            contactMatch = byTenantRaw[0];
+          }
+        }
+      }
+    }
+    console.log('[WEBHOOK] contactMatch:', contactMatch ? contactMatch.id : 'none', 'phone:', phone, 'rawPhone:', rawPhone);
     const linkStatus = contactMatch ? 'linked' : 'unlinked';
 
     const chatMessageData = {
