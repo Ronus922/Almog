@@ -3,7 +3,7 @@ import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { base44 } from '@/api/base44Client';
-import { Search, X } from 'lucide-react';
+import { Search, X, AlertCircle } from 'lucide-react';
 
 export default function LinkUnlinkedDialog({ open, onClose, onLinked, senderPhone, senderChatId }) {
   const [searchQuery, setSearchQuery] = useState('');
