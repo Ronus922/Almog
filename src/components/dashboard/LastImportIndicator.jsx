@@ -20,30 +20,24 @@ export default function LastImportIndicator({ lastImportAt, isAdmin = false }) {
   // קביעת severity
   let severity = 'ok';
   if (noDate) {
-    severity = 'noDate';
-  } else if (hoursSince >= 96) {
-    severity = 'warn3';
-  } else if (hoursSince >= 72) {
-    severity = 'warn2';
+    severity = 'red';
   } else if (hoursSince >= 48) {
-    severity = 'warn1';
+    severity = 'red';
+  } else if (hoursSince >= 24) {
+    severity = 'yellow';
   }
 
   // צבעי רקע לפי severity
   const bgColors = {
     ok: 'bg-white',
-    warn1: 'bg-[#fef9c3]',
-    warn2: 'bg-[#ffedd5]',
-    warn3: 'bg-[#fee2e2]',
-    noDate: 'bg-[#fee2e2]'
+    yellow: 'bg-[#fef9c3]',
+    red: 'bg-[#fee2e2]',
   };
 
   const borderColors = {
     ok: 'border-slate-200',
-    warn1: 'border-yellow-300',
-    warn2: 'border-orange-300',
-    warn3: 'border-red-300',
-    noDate: 'border-red-300'
+    yellow: 'border-yellow-300',
+    red: 'border-red-300',
   };
 
   // פורמט תאריך - ללא שעה
