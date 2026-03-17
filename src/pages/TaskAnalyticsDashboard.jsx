@@ -607,8 +607,8 @@ export default function TaskAnalyticsDashboard() {
             );
           })()}
 
-          {/* עמודה ימנית: פגישות + וואטסאפ */}
-          <div className="flex flex-col gap-6">
+          {/* פגישות + וואטסאפ זה לצד זה */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
             {/* פגישות פעילות */}
             <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
@@ -653,7 +653,7 @@ export default function TaskAnalyticsDashboard() {
             </Card>
 
             {/* הודעות וואטסאפ שלא נענו */}
-            <Card className="bg-white border-slate-200 rounded-xl shadow-sm flex-1">
+            <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
                   <MessageCircle className="w-5 h-5 text-green-600" />
