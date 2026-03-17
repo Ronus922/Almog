@@ -570,7 +570,7 @@ export default function WhatsAppChat() {
                   <h3 className="text-gray-900 mr-3 font-semibold">{getPrimaryName(selectedContact)}</h3>
                   {!selectedContact._isUnlinked && <LinkedContactInfo contact={selectedContact} />}
                   {selectedContact._isUnlinked &&
-                <p className="text-xs text-orange-500">הודעות ממספר לא מזוהה — לא משויך לדייר</p>
+                <p className="text-orange-500 mr-3 text-xs">הודעות ממספר לא מזוהה — לא משויך לדייר</p>
                 }
                 </div>
                 <div className="flex items-center gap-3">
