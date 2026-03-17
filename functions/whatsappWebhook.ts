@@ -1,21 +1,23 @@
 import { createClient } from 'npm:@base44/sdk@0.8.20';
 
+// יצירת client עם service role — ללא צורך ב-auth מהמשתמש
+const base44 = createClient({
+  appId: Deno.env.get('BASE44_APP_ID'),
+  serviceRoleKey: Deno.env.get('BASE44_SERVICE_TOKEN') || '',
+});
+
 Deno.serve(async (req) => {
   let rawBody = '';
-  try {
-    rawBody = await req.text();
-  } catch (e) {
+  try { rawBody = await req.text(); } catch (e) {
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   }
 
   let payload;
-  try {
-    payload = JSON.parse(rawBody);
-  } catch (e) {
+  try { payload = JSON.parse(rawBody); } catch (e) {
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   }
 
-  console.log('[WH] Received typeWebhook:', payload?.typeWebhook);
+  console.log('[WH] typeWebhook:', payload?.typeWebhook);
 
   if (payload?.typeWebhook !== 'incomingMessageReceived') {
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
@@ -26,26 +28,20 @@ Deno.serve(async (req) => {
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
   }
 
-  // יצירת client ישיר עם APP_ID בלבד (ללא auth)
-  const appId = Deno.env.get('BASE44_APP_ID');
-  const base44 = createClient({ appId });
-
   try {
-    // בדיקת כפילות
-    const existing = await base44.asServiceRole.entities.ChatMessage.filter({ external_message_id: idMessage });
+    // בדיקת כפילות — שימוש ב-entities ישירות (ללא auth)
+    const existing = await base44.entities.ChatMessage.filter({ external_message_id: idMessage });
     if (existing && existing.length > 0) {
-      console.log('[WH] Duplicate, skipping:', idMessage);
+      console.log('[WH] Duplicate, skipping');
       return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
     }
 
-    // נרמול טלפון
     const senderRaw = payload.senderData?.sender || '';
     const senderChatId = payload.senderData?.chatId || '';
     let phone = senderRaw.replace('@c.us', '');
     if (phone.startsWith('972')) phone = '0' + phone.slice(3);
     console.log('[WH] Phone:', phone);
 
-    // תוכן הודעה
     const typeMessage = payload.messageData?.typeMessage;
     let messageType = 'text';
     let content = '';
@@ -72,11 +68,11 @@ Deno.serve(async (req) => {
       ['tenant_phone', rawPhone],
     ]) {
       if (contactMatch) break;
-      const res = await base44.asServiceRole.entities.Contact.filter({ [field]: val });
+      const res = await base44.entities.Contact.filter({ [field]: val });
       if (res?.length > 0) contactMatch = res[0];
     }
 
-    await base44.asServiceRole.entities.ChatMessage.create({
+    await base44.entities.ChatMessage.create({
       direction: 'received',
       external_message_id: idMessage,
       sender_chat_id: senderChatId,
@@ -91,7 +87,7 @@ Deno.serve(async (req) => {
       contact_id: contactMatch ? contactMatch.id : null,
     });
 
-    console.log('[WH] ✅ Saved message:', idMessage);
+    console.log('[WH] ✅ Saved:', idMessage);
     return new Response(JSON.stringify({ ok: true }), { status: 200, headers: { 'Content-Type': 'application/json' } });
 
   } catch (err) {
