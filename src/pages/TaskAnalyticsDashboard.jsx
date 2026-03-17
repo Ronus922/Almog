@@ -566,10 +566,10 @@ export default function TaskAnalyticsDashboard() {
           </Card>
 
           {/* תזכורות פתוחות */}
-            {(() => {
-              const openTodos = todoItems.filter((t) => t.status === 'open').slice(0, 8);
-              return (
-                <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
+          {(() => {
+            const openTodos = todoItems.filter((t) => t.status === 'open').slice(0, 8);
+            return (
+              <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
                   <CardHeader className="pb-3">
                     <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
                       <Bell className="w-5 h-5 text-amber-500" />
