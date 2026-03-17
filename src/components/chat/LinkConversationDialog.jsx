@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { base44 } from '@/api/base44Client';
-import { Search, AlertCircle, X } from 'lucide-react';
+import { Search, X, LinkIcon } from 'lucide-react';
 
 export default function LinkConversationDialog({ isOpen, onClose, onLink, chatMessage }) {
   const [searchQuery, setSearchQuery] = useState('');
@@ -53,94 +53,111 @@ export default function LinkConversationDialog({ isOpen, onClose, onLink, chatMe
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl p-0" dir="rtl">
-        {/* כותרת */}
-        <div className="px-6 py-5 border-b border-slate-200">
-          <h2 className="text-xl font-bold text-slate-900">שיוך שיחה לגורם קיים</h2>
-          <p className="text-sm text-slate-600 mt-1">
-            בחר את הגורם לשיוך השיחה ממספר הטלפון {chatMessage?.contact_phone || ''}
-          </p>
+      <DialogContent 
+        className="max-w-lg max-h-[92vh] overflow-hidden flex flex-col rounded-lg p-0"
+        dir="rtl"
+        aria-describedby={undefined}
+      >
+        {/* Header */}
+        <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 rounded-t-lg text-white relative">
+          <button 
+            onClick={onClose}
+            className="absolute left-4 top-4 rounded-lg bg-white/20 p-1.5 hover:bg-white/40 transition-colors"
+          >
+            <X className="h-5 w-5 text-white" />
+            <span className="sr-only">סגור</span>
+          </button>
+          <DialogHeader>
+            <DialogTitle className="text-right flex items-center gap-2 text-lg font-bold">
+              <LinkIcon className="w-5 h-5" />
+              שיוך שיחה לגורם קיים
+            </DialogTitle>
+            <DialogDescription className="text-right text-blue-100 text-sm mt-1">
+              בחר את הגורם לשיוך השיחה ממספר הטלפון {chatMessage?.contact_phone || ''}
+            </DialogDescription>
+          </DialogHeader>
         </div>
 
-        <div className="p-6 space-y-5">
-          {/* תיבת אזהרה */}
-          <div className="bg-amber-50 border border-amber-200 rounded-lg p-4 flex gap-3">
-            <AlertCircle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
-            <p className="text-sm text-amber-800">
-              שחקן הוא אפליקציונלי. יש להשתחזר את השיחה כלא בתוך נרום חדשות לאחרון רק לאחר "תיקון" על "שינוי".
-            </p>
-          </div>
-
+        {/* Content */}
+        <div className="space-y-4 overflow-y-auto flex-1 px-6 pt-4 pb-4" dir="rtl">
           {/* שורת חיפוש */}
-          <div>
-            <label className="text-sm font-medium text-slate-700 block mb-2">הודעות מממספר</label>
+          <div className="space-y-2">
+            <label className="text-sm font-semibold text-slate-700 text-right block">
+              חיפוש גורם
+            </label>
             <div className="relative">
               <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
               <Input
                 placeholder="חיפוש לפי שם, דירה או טלפון..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-10 pr-10 border-slate-200 rounded-lg"
+                className="h-9 pr-10 border-slate-200 rounded-lg"
+                dir="rtl"
               />
             </div>
           </div>
 
-          {/* רשימת אנשי קשר עם radio buttons */}
-          <div className="space-y-2">
+          {/* רשימת אנשי קשר */}
+          <div className="border border-slate-200 rounded-lg max-h-64 overflow-y-auto">
             {isLoading ? (
-              <div className="p-6 text-center text-slate-500">טוען אנשי קשר...</div>
+              <div className="p-6 text-center text-slate-500 text-sm">טוען אנשי קשר...</div>
             ) : filteredContacts.length === 0 ? (
-              <div className="p-6 text-center text-slate-500">
+              <div className="p-6 text-center text-slate-500 text-sm">
                 {contacts.length === 0 ? 'אין אנשי קשר זמינים' : 'לא נמצאו תוצאות'}
               </div>
             ) : (
-              filteredContacts.map((contact, index) => (
-                <label
-                  key={contact.id}
-                  className="flex items-start gap-3 p-3 rounded-lg border border-slate-200 hover:bg-slate-50 cursor-pointer transition-colors"
-                >
-                  <input
-                    type="radio"
-                    name="contact"
-                    value={contact.id}
-                    checked={selectedContact?.id === contact.id}
-                    onChange={() => setSelectedContact(contact)}
-                    className="mt-2 flex-shrink-0 w-4 h-4"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-slate-900">{contact.owner_name || '—'}</p>
-                    <div className="flex gap-2 mt-0.5 text-xs text-slate-600">
-                      {contact.apartment_number && (
-                        <span className="text-blue-600 font-medium">דירה {contact.apartment_number}</span>
-                      )}
-                      {contact.owner_phone && (
-                        <span className="text-blue-600">{contact.owner_phone}</span>
-                      )}
+              <div className="divide-y divide-slate-100">
+                {filteredContacts.map((contact) => (
+                  <label
+                    key={contact.id}
+                    className={`flex items-start gap-3 p-3 cursor-pointer transition-colors ${
+                      selectedContact?.id === contact.id
+                        ? 'bg-blue-50'
+                        : 'hover:bg-slate-50'
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="contact"
+                      value={contact.id}
+                      checked={selectedContact?.id === contact.id}
+                      onChange={() => setSelectedContact(contact)}
+                      className="mt-1 flex-shrink-0 w-4 h-4"
+                    />
+                    <div className="flex-1 min-w-0 text-right">
+                      <p className="font-medium text-slate-900 text-sm">{contact.owner_name || '—'}</p>
+                      <div className="flex gap-2 mt-0.5 text-xs text-slate-600 justify-end">
+                        {contact.apartment_number && (
+                          <span className="text-blue-600 font-medium">דירה {contact.apartment_number}</span>
+                        )}
+                        {contact.owner_phone && (
+                          <span className="text-blue-600">{contact.owner_phone}</span>
+                        )}
+                      </div>
                     </div>
-                  </div>
-                </label>
-              ))
+                  </label>
+                ))}
+              </div>
             )}
           </div>
+        </div>
 
-          {/* כפתורים */}
-          <div className="flex justify-between gap-3 pt-4 border-t border-slate-200">
-            <Button
-              variant="ghost"
-              onClick={onClose}
-              className="gap-2 text-slate-600 hover:text-slate-900"
-            >
-              <X className="w-4 h-4" />
-              חזרה לא משוכך
-            </Button>
-            <Button
-              onClick={handleLink}
-              disabled={!selectedContact}
-              className="px-6 h-9 bg-blue-500 hover:bg-blue-600 text-white gap-2"
-            >
-              <span>בחזור נרומה לשחור</span>
-            </Button>
-          </div>
+        {/* Footer */}
+        <div className="flex justify-end gap-2 px-6 py-4 border-t border-slate-100 bg-white flex-shrink-0">
+          <Button 
+            variant="outline" 
+            onClick={onClose}
+            className="h-9"
+          >
+            ביטול
+          </Button>
+          <Button
+            onClick={handleLink}
+            disabled={!selectedContact}
+            className="h-9 bg-[#3563d0] hover:bg-[#2a50b0] text-white"
+          >
+            שיוך
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
