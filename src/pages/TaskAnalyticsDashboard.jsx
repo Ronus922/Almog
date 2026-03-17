@@ -608,7 +608,7 @@ export default function TaskAnalyticsDashboard() {
           })()}
 
           {/* פגישות + וואטסאפ זה לצד זה */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
 
             {/* פגישות פעילות */}
             <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
