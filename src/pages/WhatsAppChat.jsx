@@ -389,9 +389,16 @@ export default function WhatsAppChat() {
     const unsubAll = base44.entities.ChatMessage.subscribe((event) => {
       if (event.type === 'create') {
         console.log('[Webhook] Real-time message received via subscription:', event.data?.id);
+        // תמיד רענן את רשימת השיחות כדי שמספרים חדשים יופיעו
         queryClient.invalidateQueries({ queryKey: ['contacts'] });
+        // רענן את ההודעות של השיחה הנבחרת
         if (selectedContact?.id) {
           queryClient.invalidateQueries({ queryKey: ['chatMessages', selectedContact.id] });
+        }
+        // אם זה unlinked - רענן גם את השיחה הרלוונטית
+        if (event.data?.link_status === 'unlinked' && event.data?.contact_phone) {
+          const unlinkedId = 'unlinked_' + event.data.contact_phone;
+          queryClient.invalidateQueries({ queryKey: ['chatMessages', unlinkedId] });
         }
       }
     });
