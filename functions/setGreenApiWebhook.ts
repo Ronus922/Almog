@@ -10,7 +10,10 @@ Deno.serve(async (req) => {
 
   // קודם בדוק מה ה-webhook URL הנוכחי
   const getRes = await fetch(`https://api.green-api.com/waInstance${instanceId}/getSettings/${token}`);
-  const settings = await getRes.json();
+  const getText = await getRes.text();
+  console.log('[GreenAPI] getSettings raw response:', getText);
+  let settings = {};
+  try { settings = JSON.parse(getText); } catch(e) { return Response.json({ error: 'getSettings failed', raw: getText }, { status: 500 }); }
 
   console.log('[GreenAPI] Current webhookUrl:', settings.webhookUrl);
   console.log('[GreenAPI] Current webhookUrlToken:', settings.webhookUrlToken);
