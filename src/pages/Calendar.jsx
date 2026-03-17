@@ -18,6 +18,7 @@ import DateRangePickerDialog from '@/components/calendar/DateRangePickerDialog';
 import CalendarQuickFilters from '@/components/calendar/CalendarQuickFilters';
 import { useCalendarDragDrop } from '@/components/calendar/useCalendarDragDrop';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import PageHeader from '@/components/ui/PageHeader';
 
 const HEBREW_HOLIDAYS = [
   { date: '2026-04-13', name: 'פסח (יום ראשון)' },
