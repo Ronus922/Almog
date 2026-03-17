@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
-import { AlertCircle, CheckCircle2, Clock, TrendingUp, MessageCircle, Calendar } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Clock, TrendingUp, MessageCircle, Calendar, Bell } from 'lucide-react';
 
 export default function TaskAnalyticsDashboard() {
   const [filterStartDate, setFilterStartDate] = useState('');
