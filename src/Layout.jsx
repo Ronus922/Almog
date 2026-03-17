@@ -40,23 +40,23 @@ function LayoutContent({ children, currentPageName }) {
   };
 
   const navItems = [
-  { name: 'Dashboard', label: 'דשבורד', icon: LayoutDashboard, adminOnly: false, section: 'main' },
-  { name: 'TaskAnalyticsDashboard', label: 'לוח מחוונים משימות', icon: LayoutDashboard, adminOnly: false, section: 'main' },
-  { name: 'UserManagement', label: 'משתמשים', icon: UsersIcon, adminOnly: true, section: 'admin' },
-  { name: 'StatusManagement', label: 'סטטוסים', icon: SlidersHorizontal, adminOnly: true, section: 'admin' },
-  { name: 'Import', label: 'ייבוא', icon: Upload, adminOnly: true, section: 'admin' },
-  { name: 'Tasks', label: 'משימות (ישן)', icon: ClipboardList, adminOnly: false, section: 'main' },
-  { name: 'TasksPro', label: 'משימות Pro', icon: ClipboardList, adminOnly: false, section: 'main' },
-  { name: 'InternalChat', label: "צ'אט פנימי", icon: MessageCircle, adminOnly: false, section: 'main' },
-  { name: 'Calendar', label: 'יומן', icon: Clock, adminOnly: false, section: 'main' },
-  { name: 'Documents', label: 'מסמכים', icon: BookOpen, adminOnly: false, section: 'main' },
-  { name: 'Contacts', label: 'אנשי קשר', icon: ContactRound, adminOnly: false, section: 'main' },
-  { name: 'SupplierManagement', label: 'ספקים', icon: Users, adminOnly: false, section: 'main' },
-  { name: 'WhatsAppTemplates', label: 'תבניות וואטסאפ', icon: MessageCircle, adminOnly: true, section: 'admin' },
-  { name: 'WhatsAppChat', label: 'צ\'אט וואטסאפ', icon: MessageCircle, adminOnly: false, section: 'main' },
-  { name: 'TodoReminders', label: 'תזכורות', icon: AlertTriangle, adminOnly: false, section: 'main' },
-  { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true, section: 'admin' }];
-
+    { name: 'Dashboard', label: 'דשבורד', icon: LayoutDashboard, adminOnly: false, section: 'main' },
+    { name: 'TaskAnalyticsDashboard', label: 'לוח מחוונים משימות', icon: LayoutDashboard, adminOnly: false, section: 'main' },
+    { name: 'UserManagement', label: 'משתמשים', icon: UsersIcon, adminOnly: true, section: 'admin' },
+    { name: 'StatusManagement', label: 'סטטוסים', icon: SlidersHorizontal, adminOnly: true, section: 'admin' },
+    { name: 'Import', label: 'ייבוא', icon: Upload, adminOnly: true, section: 'admin' },
+    { name: 'Tasks', label: 'משימות (ישן)', icon: ClipboardList, adminOnly: false, section: 'main' },
+    { name: 'TasksPro', label: 'משימות Pro', icon: ClipboardList, adminOnly: false, section: 'main' },
+    { name: 'InternalChat', label: "צ'אט פנימי", icon: MessageCircle, adminOnly: false, section: 'main' },
+    { name: 'Calendar', label: 'יומן', icon: Clock, adminOnly: false, section: 'main' },
+    { name: 'Documents', label: 'מסמכים', icon: BookOpen, adminOnly: false, section: 'main' },
+    { name: 'Contacts', label: 'אנשי קשר', icon: ContactRound, adminOnly: false, section: 'main' },
+    { name: 'SupplierManagement', label: 'ספקים', icon: Users, adminOnly: false, section: 'main' },
+    { name: 'WhatsAppTemplates', label: 'תבניות וואטסאפ', icon: MessageCircle, adminOnly: true, section: 'admin' },
+    { name: 'WhatsAppChat', label: 'צ\'אט וואטסאפ', icon: MessageCircle, adminOnly: false, section: 'main' },
+    { name: 'TodoReminders', label: 'תזכורות', icon: AlertTriangle, adminOnly: false, section: 'main' },
+    { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true, section: 'admin' }
+  ];
 
   const filteredNavItems = navItems.filter((item) => {
     if (!item.adminOnly) return true;
@@ -70,7 +70,7 @@ function LayoutContent({ children, currentPageName }) {
   useEffect(() => {
     const handleNewTask = (e) => {
       if (e.detail?.task) {
-        setTasks((prev) => [e.detail.task, ...prev]);
+        setTasks(prev => [e.detail.task, ...prev]);
         setShowNotifications(true);
       }
     };
@@ -79,28 +79,28 @@ function LayoutContent({ children, currentPageName }) {
   }, []);
 
   const renderNavSection = (items) =>
-  <div className="space-y-1">
+    <div className="space-y-1">
       {items.map((item) => {
-      const isActive = currentPageName === item.name;
-      return (
-        <div key={item.name} className="relative group">
+        const isActive = currentPageName === item.name;
+        return (
+          <div key={item.name} className="relative group">
             <button
-            onClick={() => handleNavigation(item.name)}
-            className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-sm font-medium ${
-            isActive ? 'bg-slate-700/50 text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/30'}`
-            }>
+              onClick={() => handleNavigation(item.name)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-all duration-200 text-sm font-medium ${
+                isActive ? 'bg-slate-700/50 text-white' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-700/30'
+              }`}>
               <item.icon className="w-5 h-5 flex-shrink-0" />
               {!isCollapsed && <span className="flex-1 text-right">{item.label}</span>}
             </button>
-            {isCollapsed &&
-          <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 px-2.5 py-1.5 bg-slate-900 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none z-50 shadow-lg border border-slate-700">
+            {isCollapsed && (
+              <div className="absolute right-full top-1/2 -translate-y-1/2 mr-2 px-2.5 py-1.5 bg-slate-900 text-white text-xs rounded-lg whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity duration-150 pointer-events-none z-50 shadow-lg border border-slate-700">
                 {item.label}
                 <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1 w-1.5 h-1.5 bg-slate-900 border-r border-t border-slate-700 rotate-45" />
               </div>
-          }
-          </div>);
-
-    })}
+            )}
+          </div>
+        );
+      })}
     </div>;
 
   if (loading || !authChecked) {
@@ -112,8 +112,8 @@ function LayoutContent({ children, currentPageName }) {
           </div>
           <p className="text-lg font-semibold text-slate-300">טוען...</p>
         </div>
-      </div>);
-
+      </div>
+    );
   }
 
   if (!currentUser && currentPageName !== 'AppLogin') {
@@ -178,9 +178,9 @@ function LayoutContent({ children, currentPageName }) {
             }>
 
             <div className="relative flex-shrink-0">
-            
-
-              
+            <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 24 24">
+            <path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.9 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.64 5.36 6 7.93 6 11v5l-2 2v1h16v-1l-2-2z" />
+            </svg>
               {tasks.length > 0 &&
               <span className="absolute -top-1 -right-1 w-5 h-5 rounded-full bg-orange-500 text-white text-xs flex items-center justify-center font-bold">
                   {tasks.length}
@@ -200,8 +200,8 @@ function LayoutContent({ children, currentPageName }) {
           {showNotifications && !isCollapsed && tasks.length > 0 &&
           <div className="mt-2 bg-slate-700/30 rounded-lg p-3 space-y-2 max-h-64 overflow-y-auto">
               <button
-              onClick={() => setTasks([])}
-              className="w-full text-xs text-slate-400 hover:text-slate-200 text-right mb-2 pb-2 border-b border-slate-600">
+                onClick={() => setTasks([])}
+                className="w-full text-xs text-slate-400 hover:text-slate-200 text-right mb-2 pb-2 border-b border-slate-600">
                 נקה הכל
               </button>
               {tasks.map((task) =>
@@ -214,7 +214,7 @@ function LayoutContent({ children, currentPageName }) {
               className="w-full text-right flex items-start gap-2 p-2 bg-slate-700/50 hover:bg-slate-700/70 rounded text-sm text-slate-200 transition-colors">
                   <span className="flex-1">{task.task_type}</span>
                   <button
-                onClick={(e) => {e.stopPropagation();setTasks(tasks.filter((t) => t.id !== task.id));}}
+                onClick={(e) => {e.stopPropagation();setTasks(tasks.filter(t => t.id !== task.id));}}
                 className="text-slate-400 hover:text-red-400 flex-shrink-0">
 
                     ✕
