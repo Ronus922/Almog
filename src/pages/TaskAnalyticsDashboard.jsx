@@ -611,7 +611,7 @@ export default function TaskAnalyticsDashboard() {
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
 
             {/* פגישות פעילות */}
-            <Card className="bg-white border-slate-200 rounded-xl shadow-sm">
+            <Card className="bg-white border-slate-200 rounded-xl shadow-sm md:col-span-1">
               <CardHeader className="pb-3">
                 <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-cyan-600" />
