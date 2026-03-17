@@ -12,6 +12,8 @@ export default function TaskAnalyticsDashboard() {
   const [filterStartDate, setFilterStartDate] = useState('');
   const [filterEndDate, setFilterEndDate] = useState('');
   const [filterStatus, setFilterStatus] = useState('all');
+  const [cardOrder, setCardOrder] = useState(['tasks', 'reminders', 'appointments', 'messages']);
+  const [draggedCard, setDraggedCard] = useState(null);
 
   // קבל את כל המשימות
   const { data: tasks = [], isLoading: tasksLoading } = useQuery({
