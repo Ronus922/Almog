@@ -80,7 +80,7 @@ Deno.serve(async (req) => {
     ];
     for (const attempt of attempts) {
       if (contactMatch) break;
-      const results = await base44.asServiceRole.entities.Contact.filter({ [attempt.field]: attempt.value });
+      const results = await base44.entities.Contact.filter({ [attempt.field]: attempt.value });
       if (results?.length > 0) {
         contactMatch = results[0];
         console.log('[WH] Contact found via', attempt.field, '=', attempt.value);
