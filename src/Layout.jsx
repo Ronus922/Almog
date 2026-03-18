@@ -352,6 +352,7 @@ function LayoutContent({ children, currentPageName }) {
 
       <ConfirmDialog />
       <GlobalAlert />
+      <BuildingAgent />
     </div>);
 }
 
