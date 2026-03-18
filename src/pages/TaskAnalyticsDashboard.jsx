@@ -703,8 +703,15 @@ function TaskAnalyticsDashboard() {
         </div>
 
         {/* שורה תחתונה: משימות + תזכורות / פגישות + וואטסאפ - עם Drag & Drop */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {cardOrder.map((cardId) => renderCard(cardId))}
+        </div>
+
+        {/* לוח שנה אירועי בניין */}
+        <div className="mb-2">
+          <h2 className="text-xl font-bold text-slate-900 mb-1">לוח שנה — אירועי בניין</h2>
+          <p className="text-sm text-slate-500 mb-4">בדיקות מעליות, אסיפות דיירים, ימי איסוף אשפה מיוחדים ועוד</p>
+          <BuildingCalendar />
         </div>
 
       </div>
