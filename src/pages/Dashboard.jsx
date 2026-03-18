@@ -1,15 +1,12 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/components/auth/AuthContext';
 import { base44 } from '@/api/base44Client';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
-import KPICards from '@/components/dashboard/KPICards';
 import DebtorsTable from '@/components/dashboard/DebtorsTable';
 import ApartmentDetailModal from '@/components/dashboard/ApartmentDetailModal';
-import { Users, Archive, X, Mail, Scale, AlertTriangle } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { Users, Archive, Mail, Scale, AlertTriangle } from "lucide-react";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import LastImportIndicator from '@/components/dashboard/LastImportIndicator';
 
 function DashboardContent() {
