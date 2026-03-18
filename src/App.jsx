@@ -181,6 +181,7 @@ import SupplierManagement from "./pages/SupplierManagement.jsx";
 import TodoReminders from "./pages/TodoReminders.jsx";
 import TaskAnalyticsDashboard from "./pages/TaskAnalyticsDashboard.jsx";
 import AllNotifications from "./pages/AllNotifications.jsx";
+import DebtorHistoryPage from "./pages/DebtorHistoryPage.jsx";
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
