@@ -709,6 +709,16 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           <Button
             variant="outline"
             onClick={() => {
+              window.location.href = `/DebtorHistory?id=${record.id}`;
+            }}
+            className="h-10 min-w-[110px] rounded-[14px] border border-slate-200 bg-white px-3 text-[14px] font-bold text-[#243858] shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition hover:bg-slate-50"
+          >
+            <History className="mr-1.5 h-3 w-3" />
+            היסטוריה
+          </Button>
+          <Button
+            variant="outline"
+            onClick={() => {
               queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
               onClose();
             }}
