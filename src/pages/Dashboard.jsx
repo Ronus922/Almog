@@ -270,90 +270,57 @@ function DashboardContent() {
 
 
               {/* KPI 5 - לגבייה מיידית */}
-              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all" onClick={() => {
-                setFilterKeyFromUrl('IMMEDIATE_COLLECTION');
-                setFilterDisplayName('לגבייה מיידית');
-                window.history.pushState({}, '', `${window.location.pathname}?reportKey=IMMEDIATE_COLLECTION`);
-              }}>
+              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all"
+                onClick={() => { setActiveTab('debtors'); }}>
                 <p className="text-[18px] font-black uppercase" style={{color: '#1d5bbd'}}>לגבייה מיידית</p>
                 <div>
                   <p className="text-[32px] font-black leading-none text-[#ff7a5c]">
-                    {records.filter((r) => r.debt_status_auto === 'לגבייה מיידית').length}
+                    {tabDatasets.debtorsTab.filter((r) => r.debt_status_auto === 'לגבייה מיידית').length}
                   </p>
-                  
-
-
                 </div>
               </div>
 
               {/* KPI 6 - חריגה מופרזת */}
-              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all" onClick={() => {
-                setFilterKeyFromUrl('REQUIRES_LEGAL_ACTION');
-                setFilterDisplayName('חריגה מופרזת');
-                window.history.pushState({}, '', `${window.location.pathname}?reportKey=REQUIRES_LEGAL_ACTION`);
-              }}>
+              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all"
+                onClick={() => { setActiveTab('legal_candidates'); }}>
                 <p className="text-[18px] font-black uppercase" style={{color: '#1d5bbd'}}>חריגה מופרזת</p>
                 <div>
                   <p className="text-[32px] font-black leading-none text-[#ff3b3b]">
-                    {records.filter((r) => r.debt_status_auto === 'חריגה מופרזת').length}
+                    {tabDatasets.legalCandidatesTab.length}
                   </p>
-                  
-
-
                 </div>
               </div>
 
               {/* KPI 7 - מכתבי התראה */}
-              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all" onClick={() => {
-                setFilterKeyFromUrl('WARNING_LETTER');
-                setFilterDisplayName('מכתבי התראה');
-                window.history.pushState({}, '', `${window.location.pathname}?reportKey=WARNING_LETTER`);
-              }}>
+              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all"
+                onClick={() => { setActiveTab('warning'); }}>
                 <p className="text-[18px] font-black uppercase" style={{color: '#1d5bbd'}}>מכתבי התראה</p>
                 <div>
                   <p className="text-[32px] font-black leading-none text-[#ffa500]">
-                    {allStatuses.find((s) => s.type === 'LEGAL' && s.name === 'מכתב התראה') ? records.filter((r) => r.legal_status_id === allStatuses.find((s) => s.type === 'LEGAL' && s.name === 'מכתב התראה')?.id).length : 0}
+                    {tabDatasets.warningTab.length}
                   </p>
-                  
-
-
                 </div>
               </div>
 
               {/* KPI 8 - לטיפול משפטי */}
-              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all" onClick={() => {
-                const statuses = allStatuses.filter((s) => s.type === 'LEGAL' && s.is_active);
-                if (statuses.length > 0) {
-                  setFilterKeyFromUrl('LEGAL_CANDIDATES');
-                  setFilterDisplayName('לטיפול משפטי');
-                  window.history.pushState({}, '', `${window.location.pathname}?reportKey=LEGAL_CANDIDATES`);
-                }
-              }}>
+              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all"
+                onClick={() => { setActiveTab('legal_candidates'); }}>
                 <p className="text-[18px] font-black uppercase" style={{color: '#1d5bbd'}}>לטיפול משפטי</p>
                 <div>
                   <p className="text-[32px] font-black leading-none text-[#5b6cff]">
-                    {records.filter((r) => !r.legal_status_id && r.debt_status_auto === 'חריגה מופרזת').length}
+                    {tabDatasets.legalCandidatesTab.length}
                   </p>
-                  
-
-
                 </div>
               </div>
 
               {/* KPI 9 - בהליך משפטי */}
-              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all" onClick={() => {
-                setFilterKeyFromUrl('LEGAL_PROCESS');
-                setFilterDisplayName('בהליך משפטי');
-                window.history.pushState({}, '', `${window.location.pathname}?reportKey=LEGAL_PROCESS`);
-              }}>
+              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all"
+                onClick={() => { setActiveTab('legal_process'); }}>
                 <p className="text-[18px] font-black uppercase" style={{color: '#1d5bbd'}}>בהליך משפטי</p>
                 <div>
                   <p className="text-[32px] font-black leading-none text-[#2bc9a8]">
-                    {allStatuses.find((s) => s.type === 'LEGAL' && s.name === 'תביעה משפטית') ? records.filter((r) => r.legal_status_id === allStatuses.find((s) => s.type === 'LEGAL' && s.name === 'תביעה משפטית')?.id).length : 0}
+                    {tabDatasets.legalProcessTab.length}
                   </p>
-                  
-
-
                 </div>
               </div>
             </div>
