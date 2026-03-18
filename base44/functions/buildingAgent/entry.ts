@@ -13,13 +13,20 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'שאלה חסרה' }, { status: 400 });
     }
 
-    // ===== שליפת כל הנתונים הרלוונטיים =====
-    const [debtorRecords, contacts, tasks, appointments] = await Promise.all([
+    // ===== שליפת נתונים — משימות ופגישות מסוננות לפי המשתמש המחובר =====
+    const [debtorRecords, contacts, userTasks, allAppointments] = await Promise.all([
       base44.asServiceRole.entities.DebtorRecord.list(),
       base44.asServiceRole.entities.Contact.list(),
-      base44.asServiceRole.entities.Task.list(),
+      base44.asServiceRole.entities.Task.filter({ assigned_to: user.email }),
       base44.asServiceRole.entities.Appointment.list(),
     ]);
+
+    // סינון פגישות שהמשתמש המחובר משתתף בהן
+    const appointments = allAppointments.filter(a =>
+      (a.attendees_users || []).some(attendee =>
+        attendee.id === user.id || attendee.email === user.email
+      )
+    );
 
     // תאריך היום
     const today = new Date();
@@ -64,8 +71,8 @@ Deno.serve(async (req) => {
       סוג_דייר: c.resident_type || 'owner',
     }));
 
-    // משימות — לפי תאריכים
-    const todayTasks = tasks.filter(t =>
+    // משימות — לפי תאריכים (רק משימות של המשתמש המחובר)
+    const todayTasks = userTasks.filter(t =>
       t.due_date === todayStr &&
       t.status !== 'הושלמה' &&
       t.status !== 'בוטלה' &&
@@ -77,10 +84,9 @@ Deno.serve(async (req) => {
       סטטוס: t.status,
       דירה: t.apartment_number || '',
       בעלים: t.owner_name || '',
-      הוקצה_ל: t.assigned_to_name || t.assigned_to || '',
     }));
 
-    const weekTasks = tasks.filter(t =>
+    const weekTasks = userTasks.filter(t =>
       t.due_date >= weekStartStr &&
       t.due_date <= weekEndStr &&
       t.status !== 'הושלמה' &&
@@ -94,10 +100,9 @@ Deno.serve(async (req) => {
       סטטוס: t.status,
       דירה: t.apartment_number || '',
       בעלים: t.owner_name || '',
-      הוקצה_ל: t.assigned_to_name || t.assigned_to || '',
     }));
 
-    const urgentTasks = tasks.filter(t =>
+    const urgentTasks = userTasks.filter(t =>
       t.priority === 'גבוהה' &&
       t.status !== 'הושלמה' &&
       t.status !== 'בוטלה' &&
@@ -108,10 +113,9 @@ Deno.serve(async (req) => {
       תיאור: t.description || '',
       סטטוס: t.status,
       דירה: t.apartment_number || '',
-      הוקצה_ל: t.assigned_to_name || t.assigned_to || '',
     }));
 
-    // פגישות — לפי תאריכים
+    // פגישות — לפי תאריכים (רק פגישות שהמשתמש משתתף בהן)
     const todayAppointments = appointments.filter(a =>
       a.date === todayStr
     ).map(a => ({
@@ -143,8 +147,9 @@ Deno.serve(async (req) => {
 ענה תמיד בעברית בלבד, בצורה ברורה, ידידותית ותמציתית.
 אם שאלה אינה ברורה, בקש הבהרה.
 היום הוא: ${todayStr} (${today.toLocaleDateString('he-IL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })})
+המשתמש המחובר הוא: ${user.full_name || user.email}
 
-להלן נתוני הבניין:
+חשוב: כל הנתונים על משימות ופגישות הם אישיים למשתמש זה בלבד — רק המשימות שהוקצו לו ורק הפגישות שהוא משתתף בהן.
 
 --- דיירים וחייבים ---
 ${JSON.stringify(debtorsSummary, null, 2)}
@@ -152,19 +157,19 @@ ${JSON.stringify(debtorsSummary, null, 2)}
 --- אנשי קשר (דיירים) ---
 ${JSON.stringify(contactsSummary, null, 2)}
 
---- משימות להיום (${todayStr}) ---
+--- משימות שלי להיום (${todayStr}) ---
 ${JSON.stringify(todayTasks, null, 2)}
 
---- משימות דחופות (עדיפות גבוהה) ---
+--- משימות דחופות שלי (עדיפות גבוהה) ---
 ${JSON.stringify(urgentTasks.slice(0, 20), null, 2)}
 
---- משימות השבוע (${weekStartStr} עד ${weekEndStr}) ---
+--- משימות שלי השבוע (${weekStartStr} עד ${weekEndStr}) ---
 ${JSON.stringify(weekTasks, null, 2)}
 
---- פגישות היום ---
+--- הפגישות שלי היום ---
 ${JSON.stringify(todayAppointments, null, 2)}
 
---- כל הפגישות העתידיות ---
+--- כל הפגישות העתידיות שלי ---
 ${JSON.stringify(allFutureAppointments.slice(0, 50), null, 2)}
 
 הנחיות:
@@ -172,13 +177,13 @@ ${JSON.stringify(allFutureAppointments.slice(0, 50), null, 2)}
 - כשנשאל על טלפון — ציין את שם האדם ואת המספר.
 - כשנשאל על חוב — ציין את הסכום המדויק, חודשי פיגור, וסטטוס.
 - כשנשאל על פגישות — ציין כותרת, תאריך, שעה, מיקום ומשתתפים.
-- כשנשאל על משימות — ציין סוג, עדיפות, תאריך, ואת מי משויך.
+- כשנשאל על משימות — ציין סוג, עדיפות, תאריך.
 - אם לא נמצא מידע, אמור זאת בבירור.
 - השתמש בעברית בלבד.`;
 
     // בניית היסטוריה
     const messages = [
-      ...conversationHistory.slice(-8), // שמור עד 8 הודעות אחרונות
+      ...conversationHistory.slice(-8),
       { role: 'user', content: question }
     ];
 
