@@ -43,30 +43,69 @@ function DashboardContent() {
     queryFn: () => base44.entities.Status.list()
   });
 
-  // ===== חוקי ניתוב לטאבים =====
-  const legalStatuses = useMemo(() => allStatuses.filter((s) => s.type === 'LEGAL'), [allStatuses]);
+  // ===== וידוא קיום סטטוסים LEGAL נדרשים + יצירתם אם חסרים =====
+  const [statusesReady, setStatusesReady] = useState(false);
 
-  const getStatusId = (name) => legalStatuses.find((s) => s.name === name)?.id || null;
+  useEffect(() => {
+    if (allStatuses.length === 0) return;
 
+    const requiredStatuses = [
+      { name: 'מכתב התראה', color: 'bg-amber-100 text-amber-800' },
+      { name: 'לטיפול משפטי', color: 'bg-purple-100 text-purple-800' },
+      { name: 'בהליך משפטי', color: 'bg-red-100 text-red-800' },
+    ];
+
+    const legalStatuses = allStatuses.filter((s) => s.type === 'LEGAL');
+    const missing = requiredStatuses.filter(
+      (req) => !legalStatuses.find((s) => s.name === req.name)
+    );
+
+    if (missing.length === 0) {
+      setStatusesReady(true);
+      return;
+    }
+
+    // יצירת סטטוסים חסרים בסדרה ורענון
+    Promise.all(
+      missing.map((req) =>
+        base44.entities.Status.create({
+          name: req.name,
+          type: 'LEGAL',
+          color: req.color,
+          is_active: true,
+          is_default: false,
+        })
+      )
+    ).then(() => {
+      refetchStatuses();
+      setStatusesReady(true);
+    });
+  }, [allStatuses]);
+
+  // ===== חישוב datasets לטאבים — עובד על כל הרשומות הקיימות =====
   const tabDatasets = useMemo(() => {
+    const legalStatusList = allStatuses.filter((s) => s.type === 'LEGAL');
+    const getStatusId = (name) => legalStatusList.find((s) => s.name === name)?.id || null;
+
     const warningId = getStatusId('מכתב התראה');
     const legalProcessId = getStatusId('בהליך משפטי');
 
-    const archived = records.filter((r) => r.isArchived);
+    // סריקה מלאה — כל הרשומות (גם ארכיון)
+    const archived = records.filter((r) => r.isArchived === true);
     const active = records.filter((r) => !r.isArchived);
 
-    // טאב "מכתבי התראה": legal_status_id === warningId
+    // רשומות עם "מכתב התראה" — רק active
     const warningTab = active.filter((r) => warningId && r.legal_status_id === warningId);
 
-    // טאב "לטיפול משפטי": debt_status_auto === 'חריגה מופרזת' && !legal_status_id
+    // רשומות "לטיפול משפטי" — חריגה מופרזת ללא legal_status_id, רק active
     const legalCandidatesTab = active.filter(
       (r) => r.debt_status_auto === 'חריגה מופרזת' && !r.legal_status_id
     );
 
-    // טאב "בהליך משפטי": legal_status_id === legalProcessId
+    // רשומות "בהליך משפטי" — רק active
     const legalProcessTab = active.filter((r) => legalProcessId && r.legal_status_id === legalProcessId);
 
-    // טאב "חייבים": כל השאר (לא ארכיון)
+    // חייבים — כל active (הטאב הכללי)
     const debtorsTab = active;
 
     return { warningTab, legalCandidatesTab, legalProcessTab, debtorsTab, archived };
