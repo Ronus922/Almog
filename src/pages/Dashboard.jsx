@@ -18,10 +18,6 @@ function DashboardContent() {
   const [selectedRecord, setSelectedRecord] = useState(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState('debtors');
-  const [filterKeyFromUrl, setFilterKeyFromUrl] = useState(null);
-  const [filterDisplayName, setFilterDisplayName] = useState('');
-  const [statusFilterFromUrl, setStatusFilterFromUrl] = useState(null);
-  const [autoStatusFilter, setAutoStatusFilter] = useState(null);
   const [filteredDataset, setFilteredDataset] = useState([]);
 
   const isAdmin = currentUser?.role === 'ADMIN' || currentUser?.isBase44Admin;
@@ -42,46 +38,43 @@ function DashboardContent() {
   });
 
   // Fetch statuses
-  const { data: allStatuses = [] } = useQuery({
+  const { data: allStatuses = [], refetch: refetchStatuses } = useQuery({
     queryKey: ['allStatuses'],
     queryFn: () => base44.entities.Status.list()
   });
 
-  // Parse URL filters on mount
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const reportKey = params.get('reportKey');
-    const statusFilter = params.get('statusFilter');
-    const autoStatusFilter = params.get('autoStatusFilter');
+  // ===== חוקי ניתוב לטאבים =====
+  const legalStatuses = useMemo(() => allStatuses.filter((s) => s.type === 'LEGAL'), [allStatuses]);
 
-    if (reportKey) {
-      setFilterKeyFromUrl(reportKey);
-      const displayNames = {
-        'IMMEDIATE_COLLECTION': 'לגבייה מיידית',
-        'REQUIRES_LEGAL_ACTION': 'חריגה מופרזת',
-        'LEGAL_PROCESS': 'בהליך משפטי',
-        'WARNING_LETTER': 'מכתבי התראה'
-      };
-      setFilterDisplayName(displayNames[reportKey] || reportKey);
-    }
+  const getStatusId = (name) => legalStatuses.find((s) => s.name === name)?.id || null;
 
-    if (statusFilter) {
-      setStatusFilterFromUrl(statusFilter);
-    }
+  const tabDatasets = useMemo(() => {
+    const warningId = getStatusId('מכתב התראה');
+    const legalProcessId = getStatusId('בהליך משפטי');
 
-    if (autoStatusFilter) {
-      setAutoStatusFilter(autoStatusFilter);
-    }
-  }, []);
+    const archived = records.filter((r) => r.isArchived);
+    const active = records.filter((r) => !r.isArchived);
 
-  // Separate archived and debtor records
-  const debtorRecords = useMemo(() => {
-    return records.filter((r) => !r.isArchived);
-  }, [records]);
+    // טאב "מכתבי התראה": legal_status_id === warningId
+    const warningTab = active.filter((r) => warningId && r.legal_status_id === warningId);
 
-  const archivedRecords = useMemo(() => {
-    return records.filter((r) => r.isArchived);
-  }, [records]);
+    // טאב "לטיפול משפטי": debt_status_auto === 'חריגה מופרזת' && !legal_status_id
+    const legalCandidatesTab = active.filter(
+      (r) => r.debt_status_auto === 'חריגה מופרזת' && !r.legal_status_id
+    );
+
+    // טאב "בהליך משפטי": legal_status_id === legalProcessId
+    const legalProcessTab = active.filter((r) => legalProcessId && r.legal_status_id === legalProcessId);
+
+    // טאב "חייבים": כל השאר (לא ארכיון)
+    const debtorsTab = active;
+
+    return { warningTab, legalCandidatesTab, legalProcessTab, debtorsTab, archived };
+  }, [records, allStatuses]);
+
+  // ארכיון
+  const archivedRecords = tabDatasets.archived;
+  const debtorRecords = tabDatasets.debtorsTab;
 
   const handleRowClick = (record) => {
     setSelectedRecord(record);
