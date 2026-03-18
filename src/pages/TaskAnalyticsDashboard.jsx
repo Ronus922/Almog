@@ -7,6 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { BarChart, Bar, LineChart, Line, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { AlertCircle, CheckCircle2, Clock, TrendingUp, MessageCircle, Calendar, Bell, GripVertical } from 'lucide-react';
+import BuildingCalendar from '@/components/dashboard/BuildingCalendar';
 
 function TaskAnalyticsDashboard() {
   const [filterStartDate, setFilterStartDate] = useState('');
