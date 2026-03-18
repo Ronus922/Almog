@@ -327,133 +327,109 @@ function DashboardContent() {
         <div className="max-w-full mx-auto space-y-6 p-6">
 
 
-          {/* Filter indicators */}
-          {filterKeyFromUrl &&
-          <Alert className="rounded-lg border border-blue-200 bg-blue-50 px-6 py-4">
-            <AlertDescription className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-blue-900">מציג:</span>
-                <span className="text-blue-700">{filterDisplayName}</span>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setFilterKeyFromUrl(null);
-                  setFilterDisplayName('');
-                  window.history.pushState({}, '', window.location.pathname);
-                }}
-                className="text-blue-700 hover:text-blue-900 hover:bg-blue-100">
-                <X className="w-4 h-4 ml-1" />
-                נקה פילטר
-              </Button>
-            </AlertDescription>
-          </Alert>
-          }
-
-          {statusFilterFromUrl && !filterKeyFromUrl &&
-          <Alert className="rounded-lg border border-blue-200 bg-blue-50 px-6 py-4">
-            <AlertDescription className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-blue-900">מסונן לפי סטטוס משפטי:</span>
-                <span className="text-blue-700">{statusFilterFromUrl}</span>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setStatusFilterFromUrl(null);
-                  window.history.pushState({}, '', window.location.pathname);
-                }}
-                className="text-blue-700 hover:text-blue-900 hover:bg-blue-100">
-                <X className="w-4 h-4 ml-1" />
-                נקה פילטר
-              </Button>
-            </AlertDescription>
-          </Alert>
-          }
-
-          {autoStatusFilter && !filterKeyFromUrl &&
-          <Alert className="rounded-lg border border-orange-200 bg-orange-50 px-6 py-4">
-            <AlertDescription className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="font-bold text-orange-900">מסונן לפי סטטוס אוטומטי:</span>
-                <span className="text-orange-700">{autoStatusFilter}</span>
-              </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setAutoStatusFilter(null);
-                  window.history.pushState({}, '', window.location.pathname);
-                }}
-                className="text-orange-700 hover:text-orange-900 hover:bg-orange-100">
-                <X className="w-4 h-4 ml-1" />
-                נקה פילטר
-              </Button>
-            </AlertDescription>
-          </Alert>
-          }
-
           {/* Last Import Indicator */}
           <LastImportIndicator lastImportAt={settings?.last_import_at} isAdmin={isAdmin} />
 
           {/* Tabs */}
           {isAdmin &&
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <button
               onClick={() => setActiveTab('debtors')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
-              activeTab === 'debtors' ?
-              'bg-blue-600 text-white' :
-              'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`
-              }>
-
+              activeTab === 'debtors' ? 'bg-blue-600 text-white' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`}>
               <Users className="w-4 h-4" />
-              חייבים ({debtorRecords.length})
+              חייבים ({tabDatasets.debtorsTab.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('warning')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+              activeTab === 'warning' ? 'bg-amber-500 text-white' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`}>
+              <Mail className="w-4 h-4" />
+              מכתבי התראה ({tabDatasets.warningTab.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('legal_candidates')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+              activeTab === 'legal_candidates' ? 'bg-purple-600 text-white' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`}>
+              <AlertTriangle className="w-4 h-4" />
+              לטיפול משפטי ({tabDatasets.legalCandidatesTab.length})
+            </button>
+            <button
+              onClick={() => setActiveTab('legal_process')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+              activeTab === 'legal_process' ? 'bg-red-600 text-white' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`}>
+              <Scale className="w-4 h-4" />
+              בהליך משפטי ({tabDatasets.legalProcessTab.length})
             </button>
             <button
               onClick={() => setActiveTab('archived')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
-              activeTab === 'archived' ?
-              'bg-blue-600 text-white' :
-              'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`
-              }>
-
+              activeTab === 'archived' ? 'bg-slate-600 text-white' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`}>
               <Archive className="w-4 h-4" />
               ארכיון ({archivedRecords.length})
             </button>
           </div>
           }
 
-          {/* Tables */}
+          {/* Tables — לפי טאב פעיל */}
           {(activeTab === 'debtors' || !isAdmin) &&
-          <DebtorsTable
-            records={debtorRecords}
-            onRowClick={handleRowClick}
-            isAdmin={isAdmin}
-            settings={settings}
-            initialFilterKey={filterKeyFromUrl}
-            initialStatusFilter={statusFilterFromUrl}
-            initialAutoStatusFilter={autoStatusFilter}
-            allStatuses={allStatuses}
-            onFilteredDataChange={setFilteredDataset}
-            onRecordUpdate={handleRecordUpdate}
-            showArchived={false} />
+            <DebtorsTable
+              records={tabDatasets.debtorsTab}
+              onRowClick={handleRowClick}
+              isAdmin={isAdmin}
+              settings={settings}
+              allStatuses={allStatuses}
+              onFilteredDataChange={setFilteredDataset}
+              onRecordUpdate={handleRecordUpdate}
+              showArchived={false} />
+          }
 
+          {isAdmin && activeTab === 'warning' &&
+            <DebtorsTable
+              records={tabDatasets.warningTab}
+              onRowClick={handleRowClick}
+              isAdmin={isAdmin}
+              settings={settings}
+              allStatuses={allStatuses}
+              onFilteredDataChange={setFilteredDataset}
+              onRecordUpdate={handleRecordUpdate}
+              showArchived={false} />
+          }
+
+          {isAdmin && activeTab === 'legal_candidates' &&
+            <DebtorsTable
+              records={tabDatasets.legalCandidatesTab}
+              onRowClick={handleRowClick}
+              isAdmin={isAdmin}
+              settings={settings}
+              allStatuses={allStatuses}
+              onFilteredDataChange={setFilteredDataset}
+              onRecordUpdate={handleRecordUpdate}
+              showArchived={false} />
+          }
+
+          {isAdmin && activeTab === 'legal_process' &&
+            <DebtorsTable
+              records={tabDatasets.legalProcessTab}
+              onRowClick={handleRowClick}
+              isAdmin={isAdmin}
+              settings={settings}
+              allStatuses={allStatuses}
+              onFilteredDataChange={setFilteredDataset}
+              onRecordUpdate={handleRecordUpdate}
+              showArchived={false} />
           }
 
           {isAdmin && activeTab === 'archived' &&
-          <DebtorsTable
-            records={archivedRecords}
-            onRowClick={handleRowClick}
-            isAdmin={isAdmin}
-            settings={settings}
-            allStatuses={allStatuses}
-            onFilteredDataChange={setFilteredDataset}
-            onRecordUpdate={handleRecordUpdate}
-            showArchived={true} />
-
+            <DebtorsTable
+              records={archivedRecords}
+              onRowClick={handleRowClick}
+              isAdmin={isAdmin}
+              settings={settings}
+              allStatuses={allStatuses}
+              onFilteredDataChange={setFilteredDataset}
+              onRecordUpdate={handleRecordUpdate}
+              showArchived={true} />
           }
 
           {/* Modal */}
