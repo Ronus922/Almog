@@ -19,10 +19,11 @@ function DashboardContent() {
 
   const isAdmin = currentUser?.role === 'ADMIN' || currentUser?.isBase44Admin;
 
-  // Fetch records
+  // Fetch ALL records (no filtering here — useMemo below handles it)
   const { data: records = [] } = useQuery({
     queryKey: ['debtorRecords'],
-    queryFn: () => base44.entities.DebtorRecord.list()
+    queryFn: () => base44.entities.DebtorRecord.list(),
+    staleTime: 0,
   });
 
   // Fetch settings
