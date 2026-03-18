@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import KPICards from '@/components/dashboard/KPICards';
 import DebtorsTable from '@/components/dashboard/DebtorsTable';
 import ApartmentDetailModal from '@/components/dashboard/ApartmentDetailModal';
-import { Users, Archive, X } from "lucide-react";
+import { Users, Archive, X, Mail, Scale, AlertTriangle } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import LastImportIndicator from '@/components/dashboard/LastImportIndicator';
 
