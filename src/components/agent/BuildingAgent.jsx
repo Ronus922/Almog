@@ -72,6 +72,7 @@ export default function BuildingAgent() {
       const response = await base44.functions.invoke('buildingAgent', {
         question,
         conversationHistory: conversationHistoryRef.current,
+        currentUsername: currentUser?.username || currentUser?.email || null,
       });
 
       const answer = response?.data?.answer || 'מצטער, לא הצלחתי לעבד את השאלה.';
