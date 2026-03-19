@@ -35,6 +35,7 @@ function MessageBubble({ msg }) {
 }
 
 export default function BuildingAgent() {
+  const { currentUser } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
   const [input, setInput] = useState('');
