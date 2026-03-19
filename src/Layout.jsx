@@ -15,7 +15,7 @@ import {
 "@/components/ui/dropdown-menu";
 import {
   LayoutDashboard, Menu, X, LogOut,
-  User, ChevronDown, ChevronLeft, SlidersHorizontal, Users as UsersIcon, ClipboardList, MessageCircle, ContactRound, Upload, Settings, AlertTriangle, Clock, Users, BookOpen } from
+  User, ChevronDown, ChevronLeft, SlidersHorizontal, Users as UsersIcon, ClipboardList, MessageCircle, ContactRound, Upload, Settings, AlertTriangle, Clock, Users, BookOpen, Download } from
 "lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import BuildingAgent from "@/components/agent/BuildingAgent";
