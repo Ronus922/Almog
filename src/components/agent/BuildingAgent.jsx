@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
 import { Bot, X, Send, Minimize2, Maximize2, Trash2, Sparkles } from 'lucide-react';
+import { useAuth } from '@/components/auth/AuthContext';
 
 const QUICK_QUESTIONS = [
   'מה המשימות שלי להיום?',
