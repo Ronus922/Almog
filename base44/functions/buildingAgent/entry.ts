@@ -144,7 +144,7 @@ Deno.serve(async (req) => {
 ענה תמיד בעברית בלבד, בצורה ברורה, ידידותית ותמציתית.
 אם שאלה אינה ברורה, בקש הבהרה.
 היום הוא: ${todayStr} (${today.toLocaleDateString('he-IL', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })})
-המשתמש המחובר הוא: ${user.full_name || user.email}
+המשתמש המחובר הוא: ${currentUsername || 'לא ידוע'}
 
 חשוב: כל הנתונים על משימות ופגישות הם אישיים למשתמש זה בלבד — רק המשימות שהוקצו לו ורק הפגישות שהוא משתתף בהן.
 
