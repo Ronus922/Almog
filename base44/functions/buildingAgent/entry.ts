@@ -3,30 +3,27 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
-    const user = await base44.auth.me();
-    if (!user) {
-      return Response.json({ error: 'לא מורשה' }, { status: 401 });
-    }
 
-    const { question, conversationHistory = [] } = await req.json();
+    const { question, conversationHistory = [], currentUsername } = await req.json();
     if (!question) {
       return Response.json({ error: 'שאלה חסרה' }, { status: 400 });
     }
 
-    // ===== שליפת נתונים — משימות ופגישות מסוננות לפי המשתמש המחובר =====
-    const [debtorRecords, contacts, userTasks, allAppointments] = await Promise.all([
+    // ===== שליפת נתונים — ללא auth (משתמשים פנימיים לא עוברים דרך Base44 auth) =====
+    const [debtorRecords, contacts, allTasks, allAppointments] = await Promise.all([
       base44.asServiceRole.entities.DebtorRecord.list(),
       base44.asServiceRole.entities.Contact.list(),
-      base44.asServiceRole.entities.Task.filter({ assigned_to: user.email }),
+      base44.asServiceRole.entities.Task.list(),
       base44.asServiceRole.entities.Appointment.list(),
     ]);
 
-    // סינון פגישות שהמשתמש המחובר משתתף בהן
-    const appointments = allAppointments.filter(a =>
-      (a.attendees_users || []).some(attendee =>
-        attendee.id === user.id || attendee.email === user.email
-      )
-    );
+    // סינון משימות לפי המשתמש המחובר (אם נשלח)
+    const userTasks = currentUsername
+      ? allTasks.filter(t => t.assigned_to === currentUsername)
+      : allTasks;
+
+    // כל הפגישות (ללא סינון לפי user כי אין ID)
+    const appointments = allAppointments;
 
     // תאריך היום
     const today = new Date();
