@@ -1019,6 +1019,48 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
 
 
+                {/* פעולה הבאה */}
+                <div className="rounded-[16px] border border-slate-200 bg-[#f8faff] px-4 py-4">
+                  <div className="mb-3 flex items-center gap-2 text-[14px] font-bold text-[#253b5b]">
+                    <Calendar className="w-4 h-4 text-blue-500" />
+                    פעולה הבאה
+                  </div>
+                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
+                    <div>
+                      <p className="mb-1.5 text-[12px] font-semibold text-[#7f8ea5]">תאריך פעולה הבאה</p>
+                      <input
+                        type="date"
+                        value={editedRecord?.nextActionDate || ''}
+                        onChange={(e) => setEditedRecord(prev => ({ ...prev, nextActionDate: e.target.value }))}
+                        className="w-full h-[44px] rounded-[12px] border border-slate-200 bg-white px-3 text-[14px] font-semibold text-[#223755] focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
+                        dir="rtl"
+                        disabled={!isAdmin}
+                      />
+                      {editedRecord?.nextActionDate && new Date(editedRecord.nextActionDate) < new Date(new Date().toDateString()) && (
+                        <p className="mt-1.5 flex items-center gap-1 text-[11px] font-bold text-red-500">
+                          <span>⚠️</span> תאריך זה עבר — הרשומה תופיע בטאב "פעולות הבאות"
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <p className="mb-1.5 text-[12px] font-semibold text-[#7f8ea5]">תיאור הפעולה</p>
+                      <input
+                        type="text"
+                        value={editedRecord?.notes?.startsWith('פעולה:') ? editedRecord.notes.split('\n')[0].replace('פעולה: ', '') : ''}
+                        placeholder="לדוגמה: שיחת טלפון, שליחת מכתב..."
+                        onChange={(e) => {
+                          const actionLine = e.target.value ? `פעולה: ${e.target.value}` : '';
+                          const existingNotes = (editedRecord?.notes || '').replace(/^פעולה:.*\n?/, '');
+                          setEditedRecord(prev => ({ ...prev, notes: actionLine ? `${actionLine}\n${existingNotes}` : existingNotes }));
+                        }}
+                        className="w-full h-[44px] rounded-[12px] border border-slate-200 bg-white px-3 text-[14px] font-semibold text-[#223755] placeholder:font-normal placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-300"
+                        dir="rtl"
+                        disabled={!isAdmin}
+                      />
+                    </div>
+                  </div>
+                </div>
+
                 <div>
                   <div className="mb-2 flex items-center gap-2 text-[14px] font-bold text-[#253b5b]">
                     <MessageSquare className="w-4 h-4" />
