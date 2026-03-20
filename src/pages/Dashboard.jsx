@@ -118,11 +118,13 @@ function DashboardContent() {
       (r) => r.nextActionDate && r.nextActionDate < today
     );
 
-    // ספירה של חריגה מופרזת מכל הרשומות הפעילות
-    const excessiveDebtCount = active.filter((r) => r.debt_status_auto === 'חריגה מופרזת').length;
+    // ספירה של "חריגה מופרזת" — מחושב דינמית לפי ספי ה-Settings הנוכחיים
+    const excessiveDebtCount = settings
+      ? active.filter((r) => calculateDebtStatus(r.totalDebt, settings) === 'חריגה מופרזת').length
+      : active.filter((r) => r.debt_status_auto === 'חריגה מופרזת').length;
 
     return { warningTab, legalCandidatesTab, legalProcessTab, debtorsTab, archived, nextActionsTab, excessiveDebtCount };
-  }, [records, allStatuses]);
+  }, [records, allStatuses, settings]);
 
   // ארכיון
   const archivedRecords = tabDatasets.archived;
