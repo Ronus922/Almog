@@ -184,6 +184,8 @@ import AllNotifications from "./pages/AllNotifications.jsx";
 import DebtorHistoryPage from "./pages/DebtorHistoryPage.jsx";
 import ExportData from "./pages/ExportData.jsx";
 import ReportIssue from "./pages/ReportIssue";
+import UsersManagement from "./pages/UsersManagement";
+import RolesManagement from "./pages/RolesManagement";
 import IssuesManagement from "./pages/IssuesManagement";
 import RoomsAreas from "./pages/RoomsAreas";
 
@@ -254,6 +256,8 @@ const AuthenticatedApp = () => {
       <Route path="/ReportIssue" element={<LayoutWrapper currentPageName="ReportIssue"><ReportIssue /></LayoutWrapper>} />
       <Route path="/IssuesManagement" element={<LayoutWrapper currentPageName="IssuesManagement"><IssuesManagement /></LayoutWrapper>} />
       <Route path="/RoomsAreas" element={<LayoutWrapper currentPageName="RoomsAreas"><RoomsAreas /></LayoutWrapper>} />
+      <Route path="/UsersManagement" element={<LayoutWrapper currentPageName="UsersManagement"><UsersManagement /></LayoutWrapper>} />
+      <Route path="/RolesManagement" element={<LayoutWrapper currentPageName="RolesManagement"><RolesManagement /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );

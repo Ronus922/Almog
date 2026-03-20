@@ -15,7 +15,7 @@ import {
 "@/components/ui/dropdown-menu";
 import {
   LayoutDashboard, Menu, X, LogOut,
-  User, ChevronDown, ChevronLeft, SlidersHorizontal, Users as UsersIcon, ClipboardList, MessageCircle, ContactRound, Upload, Settings, AlertTriangle, Clock, Users, BookOpen, Download, MapPin } from
+  User, ChevronDown, ChevronLeft, SlidersHorizontal, Users as UsersIcon, ClipboardList, MessageCircle, ContactRound, Upload, Settings, AlertTriangle, Clock, Users, BookOpen, Download, MapPin, Shield as ShieldIcon } from
 "lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import BuildingAgent from "@/components/agent/BuildingAgent";
@@ -60,7 +60,9 @@ function LayoutContent({ children, currentPageName }) {
   { name: 'ExportData', label: 'ייצוא נתונים', icon: Download, adminOnly: true, section: 'admin' },
   { name: 'ReportIssue', label: 'דיווח תקלה', icon: AlertTriangle, adminOnly: false, section: 'main' },
   { name: 'IssuesManagement', label: 'ניהול תקלות', icon: AlertTriangle, adminOnly: true, section: 'admin' },
-  { name: 'RoomsAreas', label: 'ניהול אזורים', icon: MapPin, adminOnly: true, section: 'admin' }];
+  { name: 'RoomsAreas', label: 'ניהול אזורים', icon: MapPin, adminOnly: true, section: 'admin' },
+  { name: 'UsersManagement', label: 'ניהול משתמשים', icon: UsersIcon, adminOnly: true, section: 'admin' },
+  { name: 'RolesManagement', label: 'ניהול תפקידים', icon: ShieldIcon, adminOnly: true, section: 'admin' }];
 
 
   const filteredNavItems = navItems.filter((item) => {
