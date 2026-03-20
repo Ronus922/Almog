@@ -8,7 +8,7 @@ import {
   fetchTasks, fetchRules, fetchSavedViews, updateStatus, updatePriority,
   archiveTask, unarchiveTask, bulkUpdateStatus, bulkUpdatePriority, bulkAssign,
   bulkArchive, bulkUnarchive, bulkDelete, createSavedView, deleteSavedView, updateSavedView,
-  fetchAttendees
+  fetchAttendees, fetchAttachments
 } from "@/components/taskspro/taskProApi";
 import TaskProKpiBar from "@/components/taskspro/TaskProKpiBar";
 import TaskProFiltersBar from "@/components/taskspro/TaskProFiltersBar";
