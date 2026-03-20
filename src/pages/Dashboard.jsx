@@ -380,6 +380,13 @@ function DashboardContent() {
               בהליך משפטי ({tabDatasets.legalProcessTab.length})
             </button>
             <button
+              onClick={() => setActiveTab('next_actions')}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+              activeTab === 'next_actions' ? 'bg-orange-500 text-white' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`}>
+              <CalendarClock className="w-4 h-4" />
+              פעולות הבאות ({tabDatasets.nextActionsTab?.length || 0})
+            </button>
+            <button
               onClick={() => setActiveTab('archived')}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
               activeTab === 'archived' ? 'bg-slate-600 text-white' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`}>
