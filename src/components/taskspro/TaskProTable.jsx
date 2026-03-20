@@ -107,43 +107,43 @@ export default function TaskProTable({
             return (
               <tr
                 key={task.id}
-                className={`transition-colors cursor-pointer ${
+                className={`border-b border-slate-100 transition-colors cursor-pointer ${
                   task.is_archived ? "opacity-60 bg-slate-50" :
-                  isOverdue ? "bg-red-50/60 hover:bg-red-50" : "hover:bg-blue-50/30"
-                } ${selectedIds.has(task.id) ? "bg-blue-50/50" : ""}`}
+                  isOverdue ? "bg-red-50/40 hover:bg-red-50/60" : "hover:bg-blue-50/20"
+                } ${selectedIds.has(task.id) ? "bg-blue-50/60" : ""}`}
                 onClick={() => onRowClick(task)}
               >
-                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
                   <Checkbox
                     checked={selectedIds.has(task.id)}
                     onCheckedChange={() => onToggleSelect(task.id)}
                   />
                 </td>
 
-                <td className="px-4 py-3">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="font-medium text-slate-800">{task.title}</span>
+                <td className="px-4 py-4">
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-slate-800">{task.title}</span>
                       {SOURCE_ICON[task.source]}
                     </div>
                     {task.apartment_number && (
-                      <div className="text-xs text-slate-400">דירה {task.apartment_number}{task.owner_name ? ` – ${task.owner_name}` : ""}</div>
+                      <div className="text-xs text-slate-500">דירה {task.apartment_number}{task.owner_name ? ` – ${task.owner_name}` : ""}</div>
                     )}
                     {task.description && (
-                      <div className="text-xs text-slate-400 truncate max-w-xs">{task.description}</div>
+                      <div className="text-xs text-slate-400 line-clamp-1">{task.description}</div>
                     )}
                   </div>
                 </td>
 
-                <td className="px-4 py-3 text-slate-700 whitespace-nowrap">
+                <td className="px-4 py-4 text-slate-600 whitespace-nowrap text-xs">
                   {task.assigned_to_name || task.assigned_to || "—"}
                 </td>
 
-                <td className="px-4 py-3">
+                <td className="px-4 py-4">
                   {attendees.length > 0 ? (
                     <div className="flex flex-wrap gap-1">
                       {attendees.slice(0, 3).map((a) => (
-                        <span key={a.id} className="inline-block bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full">
+                        <span key={a.id} className="inline-block bg-slate-100 text-slate-600 text-xs px-2 py-0.5 rounded-full whitespace-nowrap">
                           {a.user_name || a.user_username}
                         </span>
                       ))}
@@ -156,19 +156,19 @@ export default function TaskProTable({
                   )}
                 </td>
 
-                <td className={`px-4 py-3 whitespace-nowrap ${dueDateStyle(task)}`}>
+                <td className={`px-4 py-4 whitespace-nowrap text-xs font-medium ${dueDateStyle(task)}`}>
                   {fmt(task.due_at)}
                 </td>
 
-                <td className="px-4 py-3">
-                  <span className={`inline-block text-xs font-semibold px-2 py-1 rounded-full ${PRIORITY_STYLE[task.priority] || ""}`}>
+                <td className="px-4 py-4">
+                  <span className={`inline-block text-xs font-bold px-2.5 py-1 rounded-full ${PRIORITY_STYLE[task.priority] || ""}`}>
                     {task.priority}
                   </span>
                 </td>
 
-                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                <td className="px-4 py-4" onClick={(e) => e.stopPropagation()}>
                   <Select value={task.status} onValueChange={(v) => onUpdateStatus(task.id, v)}>
-                    <SelectTrigger className={`w-28 h-7 text-xs font-semibold border ${STATUS_STYLE[task.status] || ""}`}>
+                    <SelectTrigger className={`w-28 h-8 text-xs font-semibold border rounded-lg ${STATUS_STYLE[task.status] || ""}`}>
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -179,41 +179,41 @@ export default function TaskProTable({
                   </Select>
                 </td>
 
-                <td className="px-4 py-3">
+                <td className="px-4 py-4">
                   <span className="text-xs text-slate-500 flex items-center gap-1">
                     {SOURCE_ICON[task.source]}
                     {{ manual: "ידנית", template: "מתבנית", recurring: "מחזורית" }[task.source] || "ידנית"}
                   </span>
                 </td>
 
-                <td className="px-4 py-3 text-center" onClick={(e) => e.stopPropagation()}>
+                <td className="px-4 py-4 text-center" onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center justify-center gap-1">
                     <button
                       onClick={() => onRowClick(task)}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-blue-500 hover:bg-blue-50 transition-colors"
+                      className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-300 hover:text-blue-500 hover:bg-blue-50 transition-colors"
                       title="צפה בפרטים"
                     >
-                      <Eye className="w-4 h-4" />
+                      <Eye className="w-3.5 h-3.5" />
                     </button>
                     <button
                       onClick={() => onEdit(task)}
-                      className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                      className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-300 hover:text-amber-500 hover:bg-amber-50 transition-colors"
                       title="עריכה"
                     >
-                      <Pencil className="w-4 h-4" />
+                      <Pencil className="w-3.5 h-3.5" />
                     </button>
                     {task.is_archived ? (
-                      <button onClick={() => onUnarchive(task)} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-green-500 hover:bg-green-50 transition-colors" title="שחרר מארכיון">
-                        <RotateCcw className="w-4 h-4" />
+                      <button onClick={() => onUnarchive(task)} className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-300 hover:text-green-500 hover:bg-green-50 transition-colors" title="שחרור מארכיון">
+                        <RotateCcw className="w-3.5 h-3.5" />
                       </button>
                     ) : (
-                      <button onClick={() => onArchive(task)} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-orange-500 hover:bg-orange-50 transition-colors" title="העבר לארכיון">
-                        <Archive className="w-4 h-4" />
+                      <button onClick={() => onArchive(task)} className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-300 hover:text-orange-500 hover:bg-orange-50 transition-colors" title="העברה לארכיון">
+                        <Archive className="w-3.5 h-3.5" />
                       </button>
                     )}
                     {isAdmin && (
-                      <button onClick={() => onDelete(task.id)} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors" title="מחוק">
-                        <Trash2 className="w-4 h-4" />
+                      <button onClick={() => onDelete(task.id)} className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors" title="מחוק">
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
                     )}
                   </div>
