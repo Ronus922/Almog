@@ -155,16 +155,28 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">דחיפות *</label>
-              <Select value={form.priority} onValueChange={(v) => setForm((p) => ({ ...p, priority: v }))}>
-                <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-slate-50 font-medium"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">נמוכה</SelectItem>
-                  <SelectItem value="high">גבוהה</SelectItem>
-                  <SelectItem value="urgent">דחוף</SelectItem>
-                </SelectContent>
-              </Select>
+              <div className="flex gap-3 justify-end">
+                {[
+                  { value: "low", label: "נמוכה", bg: "bg-slate-100 border-slate-300", active: "bg-slate-500 text-white border-slate-600" },
+                  { value: "high", label: "בינונית", bg: "bg-yellow-50 border-yellow-400", active: "bg-yellow-400 text-slate-800 border-yellow-500" },
+                  { value: "urgent", label: "דחוף", bg: "bg-red-50 border-red-300", active: "bg-red-500 text-white border-red-600" }
+                ].map(opt => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => setForm((p) => ({ ...p, priority: opt.value }))}
+                    className={`flex-1 h-12 rounded-xl border-2 font-bold transition-all ${
+                      form.priority === opt.value 
+                        ? opt.active 
+                        : `${opt.bg} text-slate-700 hover:border-opacity-80`
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
             </div>
             <div className="space-y-1.5">
               <label className="text-sm font-semibold text-slate-700">שתף עם</label>
