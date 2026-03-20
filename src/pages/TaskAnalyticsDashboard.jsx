@@ -624,25 +624,33 @@ function TaskAnalyticsDashboard() {
         </div>
 
         {/* תרשים מגמת חובות */}
-        {debtTrendData.length > 0 &&
-          <Card className="h-full bg-white border-slate-200 rounded-xl shadow-sm mb-6">
-            <CardHeader>
-              <CardTitle className="text-lg font-bold text-slate-900">מגמת חובות בבניין (30 ימים אחרונים)</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ResponsiveContainer width="100%" height={250}>
+        <Card className="h-full bg-white border-slate-200 rounded-xl shadow-sm mb-6">
+          <CardHeader>
+            <CardTitle className="text-lg font-bold text-slate-900">מגמת חובות בבניין</CardTitle>
+            <p className="text-sm text-slate-500 mt-1">נשמר בכל ייבוא — מציג עד 30 נקודות אחרונות</p>
+          </CardHeader>
+          <CardContent>
+            {debtTrendData.length > 0 ? (
+              <ResponsiveContainer width="100%" height={280}>
                 <LineChart data={debtTrendData}>
                   <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                  <XAxis dataKey="date" />
-                  <YAxis />
+                  <XAxis dataKey="date" tick={{ fontSize: 12 }} />
+                  <YAxis tickFormatter={(v) => `₪${(v/1000).toFixed(0)}K`} tick={{ fontSize: 11 }} />
                   <Tooltip formatter={(value) => `₪${value.toLocaleString('he-IL')}`} />
                   <Legend />
-                  <Line type="monotone" dataKey="סך_חוב" stroke="#7c3aed" strokeWidth={2} dot={{ fill: '#7c3aed', r: 4 }} />
+                  <Line type="monotone" dataKey="סך חוב" stroke="#7c3aed" strokeWidth={2.5} dot={{ fill: '#7c3aed', r: 4 }} />
+                  <Line type="monotone" dataKey="דמי ניהול" stroke="#f59e0b" strokeWidth={2} dot={{ fill: '#f59e0b', r: 3 }} strokeDasharray="5 3" />
+                  <Line type="monotone" dataKey="מים חמים" stroke="#8b5cf6" strokeWidth={2} dot={{ fill: '#8b5cf6', r: 3 }} strokeDasharray="5 3" />
                 </LineChart>
               </ResponsiveContainer>
-            </CardContent>
-          </Card>
-        }
+            ) : (
+              <div className="h-[280px] flex flex-col items-center justify-center text-slate-400">
+                <p className="font-semibold mb-1">אין נתונים היסטוריים עדיין</p>
+                <p className="text-sm">הגרף יתמלא אוטומטית לאחר ייבוא הקובץ הראשון</p>
+              </div>
+            )}
+          </CardContent>
+        </Card>
 
         {/* שורה תחתונה: משימות + תזכורות / פגישות + וואטסאפ - עם Drag & Drop */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
