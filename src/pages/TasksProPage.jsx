@@ -126,6 +126,7 @@ export default function TasksProPage() {
     else if (kpiFilter === "done") r = r.filter((t) => t.status === "הושלמה");
     else if (kpiFilter === "overdue") r = r.filter((t) => t.due_at && t.due_at.slice(0,10) < today && t.status !== "הושלמה" && t.status !== "בוטלה");
     else if (kpiFilter === "today") r = r.filter((t) => t.due_at && t.due_at.slice(0,10) === today && t.status !== "הושלמה" && t.status !== "בוטלה");
+    // no filtering for null — show all statuses across all columns
 
     // manual filters
     if (filters.status !== "הכל") r = r.filter((t) => t.status === filters.status);
