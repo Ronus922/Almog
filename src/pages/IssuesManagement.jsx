@@ -12,27 +12,27 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import {
   AlertCircle, Search, CheckCircle2, Clock, Trash2,
-  MapPin, User, Calendar, Upload, Camera, Video, VideoIcon, X, Plus, Filter, GripVertical, Eye, Pencil, ChevronLeft, ChevronRight, List, Grid3X3
-} from "lucide-react";
+  MapPin, User, Calendar, Upload, Camera, Video, VideoIcon, X, Plus, Filter, GripVertical, Eye, Pencil, ChevronLeft, ChevronRight, List, Grid3X3 } from
+"lucide-react";
 import { format } from "date-fns";
 
 const PRIORITY_MAP = {
-  low:    { label: "נמוכה",   dot: "bg-blue-400" },
-  high:   { label: "גבוהה",   dot: "bg-orange-400" },
-  urgent: { label: "דחוף",    dot: "bg-red-500" },
+  low: { label: "נמוכה", dot: "bg-blue-400" },
+  high: { label: "גבוהה", dot: "bg-orange-400" },
+  urgent: { label: "דחוף", dot: "bg-red-500" }
 };
 
 const PRIORITY_ORDER = { urgent: 0, high: 1, low: 2 };
 
 const COLUMNS = [
-  { id: "open",        label: "פתוחה",   color: "border-t-blue-400",   headerBg: "bg-blue-50",   count_color: "bg-blue-100 text-blue-700" },
-  { id: "in_progress", label: "בטיפול",  color: "border-t-amber-400",  headerBg: "bg-amber-50",  count_color: "bg-amber-100 text-amber-700" },
-  { id: "resolved",    label: "הושלמה",  color: "border-t-green-400",  headerBg: "bg-green-50",  count_color: "bg-green-100 text-green-700" },
-];
+{ id: "open", label: "פתוחה", color: "border-t-blue-400", headerBg: "bg-blue-50", count_color: "bg-blue-100 text-blue-700" },
+{ id: "in_progress", label: "בטיפול", color: "border-t-amber-400", headerBg: "bg-amber-50", count_color: "bg-amber-100 text-amber-700" },
+{ id: "resolved", label: "הושלמה", color: "border-t-green-400", headerBg: "bg-green-50", count_color: "bg-green-100 text-green-700" }];
+
 
 // ---- Reporter Name Component ----
 function IssueReporterName({ reporterEmail, appUsers }) {
-  const reporterUser = appUsers?.find(u => u.username === reporterEmail);
+  const reporterUser = appUsers?.find((u) => u.username === reporterEmail);
   return <span>מדווח: {reporterUser?.first_name || reporterEmail || "לא צוין"}</span>;
 }
 
@@ -50,48 +50,48 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
   const { data: appUsers = [] } = useQuery({ queryKey: ["appUsers"], queryFn: () => base44.entities.AppUser.list() });
 
   const rooms = Array.from({ length: 20 }, (_, i) => ({ id: String(i + 1), name: `חדר ${i + 1}` }));
-  const targetOptions = form.target_type === "room"
-    ? rooms
-    : areas.filter((a) => a.active !== false).map((a) => ({ id: a.id, name: a.name }));
+  const targetOptions = form.target_type === "room" ?
+  rooms :
+  areas.filter((a) => a.active !== false).map((a) => ({ id: a.id, name: a.name }));
 
   const handleImageUpload = async (e) => {
     const files = Array.from(e.target.files);
-    if (images.length + files.length > 5) { setError("ניתן להעלות עד 5 תמונות"); return; }
-    setUploadingImages(true); setError("");
+    if (images.length + files.length > 5) {setError("ניתן להעלות עד 5 תמונות");return;}
+    setUploadingImages(true);setError("");
     const urls = [];
-    for (const file of files) { const { file_url } = await base44.integrations.Core.UploadFile({ file }); urls.push(file_url); }
-    setImages((p) => [...p, ...urls]); setUploadingImages(false); e.target.value = "";
+    for (const file of files) {const { file_url } = await base44.integrations.Core.UploadFile({ file });urls.push(file_url);}
+    setImages((p) => [...p, ...urls]);setUploadingImages(false);e.target.value = "";
   };
 
   const handleVideoUpload = async (e) => {
     const files = Array.from(e.target.files);
-    if (videos.length + files.length > 3) { setError("ניתן להעלות עד 3 סרטונים"); return; }
-    setUploadingVideos(true); setError("");
+    if (videos.length + files.length > 3) {setError("ניתן להעלות עד 3 סרטונים");return;}
+    setUploadingVideos(true);setError("");
     const urls = [];
-    for (const file of files) { const { file_url } = await base44.integrations.Core.UploadFile({ file }); urls.push(file_url); }
-    setVideos((p) => [...p, ...urls]); setUploadingVideos(false); e.target.value = "";
+    for (const file of files) {const { file_url } = await base44.integrations.Core.UploadFile({ file });urls.push(file_url);}
+    setVideos((p) => [...p, ...urls]);setUploadingVideos(false);e.target.value = "";
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!form.target_id || !form.description.trim()) { setError("יש למלא את כל השדות הנדרשים"); return; }
-    setSaving(true); setError("");
+    if (!form.target_id || !form.description.trim()) {setError("יש למלא את כל השדות הנדרשים");return;}
+    setSaving(true);setError("");
     const assigned_to_str = form.assigned_to?.length > 0 ? form.assigned_to.join(",") : "";
-    const reporterUser = appUsers.find(u => u.username === currentUser?.username);
-    const newIssue = await base44.entities.IssueReport.create({ 
+    const reporterUser = appUsers.find((u) => u.username === currentUser?.username);
+    const newIssue = await base44.entities.IssueReport.create({
       target_type: form.target_type,
       target_id: form.target_id,
       priority: form.priority,
       description: form.description,
       assigned_to: assigned_to_str || null,
-      images, 
+      images,
       videos,
       status: "open",
       reporter_email: currentUser?.username || null
     });
-    
+
     if (form.assigned_to?.length > 0) {
-      const assignedUsers = appUsers.filter(u => form.assigned_to.includes(u.username));
+      const assignedUsers = appUsers.filter((u) => form.assigned_to.includes(u.username));
       for (const user of assignedUsers) {
         try {
           const created = await base44.entities.Notification.create({
@@ -99,7 +99,7 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
             type: "task_assigned",
             message: `תקלה חדשה ב${form.target_type === "room" ? "חדר" : "אזור"} ${form.target_id} שויכה אליך`,
             task_type: "IssueReport",
-            assigner_name: reporterUser?.first_name || currentUser?.username || "מערכת",
+            assigner_name: reporterUser?.first_name || currentUser?.username || "מערכת"
           });
           console.log('Notification created:', created);
         } catch (notifErr) {
@@ -110,7 +110,7 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
     }
     setSaving(false);
     setForm({ target_type: "room", target_id: "", priority: "low", description: "", assigned_to: [], searchUser: "" });
-    setImages([]); setVideos([]);
+    setImages([]);setVideos([]);
     onSuccess();
   };
 
@@ -161,11 +161,11 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
                 <PopoverTrigger asChild>
                   <button type="button" className="w-full h-11 px-3 rounded-xl border border-slate-200 bg-slate-50 text-right font-medium text-slate-700 hover:bg-slate-100 transition-colors flex items-center justify-between">
                     <span className="text-xs text-slate-400">▼</span>
-                    {form.assigned_to?.length > 0 ? (
-                      <span className="text-sm">{form.assigned_to.length} משתמשים</span>
-                    ) : (
-                      <span className="text-sm text-slate-400">בחר משתמשים...</span>
-                    )}
+                    {form.assigned_to?.length > 0 ?
+                    <span className="text-sm">{form.assigned_to.length} משתמשים</span> :
+
+                    <span className="text-sm text-slate-400">בחר משתמשים...</span>
+                    }
                   </button>
                 </PopoverTrigger>
                 <PopoverContent className="w-80 p-0" dir="rtl">
@@ -174,30 +174,30 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
                     <Input
                       placeholder="חפש משתמש..."
                       className="h-10 rounded-lg border-slate-200 bg-slate-50 text-right text-sm"
-                      onChange={(e) => setForm((p) => ({ ...p, searchUser: e.target.value }))}
-                    />
+                      onChange={(e) => setForm((p) => ({ ...p, searchUser: e.target.value }))} />
+                    
                     <div className="space-y-2 max-h-64 overflow-y-auto">
-                      {appUsers
-                      .filter((u) =>
-                        u.first_name?.includes(form.searchUser || "") ||
-                        u.username?.includes(form.searchUser || "")
-                      )
-                      .map((u) => (
-                        <div
-                          key={u.id}
-                          className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50"
-                        >
+                      {appUsers.
+                      filter((u) =>
+                      u.first_name?.includes(form.searchUser || "") ||
+                      u.username?.includes(form.searchUser || "")
+                      ).
+                      map((u) =>
+                      <div
+                        key={u.id}
+                        className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50">
+                        
                           <Checkbox
-                            checked={form.assigned_to?.includes(u.username) || false}
-                            onCheckedChange={(checked) => {
-                              setForm((p) => ({
-                                ...p,
-                                assigned_to: checked
-                                  ? [...(p.assigned_to || []), u.username]
-                                  : p.assigned_to.filter((x) => x !== u.username),
-                              }));
-                            }}
-                          />
+                          checked={form.assigned_to?.includes(u.username) || false}
+                          onCheckedChange={(checked) => {
+                            setForm((p) => ({
+                              ...p,
+                              assigned_to: checked ?
+                              [...(p.assigned_to || []), u.username] :
+                              p.assigned_to.filter((x) => x !== u.username)
+                            }));
+                          }} />
+                        
                             <div className="w-6 h-6 rounded-full bg-blue-400 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
                               {u.first_name?.[0] || "?"}
                             </div>
@@ -206,35 +206,35 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
                               <p className="text-xs text-slate-400">{u.username}</p>
                             </div>
                           </div>
-                        ))}
+                      )}
                     </div>
-                    {form.assigned_to?.length > 0 && (
-                      <div className="pt-2 border-t border-slate-200 space-y-1">
+                    {form.assigned_to?.length > 0 &&
+                    <div className="pt-2 border-t border-slate-200 space-y-1">
                         <p className="text-xs font-semibold text-slate-600 text-right">נבחרו:</p>
                         <div className="flex flex-wrap gap-1">
                           {form.assigned_to.map((username) => {
-                            const user = appUsers.find((u) => u.username === username);
-                            return (
-                              <div key={username} className="flex items-center gap-1 bg-blue-100 rounded-lg px-2 py-1">
+                          const user = appUsers.find((u) => u.username === username);
+                          return (
+                            <div key={username} className="flex items-center gap-1 bg-blue-100 rounded-lg px-2 py-1">
                                 <span className="text-xs text-blue-700 font-medium">{user?.first_name}</span>
                                 <button
-                                  type="button"
-                                  onClick={() =>
-                                    setForm((p) => ({
-                                      ...p,
-                                      assigned_to: p.assigned_to.filter((u) => u !== username),
-                                    }))
-                                  }
-                                  className="text-blue-400 hover:text-blue-600"
-                                >
+                                type="button"
+                                onClick={() =>
+                                setForm((p) => ({
+                                  ...p,
+                                  assigned_to: p.assigned_to.filter((u) => u !== username)
+                                }))
+                                }
+                                className="text-blue-400 hover:text-blue-600">
+                                
                                   <X className="w-3 h-3" />
                                 </button>
-                              </div>
-                            );
-                          })}
+                              </div>);
+
+                        })}
                         </div>
                       </div>
-                    )}
+                    }
                   </div>
                 </PopoverContent>
               </Popover>
@@ -243,24 +243,24 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
               <label className="text-sm font-semibold text-slate-700">דחיפות *</label>
               <div className="flex gap-3 justify-end">
                 {[
-                  { value: "low", label: "נמוכה", bg: "bg-slate-100 border-slate-300", active: "bg-slate-500 text-white border-slate-600" },
-                  { value: "high", label: "בינונית", bg: "bg-yellow-50 border-yellow-400", active: "bg-yellow-400 text-slate-800 border-yellow-500" },
-                  { value: "urgent", label: "דחוף", bg: "bg-red-50 border-red-300", active: "bg-red-500 text-white border-red-600" }
-                ].map(opt => (
-                  <button
-                    key={opt.value}
-                    type="button"
-                    onClick={() => setForm((p) => ({ ...p, priority: opt.value }))}
-                    className={`flex-1 rounded-xl font-bold transition-all ${
-                      form.priority === opt.value 
-                        ? opt.active 
-                        : `${opt.bg} text-slate-700 hover:border-opacity-80`
-                    }`}
-                    style={{ height: '42.5px', borderWidth: '1px' }}
-                  >
+                { value: "low", label: "נמוכה", bg: "bg-slate-100 border-slate-300", active: "bg-slate-500 text-white border-slate-600" },
+                { value: "high", label: "בינונית", bg: "bg-yellow-50 border-yellow-400", active: "bg-yellow-400 text-slate-800 border-yellow-500" },
+                { value: "urgent", label: "דחוף", bg: "bg-red-50 border-red-300", active: "bg-red-500 text-white border-red-600" }].
+                map((opt) =>
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => setForm((p) => ({ ...p, priority: opt.value }))} className="bg-slate-400 text-white font-bold rounded-xl flex-1 transition-all border-slate-600"
+
+
+
+
+
+                  style={{ height: '42.5px', borderWidth: '1px' }}>
+                  
                     {opt.label}
                   </button>
-                ))}
+                )}
               </div>
             </div>
           </div>
@@ -272,23 +272,23 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
               onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
               placeholder="תאר את התקלה בפירוט... מה הבעיה? איפה בדיוק?"
               className="rounded-xl border-slate-200 bg-slate-50 min-h-[100px] resize-none text-right text-sm"
-              dir="rtl"
-            />
+              dir="rtl" />
+            
           </div>
 
           {/* תמונות */}
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-700">תמונות <span className="font-normal text-slate-400">(עד 5)</span></label>
-            {images.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {images.map((url, i) => (
-                  <div key={i} className="relative">
+            {images.length > 0 &&
+            <div className="flex flex-wrap gap-2">
+                {images.map((url, i) =>
+              <div key={i} className="relative">
                     <img src={url} alt="" className="w-14 h-14 object-cover rounded-xl border border-slate-200" />
                     <button type="button" onClick={() => setImages((p) => p.filter((_, j) => j !== i))} className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center shadow"><X className="w-3 h-3" /></button>
                   </div>
-                ))}
+              )}
               </div>
-            )}
+            }
             <div className="grid grid-cols-2 gap-3">
               <label className={`flex flex-col items-center justify-center gap-1.5 py-4 rounded-xl border-2 border-dashed cursor-pointer transition-all ${images.length >= 5 ? 'opacity-40 cursor-not-allowed border-slate-200' : 'border-green-300 hover:bg-green-50/40'}`}>
                 <div className="w-9 h-9 rounded-full bg-green-100 flex items-center justify-center"><Upload className="w-4 h-4 text-green-500" /></div>
@@ -309,16 +309,16 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
           {/* סרטונים */}
           <div className="space-y-2">
             <label className="text-sm font-semibold text-slate-700">סרטונים <span className="font-normal text-slate-400">(עד 3)</span></label>
-            {videos.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {videos.map((url, i) => (
-                  <div key={i} className="relative w-14 h-14 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center">
+            {videos.length > 0 &&
+            <div className="flex flex-wrap gap-2">
+                {videos.map((url, i) =>
+              <div key={i} className="relative w-14 h-14 bg-slate-100 rounded-xl border border-slate-200 flex items-center justify-center">
                     <VideoIcon className="w-5 h-5 text-slate-400" />
                     <button type="button" onClick={() => setVideos((p) => p.filter((_, j) => j !== i))} className="absolute -top-1.5 -right-1.5 w-5 h-5 bg-red-500 text-white rounded-full flex items-center justify-center shadow"><X className="w-3 h-3" /></button>
                   </div>
-                ))}
+              )}
               </div>
-            )}
+            }
             <div className="grid grid-cols-2 gap-3">
               <label className={`flex flex-col items-center justify-center gap-1.5 py-4 rounded-xl border-2 border-dashed cursor-pointer transition-all ${videos.length >= 3 ? 'opacity-40 cursor-not-allowed border-slate-200' : 'border-purple-300 hover:bg-purple-50/40'}`}>
                 <div className="w-9 h-9 rounded-full bg-purple-100 flex items-center justify-center"><Upload className="w-4 h-4 text-purple-500" /></div>
@@ -343,15 +343,15 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
               ביטול
             </button>
             <button type="submit" disabled={saving}
-              className="flex-1 h-12 text-base bg-gradient-to-l from-red-500 to-orange-400 hover:opacity-90 shadow-lg rounded-xl text-white font-bold flex items-center justify-center gap-2 disabled:opacity-60 transition-all">
+            className="flex-1 h-12 text-base bg-gradient-to-l from-red-500 to-orange-400 hover:opacity-90 shadow-lg rounded-xl text-white font-bold flex items-center justify-center gap-2 disabled:opacity-60 transition-all">
               <AlertCircle className="w-5 h-5" />
               {saving ? "שולח..." : "שלח דיווח"}
             </button>
           </div>
         </form>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+
 }
 
 // ---- Issue Details Dialog ----
@@ -396,7 +396,7 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange, on
           </div>
 
           {/* תמונות */}
-          {images.length > 0 && (
+          {images.length > 0 &&
             <div className="space-y-3">
               <h3 className="text-sm font-bold text-slate-700">תמונות ({images.length})</h3>
               <div className="bg-slate-50 rounded-xl p-6 flex flex-col items-center gap-4">
@@ -404,28 +404,28 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange, on
                   <img src={images[imageIndex]} alt="" className="max-h-full max-w-full object-contain" />
                 </div>
                 
-                {hasMultipleImages && (
-                  <div className="flex items-center gap-4">
+                {hasMultipleImages &&
+                <div className="flex items-center gap-4">
                     <button
-                      onClick={() => setImageIndex((i) => (i - 1 + images.length) % images.length)}
-                      className="w-10 h-10 rounded-lg bg-white border border-slate-300 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors font-bold text-lg"
-                      title="תמונה קודמת"
-                    >
+                    onClick={() => setImageIndex((i) => (i - 1 + images.length) % images.length)}
+                    className="w-10 h-10 rounded-lg bg-white border border-slate-300 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors font-bold text-lg"
+                    title="תמונה קודמת">
+                    
                       →
                     </button>
                     <span className="text-sm font-semibold text-slate-700 min-w-fit">{imageIndex + 1} / {images.length}</span>
                     <button
-                      onClick={() => setImageIndex((i) => (i + 1) % images.length)}
-                      className="w-10 h-10 rounded-lg bg-white border border-slate-300 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors font-bold text-lg"
-                      title="תמונה הבאה"
-                    >
+                    onClick={() => setImageIndex((i) => (i + 1) % images.length)}
+                    className="w-10 h-10 rounded-lg bg-white border border-slate-300 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors font-bold text-lg"
+                    title="תמונה הבאה">
+                    
                       ←
                     </button>
                   </div>
-                )}
+                }
               </div>
             </div>
-          )}
+            }
 
           {/* סטטוס */}
           <div className="space-y-2">
@@ -449,45 +449,45 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange, on
           </div>
 
           {/* משתמשים משותפים */}
-          {issue.assigned_to && (
+          {issue.assigned_to &&
             <div className="space-y-2 pt-3 border-t border-slate-200">
               <h3 className="text-sm font-bold text-slate-700">משתמשים משותפים</h3>
               <div className="flex flex-wrap gap-2">
                 {issue.assigned_to.split(",").map((username) => {
-                  const user = appUsers?.find(u => u.username === username.trim());
-                  return user ? (
-                    <div key={username} className="flex items-center gap-1.5 bg-blue-50 border border-blue-200 rounded-lg px-2.5 py-1.5">
+                  const user = appUsers?.find((u) => u.username === username.trim());
+                  return user ?
+                  <div key={username} className="flex items-center gap-1.5 bg-blue-50 border border-blue-200 rounded-lg px-2.5 py-1.5">
                       <div className="w-5 h-5 rounded-full bg-blue-400 text-white text-xs font-bold flex items-center justify-center">
                         {user.first_name?.[0] || "?"}
                       </div>
                       <span className="text-sm text-blue-700 font-medium">{user.first_name}</span>
-                    </div>
-                  ) : null;
+                    </div> :
+                  null;
                 })}
               </div>
             </div>
-          )}
+            }
 
           {/* כפתורים */}
           <div className="flex gap-2 pt-2 justify-end">
             <button
-              onClick={onClose}
-              className="h-11 px-4 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors"
-            >
+                onClick={onClose}
+                className="h-11 px-4 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors">
+                
               סגור
             </button>
             <button
-              onClick={() => setShowDeleteAlert(true)}
-              className="w-11 h-11 rounded-xl bg-red-50 border border-red-200 text-red-600 font-bold hover:bg-red-100 transition-colors flex items-center justify-center"
-              title="מחוק"
-            >
+                onClick={() => setShowDeleteAlert(true)}
+                className="w-11 h-11 rounded-xl bg-red-50 border border-red-200 text-red-600 font-bold hover:bg-red-100 transition-colors flex items-center justify-center"
+                title="מחוק">
+                
               <Trash2 className="w-4 h-4" />
             </button>
             <button
-              onClick={() => onView(issue)}
-              className="w-11 h-11 rounded-xl bg-blue-50 border border-blue-200 text-blue-600 font-bold hover:bg-blue-100 transition-colors flex items-center justify-center"
-              title="עריכה"
-            >
+                onClick={() => onView(issue)}
+                className="w-11 h-11 rounded-xl bg-blue-50 border border-blue-200 text-blue-600 font-bold hover:bg-blue-100 transition-colors flex items-center justify-center"
+                title="עריכה">
+                
               <Pencil className="w-4 h-4" />
             </button>
           </div>
@@ -513,8 +513,8 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange, on
           </div>
         </AlertDialogContent>
       </AlertDialog>
-    </>
-  );
+    </>);
+
 }
 
 // ---- Kanban Issue Card ----
@@ -524,18 +524,18 @@ function KanbanCard({ issue, index, onDelete, onView, appUsers }) {
 
   return (
     <Draggable draggableId={issue.id} index={index}>
-      {(provided, snapshot) => (
-        <div
-          ref={provided.innerRef}
-          {...provided.draggableProps}
-          onClick={() => onView(issue)}
-          className={`bg-white rounded-xl border border-slate-200 shadow-sm mb-2 overflow-hidden transition-shadow cursor-pointer ${snapshot.isDragging ? "shadow-xl rotate-1 scale-105" : "hover:shadow-md"}`}
-        >
+      {(provided, snapshot) =>
+      <div
+        ref={provided.innerRef}
+        {...provided.draggableProps}
+        onClick={() => onView(issue)}
+        className={`bg-white rounded-xl border border-slate-200 shadow-sm mb-2 overflow-hidden transition-shadow cursor-pointer ${snapshot.isDragging ? "shadow-xl rotate-1 scale-105" : "hover:shadow-md"}`}>
+        
           {/* Drag handle bar */}
           <div
-           {...provided.dragHandleProps}
-           className="flex flex-row-reverse items-center justify-between px-3 py-2 border-b border-slate-100 bg-slate-50/60 cursor-grab active:cursor-grabbing"
-          >
+          {...provided.dragHandleProps}
+          className="flex flex-row-reverse items-center justify-between px-3 py-2 border-b border-slate-100 bg-slate-50/60 cursor-grab active:cursor-grabbing">
+          
             <div className="flex items-center gap-1.5">
               <span className={`w-2 h-2 rounded-full ${p.dot}`}></span>
               <span className="text-xs font-semibold text-slate-500">{p.label}</span>
@@ -552,31 +552,31 @@ function KanbanCard({ issue, index, onDelete, onView, appUsers }) {
               </div>
               <div className="flex items-center gap-1">
                 <button
-                  onClick={() => onView(issue)}
-                  className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-blue-400 hover:bg-blue-50 transition-colors"
-                  title="צפה בפרטים"
-                >
+                onClick={() => onView(issue)}
+                className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-blue-400 hover:bg-blue-50 transition-colors"
+                title="צפה בפרטים">
+                
                   <Eye className="w-3.5 h-3.5" />
                 </button>
                 <button
-                  className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-                  title="עריכה"
-                >
+                className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                title="עריכה">
+                
                   <Pencil className="w-3.5 h-3.5" />
                 </button>
                 <button
-                  onClick={() => onDelete(issue.id)}
-                  className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-400 hover:bg-red-50 transition-colors"
-                  title="מחוק"
-                >
+                onClick={() => onDelete(issue.id)}
+                className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-400 hover:bg-red-50 transition-colors"
+                title="מחוק">
+                
                   <Trash2 className="w-3.5 h-3.5" />
                 </button>
               </div>
             </div>
 
-            {issue.description && (
-              <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">{issue.description}</p>
-            )}
+            {issue.description &&
+          <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">{issue.description}</p>
+          }
 
             <div className="flex items-center justify-between pt-0.5 text-xs text-slate-400">
               <span>{format(new Date(issue.created_date), "dd/MM/yy")}</span>
@@ -584,9 +584,9 @@ function KanbanCard({ issue, index, onDelete, onView, appUsers }) {
             </div>
           </div>
         </div>
-      )}
-    </Draggable>
-  );
+      }
+    </Draggable>);
+
 }
 
 // ---- Kanban Column ----
@@ -601,27 +601,27 @@ function KanbanColumn({ col, issues, onDelete, onView, appUsers }) {
 
       {/* Droppable area */}
       <Droppable droppableId={col.id}>
-        {(provided, snapshot) => (
-          <div
-            ref={provided.innerRef}
-            {...provided.droppableProps}
-            className={`flex-1 min-h-[300px] rounded-b-2xl border border-t-0 border-slate-200 p-3 transition-colors ${snapshot.isDraggingOver ? "bg-blue-50/40" : "bg-slate-50/60"}`}
-          >
-            {issues.length === 0 && !snapshot.isDraggingOver && (
-              <div className="flex flex-col items-center justify-center h-24 text-slate-300">
+        {(provided, snapshot) =>
+        <div
+          ref={provided.innerRef}
+          {...provided.droppableProps}
+          className={`flex-1 min-h-[300px] rounded-b-2xl border border-t-0 border-slate-200 p-3 transition-colors ${snapshot.isDraggingOver ? "bg-blue-50/40" : "bg-slate-50/60"}`}>
+          
+            {issues.length === 0 && !snapshot.isDraggingOver &&
+          <div className="flex flex-col items-center justify-center h-24 text-slate-300">
                 <AlertCircle className="w-7 h-7 mb-1.5 opacity-40" />
                 <p className="text-xs">אין תקלות</p>
               </div>
-            )}
-            {issues.map((issue, index) => (
-              <KanbanCard key={issue.id} issue={issue} index={index} onDelete={onDelete} onView={onView} appUsers={appUsers} />
-            ))}
+          }
+            {issues.map((issue, index) =>
+          <KanbanCard key={issue.id} issue={issue} index={index} onDelete={onDelete} onView={onView} appUsers={appUsers} />
+          )}
             {provided.placeholder}
           </div>
-        )}
+        }
       </Droppable>
-    </div>
-  );
+    </div>);
+
 }
 
 // ---- Main Page ----
@@ -639,24 +639,24 @@ export default function IssuesManagement() {
 
   const { data: issues = [], isLoading } = useQuery({
     queryKey: ["issues"],
-    queryFn: () => base44.entities.IssueReport.list("-created_date"),
+    queryFn: () => base44.entities.IssueReport.list("-created_date")
   });
 
   const isAdmin = currentUser?.role === 'SUPER_ADMIN' || currentUser?.role === 'ADMIN';
-  
+
   const filtered = useMemo(() => {
     return issues.filter((i) => {
       // Admin רואה את כל התקלות
       if (isAdmin) return true;
-      
+
       // משתמש רגיל רואה רק:
       // 1. תקלות שהוא יצר
       // 2. תקלות שהוא משותף בהן
       const isReporter = i.reporter_email === currentUser?.username;
-      const isAssigned = i.assigned_to?.split(",").map(u => u.trim()).includes(currentUser?.username);
-      
+      const isAssigned = i.assigned_to?.split(",").map((u) => u.trim()).includes(currentUser?.username);
+
       if (!isReporter && !isAssigned) return false;
-      
+
       if (filterPriority !== "all" && i.priority !== filterPriority) return false;
       if (search) {
         const q = search.toLowerCase();
@@ -669,9 +669,9 @@ export default function IssuesManagement() {
   const columns = useMemo(() => {
     const map = {};
     COLUMNS.forEach((col) => {
-      map[col.id] = filtered
-        .filter((i) => i.status === col.id)
-        .sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]);
+      map[col.id] = filtered.
+      filter((i) => i.status === col.id).
+      sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]);
     });
     return map;
   }, [filtered]);
@@ -703,7 +703,7 @@ export default function IssuesManagement() {
     open: filtered.filter((i) => i.status === "open").length,
     inProgress: filtered.filter((i) => i.status === "in_progress").length,
     resolved: filtered.filter((i) => i.status === "resolved").length,
-    urgent: filtered.filter((i) => i.priority === "urgent" && (i.status === "open" || i.status === "in_progress")).length,
+    urgent: filtered.filter((i) => i.priority === "urgent" && (i.status === "open" || i.status === "in_progress")).length
   }), [filtered]);
 
   return (
@@ -727,39 +727,39 @@ export default function IssuesManagement() {
               <button
                 onClick={() => setViewMode("kanban")}
                 className={`flex items-center gap-2 h-9 px-4 rounded-lg font-bold transition-all ${
-                  viewMode === "kanban" 
-                    ? "bg-blue-500 text-white shadow-md" 
-                    : "text-slate-600 hover:bg-slate-50"
-                }`}
-              >
+                viewMode === "kanban" ?
+                "bg-blue-500 text-white shadow-md" :
+                "text-slate-600 hover:bg-slate-50"}`
+                }>
+                
                 <Grid3X3 className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setViewMode("list")}
                 className={`flex items-center gap-2 h-9 px-4 rounded-lg font-bold transition-all ${
-                  viewMode === "list" 
-                    ? "bg-blue-500 text-white shadow-md" 
-                    : "text-slate-600 hover:bg-slate-50"
-                }`}
-              >
+                viewMode === "list" ?
+                "bg-blue-500 text-white shadow-md" :
+                "text-slate-600 hover:bg-slate-50"}`
+                }>
+                
                 <List className="w-4 h-4" />
               </button>
               <button
                 onClick={() => setViewMode("calendar")}
                 className={`flex items-center gap-2 h-9 px-4 rounded-lg font-bold transition-all ${
-                  viewMode === "calendar" 
-                    ? "bg-blue-500 text-white shadow-md" 
-                    : "text-slate-600 hover:bg-slate-50"
-                }`}
-              >
+                viewMode === "calendar" ?
+                "bg-blue-500 text-white shadow-md" :
+                "text-slate-600 hover:bg-slate-50"}`
+                }>
+                
                 <Calendar className="w-4 h-4" />
               </button>
             </div>
 
             <button
               onClick={() => setDialogOpen(true)}
-              className="flex items-center gap-2 h-11 px-5 rounded-xl bg-gradient-to-l from-red-500 to-orange-400 text-white font-bold shadow-lg hover:opacity-90 transition-all text-sm"
-            >
+              className="flex items-center gap-2 h-11 px-5 rounded-xl bg-gradient-to-l from-red-500 to-orange-400 text-white font-bold shadow-lg hover:opacity-90 transition-all text-sm">
+              
               <Plus className="w-4 h-4" />
               דווח על תקלה חדשה
             </button>
@@ -769,19 +769,19 @@ export default function IssuesManagement() {
         {/* KPI */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { label: "תקלות פתוחות", count: stats.open, icon: <AlertCircle className="w-5 h-5 text-blue-500" />, bg: "bg-blue-50", accent: "text-blue-600", border: "border-blue-100" },
-            { label: "בטיפול",        count: stats.inProgress, icon: <Clock className="w-5 h-5 text-amber-500" />, bg: "bg-amber-50", accent: "text-amber-600", border: "border-amber-100" },
-            { label: "הושלמו",        count: stats.resolved, icon: <CheckCircle2 className="w-5 h-5 text-green-500" />, bg: "bg-green-50", accent: "text-green-600", border: "border-green-100" },
-            { label: "דחוף",          count: stats.urgent, icon: <AlertCircle className="w-5 h-5 text-red-500" />, bg: "bg-red-50", accent: "text-red-600", border: "border-red-100" },
-          ].map(({ label, count, icon, bg, accent, border }) => (
-            <div key={label} className={`rounded-2xl border ${border} bg-white p-4 flex items-center justify-between shadow-sm`}>
+          { label: "תקלות פתוחות", count: stats.open, icon: <AlertCircle className="w-5 h-5 text-blue-500" />, bg: "bg-blue-50", accent: "text-blue-600", border: "border-blue-100" },
+          { label: "בטיפול", count: stats.inProgress, icon: <Clock className="w-5 h-5 text-amber-500" />, bg: "bg-amber-50", accent: "text-amber-600", border: "border-amber-100" },
+          { label: "הושלמו", count: stats.resolved, icon: <CheckCircle2 className="w-5 h-5 text-green-500" />, bg: "bg-green-50", accent: "text-green-600", border: "border-green-100" },
+          { label: "דחוף", count: stats.urgent, icon: <AlertCircle className="w-5 h-5 text-red-500" />, bg: "bg-red-50", accent: "text-red-600", border: "border-red-100" }].
+          map(({ label, count, icon, bg, accent, border }) =>
+          <div key={label} className={`rounded-2xl border ${border} bg-white p-4 flex items-center justify-between shadow-sm`}>
               <div>
                 <p className={`text-3xl font-black ${accent}`}>{count}</p>
                 <p className="text-xs text-slate-500 mt-0.5">{label}</p>
               </div>
               <div className={`p-2.5 rounded-xl ${bg}`}>{icon}</div>
             </div>
-          ))}
+          )}
         </div>
 
         {/* Filters */}
@@ -790,8 +790,8 @@ export default function IssuesManagement() {
           <div className="relative flex-1 min-w-[180px]">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input value={search} onChange={(e) => setSearch(e.target.value)}
-              placeholder="חפש בתיאור, מיקום..."
-              className="h-10 pr-9 rounded-xl border-slate-200 bg-slate-50 text-sm" />
+            placeholder="חפש בתיאור, מיקום..."
+            className="h-10 pr-9 rounded-xl border-slate-200 bg-slate-50 text-sm" />
           </div>
           <Select value={filterPriority} onValueChange={setFilterPriority}>
             <SelectTrigger className="h-10 w-36 rounded-xl border-slate-200 bg-slate-50 text-sm"><SelectValue placeholder="דחיפות" /></SelectTrigger>
@@ -806,28 +806,28 @@ export default function IssuesManagement() {
           </div>
 
         {/* Kanban Board */}
-        {isLoading ? (
-          <div className="text-center py-16 text-slate-400">טוען...</div>
-        ) : viewMode === "kanban" ? (
-          <DragDropContext onDragEnd={handleDragEnd}>
+        {isLoading ?
+        <div className="text-center py-16 text-slate-400">טוען...</div> :
+        viewMode === "kanban" ?
+        <DragDropContext onDragEnd={handleDragEnd}>
             <div className="flex gap-4 items-start">
-              {COLUMNS.map((col) => (
-                <KanbanColumn
-                   key={col.id}
-                   col={col}
-                   issues={columns[col.id] || []}
-                   onDelete={handleDelete}
-                   onView={(issue) => { 
-                     setSelectedIssue(issue); 
-                     setDetailsOpen(true); 
-                   }}
-                   appUsers={appUsers}
-                 />
-              ))}
+              {COLUMNS.map((col) =>
+            <KanbanColumn
+              key={col.id}
+              col={col}
+              issues={columns[col.id] || []}
+              onDelete={handleDelete}
+              onView={(issue) => {
+                setSelectedIssue(issue);
+                setDetailsOpen(true);
+              }}
+              appUsers={appUsers} />
+
+            )}
             </div>
-          </DragDropContext>
-        ) : viewMode === "list" ? (
-           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-x-auto">
+          </DragDropContext> :
+        viewMode === "list" ?
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-x-auto">
              <table className="w-full">
                <thead>
                  <tr className="border-b border-slate-200 bg-slate-50">
@@ -841,29 +841,29 @@ export default function IssuesManagement() {
                  </tr>
                </thead>
                <tbody>
-                 {filtered.length === 0 ? (
-                   <tr>
+                 {filtered.length === 0 ?
+              <tr>
                      <td colSpan="7" className="p-8 text-center text-slate-400">אין תקלות</td>
-                   </tr>
-                 ) : (
-                   filtered
-                     .sort((a, b) => {
-                       const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
-                       const aPriority = priorityOrder[a.priority] ?? 3;
-                       const bPriority = priorityOrder[b.priority] ?? 3;
-                       return aPriority - bPriority;
-                     })
-                     .map((issue) => {
-                       const p = PRIORITY_MAP[issue.priority] || PRIORITY_MAP.low;
-                       const reporterUser = appUsers?.find(u => u.username === issue.reporter_email);
-                       const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${issue.target_id}`;
-                       const statusLabel = issue.status === "open" ? "פתוחה" : issue.status === "in_progress" ? "בטיפול" : "הושלמה";
-                       return (
-                         <tr 
-                           key={issue.id} 
-                           className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors"
-                           onClick={() => { setSelectedIssue(issue); setDetailsOpen(true); }}
-                         >
+                   </tr> :
+
+              filtered.
+              sort((a, b) => {
+                const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
+                const aPriority = priorityOrder[a.priority] ?? 3;
+                const bPriority = priorityOrder[b.priority] ?? 3;
+                return aPriority - bPriority;
+              }).
+              map((issue) => {
+                const p = PRIORITY_MAP[issue.priority] || PRIORITY_MAP.low;
+                const reporterUser = appUsers?.find((u) => u.username === issue.reporter_email);
+                const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${issue.target_id}`;
+                const statusLabel = issue.status === "open" ? "פתוחה" : issue.status === "in_progress" ? "בטיפול" : "הושלמה";
+                return (
+                  <tr
+                    key={issue.id}
+                    className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors"
+                    onClick={() => {setSelectedIssue(issue);setDetailsOpen(true);}}>
+                    
                            <td className="px-4 py-3 text-right text-sm font-semibold text-slate-800">{targetLabel}</td>
                            <td className="px-4 py-3 text-right text-sm text-slate-600">{reporterUser?.first_name || issue.reporter_email}</td>
                            <td className="px-4 py-3 text-center">
@@ -874,92 +874,92 @@ export default function IssuesManagement() {
                            </td>
                            <td className="px-4 py-3 text-center">
                              <span className={`inline-block px-3 py-1 rounded-lg text-xs font-semibold ${
-                               issue.status === "resolved" ? "bg-green-100 text-green-700" :
-                               issue.status === "in_progress" ? "bg-amber-100 text-amber-700" :
-                               "bg-blue-100 text-blue-700"
-                             }`}>
+                      issue.status === "resolved" ? "bg-green-100 text-green-700" :
+                      issue.status === "in_progress" ? "bg-amber-100 text-amber-700" :
+                      "bg-blue-100 text-blue-700"}`
+                      }>
                                {statusLabel}
                              </span>
                            </td>
                            <td className="px-4 py-3 text-right text-sm text-slate-500">{format(new Date(issue.created_date), "dd/MM/yy")}</td>
                            <td className="px-4 py-3 text-right text-sm text-slate-600 max-w-xs truncate">{issue.description}</td>
                            <td className="px-4 py-3 text-center flex items-center justify-center gap-1">
-                             {(issue.images?.length > 0 || issue.videos?.length > 0) && (
-                               <button
-                                 onClick={(e) => { e.stopPropagation(); setSelectedIssue(issue); setDetailsOpen(true); }}
-                                 className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-blue-500 hover:bg-blue-50 transition-colors"
-                                 title="צפה בתמונות"
-                               >
+                             {(issue.images?.length > 0 || issue.videos?.length > 0) &&
+                      <button
+                        onClick={(e) => {e.stopPropagation();setSelectedIssue(issue);setDetailsOpen(true);}}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-blue-500 hover:bg-blue-50 transition-colors"
+                        title="צפה בתמונות">
+                        
                                  <Eye className="w-4 h-4" />
                                </button>
-                             )}
+                      }
                              <button
-                               onClick={(e) => { e.stopPropagation(); setSelectedIssue(issue); setDetailsOpen(true); }}
-                               className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-                               title="עריכה"
-                             >
+                        onClick={(e) => {e.stopPropagation();setSelectedIssue(issue);setDetailsOpen(true);}}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                        title="עריכה">
+                        
                                <Pencil className="w-4 h-4" />
                              </button>
                              <button
-                               onClick={(e) => { e.stopPropagation(); handleDelete(issue.id); }}
-                               className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors"
-                               title="מחוק"
-                             >
+                        onClick={(e) => {e.stopPropagation();handleDelete(issue.id);}}
+                        className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                        title="מחוק">
+                        
                                <Trash2 className="w-4 h-4" />
                              </button>
                            </td>
-                         </tr>
-                       );
-                     })
-                 )}
+                         </tr>);
+
+              })
+              }
                </tbody>
              </table>
-           </div>
-        ) : (
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
+           </div> :
+
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
             <div className="grid grid-cols-7 gap-2 mb-4">
-              {['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'].map(day => (
-                <div key={day} className="text-center font-bold text-sm text-slate-600 py-2">{day}</div>
-              ))}
+              {['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'].map((day) =>
+            <div key={day} className="text-center font-bold text-sm text-slate-600 py-2">{day}</div>
+            )}
             </div>
             <div className="grid grid-cols-7 gap-2 auto-rows-[100px]">
               {Array.from({ length: 35 }).map((_, i) => {
-                const dayIssues = filtered.filter(issue => {
-                  const issueDate = new Date(issue.created_date);
-                  return issueDate.getDate() === i + 1;
-                });
-                return (
-                  <div key={i} className="border border-slate-200 rounded-lg p-2 bg-slate-50 hover:bg-slate-100 transition-colors">
-                    {i > 0 && i <= 31 && (
-                      <>
+              const dayIssues = filtered.filter((issue) => {
+                const issueDate = new Date(issue.created_date);
+                return issueDate.getDate() === i + 1;
+              });
+              return (
+                <div key={i} className="border border-slate-200 rounded-lg p-2 bg-slate-50 hover:bg-slate-100 transition-colors">
+                    {i > 0 && i <= 31 &&
+                  <>
                         <div className="text-xs font-semibold text-slate-700 mb-1">{i}</div>
                         <div className="space-y-1">
-                          {dayIssues.slice(0, 2).map(issue => (
-                            <div 
-                              key={issue.id}
-                              onClick={() => { setSelectedIssue(issue); setDetailsOpen(true); }}
-                              className="text-xs bg-blue-100 text-blue-700 rounded px-1.5 py-0.5 truncate cursor-pointer hover:bg-blue-200"
-                              title={issue.description}
-                            >
+                          {dayIssues.slice(0, 2).map((issue) =>
+                      <div
+                        key={issue.id}
+                        onClick={() => {setSelectedIssue(issue);setDetailsOpen(true);}}
+                        className="text-xs bg-blue-100 text-blue-700 rounded px-1.5 py-0.5 truncate cursor-pointer hover:bg-blue-200"
+                        title={issue.description}>
+                        
                               {issue.target_id}
                             </div>
-                          ))}
-                          {dayIssues.length > 2 && (
-                            <div className="text-xs text-slate-500">+{dayIssues.length - 2} עוד</div>
-                          )}
+                      )}
+                          {dayIssues.length > 2 &&
+                      <div className="text-xs text-slate-500">+{dayIssues.length - 2} עוד</div>
+                      }
                         </div>
                       </>
-                    )}
-                  </div>
-                );
-              })}
+                  }
+                  </div>);
+
+            })}
             </div>
           </div>
-        )}
+        }
       </div>
 
-      {notification && (
-        <div className="fixed top-4 right-4 left-4 max-w-sm mx-auto z-50 bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3 shadow-lg animate-in">
+      {notification &&
+      <div className="fixed top-4 right-4 left-4 max-w-sm mx-auto z-50 bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3 shadow-lg animate-in">
           <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
             <AlertCircle className="w-3 h-3 text-blue-600" />
           </div>
@@ -967,34 +967,34 @@ export default function IssuesManagement() {
             <p className="text-sm font-semibold text-blue-900">{notification}</p>
           </div>
           <button
-            onClick={() => setNotification(null)}
-            className="text-blue-400 hover:text-blue-600 flex-shrink-0"
-          >
+          onClick={() => setNotification(null)}
+          className="text-blue-400 hover:text-blue-600 flex-shrink-0">
+          
             <X className="w-4 h-4" />
           </button>
         </div>
-      )}
+      }
 
       <ReportIssueDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
-        onSuccess={() => { setDialogOpen(false); qc.invalidateQueries({ queryKey: ["issues"] }); }}
+        onSuccess={() => {setDialogOpen(false);qc.invalidateQueries({ queryKey: ["issues"] });}}
         onNotify={(msg) => {
           setNotification(msg);
           setTimeout(() => setNotification(null), 5000);
         }}
-        currentUser={currentUser}
-      />
+        currentUser={currentUser} />
+      
 
       <IssueDetailsDialog
-         issue={selectedIssue}
-         open={detailsOpen}
-         onClose={() => setDetailsOpen(false)}
-         onDelete={handleDelete}
-         onStatusChange={handleStatusChange}
-         onView={(issue) => { setSelectedIssue(issue); setDetailsOpen(true); }}
-         appUsers={appUsers}
-       />
-    </div>
-  );
+        issue={selectedIssue}
+        open={detailsOpen}
+        onClose={() => setDetailsOpen(false)}
+        onDelete={handleDelete}
+        onStatusChange={handleStatusChange}
+        onView={(issue) => {setSelectedIssue(issue);setDetailsOpen(true);}}
+        appUsers={appUsers} />
+      
+    </div>);
+
 }
