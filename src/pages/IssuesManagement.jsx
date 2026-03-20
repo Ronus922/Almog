@@ -757,6 +757,7 @@ export default function IssuesManagement() {
         onClose={() => setDetailsOpen(false)}
         onDelete={handleDelete}
         onStatusChange={handleStatusChange}
+        onView={(issue) => { setSelectedIssue(issue); setDetailsOpen(true); }}
       />
     </div>
   );
