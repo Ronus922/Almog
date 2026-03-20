@@ -26,8 +26,8 @@ const COLUMNS = [
 ];
 
 // ---- Dialog Form ----
-function ReportIssueDialog({ open, onClose, onSuccess }) {
-  const [form, setForm] = useState({ target_type: "room", target_id: "", priority: "medium", description: "", assigned_to: "" });
+function ReportIssueDialog({ open, onClose, onSuccess, onNotify }) {
+  const [form, setForm] = useState({ target_type: "room", target_id: "", priority: "medium", description: "", assigned_to: [], searchUser: "" });
   const [images, setImages] = useState([]);
   const [videos, setVideos] = useState([]);
   const [uploadingImages, setUploadingImages] = useState(false);
@@ -65,9 +65,12 @@ function ReportIssueDialog({ open, onClose, onSuccess }) {
     e.preventDefault();
     if (!form.target_id || !form.description.trim()) { setError("יש למלא את כל השדות הנדרשים"); return; }
     setSaving(true); setError("");
-    await base44.entities.IssueReport.create({ ...form, images, videos, status: "open" });
+    const newIssue = await base44.entities.IssueReport.create({ ...form, images, videos, status: "open" });
+    if (form.assigned_to?.length > 0) {
+      onNotify(`תקלה חדשה בחדר ${form.target_id} שוייכה ל${form.assigned_to.length} משתמשים`);
+    }
     setSaving(false);
-    setForm({ target_type: "room", target_id: "", priority: "medium", description: "", assigned_to: "" });
+    setForm({ target_type: "room", target_id: "", priority: "medium", description: "", assigned_to: [], searchUser: "" });
     setImages([]); setVideos([]);
     onSuccess();
   };
@@ -127,14 +130,65 @@ function ReportIssueDialog({ open, onClose, onSuccess }) {
             </div>
             <div className="space-y-1.5">
               <label className="text-sm font-semibold text-slate-700">שתף עם</label>
-              <Select value={form.assigned_to} onValueChange={(v) => setForm((p) => ({ ...p, assigned_to: v }))}>
-                <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-slate-50 font-medium">
-                  <SelectValue placeholder="...בחר משתמש" />
-                </SelectTrigger>
-                <SelectContent className="max-h-60">
-                  {appUsers.map((u) => <SelectItem key={u.id} value={u.username}>{u.first_name} {u.last_name || ""}</SelectItem>)}
-                </SelectContent>
-              </Select>
+              <div className="relative">
+                <Input
+                  placeholder="הקלד שם משתמש..."
+                  className="h-11 rounded-xl border-slate-200 bg-slate-50 font-medium text-right"
+                  onChange={(e) => setForm((p) => ({ ...p, searchUser: e.target.value }))} 
+                />
+                {form.assigned_to && form.assigned_to.length > 0 && (
+                  <div className="absolute top-12 right-0 left-0 bg-white border border-slate-200 rounded-xl shadow-lg z-10 max-h-48 overflow-y-auto p-2">
+                    <div className="flex flex-wrap gap-1.5">
+                      {form.assigned_to.map((username) => {
+                        const user = appUsers.find((u) => u.username === username);
+                        return (
+                          <div key={username} className="flex items-center gap-1.5 bg-slate-100 rounded-lg px-2.5 py-1.5">
+                            <div className="w-6 h-6 rounded-full bg-blue-400 text-white text-xs font-bold flex items-center justify-center">
+                              {user?.first_name?.[0] || "?"}
+                            </div>
+                            <span className="text-sm text-slate-700 font-medium">{user?.first_name || username}</span>
+                            <button
+                              type="button"
+                              onClick={() => setForm((p) => ({
+                                ...p,
+                                assigned_to: p.assigned_to.filter((u) => u !== username),
+                              }))}
+                              className="text-slate-400 hover:text-red-500 ml-1"
+                            >
+                              <X className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="space-y-1 max-h-48 overflow-y-auto">
+                {appUsers.filter((u) => 
+                  !form.assigned_to?.includes(u.username) &&
+                  (u.first_name?.includes(form.searchUser || "") || u.username?.includes(form.searchUser || ""))
+                ).map((u) => (
+                  <button
+                    key={u.id}
+                    type="button"
+                    onClick={() => setForm((p) => ({
+                      ...p,
+                      assigned_to: [...(p.assigned_to || []), u.username],
+                      searchUser: "",
+                    }))}
+                    className="w-full flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 text-right transition-colors"
+                  >
+                    <div className="w-6 h-6 rounded-full bg-blue-400 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
+                      {u.first_name?.[0] || "?"}
+                    </div>
+                    <div className="flex-1 text-right">
+                      <p className="text-sm font-medium text-slate-700">{u.first_name} {u.last_name || ""}</p>
+                      <p className="text-xs text-slate-400">{u.username}</p>
+                    </div>
+                  </button>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -457,6 +511,7 @@ export default function IssuesManagement() {
   const [filterPriority, setFilterPriority] = useState("all");
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedIssue, setSelectedIssue] = useState(null);
+  const [notification, setNotification] = useState(null);
   const qc = useQueryClient();
 
   const { data: issues = [], isLoading } = useQuery({
@@ -595,10 +650,31 @@ export default function IssuesManagement() {
         )}
       </div>
 
+      {notification && (
+        <div className="fixed top-4 right-4 left-4 max-w-sm mx-auto z-50 bg-blue-50 border border-blue-200 rounded-xl p-4 flex items-start gap-3 shadow-lg animate-in">
+          <div className="w-5 h-5 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">
+            <AlertCircle className="w-3 h-3 text-blue-600" />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-semibold text-blue-900">{notification}</p>
+          </div>
+          <button
+            onClick={() => setNotification(null)}
+            className="text-blue-400 hover:text-blue-600 flex-shrink-0"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
+
       <ReportIssueDialog
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onSuccess={() => { setDialogOpen(false); qc.invalidateQueries({ queryKey: ["issues"] }); }}
+        onNotify={(msg) => {
+          setNotification(msg);
+          setTimeout(() => setNotification(null), 5000);
+        }}
       />
 
       <IssueDetailsDialog
