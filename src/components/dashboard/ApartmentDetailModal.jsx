@@ -199,13 +199,28 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
     // 2) שליחה לשרת (ברקע, לא blocking)
     const now = new Date().toISOString();
+
+    // אם משנים סטטוס — מוציאים מארכיון אוטומטית
+    const shouldUnarchive = record.isArchived === true;
+
     const updatePayload = {
       legal_status_id: newStatusId,
       legal_status_source: 'MANUAL',
       legal_status_lock: true,
       legal_status_updated_at: now,
-      legal_status_updated_by: currentUser.email || currentUser.username
+      legal_status_updated_by: currentUser.email || currentUser.username,
+      ...(shouldUnarchive ? { isArchived: false } : {})
     };
+
+    // אופטימיסטי: הוצאה מארכיון
+    if (shouldUnarchive) {
+      queryClient.setQueryData(['debtorRecords'], (old) => {
+        if (!old) return old;
+        return old.map((r) => r.id === record.id ? { ...r, isArchived: false, legal_status_id: newStatusId } : r);
+      });
+      setEditedRecord((prev) => ({ ...prev, isArchived: false, legal_status_id: newStatusId }));
+      showAlert('הרשומה הוצאה מהארכיון והועברה לטאב המתאים', 'success');
+    }
 
     // Promise שלא מבוטל על unmount
     (async () => {
