@@ -31,9 +31,8 @@ const COLUMNS = [
 ];
 
 // ---- Reporter Name Component ----
-function IssueReporterName({ reporterEmail }) {
-  const { data: appUsers = [] } = useQuery({ queryKey: ["appUsers"], queryFn: () => base44.entities.AppUser.list() });
-  const reporterUser = appUsers.find(u => u.username === reporterEmail);
+function IssueReporterName({ reporterEmail, appUsers }) {
+  const reporterUser = appUsers?.find(u => u.username === reporterEmail);
   return <span>מדווח: {reporterUser?.first_name || reporterEmail || "לא צוין"}</span>;
 }
 
@@ -433,8 +432,28 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange, on
           {/* מידע תחתית */}
           <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-200">
             <span>{format(new Date(issue.created_date), "dd/MM/yy")}</span>
-            <IssueReporterName reporterEmail={issue.reporter_email} />
+            <IssueReporterName reporterEmail={issue.reporter_email} appUsers={appUsers} />
           </div>
+
+          {/* משתמשים משותפים */}
+          {issue.assigned_to && (
+            <div className="space-y-2 pt-3 border-t border-slate-200">
+              <h3 className="text-sm font-bold text-slate-700">משתמשים משותפים</h3>
+              <div className="flex flex-wrap gap-2">
+                {issue.assigned_to.split(",").map((username) => {
+                  const user = appUsers?.find(u => u.username === username.trim());
+                  return user ? (
+                    <div key={username} className="flex items-center gap-1.5 bg-blue-50 border border-blue-200 rounded-lg px-2.5 py-1.5">
+                      <div className="w-5 h-5 rounded-full bg-blue-400 text-white text-xs font-bold flex items-center justify-center">
+                        {user.first_name?.[0] || "?"}
+                      </div>
+                      <span className="text-sm text-blue-700 font-medium">{user.first_name}</span>
+                    </div>
+                  ) : null;
+                })}
+              </div>
+            </div>
+          )}
 
           {/* כפתורים */}
           <div className="flex gap-2 pt-2 justify-end">
@@ -676,13 +695,49 @@ export default function IssuesManagement() {
               <p className="text-sm text-slate-400 mt-0.5">גררו תקלות בין עמודות לשינוי סטטוס</p>
             </div>
           </div>
-          <button
-            onClick={() => setDialogOpen(true)}
-            className="flex items-center gap-2 h-11 px-5 rounded-xl bg-gradient-to-l from-red-500 to-orange-400 text-white font-bold shadow-lg hover:opacity-90 transition-all text-sm"
-          >
-            <Plus className="w-4 h-4" />
-            דווח על תקלה חדשה
-          </button>
+          <div className="flex items-center gap-2">
+            {/* View Mode Tabs */}
+            <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
+              <button
+                onClick={() => setViewMode("kanban")}
+                className={`flex items-center gap-2 h-9 px-4 rounded-lg font-bold transition-all ${
+                  viewMode === "kanban" 
+                    ? "bg-blue-500 text-white shadow-md" 
+                    : "text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                <Grid3X3 className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={`flex items-center gap-2 h-9 px-4 rounded-lg font-bold transition-all ${
+                  viewMode === "list" 
+                    ? "bg-blue-500 text-white shadow-md" 
+                    : "text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                <List className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => setViewMode("calendar")}
+                className={`flex items-center gap-2 h-9 px-4 rounded-lg font-bold transition-all ${
+                  viewMode === "calendar" 
+                    ? "bg-blue-500 text-white shadow-md" 
+                    : "text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                <Calendar className="w-4 h-4" />
+              </button>
+            </div>
+
+            <button
+              onClick={() => setDialogOpen(true)}
+              className="flex items-center gap-2 h-11 px-5 rounded-xl bg-gradient-to-l from-red-500 to-orange-400 text-white font-bold shadow-lg hover:opacity-90 transition-all text-sm"
+            >
+              <Plus className="w-4 h-4" />
+              דווח על תקלה חדשה
+            </button>
+          </div>
         </div>
 
         {/* KPI */}
@@ -722,44 +777,7 @@ export default function IssuesManagement() {
             </SelectContent>
           </Select>
           <span className="text-sm text-slate-400 mr-auto">{filtered.length} תקלות</span>
-        </div>
-
-        {/* View Mode Tabs */}
-        <div className="flex gap-2 mb-4">
-          <button
-            onClick={() => setViewMode("kanban")}
-            className={`flex items-center gap-2 h-10 px-4 rounded-xl font-bold transition-all ${
-              viewMode === "kanban" 
-                ? "bg-blue-500 text-white shadow-lg" 
-                : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
-            }`}
-          >
-            <Grid3X3 className="w-4 h-4" />
-            קנבן
-          </button>
-          <button
-            onClick={() => setViewMode("list")}
-            className={`flex items-center gap-2 h-10 px-4 rounded-xl font-bold transition-all ${
-              viewMode === "list" 
-                ? "bg-blue-500 text-white shadow-lg" 
-                : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
-            }`}
-          >
-            <List className="w-4 h-4" />
-            רשימה
-          </button>
-          <button
-            onClick={() => setViewMode("calendar")}
-            className={`flex items-center gap-2 h-10 px-4 rounded-xl font-bold transition-all ${
-              viewMode === "calendar" 
-                ? "bg-blue-500 text-white shadow-lg" 
-                : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
-            }`}
-          >
-            <Calendar className="w-4 h-4" />
-            יומן
-          </button>
-        </div>
+          </div>
 
         {/* Kanban Board */}
         {isLoading ? (
