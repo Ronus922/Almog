@@ -5,9 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 const STATUSES = ["הכל", "פתוחה", "בטיפול", "הושלמה", "בוטלה", "ממתינה"];
-const PRIORITIES = ["הכל", "גבוהה", "בינונית", "נמוכה"];
+const PRIORITIES = ["הכל", "דחופה", "גבוהה", "נמוכה"];
 const SOURCES = ["הכל", "ידנית", "מתבנית", "מחזורית"];
-const TASK_TYPES = ["הכל", "שיחת טלפון", "שליחת מכתב התראה", "פגישה", "מעקב תשלום", "הגשת תביעה", "משימה כללית", "אחר"];
 
 export default function TaskProFiltersBar({ filters, onChange, assignedOptions = [], savedViews = [], onSaveView, onLoadView, onDeleteView, currentUsername }) {
   const [showFilters, setShowFilters] = useState(false);
@@ -17,12 +16,12 @@ export default function TaskProFiltersBar({ filters, onChange, assignedOptions =
   const set = (key, val) => onChange({ ...filters, [key]: val });
 
   const hasActiveFilters = filters.status !== "הכל" || filters.priority !== "הכל" ||
-    filters.assigned !== "הכל" || filters.taskType !== "הכל" ||
-    filters.source !== "הכל" || filters.search || filters.dueDateFrom || filters.dueDateTo || filters.showArchived;
+    filters.assigned !== "הכל" || filters.source !== "הכל" || 
+    filters.search || filters.dueDateFrom || filters.dueDateTo || filters.showArchived;
 
   const clearAll = () => onChange({
     search: "", status: "הכל", priority: "הכל", assigned: "הכל",
-    taskType: "הכל", source: "הכל", dueDateFrom: "", dueDateTo: "", showArchived: false,
+    source: "הכל", dueDateFrom: "", dueDateTo: "", showArchived: false,
     attendeeUsername: ""
   });
 
@@ -102,11 +101,6 @@ export default function TaskProFiltersBar({ filters, onChange, assignedOptions =
           <Select value={filters.priority || "הכל"} onValueChange={(v) => set("priority", v)}>
             <SelectTrigger className="w-36 h-9"><SelectValue placeholder="עדיפות" /></SelectTrigger>
             <SelectContent>{PRIORITIES.map((p) => <SelectItem key={p} value={p}>{p}</SelectItem>)}</SelectContent>
-          </Select>
-
-          <Select value={filters.taskType || "הכל"} onValueChange={(v) => set("taskType", v)}>
-            <SelectTrigger className="w-44 h-9"><SelectValue placeholder="סוג משימה" /></SelectTrigger>
-            <SelectContent>{TASK_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
           </Select>
 
           <Select value={filters.source || "הכל"} onValueChange={(v) => set("source", v)}>
