@@ -307,7 +307,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
         }
 
         // ROLLBACK מיידי
-        setSelectedLegalStatusId(String(oldStatusId || ''));
+        setSelectedLegalStatusId(oldStatusId ? String(oldStatusId) : '');
 
         queryClient.setQueryData(['debtorRecords'], (old) => {
           if (!old) return old;
