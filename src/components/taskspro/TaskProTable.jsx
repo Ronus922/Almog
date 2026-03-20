@@ -80,9 +80,9 @@ export default function TaskProTable({
 
   return (
     <div className="overflow-x-auto" dir="rtl">
-      <table className="w-full text-sm">
+      <table className="w-full">
         <thead>
-          <tr className="bg-slate-50 border-b border-slate-200">
+          <tr className="border-b border-slate-200 bg-slate-50">
             <th className="px-4 py-3 w-10">
               <Checkbox
                 checked={allSelected}
@@ -91,12 +91,12 @@ export default function TaskProTable({
             </th>
             <SortHeader label="כותרת / משימה" field="title" sortField={sortField} sortDir={sortDir} onSort={onSort} />
             <SortHeader label="משויך" field="assigned_to_name" sortField={sortField} sortDir={sortDir} onSort={onSort} />
-            <th className="text-right px-4 py-3 font-semibold text-slate-600 whitespace-nowrap">משתתפים</th>
+            <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">משתתפים</th>
             <SortHeader label="תאריך יעד" field="due_at" sortField={sortField} sortDir={sortDir} onSort={onSort} />
             <SortHeader label="עדיפות" field="priority" sortField={sortField} sortDir={sortDir} onSort={onSort} />
             <SortHeader label="סטטוס" field="status" sortField={sortField} sortDir={sortDir} onSort={onSort} />
-            <th className="text-right px-4 py-3 font-semibold text-slate-600 whitespace-nowrap">מקור</th>
-            <th className="text-right px-4 py-3 font-semibold text-slate-600 w-10"></th>
+            <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">מקור</th>
+            <th className="px-4 py-3 text-center text-xs font-bold text-slate-600">פעולות</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-slate-100">
@@ -186,22 +186,33 @@ export default function TaskProTable({
                   </span>
                 </td>
 
-                <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                  <div className="flex items-center gap-1.5 justify-end">
-                    <button onClick={() => onEdit(task)} className="text-slate-300 hover:text-blue-600 transition-colors">
+                <td className="px-4 py-3 text-center" onClick={(e) => e.stopPropagation()}>
+                  <div className="flex items-center justify-center gap-1">
+                    <button
+                      onClick={() => onRowClick(task)}
+                      className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-blue-500 hover:bg-blue-50 transition-colors"
+                      title="צפה בפרטים"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </button>
+                    <button
+                      onClick={() => onEdit(task)}
+                      className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                      title="עריכה"
+                    >
                       <Pencil className="w-4 h-4" />
                     </button>
                     {task.is_archived ? (
-                      <button onClick={() => onUnarchive(task)} className="text-slate-300 hover:text-green-600 transition-colors">
+                      <button onClick={() => onUnarchive(task)} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-green-500 hover:bg-green-50 transition-colors" title="שחרר מארכיון">
                         <RotateCcw className="w-4 h-4" />
                       </button>
                     ) : (
-                      <button onClick={() => onArchive(task)} className="text-slate-300 hover:text-orange-500 transition-colors">
+                      <button onClick={() => onArchive(task)} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-orange-500 hover:bg-orange-50 transition-colors" title="העבר לארכיון">
                         <Archive className="w-4 h-4" />
                       </button>
                     )}
                     {isAdmin && (
-                      <button onClick={() => onDelete(task.id)} className="text-slate-300 hover:text-red-500 transition-colors">
+                      <button onClick={() => onDelete(task.id)} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors" title="מחוק">
                         <Trash2 className="w-4 h-4" />
                       </button>
                     )}
