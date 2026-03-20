@@ -12,12 +12,12 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import {
   AlertCircle, Search, CheckCircle2, Clock, Trash2,
-  MapPin, User, Calendar, Upload, Camera, Video, VideoIcon, X, Plus, Filter, GripVertical, Eye, Pencil, ChevronLeft, ChevronRight
+  MapPin, User, Calendar, Upload, Camera, Video, VideoIcon, X, Plus, Filter, GripVertical, Eye, Pencil, ChevronLeft, ChevronRight, List, Grid3X3
 } from "lucide-react";
 import { format } from "date-fns";
 
 const PRIORITY_MAP = {
-  low:    { label: "נמוכה",   dot: "bg-slate-400" },
+  low:    { label: "נמוכה",   dot: "bg-blue-400" },
   high:   { label: "גבוהה",   dot: "bg-orange-400" },
   urgent: { label: "דחוף",    dot: "bg-red-500" },
 };
@@ -426,7 +426,7 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange, on
           {/* מידע תחתית */}
           <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-200">
             <span>{format(new Date(issue.created_date), "dd/MM/yy")}</span>
-            <span>מדווח: {issue.reporter_email || "לא צוין"}</span>
+            <IssueReporterName reporterEmail={issue.reporter_email} />
           </div>
 
           {/* כפתורים */}
@@ -593,7 +593,9 @@ export default function IssuesManagement() {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [notification, setNotification] = useState(null);
+  const [viewMode, setViewMode] = useState("kanban"); // kanban, list, calendar
   const { currentUser } = useAuth();
+  const { data: appUsers = [] } = useQuery({ queryKey: ["appUsers"], queryFn: () => base44.entities.AppUser.list() });
   const qc = useQueryClient();
 
   const { data: issues = [], isLoading } = useQuery({
@@ -715,10 +717,47 @@ export default function IssuesManagement() {
           <span className="text-sm text-slate-400 mr-auto">{filtered.length} תקלות</span>
         </div>
 
+        {/* View Mode Tabs */}
+        <div className="flex gap-2 mb-4">
+          <button
+            onClick={() => setViewMode("kanban")}
+            className={`flex items-center gap-2 h-10 px-4 rounded-xl font-bold transition-all ${
+              viewMode === "kanban" 
+                ? "bg-blue-500 text-white shadow-lg" 
+                : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+            }`}
+          >
+            <Grid3X3 className="w-4 h-4" />
+            קנבן
+          </button>
+          <button
+            onClick={() => setViewMode("list")}
+            className={`flex items-center gap-2 h-10 px-4 rounded-xl font-bold transition-all ${
+              viewMode === "list" 
+                ? "bg-blue-500 text-white shadow-lg" 
+                : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+            }`}
+          >
+            <List className="w-4 h-4" />
+            רשימה
+          </button>
+          <button
+            onClick={() => setViewMode("calendar")}
+            className={`flex items-center gap-2 h-10 px-4 rounded-xl font-bold transition-all ${
+              viewMode === "calendar" 
+                ? "bg-blue-500 text-white shadow-lg" 
+                : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-50"
+            }`}
+          >
+            <Calendar className="w-4 h-4" />
+            יומן
+          </button>
+        </div>
+
         {/* Kanban Board */}
         {isLoading ? (
           <div className="text-center py-16 text-slate-400">טוען...</div>
-        ) : (
+        ) : viewMode === "kanban" ? (
           <DragDropContext onDragEnd={handleDragEnd}>
             <div className="flex gap-4 items-start">
               {COLUMNS.map((col) => (
@@ -735,6 +774,90 @@ export default function IssuesManagement() {
               ))}
             </div>
           </DragDropContext>
+        ) : viewMode === "list" ? (
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
+            <div className="divide-y divide-slate-200">
+              {filtered.length === 0 ? (
+                <div className="p-8 text-center text-slate-400">אין תקלות</div>
+              ) : (
+                filtered.map((issue) => {
+                  const p = PRIORITY_MAP[issue.priority] || PRIORITY_MAP.low;
+                  const reporterUser = appUsers.find(u => u.username === issue.reporter_email);
+                  const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${issue.target_id}`;
+                  return (
+                    <div 
+                      key={issue.id} 
+                      className="p-4 hover:bg-slate-50 cursor-pointer transition-colors"
+                      onClick={() => { setSelectedIssue(issue); setDetailsOpen(true); }}
+                    >
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className={`w-2 h-2 rounded-full ${p.dot}`}></span>
+                            <span className="font-bold text-slate-800">{targetLabel}</span>
+                            <span className="text-xs font-semibold text-slate-500">{p.label}</span>
+                          </div>
+                          <p className="text-sm text-slate-600 line-clamp-2">{issue.description}</p>
+                          <div className="mt-2 flex items-center gap-4 text-xs text-slate-400">
+                            <span>מדווח: {reporterUser?.first_name || issue.reporter_email}</span>
+                            <span>{format(new Date(issue.created_date), "dd/MM/yy")}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={(e) => { e.stopPropagation(); handleDelete(issue.id); }}
+                            className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-400 hover:bg-red-50"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })
+              )}
+            </div>
+          </div>
+        ) : (
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
+            <div className="grid grid-cols-7 gap-2 mb-4">
+              {['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'].map(day => (
+                <div key={day} className="text-center font-bold text-sm text-slate-600 py-2">{day}</div>
+              ))}
+            </div>
+            <div className="grid grid-cols-7 gap-2 auto-rows-[100px]">
+              {Array.from({ length: 35 }).map((_, i) => {
+                const dayIssues = filtered.filter(issue => {
+                  const issueDate = new Date(issue.created_date);
+                  return issueDate.getDate() === i + 1;
+                });
+                return (
+                  <div key={i} className="border border-slate-200 rounded-lg p-2 bg-slate-50 hover:bg-slate-100 transition-colors">
+                    {i > 0 && i <= 31 && (
+                      <>
+                        <div className="text-xs font-semibold text-slate-700 mb-1">{i}</div>
+                        <div className="space-y-1">
+                          {dayIssues.slice(0, 2).map(issue => (
+                            <div 
+                              key={issue.id}
+                              onClick={() => { setSelectedIssue(issue); setDetailsOpen(true); }}
+                              className="text-xs bg-blue-100 text-blue-700 rounded px-1.5 py-0.5 truncate cursor-pointer hover:bg-blue-200"
+                              title={issue.description}
+                            >
+                              {issue.target_id}
+                            </div>
+                          ))}
+                          {dayIssues.length > 2 && (
+                            <div className="text-xs text-slate-500">+{dayIssues.length - 2} עוד</div>
+                          )}
+                        </div>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </div>
         )}
       </div>
 
