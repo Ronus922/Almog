@@ -174,12 +174,12 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify }) {
                         >
                           <Checkbox
                             checked={form.assigned_to?.includes(u.username) || false}
-                            onCheckedChange={() => {
+                            onCheckedChange={(checked) => {
                               setForm((p) => ({
                                 ...p,
-                                assigned_to: form.assigned_to?.includes(u.username)
-                                  ? p.assigned_to.filter((x) => x !== u.username)
-                                  : [...(p.assigned_to || []), u.username],
+                                assigned_to: checked
+                                  ? [...(p.assigned_to || []), u.username]
+                                  : p.assigned_to.filter((x) => x !== u.username),
                               }));
                             }}
                           />
