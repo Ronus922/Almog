@@ -479,11 +479,11 @@ function KanbanCard({ issue, index, onDelete, onView }) {
            {...provided.dragHandleProps}
            className="flex flex-row-reverse items-center justify-between px-3 py-2 border-b border-slate-100 bg-slate-50/60 cursor-grab active:cursor-grabbing"
           >
-            <GripVertical className="w-4 h-4 text-slate-300" />
             <div className="flex items-center gap-1.5">
               <span className={`w-2 h-2 rounded-full ${p.dot}`}></span>
               <span className="text-xs font-semibold text-slate-500">{p.label}</span>
             </div>
+            <GripVertical className="w-4 h-4 text-slate-300" />
           </div>
 
           {/* Card body */}
