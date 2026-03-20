@@ -48,7 +48,7 @@ export default function NotificationBell({ currentUser }) {
     for (const n of unreadList) {
       await base44.entities.Notification.update(n.id, { is_read: true });
     }
-    setNotifications(prev => prev.filter(n => n.is_read));
+    setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
   };
 
   const markRead = async (notif) => {
@@ -101,38 +101,40 @@ export default function NotificationBell({ currentUser }) {
       </button>
 
       {open && (
-        <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 z-50 overflow-hidden" dir="rtl">
+         <div className="absolute right-0 top-full mt-2 w-80 bg-white rounded-xl shadow-xl border border-slate-200 z-50 overflow-hidden" dir="rtl">
           <div className="flex items-center justify-between px-4 py-3 border-b border-slate-100 bg-slate-50">
-            <span className="font-semibold text-slate-700 text-sm">התראות</span>
-            <div className="flex gap-2">
-              {unread.length > 0 && (
-                <button
-                  onClick={markAllRead}
-                  className="text-xs text-blue-600 hover:underline"
-                >
-                  סמן הכל כנקרא
-                </button>
-              )}
-              {notifications.length > 0 && (
-                <button
-                  onClick={clearAllNotifications}
-                  className="text-xs text-red-600 hover:underline"
-                >
-                  נקה הכל
-                </button>
-              )}
-            </div>
-          </div>
+             <span className="font-semibold text-slate-700 text-sm">התראות</span>
+             <div className="flex gap-2">
+               {unread.length > 0 && (
+                 <button
+                   onClick={markAllRead}
+                   className="text-xs text-blue-600 hover:underline"
+                 >
+                   סמן הכל כנקרא
+                 </button>
+               )}
+               {notifications.length > 0 && (
+                 <button
+                   onClick={clearAllNotifications}
+                   className="text-xs text-red-600 hover:underline"
+                 >
+                   נקה הכל
+                 </button>
+               )}
+             </div>
+           </div>
 
-          <button
-            onClick={() => {
-              setOpen(false);
-              navigate('/AllNotifications');
-            }}
-            className="w-full px-4 py-2.5 text-center text-xs font-medium text-blue-600 hover:bg-blue-50 border-t border-slate-100 transition-colors"
-          >
-            צפה בכל ההתראות
-          </button>
+           <div className="w-full px-4 py-2.5 text-center text-xs font-medium text-blue-600 hover:bg-blue-50 border-t border-slate-100 transition-colors">
+             <button
+               onClick={() => {
+                 setOpen(false);
+                 navigate('/AllNotifications');
+               }}
+               className="w-full"
+             >
+               צפה בכל ההתראות
+             </button>
+           </div>
 
           <div className="max-h-96 overflow-y-auto">
             {unread.length === 0 ? (
