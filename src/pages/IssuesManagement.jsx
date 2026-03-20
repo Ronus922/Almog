@@ -167,12 +167,12 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
                     key={opt.value}
                     type="button"
                     onClick={() => setForm((p) => ({ ...p, priority: opt.value }))}
-                    className={`flex-1 rounded-xl border-2 font-bold transition-all ${
+                    className={`flex-1 rounded-xl font-bold transition-all ${
                       form.priority === opt.value 
                         ? opt.active 
                         : `${opt.bg} text-slate-700 hover:border-opacity-80`
                     }`}
-                    style={{ height: '42.5px' }}
+                    style={{ height: '42.5px', borderWidth: '2px' }}
                   >
                     {opt.label}
                   </button>
