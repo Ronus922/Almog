@@ -59,7 +59,8 @@ function LayoutContent({ children, currentPageName }) {
   { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true, section: 'admin' },
   { name: 'ExportData', label: 'ייצוא נתונים', icon: Download, adminOnly: true, section: 'admin' },
   { name: 'ReportIssue', label: 'דיווח תקלה', icon: AlertTriangle, adminOnly: false, section: 'main' },
-  { name: 'IssuesManagement', label: 'ניהול תקלות', icon: AlertTriangle, adminOnly: true, section: 'admin' }];
+  { name: 'IssuesManagement', label: 'ניהול תקלות', icon: AlertTriangle, adminOnly: true, section: 'admin' },
+  { name: 'RoomsAreas', label: 'ניהול אזורים', icon: MapPin, adminOnly: true, section: 'admin' }];
 
 
   const filteredNavItems = navItems.filter((item) => {

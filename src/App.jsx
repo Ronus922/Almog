@@ -185,6 +185,7 @@ import DebtorHistoryPage from "./pages/DebtorHistoryPage.jsx";
 import ExportData from "./pages/ExportData.jsx";
 import ReportIssue from "./pages/ReportIssue";
 import IssuesManagement from "./pages/IssuesManagement";
+import RoomsAreas from "./pages/RoomsAreas";
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -252,6 +253,7 @@ const AuthenticatedApp = () => {
       <Route path="/ExportData" element={<LayoutWrapper currentPageName="ExportData"><ExportData /></LayoutWrapper>} />
       <Route path="/ReportIssue" element={<LayoutWrapper currentPageName="ReportIssue"><ReportIssue /></LayoutWrapper>} />
       <Route path="/IssuesManagement" element={<LayoutWrapper currentPageName="IssuesManagement"><IssuesManagement /></LayoutWrapper>} />
+      <Route path="/RoomsAreas" element={<LayoutWrapper currentPageName="RoomsAreas"><RoomsAreas /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
