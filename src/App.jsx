@@ -188,6 +188,7 @@ import UsersManagement from "./pages/UsersManagement";
 import RolesManagement from "./pages/RolesManagement";
 import IssuesManagement from "./pages/IssuesManagement";
 import RoomsAreas from "./pages/RoomsAreas";
+import TasksManagement from "./pages/TasksManagement";
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
@@ -258,6 +259,7 @@ const AuthenticatedApp = () => {
       <Route path="/RoomsAreas" element={<LayoutWrapper currentPageName="RoomsAreas"><RoomsAreas /></LayoutWrapper>} />
       <Route path="/UsersManagement" element={<LayoutWrapper currentPageName="UsersManagement"><UsersManagement /></LayoutWrapper>} />
       <Route path="/RolesManagement" element={<LayoutWrapper currentPageName="RolesManagement"><RolesManagement /></LayoutWrapper>} />
+      <Route path="/TasksManagement" element={<LayoutWrapper currentPageName="TasksManagement"><TasksManagement /></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
