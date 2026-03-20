@@ -376,7 +376,7 @@ export default function IssuesManagement() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 p-6" dir="rtl">
-      <div className="max-w-5xl mx-auto space-y-5">
+      <div className="w-4/5 mx-auto space-y-5">
 
         {/* Header */}
         <div className="flex items-center justify-between">
