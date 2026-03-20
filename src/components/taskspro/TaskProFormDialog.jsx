@@ -315,15 +315,24 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
 
                     {/* כותרת - חובה */}
                     <div>
-                      <Label className="text-sm font-medium text-slate-700 mb-1.5 block">
-                        כותרת המשימה <span className="text-red-500">*</span>
-                      </Label>
+                      <div className="flex items-center justify-between mb-1.5">
+                        <Label className="text-sm font-medium text-slate-700">
+                          כותרת המשימה <span className="text-red-500">*</span>
+                        </Label>
+                        <span className={`text-xs font-medium ${form.title.length > 15 ? "text-red-500" : "text-slate-400"}`}>
+                          {form.title.length}/15
+                        </span>
+                      </div>
                       <Input
-                      className="h-10 bg-slate-50 focus:bg-white transition-colors"
-                      placeholder="הזן כותרת מתארת..."
-                      value={form.title}
-                      onChange={(e) => setF("title", e.target.value)} />
-
+                        maxLength={20}
+                        className={`h-10 bg-slate-50 focus:bg-white transition-colors ${form.title.length > 15 ? "border-red-400 focus:ring-red-300" : ""}`}
+                        placeholder="עד 15 תווים..."
+                        value={form.title}
+                        onChange={(e) => setF("title", e.target.value)}
+                      />
+                      {form.title.length > 15 && (
+                        <p className="text-xs text-red-500 mt-1">הכותרת חייבת להכיל עד 15 תווים</p>
+                      )}
                     </div>
 
                     {/* תיאור */}
