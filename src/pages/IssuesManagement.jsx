@@ -470,7 +470,7 @@ function KanbanCard({ issue, index, onDelete, onView }) {
 }
 
 // ---- Kanban Column ----
-function KanbanColumn({ col, issues, onDelete }) {
+function KanbanColumn({ col, issues, onDelete, onView }) {
   return (
     <div className="flex-1 min-w-0 flex flex-col">
       {/* Column header */}
