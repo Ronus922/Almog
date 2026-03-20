@@ -114,7 +114,13 @@ function DashboardContent() {
     // חייבים — רק active ללא רשומות שיש להם טאב ייעודי
     const debtorsTab = active.filter((r) => !r.legal_status_id || !legalTabStatusIds.has(r.legal_status_id));
 
-    return { warningTab, legalCandidatesTab, legalProcessTab, debtorsTab, archived };
+    // פעולות הבאות — תאריך nextActionDate עבר
+    const today = new Date().toISOString().split('T')[0];
+    const nextActionsTab = active.filter(
+      (r) => r.nextActionDate && r.nextActionDate < today
+    );
+
+    return { warningTab, legalCandidatesTab, legalProcessTab, debtorsTab, archived, nextActionsTab };
   }, [records, allStatuses]);
 
   // ארכיון
