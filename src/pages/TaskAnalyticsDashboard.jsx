@@ -34,6 +34,15 @@ function TaskAnalyticsDashboard() {
     }
   });
 
+  // קבל snapshots היסטוריים לגרף מגמת חובות
+  const { data: debtSnapshots = [] } = useQuery({
+    queryKey: ['debtSnapshots'],
+    queryFn: async () => {
+      const result = await base44.entities.DebtSnapshot.list('snapshot_date', 1000);
+      return result || [];
+    }
+  });
+
   // קבל את הפגישות הפעילות
   const { data: appointments = [], isLoading: appointmentsLoading } = useQuery({
     queryKey: ['appointments'],
