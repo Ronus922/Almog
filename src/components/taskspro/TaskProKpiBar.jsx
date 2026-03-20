@@ -1,5 +1,5 @@
-import React from "react";
-import { AlertCircle, CheckCircle2, Clock, Zap } from "lucide-react";
+import React, { useMemo } from "react";
+import { AlertCircle, Clock, RefreshCw } from "lucide-react";
 
 function getTodayStr() {
   const d = new Date();
@@ -9,35 +9,35 @@ function getTodayStr() {
 const METRICS = [
   {
     key: "open",
-    label: "פתוחה",
+    label: "משימות פתוחות",
     icon: AlertCircle,
-    color: "text-red-500",
-    bg: "bg-red-50",
-    filterColor: "text-red-600",
-  },
-  {
-    key: "done",
-    label: "הושלמה",
-    icon: CheckCircle2,
-    color: "text-green-500",
-    bg: "bg-green-50",
-    filterColor: "text-green-600",
+    color: "text-blue-600",
+    bg: "bg-blue-50",
+    border: "border-blue-100",
   },
   {
     key: "inwork",
-    label: "ביטסול",
+    label: "בטיפול",
     icon: Clock,
-    color: "text-amber-500",
+    color: "text-amber-600",
     bg: "bg-amber-50",
-    filterColor: "text-amber-600",
+    border: "border-amber-100",
   },
   {
-    key: "overdue",
-    label: "חקיקה משחוזה",
-    icon: Zap,
-    color: "text-blue-500",
-    bg: "bg-blue-50",
-    filterColor: "text-blue-600",
+    key: "urgent",
+    label: "דחוף",
+    icon: AlertCircle,
+    color: "text-red-600",
+    bg: "bg-red-50",
+    border: "border-red-100",
+  },
+  {
+    key: "recurring",
+    label: "משימות מחזוריות",
+    icon: RefreshCw,
+    color: "text-purple-600",
+    bg: "bg-purple-50",
+    border: "border-purple-100",
   },
 ];
 
@@ -49,44 +49,33 @@ export default function TaskProKpiBar({
 }) {
   const today = getTodayStr();
 
-  const counts = {
+  const counts = useMemo(() => ({
     open: tasks.filter((t) => t.status === "פתוחה").length,
-    done: tasks.filter((t) => t.status === "הושלמה").length,
     inwork: tasks.filter((t) => t.status === "בטיפול").length,
-    overdue: tasks.filter(
-      (t) =>
-        t.due_at &&
-        t.due_at.slice(0, 10) < today &&
-        t.status !== "הושלמה" &&
-        t.status !== "בוטלה"
-    ).length,
-  };
+    urgent: tasks.filter((t) => t.priority === "דחופה" && (t.status === "פתוחה" || t.status === "בטיפול")).length,
+    recurring: tasks.filter((t) => t.recurrence_rule_id !== null && t.recurrence_rule_id !== undefined).length,
+  }), [tasks]);
 
   return (
-    <div className="flex gap-3 overflow-x-auto pb-2" dir="rtl">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6" dir="rtl">
       {METRICS.map((m) => {
         const Icon = m.icon;
         const count = counts[m.key];
-        const isActive = activeFilter === m.key;
 
         return (
-          <button
+          <div
             key={m.key}
-            onClick={() => onFilterChange(isActive ? null : m.key)}
-            className={`flex-shrink-0 flex items-center gap-3 px-5 py-4 rounded-2xl border-2 transition-all duration-200 ${
-              isActive
-                ? `${m.bg} border-current ${m.filterColor} shadow-md`
-                : "bg-white border-slate-200 hover:border-slate-300"
-            }`}
+            onClick={() => onFilterChange(m.key)}
+            className={`rounded-2xl border ${m.border} bg-white p-4 cursor-pointer hover:shadow-md transition-all flex items-center justify-between shadow-sm`}
           >
-            <Icon className={`w-6 h-6 ${m.color}`} />
-            <div className="text-right">
-              <div className={`text-2xl font-black ${m.filterColor}`}>
-                {count}
-              </div>
-              <div className="text-xs text-slate-600 font-medium">{m.label}</div>
+            <div>
+              <p className={`text-3xl font-black ${m.color}`}>{count}</p>
+              <p className="text-xs text-slate-500 mt-0.5">{m.label}</p>
             </div>
-          </button>
+            <div className={`p-2.5 rounded-xl ${m.bg}`}>
+              <Icon className={`w-5 h-5 ${m.color}`} />
+            </div>
+          </div>
         );
       })}
     </div>
