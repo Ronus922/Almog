@@ -14,9 +14,9 @@ import {
   DropdownMenuTrigger } from
 "@/components/ui/dropdown-menu";
 import {
-  LayoutDashboard, Menu, X, LogOut,
-  User, ChevronDown, ChevronLeft, SlidersHorizontal, Users as UsersIcon, ClipboardList, MessageCircle, ContactRound, Upload, Settings, AlertTriangle, Clock, Users, BookOpen, Download, MapPin, Shield as ShieldIcon } from
-"lucide-react";
+   LayoutDashboard, Menu, X, LogOut,
+   User, ChevronDown, ChevronLeft, SlidersHorizontal, Users as UsersIcon, ClipboardList, MessageCircle, ContactRound, Upload, Settings, AlertTriangle, Clock, Users, BookOpen, Download, MapPin, Shield as ShieldIcon, CheckSquare } from
+ "lucide-react";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import BuildingAgent from "@/components/agent/BuildingAgent";
 import { AlertProvider } from "@/components/notifications/AlertContext";
@@ -43,6 +43,7 @@ function LayoutContent({ children, currentPageName }) {
   const navItems = [
   { name: 'Dashboard', label: 'דשבורד', icon: LayoutDashboard, adminOnly: false, section: 'main' },
   { name: 'TaskAnalyticsDashboard', label: 'לוח מחוונים משימות', icon: LayoutDashboard, adminOnly: false, section: 'main' },
+  { name: 'TasksManagement', label: 'ניהול משימות', icon: CheckSquare, adminOnly: false, section: 'main' },
   { name: 'UserManagement', label: 'משתמשים', icon: UsersIcon, adminOnly: true, section: 'admin' },
   { name: 'StatusManagement', label: 'סטטוסים', icon: SlidersHorizontal, adminOnly: true, section: 'admin' },
   { name: 'Import', label: 'ייבוא', icon: Upload, adminOnly: true, section: 'admin' },
