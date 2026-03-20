@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ChevronLeft, ChevronRight, X, MapPin, Edit2, Trash2 } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { updateTask, deleteTask } from "./taskProApi";
@@ -20,6 +21,14 @@ export default function TaskProReadOnlyDialog({
   const queryClient = useQueryClient();
   const [imageIndex, setImageIndex] = useState(0);
   const [showImageViewer, setShowImageViewer] = useState(false);
+  const [status, setStatus] = useState(task?.status);
+  const [attendees, setAttendees] = useState([]);
+
+  useEffect(() => {
+    if (task) {
+      setStatus(task.status);
+    }
+  }, [task?.id]);
 
   if (!task) return null;
 
@@ -45,6 +54,16 @@ export default function TaskProReadOnlyDialog({
       } catch (e) {
         console.error("Error deleting task:", e);
       }
+    }
+  };
+
+  const handleStatusChange = async (newStatus) => {
+    setStatus(newStatus);
+    try {
+      await updateTask(task.id, { status: newStatus });
+      queryClient.invalidateQueries({ queryKey: ["taskpro-tasks"] });
+    } catch (e) {
+      setStatus(task.status);
     }
   };
 
@@ -96,53 +115,60 @@ export default function TaskProReadOnlyDialog({
                   {/* ניווט */}
                   <div className="flex items-center justify-center gap-4">
                     <button
-                      onClick={() => setImageIndex((i) => (i - 1 + images.length) % images.length)}
-                      className="p-2.5 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors text-slate-600"
-                    >
-                      <ChevronLeft className="w-5 h-5" />
-                    </button>
-                    <p className="text-sm font-semibold text-slate-700 min-w-12 text-center">
-                      {imageIndex + 1} / {images.length}
-                    </p>
-                    <button
                       onClick={() => setImageIndex((i) => (i + 1) % images.length)}
                       className="p-2.5 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors text-slate-600"
                     >
                       <ChevronRight className="w-5 h-5" />
                     </button>
+                    <p className="text-sm font-semibold text-slate-700 min-w-12 text-center">
+                      {imageIndex + 1} / {images.length}
+                    </p>
+                    <button
+                      onClick={() => setImageIndex((i) => (i - 1 + images.length) % images.length)}
+                      className="p-2.5 border border-slate-300 rounded-lg hover:bg-slate-50 transition-colors text-slate-600"
+                    >
+                      <ChevronLeft className="w-5 h-5" />
+                    </button>
                   </div>
                 </div>
               )}
 
-              {/* שינוי סטטוס */}
-              <div className="bg-slate-50 rounded-xl p-4">
-                <p className="text-sm font-bold text-slate-700 mb-2">שינוי סטטוס</p>
-                <button className="text-sm text-slate-600 hover:text-slate-900">
-                  {task.status || "פתוחה"}
-                </button>
+              {/* סטטוס עריך */}
+              <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-2">
+                <p className="text-sm font-bold text-slate-700">סטטוס</p>
+                <Select value={status} onValueChange={handleStatusChange}>
+                  <SelectTrigger className="h-10 bg-slate-50">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {STATUSES.map((s) => (
+                      <SelectItem key={s} value={s}>{s}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
-              {/* השלמה/תאריך */}
-              <div className="bg-slate-50 rounded-xl p-4 flex items-center justify-between">
-                <div>
-                  <p className="text-sm font-bold text-slate-700">השלמה</p>
-                  <p className="text-xs text-slate-500 mt-1">{fmt(task.updated_date)}</p>
+              {/* תאריך עדכון */}
+              {task.updated_date && (
+                <div className="bg-white rounded-xl border border-slate-200 p-4">
+                  <p className="text-xs text-slate-500 mb-1">עדכון אחרון</p>
+                  <p className="text-sm font-semibold text-slate-700">{fmt(task.updated_date)}</p>
                 </div>
-                <p className="text-sm text-slate-600">מדודים: לא יציע</p>
-              </div>
+              )}
 
-              {/* משתתפים משויכים */}
-              <div className="bg-slate-50 rounded-xl p-4">
-                <p className="text-sm font-bold text-slate-700 mb-3">משתתפים משויכים</p>
-                <div className="flex gap-2">
-                  <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 cursor-pointer">
-                    <span className="mr-1">👤</span> רונן
-                  </Badge>
-                  <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-200 cursor-pointer">
-                    <span className="mr-1">👤</span> רונן
-                  </Badge>
+              {/* משתתפים */}
+              {task.attendees && task.attendees.length > 0 && (
+                <div className="bg-white rounded-xl border border-slate-200 p-4">
+                  <p className="text-sm font-bold text-slate-700 mb-3">משתתפים</p>
+                  <div className="flex flex-wrap gap-2">
+                    {task.attendees.map((a) => (
+                      <Badge key={a.id} className="bg-blue-100 text-blue-700">
+                        <span className="mr-1">👤</span> {a.name || a.username}
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
-              </div>
+              )}
 
             </div>
           </div>
