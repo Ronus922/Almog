@@ -342,7 +342,7 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
 }
 
 // ---- Issue Details Dialog ----
-function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange, onView }) {
+function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange, onView, appUsers }) {
   const [imageIndex, setImageIndex] = useState(0);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const images = issue?.images || [];
@@ -808,7 +808,7 @@ export default function IssuesManagement() {
               ) : (
                 filtered.map((issue) => {
                   const p = PRIORITY_MAP[issue.priority] || PRIORITY_MAP.low;
-                  const reporterUser = appUsers.find(u => u.username === issue.reporter_email);
+                  const reporterUser = appUsers?.find(u => u.username === issue.reporter_email);
                   const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${issue.target_id}`;
                   return (
                     <div 
@@ -830,7 +830,7 @@ export default function IssuesManagement() {
                             {issue.assigned_to && (
                               <div className="flex flex-wrap gap-1 pt-1">
                                 {issue.assigned_to.split(",").map((username) => {
-                                  const user = appUsers?.find(u => u.username === username.trim());
+                                  const user = appUsers.find(u => u.username === username.trim());
                                   return user ? (
                                     <div key={username} className="flex items-center gap-0.5 bg-blue-100 rounded px-1.5 py-0.5">
                                       <div className="w-4 h-4 rounded-full bg-blue-400 text-white text-xs font-bold flex items-center justify-center">
@@ -931,13 +931,14 @@ export default function IssuesManagement() {
       />
 
       <IssueDetailsDialog
-        issue={selectedIssue}
-        open={detailsOpen}
-        onClose={() => setDetailsOpen(false)}
-        onDelete={handleDelete}
-        onStatusChange={handleStatusChange}
-        onView={(issue) => { setSelectedIssue(issue); setDetailsOpen(true); }}
-      />
+         issue={selectedIssue}
+         open={detailsOpen}
+         onClose={() => setDetailsOpen(false)}
+         onDelete={handleDelete}
+         onStatusChange={handleStatusChange}
+         onView={(issue) => { setSelectedIssue(issue); setDetailsOpen(true); }}
+         appUsers={appUsers}
+       />
     </div>
   );
 }
