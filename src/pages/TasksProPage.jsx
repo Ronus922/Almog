@@ -131,7 +131,6 @@ export default function TasksProPage() {
     // manual filters
     if (filters.status !== "הכל") r = r.filter((t) => t.status === filters.status);
     if (filters.priority !== "הכל") r = r.filter((t) => t.priority === filters.priority);
-    if (filters.taskType !== "הכל") r = r.filter((t) => t.task_type === filters.taskType);
     if (filters.source !== "הכל") {
       const srcKey = Object.entries(SOURCE_MAP).find(([, v]) => v === filters.source)?.[0];
       if (srcKey) r = r.filter((t) => t.source === srcKey);
@@ -162,7 +161,7 @@ export default function TasksProPage() {
 
   // Sort
   const sorted = useMemo(() => {
-    const PRIO = { "גבוהה": 1, "בינונית": 2, "נמוכה": 3 };
+    const PRIO = { "דחופה": 1, "גבוהה": 2, "נמוכה": 3 };
     return [...filtered].sort((a, b) => {
       let av = a[sortField] ?? "";
       let bv = b[sortField] ?? "";
