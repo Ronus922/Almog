@@ -8,6 +8,7 @@ import ApartmentDetailModal from '@/components/dashboard/ApartmentDetailModal';
 import { Users, Archive, Mail, Scale, AlertTriangle, CalendarClock } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import LastImportIndicator from '@/components/dashboard/LastImportIndicator';
+import { calculateDebtStatus } from '@/components/utils/debtStatusCalculator';
 
 function DashboardContent() {
   const { currentUser } = useAuth();
