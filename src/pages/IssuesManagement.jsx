@@ -265,7 +265,7 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify }) {
                 <input type="file" accept="image/*" capture="environment" className="hidden" onChange={handleImageUpload} disabled={uploadingImages || images.length >= 5} />
               </label>
             </div>
-            {uploadingImages && <p className="text-sm text-blue-500 text-center">מעלה תמונות...</p>}
+            {uploadingImages && <p className="text-lg text-red-500 text-center">מעלה תמונות...</p>}
           </div>
 
           {/* סרטונים */}
