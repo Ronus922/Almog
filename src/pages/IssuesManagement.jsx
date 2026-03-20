@@ -5,29 +5,24 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Badge } from "@/components/ui/badge";
+import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import {
   AlertCircle, Search, CheckCircle2, Clock, Trash2,
-  MapPin, User, Calendar, Upload, Camera, Video, VideoIcon, X, Plus, Pencil, Filter
+  MapPin, User, Calendar, Upload, Camera, Video, VideoIcon, X, Plus, Filter, GripVertical
 } from "lucide-react";
 import { format } from "date-fns";
 
-const STATUS_MAP = {
-  open:        { label: "פתוח",    color: "bg-red-100 text-red-600 border-red-200" },
-  in_progress: { label: "בטיפול",  color: "bg-amber-100 text-amber-700 border-amber-200" },
-  resolved:    { label: "טופל",    color: "bg-green-100 text-green-700 border-green-200" },
-};
 const PRIORITY_MAP = {
-  low:    { label: "נמוכה",   color: "bg-slate-100 text-slate-600 border-slate-200" },
-  medium: { label: "בינונית", color: "bg-blue-100 text-blue-700 border-blue-200" },
-  high:   { label: "גבוהה",   color: "bg-orange-100 text-orange-700 border-orange-200" },
-  urgent: { label: "דחוף",    color: "bg-red-100 text-red-700 border-red-200" },
+  low:    { label: "נמוכה",   dot: "bg-slate-400" },
+  medium: { label: "בינונית", dot: "bg-blue-400" },
+  high:   { label: "גבוהה",   dot: "bg-orange-400" },
+  urgent: { label: "דחוף",    dot: "bg-red-500" },
 };
 
-const SORT_OPTIONS = [
-  { value: "newest", label: "חדש ביותר" },
-  { value: "oldest", label: "ישן ביותר" },
-  { value: "priority", label: "עדיפויות" },
+const COLUMNS = [
+  { id: "open",        label: "פתוחה",   color: "border-t-blue-400",   headerBg: "bg-blue-50",   count_color: "bg-blue-100 text-blue-700" },
+  { id: "in_progress", label: "בטיפול",  color: "border-t-amber-400",  headerBg: "bg-amber-50",  count_color: "bg-amber-100 text-amber-700" },
+  { id: "resolved",    label: "הושלמה",  color: "border-t-green-400",  headerBg: "bg-green-50",  count_color: "bg-green-100 text-green-700" },
 ];
 
 // ---- Dialog Form ----
@@ -93,15 +88,11 @@ function ReportIssueDialog({ open, onClose, onSuccess }) {
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-2">
-
-          {/* שורה 1: סוג מיקום + מספר חדר/אזור */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-sm font-semibold text-slate-700">סוג מיקום *</label>
               <Select value={form.target_type} onValueChange={(v) => setForm((p) => ({ ...p, target_type: v, target_id: "" }))}>
-                <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-slate-50 font-medium">
-                  <SelectValue />
-                </SelectTrigger>
+                <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-slate-50 font-medium"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="room">חדר</SelectItem>
                   <SelectItem value="area">אזור</SelectItem>
@@ -121,14 +112,11 @@ function ReportIssueDialog({ open, onClose, onSuccess }) {
             </div>
           </div>
 
-          {/* שורה 2: דחיפות + שתף עם */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-sm font-semibold text-slate-700">דחיפות *</label>
               <Select value={form.priority} onValueChange={(v) => setForm((p) => ({ ...p, priority: v }))}>
-                <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-slate-50 font-medium">
-                  <SelectValue />
-                </SelectTrigger>
+                <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-slate-50 font-medium"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="low">נמוכה</SelectItem>
                   <SelectItem value="medium">בינונית</SelectItem>
@@ -150,7 +138,6 @@ function ReportIssueDialog({ open, onClose, onSuccess }) {
             </div>
           </div>
 
-          {/* תיאור */}
           <div className="space-y-1.5">
             <label className="text-sm font-semibold text-slate-700">תיאור התקלה *</label>
             <Textarea
@@ -224,7 +211,6 @@ function ReportIssueDialog({ open, onClose, onSuccess }) {
 
           {error && <div className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 text-sm text-red-600 font-medium text-right">{error}</div>}
 
-          {/* כפתורים */}
           <div className="flex gap-3 pt-1">
             <button type="button" onClick={onClose} className="h-12 px-6 rounded-xl bg-white border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-all">
               ביטול
@@ -241,73 +227,113 @@ function ReportIssueDialog({ open, onClose, onSuccess }) {
   );
 }
 
-// ---- Issue Card Row ----
-function IssueCard({ issue, onDelete, onStatusChange }) {
-  const s = STATUS_MAP[issue.status] || STATUS_MAP.open;
+// ---- Kanban Issue Card ----
+function KanbanCard({ issue, index, onDelete }) {
   const p = PRIORITY_MAP[issue.priority] || PRIORITY_MAP.medium;
   const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${issue.target_id}`;
-
-  // card bg per priority
-  const cardBg = issue.priority === "urgent"
-    ? "bg-red-50/60 border-red-200"
-    : issue.priority === "high"
-    ? "bg-orange-50/60 border-orange-200"
-    : issue.priority === "medium"
-    ? "bg-amber-50/40 border-amber-100"
-    : "bg-white border-slate-100";
+  const isOverdue = issue.priority === "urgent" || issue.priority === "high";
 
   return (
-    <div className={`rounded-2xl border shadow-sm p-5 ${cardBg}`}>
-      <div className="flex items-start justify-between gap-3">
-        {/* Right: info */}
-        <div className="flex-1 min-w-0 space-y-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            <MapPin className="w-4 h-4 text-slate-400 flex-shrink-0" />
-            <span className="font-bold text-slate-800 text-base">{targetLabel}</span>
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${s.color}`}>{s.label}</span>
-            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold border ${p.color}`}>{p.label}</span>
-          </div>
-          <p className="text-sm text-slate-700">{issue.description}</p>
-          {issue.images?.length > 0 && (
-            <div className="flex gap-1.5 flex-wrap mt-1">
-              {issue.images.slice(0, 3).map((url, i) => (
-                <a key={i} href={url} target="_blank" rel="noreferrer">
-                  <img src={url} alt="" className="w-14 h-14 object-cover rounded-lg border border-slate-200 hover:opacity-80 transition-opacity" />
-                </a>
-              ))}
+    <Draggable draggableId={issue.id} index={index}>
+      {(provided, snapshot) => (
+        <div
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          className={`bg-white rounded-xl border border-slate-200 shadow-sm mb-2 overflow-hidden transition-shadow ${snapshot.isDragging ? "shadow-xl rotate-1 scale-105" : "hover:shadow-md"}`}
+        >
+          {/* Drag handle bar */}
+          <div
+            {...provided.dragHandleProps}
+            className="flex items-center justify-between px-3 py-2 border-b border-slate-100 bg-slate-50/60 cursor-grab active:cursor-grabbing"
+          >
+            <GripVertical className="w-4 h-4 text-slate-300" />
+            <div className="flex items-center gap-1.5">
+              <span className={`w-2 h-2 rounded-full ${p.dot}`}></span>
+              <span className="text-xs font-semibold text-slate-500">{p.label}</span>
             </div>
-          )}
-          <div className="flex items-center gap-4 text-xs text-slate-400 flex-wrap">
-            {issue.reporter_email && (
-              <span className="flex items-center gap-1"><User className="w-3.5 h-3.5" />מדווח: {issue.reporter_email}</span>
+          </div>
+
+          {/* Card body */}
+          <div className="p-3 space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5">
+                <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
+                <span className="font-bold text-slate-800 text-sm">{targetLabel}</span>
+              </div>
+              <button
+                onClick={() => onDelete(issue.id)}
+                className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-400 hover:bg-red-50 transition-colors"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            </div>
+
+            {issue.description && (
+              <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">{issue.description}</p>
             )}
-            <span className="flex items-center gap-1">
-              <Calendar className="w-3.5 h-3.5" />
-              {format(new Date(issue.created_date), "dd/MM/yyyy HH:mm")}
-            </span>
+
+            {issue.images?.length > 0 && (
+              <div className="flex gap-1">
+                {issue.images.slice(0, 2).map((url, i) => (
+                  <a key={i} href={url} target="_blank" rel="noreferrer">
+                    <img src={url} alt="" className="w-10 h-10 object-cover rounded-lg border border-slate-200" />
+                  </a>
+                ))}
+                {issue.images.length > 2 && (
+                  <div className="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-xs text-slate-500 font-bold">+{issue.images.length - 2}</div>
+                )}
+              </div>
+            )}
+
+            <div className="flex items-center justify-between pt-0.5">
+              {issue.reporter_email && (
+                <span className="flex items-center gap-1 text-xs text-slate-400 truncate max-w-[120px]">
+                  <User className="w-3 h-3 flex-shrink-0" />{issue.reporter_email}
+                </span>
+              )}
+              <span className={`flex items-center gap-1 text-xs font-medium ${isOverdue ? "text-red-500" : "text-slate-400"}`}>
+                <Calendar className="w-3 h-3" />
+                {format(new Date(issue.created_date), "dd/MM/yy")}
+              </span>
+            </div>
           </div>
         </div>
+      )}
+    </Draggable>
+  );
+}
 
-        {/* Left: actions */}
-        <div className="flex items-center gap-2 flex-shrink-0">
-          <Select value={issue.status} onValueChange={(v) => onStatusChange(issue.id, v)}>
-            <SelectTrigger className="h-8 text-xs w-28 rounded-lg border-slate-200 bg-white">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="open">פתוח</SelectItem>
-              <SelectItem value="in_progress">בטיפול</SelectItem>
-              <SelectItem value="resolved">טופל</SelectItem>
-            </SelectContent>
-          </Select>
-          <button onClick={() => onDelete(issue.id)} className="w-8 h-8 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-400 hover:text-red-500 hover:border-red-200 transition-colors">
-            <Trash2 className="w-4 h-4" />
-          </button>
-          <button className="w-8 h-8 rounded-lg border border-slate-200 bg-white flex items-center justify-center text-slate-400 hover:text-blue-500 hover:border-blue-200 transition-colors">
-            <Pencil className="w-4 h-4" />
-          </button>
-        </div>
+// ---- Kanban Column ----
+function KanbanColumn({ col, issues, onDelete }) {
+  return (
+    <div className="flex-1 min-w-0 flex flex-col">
+      {/* Column header */}
+      <div className={`rounded-t-2xl border-t-4 ${col.color} bg-white border border-slate-200 px-4 py-3 flex items-center justify-between mb-0`}>
+        <span className="font-black text-slate-700 text-base">{col.label}</span>
+        <span className={`text-sm font-bold px-2.5 py-0.5 rounded-full ${col.count_color}`}>{issues.length}</span>
       </div>
+
+      {/* Droppable area */}
+      <Droppable droppableId={col.id}>
+        {(provided, snapshot) => (
+          <div
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+            className={`flex-1 min-h-[300px] rounded-b-2xl border border-t-0 border-slate-200 p-3 transition-colors ${snapshot.isDraggingOver ? "bg-blue-50/40" : "bg-slate-50/60"}`}
+          >
+            {issues.length === 0 && !snapshot.isDraggingOver && (
+              <div className="flex flex-col items-center justify-center h-24 text-slate-300">
+                <AlertCircle className="w-7 h-7 mb-1.5 opacity-40" />
+                <p className="text-xs">אין תקלות</p>
+              </div>
+            )}
+            {issues.map((issue, index) => (
+              <KanbanCard key={issue.id} issue={issue} index={index} onDelete={onDelete} />
+            ))}
+            {provided.placeholder}
+          </div>
+        )}
+      </Droppable>
     </div>
   );
 }
@@ -316,12 +342,7 @@ function IssueCard({ issue, onDelete, onStatusChange }) {
 export default function IssuesManagement() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [search, setSearch] = useState("");
-  const [filterStatus, setFilterStatus] = useState("all");
   const [filterPriority, setFilterPriority] = useState("all");
-  const [filterUser, setFilterUser] = useState("all");
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
-  const [sortBy, setSortBy] = useState("newest");
   const qc = useQueryClient();
 
   const { data: issues = [], isLoading } = useQuery({
@@ -329,39 +350,22 @@ export default function IssuesManagement() {
     queryFn: () => base44.entities.IssueReport.list("-created_date"),
   });
 
-  const { data: appUsers = [] } = useQuery({
-    queryKey: ["appUsers"],
-    queryFn: () => base44.entities.AppUser.list(),
-  });
-
   const filtered = useMemo(() => {
-    let list = issues.filter((i) => {
-      if (filterStatus !== "all" && i.status !== filterStatus) return false;
+    return issues.filter((i) => {
       if (filterPriority !== "all" && i.priority !== filterPriority) return false;
-      if (filterUser !== "all" && i.assigned_to !== filterUser) return false;
-      if (dateFrom && new Date(i.created_date) < new Date(dateFrom)) return false;
-      if (dateTo && new Date(i.created_date) > new Date(dateTo + "T23:59:59")) return false;
       if (search) {
         const q = search.toLowerCase();
         if (!i.target_id?.toLowerCase().includes(q) && !i.description?.toLowerCase().includes(q) && !i.reporter_email?.toLowerCase().includes(q)) return false;
       }
       return true;
     });
+  }, [issues, filterPriority, search]);
 
-    if (sortBy === "oldest") list = [...list].sort((a, b) => new Date(a.created_date) - new Date(b.created_date));
-    else if (sortBy === "priority") {
-      const ord = { urgent: 0, high: 1, medium: 2, low: 3 };
-      list = [...list].sort((a, b) => (ord[a.priority] ?? 2) - (ord[b.priority] ?? 2));
-    }
-    return list;
-  }, [issues, filterStatus, filterPriority, filterUser, dateFrom, dateTo, search, sortBy]);
-
-  const stats = useMemo(() => ({
-    open: issues.filter((i) => i.status === "open").length,
-    inProgress: issues.filter((i) => i.status === "in_progress").length,
-    resolved: issues.filter((i) => i.status === "resolved").length,
-    urgent: issues.filter((i) => i.priority === "urgent").length,
-  }), [issues]);
+  const columns = useMemo(() => {
+    const map = {};
+    COLUMNS.forEach((col) => { map[col.id] = filtered.filter((i) => i.status === col.id); });
+    return map;
+  }, [filtered]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("האם למחוק תקלה זו?")) return;
@@ -369,10 +373,22 @@ export default function IssuesManagement() {
     qc.invalidateQueries({ queryKey: ["issues"] });
   };
 
-  const handleStatusChange = async (id, status) => {
-    await base44.entities.IssueReport.update(id, { status });
+  const handleDragEnd = async (result) => {
+    const { destination, source, draggableId } = result;
+    if (!destination) return;
+    if (destination.droppableId === source.droppableId && destination.index === source.index) return;
+
+    const newStatus = destination.droppableId;
+    await base44.entities.IssueReport.update(draggableId, { status: newStatus });
     qc.invalidateQueries({ queryKey: ["issues"] });
   };
+
+  const stats = useMemo(() => ({
+    open: issues.filter((i) => i.status === "open").length,
+    inProgress: issues.filter((i) => i.status === "in_progress").length,
+    resolved: issues.filter((i) => i.status === "resolved").length,
+    urgent: issues.filter((i) => i.priority === "urgent").length,
+  }), [issues]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 p-6" dir="rtl">
@@ -386,7 +402,7 @@ export default function IssuesManagement() {
             </div>
             <div>
               <h1 className="text-2xl font-black text-slate-800">ניהול תקלות</h1>
-              <p className="text-sm text-slate-400 mt-0.5">כל הדיווחים על תקלות ובעיות</p>
+              <p className="text-sm text-slate-400 mt-0.5">גררו תקלות בין עמודות לשינוי סטטוס</p>
             </div>
           </div>
           <button
@@ -398,90 +414,15 @@ export default function IssuesManagement() {
           </button>
         </div>
 
-        {/* Filters card */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-5 space-y-4">
-          <div className="flex items-center gap-2 mb-1">
-            <Filter className="w-4 h-4 text-slate-400" />
-            <h2 className="text-sm font-bold text-slate-600">סינון וחיפוש</h2>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {/* חיפוש חופשי */}
-            <div className="relative">
-              <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <Input value={search} onChange={(e) => setSearch(e.target.value)}
-                placeholder="חפש בתיאור, הערות או מיקום..."
-                className="h-11 pr-9 rounded-xl border-slate-200 bg-slate-50 text-sm" />
-            </div>
-            {/* סטטוס */}
-            <Select value={filterStatus} onValueChange={setFilterStatus}>
-              <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm"><SelectValue placeholder="סטטוס" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">כל הסטטוסים</SelectItem>
-                <SelectItem value="open">פתוח</SelectItem>
-                <SelectItem value="in_progress">בטיפול</SelectItem>
-                <SelectItem value="resolved">טופל</SelectItem>
-              </SelectContent>
-            </Select>
-            {/* דחיפות */}
-            <Select value={filterPriority} onValueChange={setFilterPriority}>
-              <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm"><SelectValue placeholder="דחיפות" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">כל הדחיפויות</SelectItem>
-                <SelectItem value="urgent">דחוף</SelectItem>
-                <SelectItem value="high">גבוהה</SelectItem>
-                <SelectItem value="medium">בינונית</SelectItem>
-                <SelectItem value="low">נמוכה</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {/* עובד אחראי */}
-            <Select value={filterUser} onValueChange={setFilterUser}>
-              <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-slate-50 text-sm"><SelectValue placeholder="עובד אחראי" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">כל העובדים</SelectItem>
-                {appUsers.map((u) => <SelectItem key={u.id} value={u.username}>{u.first_name} {u.last_name || ""}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            {/* מתאריך */}
-            <div className="relative">
-              <label className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none">מתאריך</label>
-              <input type="date" value={dateFrom} onChange={(e) => setDateFrom(e.target.value)}
-                className="w-full h-11 pr-16 pl-3 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 outline-none focus:ring-1 focus:ring-blue-300" />
-            </div>
-            {/* עד תאריך */}
-            <div className="relative">
-              <label className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 pointer-events-none">עד תאריך</label>
-              <input type="date" value={dateTo} onChange={(e) => setDateTo(e.target.value)}
-                className="w-full h-11 pr-16 pl-3 rounded-xl border border-slate-200 bg-slate-50 text-sm text-slate-700 outline-none focus:ring-1 focus:ring-blue-300" />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between pt-1">
-            <span className="text-sm text-slate-500">נמצאו <span className="font-bold text-slate-700">{filtered.length}</span> תקלות</span>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-400">מיין לפי:</span>
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger className="h-8 w-32 rounded-lg border-slate-200 bg-slate-50 text-xs"><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  {SORT_OPTIONS.map((o) => <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>)}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
-
         {/* KPI */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
-            { label: "תקלות פתוחות", count: stats.open, icon: <AlertCircle className="w-6 h-6 text-red-500" />, bg: "bg-red-50", accent: "text-red-600", border: "border-red-100" },
-            { label: "בטיפול", count: stats.inProgress, icon: <Clock className="w-6 h-6 text-amber-500" />, bg: "bg-amber-50", accent: "text-amber-600", border: "border-amber-100" },
-            { label: "טופל", count: stats.resolved, icon: <CheckCircle2 className="w-6 h-6 text-green-500" />, bg: "bg-green-50", accent: "text-green-600", border: "border-green-100" },
-            { label: "דחוף", count: stats.urgent, icon: <AlertCircle className="w-6 h-6 text-red-600" />, bg: "bg-red-100", accent: "text-red-700", border: "border-red-200", highlight: true },
-          ].map(({ label, count, icon, bg, accent, border, highlight }) => (
-            <div key={label} className={`rounded-2xl border ${border} ${highlight ? bg + ' shadow-sm' : 'bg-white'} p-4 flex items-center justify-between`}>
+            { label: "תקלות פתוחות", count: stats.open, icon: <AlertCircle className="w-5 h-5 text-blue-500" />, bg: "bg-blue-50", accent: "text-blue-600", border: "border-blue-100" },
+            { label: "בטיפול",        count: stats.inProgress, icon: <Clock className="w-5 h-5 text-amber-500" />, bg: "bg-amber-50", accent: "text-amber-600", border: "border-amber-100" },
+            { label: "הושלמו",        count: stats.resolved, icon: <CheckCircle2 className="w-5 h-5 text-green-500" />, bg: "bg-green-50", accent: "text-green-600", border: "border-green-100" },
+            { label: "דחוף",          count: stats.urgent, icon: <AlertCircle className="w-5 h-5 text-red-500" />, bg: "bg-red-50", accent: "text-red-600", border: "border-red-100" },
+          ].map(({ label, count, icon, bg, accent, border }) => (
+            <div key={label} className={`rounded-2xl border ${border} bg-white p-4 flex items-center justify-between shadow-sm`}>
               <div>
                 <p className={`text-3xl font-black ${accent}`}>{count}</p>
                 <p className="text-xs text-slate-500 mt-0.5">{label}</p>
@@ -491,20 +432,44 @@ export default function IssuesManagement() {
           ))}
         </div>
 
-        {/* List */}
+        {/* Filters */}
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm px-5 py-4 flex flex-wrap items-center gap-3">
+          <Filter className="w-4 h-4 text-slate-400 flex-shrink-0" />
+          <div className="relative flex-1 min-w-[180px]">
+            <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <Input value={search} onChange={(e) => setSearch(e.target.value)}
+              placeholder="חפש בתיאור, מיקום..."
+              className="h-10 pr-9 rounded-xl border-slate-200 bg-slate-50 text-sm" />
+          </div>
+          <Select value={filterPriority} onValueChange={setFilterPriority}>
+            <SelectTrigger className="h-10 w-36 rounded-xl border-slate-200 bg-slate-50 text-sm"><SelectValue placeholder="דחיפות" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">כל הדחיפויות</SelectItem>
+              <SelectItem value="urgent">דחוף</SelectItem>
+              <SelectItem value="high">גבוהה</SelectItem>
+              <SelectItem value="medium">בינונית</SelectItem>
+              <SelectItem value="low">נמוכה</SelectItem>
+            </SelectContent>
+          </Select>
+          <span className="text-sm text-slate-400 mr-auto">{filtered.length} תקלות</span>
+        </div>
+
+        {/* Kanban Board */}
         {isLoading ? (
           <div className="text-center py-16 text-slate-400">טוען...</div>
-        ) : filtered.length === 0 ? (
-          <div className="text-center py-16 text-slate-400">
-            <AlertCircle className="w-10 h-10 mx-auto mb-3 opacity-30" />
-            <p className="font-medium">לא נמצאו תקלות</p>
-          </div>
         ) : (
-          <div className="space-y-3">
-            {filtered.map((issue) => (
-              <IssueCard key={issue.id} issue={issue} onDelete={handleDelete} onStatusChange={handleStatusChange} />
-            ))}
-          </div>
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <div className="flex gap-4 items-start">
+              {COLUMNS.map((col) => (
+                <KanbanColumn
+                  key={col.id}
+                  col={col}
+                  issues={columns[col.id] || []}
+                  onDelete={handleDelete}
+                />
+              ))}
+            </div>
+          </DragDropContext>
         )}
       </div>
 
