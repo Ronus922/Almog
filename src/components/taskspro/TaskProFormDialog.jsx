@@ -17,8 +17,7 @@ import { base44 } from "@/api/base44Client";
 import { toast } from "sonner";
 import { useAuth } from "@/components/auth/AuthContext";
 
-const TASK_TYPES = ["שיחת טלפון", "שליחת מכתב התראה", "פגישה", "מעקב תשלום", "הגשת תביעה", "משימה כללית", "אחר"];
-const PRIORITIES = ["גבוהה", "בינונית", "נמוכה"];
+const PRIORITIES = ["דחופה", "גבוהה", "נמוכה"];
 const STATUSES = ["פתוחה", "בטיפול", "ממתינה", "הושלמה", "בוטלה"];
 const FREQ_LABELS = { daily: "יומי", weekly: "שבועי", monthly: "חודשי", yearly: "שנתי" };
 const DAYS_HE = [
@@ -27,7 +26,7 @@ const DAYS_HE = [
 
 
 const defaultForm = {
-  title: "", task_type: "שיחת טלפון", status: "פתוחה", priority: "בינונית",
+  title: "", status: "פתוחה", priority: "גבוהה",
   description: "", due_at: "",
   debtor_record_id: "", apartment_number: "", owner_name: "",
   source: "manual", template_id: "", is_recurring: false
@@ -38,7 +37,7 @@ const defaultRecurrence = {
   days_of_week: [], day_of_month: 1, ends_mode: "never", ends_at: "", max_occurrences: ""
 };
 
-const PRIORITY_COLOR = { "גבוהה": "bg-red-100 text-red-700", "בינונית": "bg-yellow-100 text-yellow-700", "נמוכה": "bg-green-100 text-green-700" };
+const PRIORITY_COLOR = { "דחופה": "bg-red-100 text-red-700", "גבוהה": "bg-yellow-100 text-yellow-700", "נמוכה": "bg-green-100 text-green-700" };
 const STATUS_COLOR = { "פתוחה": "bg-blue-100 text-blue-700", "בטיפול": "bg-orange-100 text-orange-700", "הושלמה": "bg-green-100 text-green-700", "בוטלה": "bg-slate-100 text-slate-600", "ממתינה": "bg-purple-100 text-purple-700" };
 
 export default function TaskProFormDialog({ open, onClose, task, currentUser, onSaved }) {
@@ -82,9 +81,8 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
     if (task) {
       setForm({
         title: task.title || "",
-        task_type: task.task_type || "שיחת טלפון",
         status: task.status || "פתוחה",
-        priority: task.priority || "בינונית",
+        priority: task.priority || "גבוהה",
         description: task.description || "",
         due_at: task.due_at ? task.due_at.slice(0, 16) : "",
         debtor_record_id: task.debtor_record_id || "",
@@ -127,7 +125,6 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
     setForm((f) => ({
       ...f,
       template_id: id,
-      task_type: t.task_type || f.task_type,
       priority: t.default_priority || f.priority,
       status: t.default_status || f.status,
       description: t.default_description || f.description,
@@ -155,7 +152,6 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
 
     const payload = {
       title: form.title.trim(),
-      task_type: form.task_type,
       status: task ? form.status : "פתוחה",
       priority: form.priority,
       description: form.description,
@@ -197,7 +193,6 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
         generate_mode: recurrence.generate_mode,
         next_run_at: nextRun.toISOString(),
         template_task_title: form.title.trim(),
-        template_task_type: form.task_type,
         template_priority: form.priority,
         template_description: form.description,
         debtor_record_id: form.debtor_record_id || null,
@@ -324,7 +319,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                         </span>
                       </div>
                       <Input
-                        maxLength={20}
+                        maxLength={15}
                         className={`h-10 bg-slate-50 focus:bg-white transition-colors ${form.title.length > 15 ? "border-red-400 focus:ring-red-300" : ""}`}
                         placeholder="עד 15 תווים..."
                         value={form.title}
@@ -512,11 +507,11 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                    </span>
                  </div>
                  <Input
-                   maxLength={20}
-                   className={`h-10 bg-slate-50 focus:bg-white transition-colors ${form.title.length > 15 ? "border-red-400 focus:ring-red-300" : ""}`}
-                   placeholder="עד 15 תווים..."
-                   value={form.title}
-                   onChange={(e) => setF("title", e.target.value)}
+                  maxLength={15}
+                  className={`h-10 bg-slate-50 focus:bg-white transition-colors ${form.title.length > 15 ? "border-red-400 focus:ring-red-300" : ""}`}
+                  placeholder="עד 15 תווים..."
+                  value={form.title}
+                  onChange={(e) => setF("title", e.target.value)}
                  />
                  {form.title.length > 15 && (
                    <p className="text-xs text-red-500 mt-1">הכותרת חייבת להכיל עד 15 תווים</p>
@@ -536,14 +531,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
 
                </div>
 
-               {/* סוג משימה */}
-               <div>
-                 <Label className="text-sm font-medium text-slate-700 mb-1.5 block">סוג משימה <span className="text-red-500">*</span></Label>
-                 <Select value={form.task_type} onValueChange={(v) => setF("task_type", v)}>
-                   <SelectTrigger className="h-10 bg-slate-50"><SelectValue /></SelectTrigger>
-                   <SelectContent>{TASK_TYPES.map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
-                 </Select>
-               </div>
+
 
                {/* עדיפות - תגית בלבד */}
                {!isEdit &&
