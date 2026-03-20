@@ -814,64 +814,76 @@ export default function IssuesManagement() {
             </div>
           </DragDropContext>
         ) : viewMode === "list" ? (
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-hidden">
-            <div className="divide-y divide-slate-200">
-              {filtered.length === 0 ? (
-                <div className="p-8 text-center text-slate-400">אין תקלות</div>
-              ) : (
-                filtered.map((issue) => {
-                  const p = PRIORITY_MAP[issue.priority] || PRIORITY_MAP.low;
-                  const reporterUser = appUsers?.find(u => u.username === issue.reporter_email);
-                  const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${issue.target_id}`;
-                  return (
-                    <div 
-                      key={issue.id} 
-                      className="p-4 hover:bg-slate-50 cursor-pointer transition-colors"
-                      onClick={() => { setSelectedIssue(issue); setDetailsOpen(true); }}
-                    >
-                      <div className="flex items-center justify-between gap-4">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <span className={`w-2 h-2 rounded-full ${p.dot}`}></span>
-                            <span className="font-bold text-slate-800">{targetLabel}</span>
-                            <span className="text-xs font-semibold text-slate-500">{p.label}</span>
-                          </div>
-                          <p className="text-sm text-slate-600 line-clamp-2">{issue.description}</p>
-                          <div className="mt-2 flex flex-col gap-2 text-xs text-slate-400">
-                            <span>מדווח: {reporterUser?.first_name || issue.reporter_email}</span>
-                            <span>{format(new Date(issue.created_date), "dd/MM/yy")}</span>
-                            {issue.assigned_to && (
-                              <div className="flex flex-wrap gap-1 pt-1">
-                                {issue.assigned_to.split(",").map((username) => {
-                                  const user = appUsers.find(u => u.username === username.trim());
-                                  return user ? (
-                                    <div key={username} className="flex items-center gap-0.5 bg-blue-100 rounded px-1.5 py-0.5">
-                                      <div className="w-4 h-4 rounded-full bg-blue-400 text-white text-xs font-bold flex items-center justify-center">
-                                        {user.first_name?.[0] || "?"}
-                                      </div>
-                                      <span className="text-blue-700 font-medium">{user.first_name}</span>
-                                    </div>
-                                  ) : null;
-                                })}
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button
-                            onClick={(e) => { e.stopPropagation(); handleDelete(issue.id); }}
-                            className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-400 hover:bg-red-50"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })
-              )}
-            </div>
-          </div>
+           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-x-auto">
+             <table className="w-full">
+               <thead>
+                 <tr className="border-b border-slate-200 bg-slate-50">
+                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">משימה/מיקום</th>
+                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">משמר</th>
+                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">דחיפות</th>
+                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">סטטוס</th>
+                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">תאריך יצירה</th>
+                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">תיאור</th>
+                   <th className="px-4 py-3 text-center text-xs font-bold text-slate-600">פעולות</th>
+                 </tr>
+               </thead>
+               <tbody>
+                 {filtered.length === 0 ? (
+                   <tr>
+                     <td colSpan="7" className="p-8 text-center text-slate-400">אין תקלות</td>
+                   </tr>
+                 ) : (
+                   filtered
+                     .sort((a, b) => {
+                       const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
+                       return (priorityOrder[a.priority] || 3) - (priorityOrder[b.priority] || 3);
+                     })
+                     .map((issue) => {
+                       const p = PRIORITY_MAP[issue.priority] || PRIORITY_MAP.low;
+                       const reporterUser = appUsers?.find(u => u.username === issue.reporter_email);
+                       const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${issue.target_id}`;
+                       const statusLabel = issue.status === "open" ? "פתוחה" : issue.status === "in_progress" ? "בטיפול" : "הושלמה";
+                       return (
+                         <tr 
+                           key={issue.id} 
+                           className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors"
+                           onClick={() => { setSelectedIssue(issue); setDetailsOpen(true); }}
+                         >
+                           <td className="px-4 py-3 text-right text-sm font-semibold text-slate-800">{targetLabel}</td>
+                           <td className="px-4 py-3 text-right text-sm text-slate-600">{reporterUser?.first_name || issue.reporter_email}</td>
+                           <td className="px-4 py-3 text-center">
+                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg" style={{ backgroundColor: `${p.bg}20`, color: p.color }}>
+                               <span className={`w-2 h-2 rounded-full ${p.dot}`}></span>
+                               <span className="text-xs font-semibold">{p.label}</span>
+                             </div>
+                           </td>
+                           <td className="px-4 py-3 text-center">
+                             <span className={`inline-block px-3 py-1 rounded-lg text-xs font-semibold ${
+                               issue.status === "resolved" ? "bg-green-100 text-green-700" :
+                               issue.status === "in_progress" ? "bg-amber-100 text-amber-700" :
+                               "bg-blue-100 text-blue-700"
+                             }`}>
+                               {statusLabel}
+                             </span>
+                           </td>
+                           <td className="px-4 py-3 text-right text-sm text-slate-500">{format(new Date(issue.created_date), "dd/MM/yy")}</td>
+                           <td className="px-4 py-3 text-right text-sm text-slate-600 max-w-xs truncate">{issue.description}</td>
+                           <td className="px-4 py-3 text-center">
+                             <button
+                               onClick={(e) => { e.stopPropagation(); handleDelete(issue.id); }}
+                               className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors"
+                               title="מחוק"
+                             >
+                               <Trash2 className="w-4 h-4" />
+                             </button>
+                           </td>
+                         </tr>
+                       );
+                     })
+                 )}
+               </tbody>
+             </table>
+           </div>
         ) : (
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
             <div className="grid grid-cols-7 gap-2 mb-4">
