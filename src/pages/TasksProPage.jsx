@@ -378,7 +378,7 @@ export default function TasksProPage() {
 
             {/* Main content by view mode */}
             {viewMode === "table" && (
-              <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+              <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-x-auto">
                 <TaskProTable
                   tasks={sorted}
                   isLoading={isLoading}
