@@ -713,31 +713,6 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
             <Button variant="outline" onClick={onClose} disabled={saving} className="h-10 px-5">
               ביטול
             </Button>
-            {isEdit && form.status !== "הושלמה" &&
-            <Button
-              className="bg-green-600 hover:bg-green-700 text-white h-10 px-6 font-semibold"
-              onClick={async () => {
-                setSaving(true);
-                try {
-                  await updateTask(task.id, { status: "הושלמה", completed_at: new Date().toISOString() });
-                  const actor = {
-                    username: currentUser?.username || "",
-                    name: currentUser?.first_name ? `${currentUser.first_name} ${currentUser.last_name || ""}`.trim() : currentUser?.username || ""
-                  };
-                  await logActivity(task.id, "completed", actor);
-                  queryClient.invalidateQueries({ queryKey: ["taskpro-tasks"] });
-                  setSaving(false);
-                  onClose();
-                } catch (e) {
-                  setSaving(false);
-                  toast.error("שגיאה בסימון כהושלמה");
-                }
-              }}
-              disabled={saving}>
-
-                הושלמה
-              </Button>
-            }
             <Button
               className="bg-blue-600 hover:bg-blue-700 text-white h-10 px-6 font-semibold"
               onClick={handleSave}
