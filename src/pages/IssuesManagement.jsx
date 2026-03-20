@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
+import { useAuth } from '@/components/auth/AuthContext';
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,10 +18,11 @@ import { format } from "date-fns";
 
 const PRIORITY_MAP = {
   low:    { label: "נמוכה",   dot: "bg-slate-400" },
-  medium: { label: "בינונית", dot: "bg-blue-400" },
   high:   { label: "גבוהה",   dot: "bg-orange-400" },
   urgent: { label: "דחוף",    dot: "bg-red-500" },
 };
+
+const PRIORITY_ORDER = { urgent: 0, high: 1, low: 2 };
 
 const COLUMNS = [
   { id: "open",        label: "פתוחה",   color: "border-t-blue-400",   headerBg: "bg-blue-50",   count_color: "bg-blue-100 text-blue-700" },
@@ -29,8 +31,8 @@ const COLUMNS = [
 ];
 
 // ---- Dialog Form ----
-function ReportIssueDialog({ open, onClose, onSuccess, onNotify }) {
-  const [form, setForm] = useState({ target_type: "room", target_id: "", priority: "medium", description: "", assigned_to: [], searchUser: "" });
+function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) {
+  const [form, setForm] = useState({ target_type: "room", target_id: "", priority: "low", description: "", assigned_to: [], searchUser: "" });
   const [images, setImages] = useState([]);
   const [videos, setVideos] = useState([]);
   const [uploadingImages, setUploadingImages] = useState(false);
@@ -76,14 +78,27 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify }) {
       description: form.description,
       assigned_to: assigned_to_str || null,
       images, 
-      videos, 
-      status: "open" 
+      videos,
+      status: "open",
+      reporter_email: currentUser?.email || null
     });
+    
     if (form.assigned_to?.length > 0) {
-      onNotify(`תקלה חדשה בחדר ${form.target_id} שוייכה ל${form.assigned_to.length} משתמשים`);
+      const assignedUsers = appUsers.filter(u => form.assigned_to.includes(u.username));
+      for (const user of assignedUsers) {
+        await base44.entities.Notification.create({
+          user_username: user.username,
+          type: "task_assigned",
+          message: `תקלה חדשה ב${form.target_type === "room" ? "חדר" : "אזור"} ${form.target_id} שויכה אליך`,
+          task_id: newIssue.id,
+          task_type: "IssueReport",
+          assigner_name: currentUser?.full_name || currentUser?.email || "מערכת",
+        });
+      }
+      onNotify(`תקלה חדשה ב${form.target_type === "room" ? "חדר" : "אזור"} ${form.target_id} שוייכה ל${assignedUsers.length} משתמשים`);
     }
     setSaving(false);
-    setForm({ target_type: "room", target_id: "", priority: "medium", description: "", assigned_to: [], searchUser: "" });
+    setForm({ target_type: "room", target_id: "", priority: "low", description: "", assigned_to: [], searchUser: "" });
     setImages([]); setVideos([]);
     onSuccess();
   };
@@ -135,7 +150,6 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify }) {
                 <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-slate-50 font-medium"><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="low">נמוכה</SelectItem>
-                  <SelectItem value="medium">בינונית</SelectItem>
                   <SelectItem value="high">גבוהה</SelectItem>
                   <SelectItem value="urgent">דחוף</SelectItem>
                 </SelectContent>
@@ -461,9 +475,8 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange, on
 
 // ---- Kanban Issue Card ----
 function KanbanCard({ issue, index, onDelete, onView }) {
-  const p = PRIORITY_MAP[issue.priority] || PRIORITY_MAP.medium;
+  const p = PRIORITY_MAP[issue.priority] || PRIORITY_MAP.low;
   const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${issue.target_id}`;
-  const isOverdue = issue.priority === "urgent" || issue.priority === "high";
 
   return (
     <Draggable draggableId={issue.id} index={index}>
@@ -575,6 +588,7 @@ export default function IssuesManagement() {
   const [detailsOpen, setDetailsOpen] = useState(false);
   const [selectedIssue, setSelectedIssue] = useState(null);
   const [notification, setNotification] = useState(null);
+  const { currentUser } = useAuth();
   const qc = useQueryClient();
 
   const { data: issues = [], isLoading } = useQuery({
@@ -595,7 +609,11 @@ export default function IssuesManagement() {
 
   const columns = useMemo(() => {
     const map = {};
-    COLUMNS.forEach((col) => { map[col.id] = filtered.filter((i) => i.status === col.id); });
+    COLUMNS.forEach((col) => {
+      map[col.id] = filtered
+        .filter((i) => i.status === col.id)
+        .sort((a, b) => PRIORITY_ORDER[a.priority] - PRIORITY_ORDER[b.priority]);
+    });
     return map;
   }, [filtered]);
 
@@ -686,7 +704,6 @@ export default function IssuesManagement() {
               <SelectItem value="all">כל הדחיפויות</SelectItem>
               <SelectItem value="urgent">דחוף</SelectItem>
               <SelectItem value="high">גבוהה</SelectItem>
-              <SelectItem value="medium">בינונית</SelectItem>
               <SelectItem value="low">נמוכה</SelectItem>
             </SelectContent>
           </Select>
@@ -706,7 +723,6 @@ export default function IssuesManagement() {
                   issues={columns[col.id] || []}
                   onDelete={handleDelete}
                   onView={(issue) => { 
-                    console.log("Opening issue details:", issue);
                     setSelectedIssue(issue); 
                     setDetailsOpen(true); 
                   }}
@@ -742,6 +758,7 @@ export default function IssuesManagement() {
           setNotification(msg);
           setTimeout(() => setNotification(null), 5000);
         }}
+        currentUser={currentUser}
       />
 
       <IssueDetailsDialog
