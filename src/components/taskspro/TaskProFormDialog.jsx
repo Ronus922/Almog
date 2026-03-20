@@ -138,8 +138,14 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
     }));
   };
 
+  const titleError = !form.title.trim()
+    ? "כותרת המשימה חובה"
+    : form.title.trim().length > 15
+    ? "הכותרת חייבת להכיל עד 15 תווים"
+    : null;
+
   const handleSave = async () => {
-    if (!form.title.trim() || !form.task_type) return;
+    if (titleError || !form.task_type) return;
     setSaving(true);
 
     const actor = {
