@@ -484,23 +484,32 @@ function KanbanCard({ issue, index, onDelete, onView }) {
                 <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                 <span className="font-bold text-slate-800 text-sm">{targetLabel}</span>
               </div>
-              <button
-                onClick={() => onDelete(issue.id)}
-                className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-400 hover:bg-red-50 transition-colors"
-              >
-                <Trash2 className="w-3.5 h-3.5" />
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => onView(issue)}
+                  className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-blue-400 hover:bg-blue-50 transition-colors"
+                  title="צפה בפרטים"
+                >
+                  <Eye className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                  title="עריכה"
+                >
+                  <Pencil className="w-3.5 h-3.5" />
+                </button>
+                <button
+                  onClick={() => onDelete(issue.id)}
+                  className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-400 hover:bg-red-50 transition-colors"
+                  title="מחוק"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                </button>
+              </div>
             </div>
 
             {issue.description && (
               <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">{issue.description}</p>
-            )}
-
-            {issue.images?.length > 0 && (
-              <button onClick={() => onView(issue)} className="flex gap-1 hover:opacity-80 transition-opacity">
-                <Eye className="w-4 h-4 text-blue-500" />
-                <span className="text-xs text-blue-500 font-medium">{issue.images.length} קבצים</span>
-              </button>
             )}
 
             <div className="flex items-center justify-between pt-0.5">
