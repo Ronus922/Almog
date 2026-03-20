@@ -505,7 +505,7 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange, on
 }
 
 // ---- Kanban Issue Card ----
-function KanbanCard({ issue, index, onDelete, onView }) {
+function KanbanCard({ issue, index, onDelete, onView, appUsers }) {
   const p = PRIORITY_MAP[issue.priority] || PRIORITY_MAP.low;
   const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${issue.target_id}`;
 
@@ -567,7 +567,7 @@ function KanbanCard({ issue, index, onDelete, onView }) {
 
             <div className="flex items-center justify-between pt-0.5 text-xs text-slate-400">
               <span>{format(new Date(issue.created_date), "dd/MM/yy")}</span>
-              <IssueReporterName reporterEmail={issue.reporter_email} />
+              <IssueReporterName reporterEmail={issue.reporter_email} appUsers={appUsers} />
             </div>
           </div>
         </div>
@@ -577,7 +577,7 @@ function KanbanCard({ issue, index, onDelete, onView }) {
 }
 
 // ---- Kanban Column ----
-function KanbanColumn({ col, issues, onDelete, onView }) {
+function KanbanColumn({ col, issues, onDelete, onView, appUsers }) {
   return (
     <div className="flex-1 min-w-0 flex flex-col">
       {/* Column header */}
@@ -601,7 +601,7 @@ function KanbanColumn({ col, issues, onDelete, onView }) {
               </div>
             )}
             {issues.map((issue, index) => (
-              <KanbanCard key={issue.id} issue={issue} index={index} onDelete={onDelete} onView={onView} />
+              <KanbanCard key={issue.id} issue={issue} index={index} onDelete={onDelete} onView={onView} appUsers={appUsers} />
             ))}
             {provided.placeholder}
           </div>
@@ -787,15 +787,16 @@ export default function IssuesManagement() {
             <div className="flex gap-4 items-start">
               {COLUMNS.map((col) => (
                 <KanbanColumn
-                  key={col.id}
-                  col={col}
-                  issues={columns[col.id] || []}
-                  onDelete={handleDelete}
-                  onView={(issue) => { 
-                    setSelectedIssue(issue); 
-                    setDetailsOpen(true); 
-                  }}
-                />
+                   key={col.id}
+                   col={col}
+                   issues={columns[col.id] || []}
+                   onDelete={handleDelete}
+                   onView={(issue) => { 
+                     setSelectedIssue(issue); 
+                     setDetailsOpen(true); 
+                   }}
+                   appUsers={appUsers}
+                 />
               ))}
             </div>
           </DragDropContext>
@@ -823,9 +824,24 @@ export default function IssuesManagement() {
                             <span className="text-xs font-semibold text-slate-500">{p.label}</span>
                           </div>
                           <p className="text-sm text-slate-600 line-clamp-2">{issue.description}</p>
-                          <div className="mt-2 flex items-center gap-4 text-xs text-slate-400">
+                          <div className="mt-2 flex flex-col gap-2 text-xs text-slate-400">
                             <span>מדווח: {reporterUser?.first_name || issue.reporter_email}</span>
                             <span>{format(new Date(issue.created_date), "dd/MM/yy")}</span>
+                            {issue.assigned_to && (
+                              <div className="flex flex-wrap gap-1 pt-1">
+                                {issue.assigned_to.split(",").map((username) => {
+                                  const user = appUsers?.find(u => u.username === username.trim());
+                                  return user ? (
+                                    <div key={username} className="flex items-center gap-0.5 bg-blue-100 rounded px-1.5 py-0.5">
+                                      <div className="w-4 h-4 rounded-full bg-blue-400 text-white text-xs font-bold flex items-center justify-center">
+                                        {user.first_name?.[0] || "?"}
+                                      </div>
+                                      <span className="text-blue-700 font-medium">{user.first_name}</span>
+                                    </div>
+                                  ) : null;
+                                })}
+                              </div>
+                            )}
                           </div>
                         </div>
                         <div className="flex items-center gap-2">
