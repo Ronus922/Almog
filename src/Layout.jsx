@@ -31,7 +31,7 @@ function LayoutContent({ children, currentPageName }) {
   const [tasks, setTasks] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
 
-  const isAdmin = isManagerRole(currentUser);
+  const isAdmin = isManagerRole(currentUser) || currentUser?.isBase44Admin === true || currentUser?.role === 'SUPER_ADMIN';
 
   const handleNavigation = (pageName) => {
     attemptNavigation(() => {
