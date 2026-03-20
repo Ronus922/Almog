@@ -297,11 +297,11 @@ function DashboardContent() {
 
               {/* KPI 6 - חריגה מופרזת */}
               <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all"
-                onClick={() => { setActiveTab('legal_candidates'); }}>
+                onClick={() => { setActiveTab('debtors'); }}>
                 <p className="text-[18px] font-black uppercase" style={{color: '#1d5bbd'}}>חריגה מופרזת</p>
                 <div>
                   <p className="text-[32px] font-black leading-none text-[#ff3b3b]">
-                    {tabDatasets.legalCandidatesTab.length}
+                    {tabDatasets.excessiveDebtCount}
                   </p>
                 </div>
               </div>
