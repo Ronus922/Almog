@@ -144,29 +144,41 @@ function TaskAnalyticsDashboard() {
     return { totalDebt, activeAppointments, pendingMessages };
   }, [debtors, appointments, chatMessages]);
 
-  // תרשים מגמת חובות — פילוח לפי חודשי ייבוא
+  // תרשים מגמת חובות — סך חוב יומי לפי תאריך עדכון אחרון (30 ימים אחרונים)
   const debtTrendData = useMemo(() => {
     if (!debtors.length) return [];
 
-    // קיבוץ לפי חודש של lastImportAt
-    const monthMap = {};
-    debtors.forEach((d) => {
-      const dateField = d.lastImportAt || d.last_import_at || d.lastImportAt;
-      if (!dateField) return;
-      const date = new Date(dateField);
-      if (isNaN(date)) return;
-      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-      const label = date.toLocaleDateString('he-IL', { year: 'numeric', month: 'short' });
-      if (!monthMap[key]) monthMap[key] = { date: label, סך_חוב: 0, count: 0 };
-      monthMap[key].סך_חוב += d.totalDebt || 0;
-      monthMap[key].count += 1;
-    });
+    const today = new Date();
+    today.setHours(23, 59, 59, 999);
+    const thirtyDaysAgo = new Date(today);
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29);
+    thirtyDaysAgo.setHours(0, 0, 0, 0);
 
-    const sorted = Object.entries(monthMap)
-      .sort(([a], [b]) => a.localeCompare(b))
-      .map(([, val]) => ({ date: val.date, סך_חוב: val.סך_חוב }));
+    // בנה מפת יום -> סך חוב מצטבר של רשומות שעודכנו עד לאותו יום
+    const days = [];
+    for (let i = 29; i >= 0; i--) {
+      const day = new Date(today);
+      day.setDate(day.getDate() - i);
+      day.setHours(23, 59, 59, 999);
 
-    return sorted;
+      // סכם חובות של כל הרשומות שעודכנו לפני/ביום הזה
+      const total = debtors.reduce((sum, d) => {
+        const updatedAt = d.updated_date || d.lastImportAt;
+        if (!updatedAt) return sum + (d.totalDebt || 0); // אם אין תאריך — כלול תמיד
+        const recordDate = new Date(updatedAt);
+        if (recordDate <= day) {
+          return sum + (d.totalDebt || 0);
+        }
+        return sum;
+      }, 0);
+
+      days.push({
+        date: day.toLocaleDateString('he-IL', { day: 'numeric', month: 'numeric' }),
+        סך_חוב: total,
+      });
+    }
+
+    return days;
   }, [debtors]);
 
   const handleDragStart = (e, cardId) => {
