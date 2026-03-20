@@ -521,16 +521,9 @@ function KanbanCard({ issue, index, onDelete, onView }) {
               <p className="text-xs text-slate-600 leading-relaxed line-clamp-3">{issue.description}</p>
             )}
 
-            <div className="flex items-center justify-between pt-0.5">
-              {issue.reporter_email && (
-                <span className="flex items-center gap-1 text-xs text-slate-400 truncate max-w-[120px]">
-                  <User className="w-3 h-3 flex-shrink-0" />{issue.reporter_email}
-                </span>
-              )}
-              <span className={`flex items-center gap-1 text-xs font-medium ${isOverdue ? "text-red-500" : "text-slate-400"}`}>
-                <Calendar className="w-3 h-3" />
-                {format(new Date(issue.created_date), "dd/MM/yy")}
-              </span>
+            <div className="flex items-center justify-between pt-0.5 text-xs text-slate-400">
+              <span>{format(new Date(issue.created_date), "dd/MM/yy")}</span>
+              <span>מדווח: {issue.reporter_email || "לא צוין"}</span>
             </div>
           </div>
         </div>
