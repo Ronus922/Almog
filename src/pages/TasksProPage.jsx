@@ -13,7 +13,8 @@ import {
 import TaskProKpiBar from "@/components/taskspro/TaskProKpiBar";
 import TaskProFiltersBar from "@/components/taskspro/TaskProFiltersBar";
 import TaskProTable from "@/components/taskspro/TaskProTable";
-import TaskProKanban from "@/components/taskspro/TaskProKanban";
+import TaskProKanbanDnd from "@/components/taskspro/TaskProKanbanDnd";
+import TaskProReadOnlyDialog from "@/components/taskspro/TaskProReadOnlyDialog";
 import TaskProCalendarView from "@/components/taskspro/TaskProCalendarView";
 import TaskProBulkBar from "@/components/taskspro/TaskProBulkBar";
 import TaskProFormDialog from "@/components/taskspro/TaskProFormDialog";
@@ -49,6 +50,8 @@ export default function TasksProPage() {
   const [editTask, setEditTask] = useState(null);
   const [detailTask, setDetailTask] = useState(null);
   const [attendeesMap, setAttendeesMap] = useState({});
+  const [readOnlyTask, setReadOnlyTask] = useState(null);
+  const [taskAttachments, setTaskAttachments] = useState([]);
 
   // Queries
   const { data: allTasks = [], isLoading } = useQuery({
@@ -261,8 +264,15 @@ export default function TasksProPage() {
   };
 
   const openNew = () => { setEditTask(null); setShowForm(true); };
-  const openEdit = (task) => { setEditTask(task); setShowForm(true); setDetailTask(null); };
-  const handleRowClick = (task) => { openEdit(task); };
+  const openEdit = (task) => { setEditTask(task); setShowForm(true); setDetailTask(null); setReadOnlyTask(null); };
+  const handleRowClick = (task) => {
+    fetchAttachments(task.id).then(setTaskAttachments);
+    setReadOnlyTask(task);
+  };
+  const handleViewFiles = (task) => {
+    fetchAttachments(task.id).then(setTaskAttachments);
+    setReadOnlyTask(task);
+  };
   const handleCompleteTask = async (task) => {
     await statusMutation.mutateAsync({ id: task.id, status: "הושלמה" });
     setShowForm(false);
@@ -392,9 +402,13 @@ export default function TasksProPage() {
             )}
 
             {viewMode === "kanban" && (
-              <TaskProKanban
+              <TaskProKanbanDnd
                 tasks={sorted}
                 onRowClick={handleRowClick}
+                onEdit={openEdit}
+                onDelete={doDelete}
+                onViewFiles={handleViewFiles}
+                currentUser={currentUser}
               />
             )}
 
@@ -491,6 +505,17 @@ export default function TasksProPage() {
           task={editTask}
           currentUser={currentUser}
           onSaved={() => queryClient.invalidateQueries({ queryKey: ["taskpro-tasks"] })}
+        />
+
+        <TaskProReadOnlyDialog
+          open={!!readOnlyTask}
+          onClose={() => {
+            setReadOnlyTask(null);
+            setTaskAttachments([]);
+          }}
+          task={readOnlyTask}
+          attachments={taskAttachments}
+          currentUser={currentUser}
         />
       </div>
     </div>
