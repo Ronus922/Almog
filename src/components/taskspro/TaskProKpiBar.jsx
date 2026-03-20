@@ -57,7 +57,7 @@ export default function TaskProKpiBar({
   }), [tasks]);
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6" dir="rtl">
+    <div className="grid grid-cols-4 gap-3 mb-6" dir="rtl">
       {METRICS.map((m) => {
         const Icon = m.icon;
         const count = counts[m.key];
