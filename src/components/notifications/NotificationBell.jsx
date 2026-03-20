@@ -15,8 +15,11 @@ export default function NotificationBell({ currentUser }) {
     if (!username) return;
 
     // Initial load
-    base44.entities.Notification.filter({ user_username: username }, "-created_date", 30)
-      .then(setNotifications);
+    base44.entities.Notification.list("-created_date", 50)
+      .then(allNotifs => {
+        const userNotifs = allNotifs.filter(n => n.user_username === username);
+        setNotifications(userNotifs);
+      });
 
     // Real-time subscription
     const unsub = base44.entities.Notification.subscribe((event) => {
