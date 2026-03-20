@@ -183,6 +183,8 @@ import TaskAnalyticsDashboard from "./pages/TaskAnalyticsDashboard.jsx";
 import AllNotifications from "./pages/AllNotifications.jsx";
 import DebtorHistoryPage from "./pages/DebtorHistoryPage.jsx";
 import ExportData from "./pages/ExportData.jsx";
+import ReportIssue from "./pages/ReportIssue";
+import IssuesManagement from "./pages/IssuesManagement";
 
 const { Pages, Layout, mainPage } = pagesConfig;
 const mainPageKey = mainPage ?? Object.keys(Pages)[0];
