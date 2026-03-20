@@ -753,7 +753,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
             <Button
               className="bg-blue-600 hover:bg-blue-700 text-white h-10 px-6 font-semibold"
               onClick={handleSave}
-              disabled={saving || !form.title.trim()}>
+              disabled={saving || !!titleError}>
 
               {saving ? "שומר..." : isEdit ? "שמור שינויים" : "צור משימה"}
             </Button>
