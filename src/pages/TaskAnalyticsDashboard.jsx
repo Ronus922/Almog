@@ -225,8 +225,16 @@ function TaskAnalyticsDashboard() {
             className={`cursor-move transition-all ${draggedCard === cardId ? 'opacity-50' : 'opacity-100'}`}
           >
             <Card className="h-full bg-white border-slate-200 rounded-xl shadow-sm hover:shadow-md transition-shadow group">
-              <div className="flex items-center justify-between px-4 pt-4">
-                <CardTitle className="text-lg font-bold text-slate-900">משימות פתוחות בטיפול</CardTitle>
+              <div className="flex items-center justify-between px-4 pt-4 pb-2">
+                <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
+                  משימות פתוחות בטיפול
+                  {(() => {
+                    const count = filteredTasks.filter((t) => t.status !== 'הושלמה' && t.status !== 'בוטלה').length;
+                    return count > 0 ? (
+                      <span className="bg-blue-100 text-blue-700 text-xs font-bold px-2 py-0.5 rounded-full">{count}</span>
+                    ) : null;
+                  })()}
+                </CardTitle>
                 <GripVertical className="w-4 h-4 text-slate-400 group-hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity" />
               </div>
               <CardContent className="p-0">
