@@ -124,7 +124,7 @@ function DashboardContent() {
     const excessiveDebtCount = active.filter((r) => calcStatus(r) === 'חריגה מופרזת').length;
     const immediateCollectCount = active.filter((r) => calcStatus(r) === 'לגבייה מיידית').length;
 
-    return { warningTab, legalCandidatesTab, legalProcessTab, debtorsTab, archived, nextActionsTab, excessiveDebtCount };
+    return { warningTab, legalCandidatesTab, legalProcessTab, debtorsTab, archived, nextActionsTab, excessiveDebtCount, immediateCollectCount };
   }, [records, allStatuses, settings]);
 
   // ארכיון
