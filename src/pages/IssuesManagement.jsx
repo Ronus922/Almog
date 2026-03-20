@@ -703,7 +703,11 @@ export default function IssuesManagement() {
                   col={col}
                   issues={columns[col.id] || []}
                   onDelete={handleDelete}
-                  onView={(issue) => { setSelectedIssue(issue); setDetailsOpen(true); }}
+                  onView={(issue) => { 
+                    console.log("Opening issue details:", issue);
+                    setSelectedIssue(issue); 
+                    setDetailsOpen(true); 
+                  }}
                 />
               ))}
             </div>
