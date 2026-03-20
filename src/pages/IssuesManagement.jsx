@@ -333,21 +333,22 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange }) 
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl" dir="rtl">
-        <DialogHeader>
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <MapPin className="w-5 h-5 text-slate-400" />
-              <DialogTitle className="text-xl font-black text-slate-800">{targetLabel}</DialogTitle>
+    <>
+      <Dialog open={open} onOpenChange={onClose}>
+        <DialogContent className="max-w-3xl" dir="rtl">
+          <DialogHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <MapPin className="w-5 h-5 text-slate-400" />
+                <DialogTitle className="text-xl font-black text-slate-800">{targetLabel}</DialogTitle>
+              </div>
+              <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+                <X className="w-5 h-5" />
+              </button>
             </div>
-            <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-        </DialogHeader>
+          </DialogHeader>
 
-        <div className="space-y-4 mt-4">
+          <div className="space-y-4 mt-4">
           {/* תיאור */}
           <div className="space-y-2">
             <h3 className="text-sm font-bold text-slate-700">תיאור התקלה</h3>
@@ -436,24 +437,25 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange }) 
       </DialogContent>
     </Dialog>
 
-    <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
-      <AlertDialogContent dir="rtl">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="text-right">מחיקת התקלה</AlertDialogTitle>
-          <AlertDialogDescription className="text-right">
-            האם אתה בטוח שברצונך למחוק תקלה זו? לא ניתן לשחזר פעולה זו.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <div className="flex gap-3 justify-end pt-2">
-          <AlertDialogCancel className="h-10 px-4 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 font-bold hover:bg-slate-50">
-            ביטול
-          </AlertDialogCancel>
-          <AlertDialogAction className="h-10 px-4 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600" onClick={handleConfirmDelete}>
-            מחוק
-          </AlertDialogAction>
-        </div>
-      </AlertDialogContent>
-    </AlertDialog>
+      <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
+        <AlertDialogContent dir="rtl">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-right">מחיקת התקלה</AlertDialogTitle>
+            <AlertDialogDescription className="text-right">
+              האם אתה בטוח שברצונך למחוק תקלה זו? לא ניתן לשחזר פעולה זו.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex gap-3 justify-end pt-2">
+            <AlertDialogCancel className="h-10 px-4 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 font-bold hover:bg-slate-50">
+              ביטול
+            </AlertDialogCancel>
+            <AlertDialogAction className="h-10 px-4 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600" onClick={handleConfirmDelete}>
+              מחוק
+            </AlertDialogAction>
+          </div>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 }
 
