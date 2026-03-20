@@ -23,9 +23,9 @@ export default function TaskProKanban({ tasks = [], onRowClick }) {
   };
 
   return (
-    <div className="flex gap-4 overflow-x-auto pb-4" dir="rtl">
+    <div className="grid grid-cols-3 gap-4 pb-4" dir="rtl">
       {COLUMNS.map(({ key, label, color, bg }) => (
-        <div key={key} className="flex-shrink-0 w-64">
+        <div key={key} className="min-w-0">
           <div className={`rounded-xl border-2 border-t-4 ${color} border-slate-200 bg-white shadow-sm overflow-hidden`}>
             <div className={`px-3 py-2 ${bg} border-b border-slate-100 flex items-center justify-between`}>
               <span className="text-sm font-bold text-slate-700">{label}</span>
