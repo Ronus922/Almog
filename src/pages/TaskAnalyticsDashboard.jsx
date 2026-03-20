@@ -645,63 +645,6 @@ function TaskAnalyticsDashboard() {
           </Card>
         }
 
-        {/* גרפים */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-          {/* התפלגות לפי סטטוס */}
-          <Card className="h-full bg-white border-slate-200 rounded-xl shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg font-bold text-slate-900">התפלגות לפי סטטוס</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {statusDistribution.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <PieChart>
-                    <Pie
-                      data={statusDistribution}
-                      cx="50%"
-                      cy="50%"
-                      labelLine={false}
-                      label={({ name, value }) => `${name}: ${value}`}
-                      outerRadius={80}
-                      fill="#8884d8"
-                      dataKey="value"
-                    >
-                      {statusDistribution.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="h-[300px] flex items-center justify-center text-slate-500">אין נתונים</div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* התפלגות לפי עדיפות */}
-          <Card className="h-full bg-white border-slate-200 rounded-xl shadow-sm">
-            <CardHeader>
-              <CardTitle className="text-lg font-bold text-slate-900">התפלגות לפי עדיפות</CardTitle>
-            </CardHeader>
-            <CardContent>
-              {priorityDistribution.length > 0 ? (
-                <ResponsiveContainer width="100%" height={300}>
-                  <BarChart data={priorityDistribution}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                    <XAxis dataKey="name" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="value" fill="#3563d0" radius={[8, 8, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              ) : (
-                <div className="h-[300px] flex items-center justify-center text-slate-500">אין נתונים</div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-
         {/* שורה תחתונה: משימות + תזכורות / פגישות + וואטסאפ - עם Drag & Drop */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
           {cardOrder.map((cardId) => renderCard(cardId))}
