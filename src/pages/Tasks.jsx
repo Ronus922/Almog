@@ -521,13 +521,14 @@ export default function Tasks() {
                         <td className="px-4 py-3 text-left" onClick={(e) => e.stopPropagation()}>
                            <div className="flex items-center gap-2 justify-end">
                              <button
-                               onClick={() => {setEditTask(task);setShowDialog(true);}}
-                               className="text-slate-400 hover:text-blue-600 transition-colors">
+                               onClick={(e) => {e.stopPropagation();setEditTask(task);setShowDialog(true);}}
+                               className="text-slate-400 hover:text-blue-600 transition-colors"
+                               title="עריכה">
                                <Pencil className="w-4 h-4" />
                              </button>
                              {viewedTasks.has(task.id) &&
                                <button
-                                 onClick={() => setViewedTasks(prev => {const next = new Set(prev); next.delete(task.id); return next;})}
+                                 onClick={(e) => {e.stopPropagation();setViewedTasks(prev => {const next = new Set(prev); next.delete(task.id); return next;});}}
                                  className="text-slate-300 hover:text-slate-500 transition-colors"
                                  title="נקה משימה נצפויה">
                                  <X className="w-4 h-4" />
@@ -535,8 +536,9 @@ export default function Tasks() {
                              }
                              {(task.assigned_by === currentUser?.username || task.assigned_by === currentUser?.email) &&
                                <button
-                                 onClick={() => {if (window.confirm("למחוק משימה זו?")) deleteMutation.mutate(task.id);}}
-                                 className="text-slate-300 hover:text-red-500 transition-colors">
+                                 onClick={(e) => {e.stopPropagation();deleteMutation.mutate(task.id);}}
+                                 className="text-slate-300 hover:text-red-500 transition-colors"
+                                 title="מחיקה">
                                  <Trash2 className="w-4 h-4" />
                                </button>
                              }

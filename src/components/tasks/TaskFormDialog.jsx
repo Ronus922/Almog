@@ -87,16 +87,20 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
        setUserSearchTerm("");
        if (isEdit && task?.id && onTaskViewed) {
          onTaskViewed(task.id);
-        setForm(prev => ({
-          ...task,
+        setForm({
           task_type: task.task_type || "שיחת טלפון",
           priority: task.priority || "בינונית",
           status: task.status || "פתוחה",
-          assigned_to: task.assigned_to || "",
           description: task.description || "",
           due_date: task.due_date || "",
+          assigned_to: task.assigned_to || "",
+          assigned_to_name: task.assigned_to_name || "",
+          assigned_by: task.assigned_by || "",
+          debtor_record_id: task.debtor_record_id || "",
+          apartment_number: task.apartment_number || "",
+          owner_name: task.owner_name || "",
           completion_notes: task.completion_notes || ""
-        }));
+        });
         setRecurrenceRule({ is_recurring: false });
       } else {
         const assignerDisplayName = currentUser?.first_name ?
@@ -199,6 +203,19 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
           changed_by_name: changer.name,
           changes: JSON.stringify(changes)
         });
+
+        // שליחת התראה אם השתנה assigned_to
+        if (task.assigned_to !== finalForm.assigned_to && finalForm.assigned_to && finalForm.assigned_to !== changer.username) {
+          await base44.entities.Notification.create({
+            user_username: finalForm.assigned_to,
+            type: "task_assigned",
+            message: `הוקצתה לך משימה: ${finalForm.task_type}${finalForm.owner_name ? ` – דירה ${finalForm.apartment_number}` : ""}`,
+            task_id: task.id,
+            task_type: finalForm.task_type,
+            assigner_name: changer.name || changer.username,
+            is_read: false
+          });
+        }
       } else {
         const newTask = await base44.entities.Task.create(finalForm);
         await base44.entities.TaskAuditLog.create({
@@ -208,6 +225,19 @@ export default function TaskFormDialog({ open, onClose, task, debtorRecord, onSa
           changed_by_name: changer.name,
           changes: "{}"
         });
+
+        // שליחת התראה לנמען המשימה החדשה
+        if (finalForm.assigned_to && finalForm.assigned_to !== changer.username) {
+          await base44.entities.Notification.create({
+            user_username: finalForm.assigned_to,
+            type: "task_assigned",
+            message: `הוקצתה לך משימה: ${finalForm.task_type}${finalForm.owner_name ? ` – דירה ${finalForm.apartment_number}` : ""}`,
+            task_id: newTask.id,
+            task_type: finalForm.task_type,
+            assigner_name: changer.name || changer.username,
+            is_read: false
+          });
+        }
 
         // צור כלל מחזוריות אם נבחר
         if (recurrenceRule?.is_recurring && recurrenceRule.frequency) {
