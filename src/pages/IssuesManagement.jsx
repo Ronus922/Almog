@@ -243,7 +243,7 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
               <label className="text-sm font-semibold text-slate-700">דחיפות *</label>
               <div className="flex gap-3 justify-end">
                 {[
-                  { value: "low", label: "נמוכה", bg: "bg-slate-100 border-slate-300", active: "bg-slate-500 text-white border-slate-600" },
+                  { value: "low", label: "נמוכה", bg: "bg-blue-50 border-blue-300", active: "bg-blue-500 text-white border-blue-600" },
                   { value: "high", label: "בינונית", bg: "bg-yellow-50 border-yellow-400", active: "bg-yellow-400 text-slate-800 border-yellow-500" },
                   { value: "urgent", label: "דחוף", bg: "bg-red-50 border-red-300", active: "bg-red-500 text-white border-red-600" }
                 ].map(opt => (
