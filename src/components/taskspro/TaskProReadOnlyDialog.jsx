@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Eye, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { Eye, ChevronLeft, ChevronRight, X, FileText } from "lucide-react";
 import { format } from "date-fns";
 import { updateTask } from "./taskProApi";
 import { useQueryClient } from "@tanstack/react-query";
@@ -143,39 +143,68 @@ export default function TaskProReadOnlyDialog({
               )}
 
               {/* קבצים ותמונות */}
-              {attachments.length > 0 && (
-                <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-3">
-                  <p className="text-sm font-bold text-slate-700">קבצים ({attachments.length})</p>
+              {images.length > 0 && (
+                <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
+                  <p className="text-sm font-bold text-slate-700">תמונות ({images.length})</p>
 
-                  {images.length > 0 && (
-                    <div className="space-y-2">
-                      <p className="text-xs text-slate-500">תמונות ({images.length})</p>
+                  {/* Gallery Viewer */}
+                  <div className="bg-slate-100 rounded-lg overflow-hidden">
+                    <div 
+                      onClick={() => setShowImageViewer(true)}
+                      className="cursor-pointer flex items-center justify-center bg-slate-200 hover:bg-slate-300 transition-colors py-48"
+                    >
+                      <img 
+                        src={images[imageIndex]?.file_url} 
+                        alt="תמונה"
+                        className="max-w-full max-h-96 object-contain"
+                      />
+                    </div>
+
+                    {/* Navigation */}
+                    <div className="flex items-center justify-between gap-4 p-4 bg-white">
                       <button
-                        onClick={() => setShowImageViewer(true)}
-                        className="inline-flex items-center gap-2 px-3 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg text-sm font-medium transition-colors"
+                        onClick={() => setImageIndex((i) => (i - 1 + images.length) % images.length)}
+                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-600 hover:text-slate-900"
                       >
-                        <Eye className="w-4 h-4" /> צפייה בגלריה
+                        <ChevronRight className="w-5 h-5" />
+                      </button>
+
+                      <div className="text-center flex-1">
+                        <p className="text-sm font-semibold text-slate-700">
+                          {imageIndex + 1} / {images.length}
+                        </p>
+                      </div>
+
+                      <button
+                        onClick={() => setImageIndex((i) => (i + 1) % images.length)}
+                        className="p-2 hover:bg-slate-100 rounded-lg transition-colors text-slate-600 hover:text-slate-900"
+                      >
+                        <ChevronLeft className="w-5 h-5" />
                       </button>
                     </div>
-                  )}
+                  </div>
+                </div>
+              )}
 
-                  {attachments.filter((a) => !images.includes(a)).length > 0 && (
-                    <div className="space-y-2">
-                      {attachments
-                        .filter((a) => !images.includes(a))
-                        .map((a) => (
-                          <a
-                            key={a.id}
-                            href={a.file_url}
-                            target="_blank"
-                            rel="noreferrer"
-                            className="block text-sm text-blue-600 hover:underline truncate"
-                          >
-                            📎 {a.file_display_name || a.file_name}
-                          </a>
-                        ))}
-                    </div>
-                  )}
+              {attachments.filter((a) => !images.includes(a)).length > 0 && (
+                <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-3">
+                  <p className="text-sm font-bold text-slate-700">קבצים אחרים ({attachments.filter((a) => !images.includes(a)).length})</p>
+                  <div className="space-y-2">
+                    {attachments
+                      .filter((a) => !images.includes(a))
+                      .map((a) => (
+                        <a
+                          key={a.id}
+                          href={a.file_url}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="flex items-center gap-2 p-3 bg-slate-50 hover:bg-blue-50 rounded-lg text-sm text-blue-600 hover:text-blue-700 transition-colors border border-slate-200 hover:border-blue-200"
+                        >
+                          <FileText className="w-4 h-4 flex-shrink-0" />
+                          <span className="truncate flex-1">{a.file_display_name || a.file_name}</span>
+                        </a>
+                      ))}
+                  </div>
                 </div>
               )}
 
