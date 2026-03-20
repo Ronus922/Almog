@@ -5,8 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 
 const PRIORITY_STYLE = {
-  "גבוהה": "bg-red-100 text-red-700 border-red-200",
-  "בינונית": "bg-yellow-100 text-yellow-700 border-yellow-200",
+  "דחופה": "bg-red-100 text-red-700 border-red-200",
+  "גבוהה": "bg-yellow-100 text-yellow-700 border-yellow-200",
   "נמוכה": "bg-green-100 text-green-700 border-green-200",
 };
 const STATUS_STYLE = {
@@ -126,7 +126,6 @@ export default function TaskProTable({
                       <span className="font-medium text-slate-800">{task.title}</span>
                       {SOURCE_ICON[task.source]}
                     </div>
-                    <div className="text-xs text-slate-500">{task.task_type}</div>
                     {task.apartment_number && (
                       <div className="text-xs text-slate-400">דירה {task.apartment_number}{task.owner_name ? ` – ${task.owner_name}` : ""}</div>
                     )}
