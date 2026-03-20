@@ -256,7 +256,7 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
                         ? opt.active 
                         : `${opt.bg} text-slate-700 hover:border-opacity-80`
                     }`}
-                    style={{ height: '42.5px', borderWidth: '1px' }}
+                    style={{ height: '40px', borderWidth: '1px' }}
                   >
                     {opt.label}
                   </button>
