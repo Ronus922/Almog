@@ -424,8 +424,9 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange }) 
               <Trash2 className="w-4 h-4" />
             </button>
             <button
-              className="w-11 h-11 rounded-xl bg-blue-50 border border-blue-200 text-blue-600 font-bold hover:bg-blue-100 transition-colors flex items-center justify-center cursor-not-allowed opacity-50"
-              title="עריכה (בקרוב)"
+              onClick={() => onView(issue)}
+              className="w-11 h-11 rounded-xl bg-blue-50 border border-blue-200 text-blue-600 font-bold hover:bg-blue-100 transition-colors flex items-center justify-center"
+              title="עריכה"
             >
               <Pencil className="w-4 h-4" />
             </button>
@@ -448,7 +449,8 @@ function KanbanCard({ issue, index, onDelete, onView }) {
         <div
           ref={provided.innerRef}
           {...provided.draggableProps}
-          className={`bg-white rounded-xl border border-slate-200 shadow-sm mb-2 overflow-hidden transition-shadow ${snapshot.isDragging ? "shadow-xl rotate-1 scale-105" : "hover:shadow-md"}`}
+          onClick={() => onView(issue)}
+          className={`bg-white rounded-xl border border-slate-200 shadow-sm mb-2 overflow-hidden transition-shadow cursor-pointer ${snapshot.isDragging ? "shadow-xl rotate-1 scale-105" : "hover:shadow-md"}`}
         >
           {/* Drag handle bar */}
           <div
