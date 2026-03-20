@@ -103,8 +103,16 @@ function DashboardContent() {
     // רשומות "בהליך משפטי" — רק active
     const legalProcessTab = active.filter((r) => legalProcessId && r.legal_status_id === legalProcessId);
 
-    // חייבים — כל active (הטאב הכללי)
-    const debtorsTab = active;
+    // כל סטטוסי LEGAL שיש להם טאב ייעודי — אלה ייסוננו מטאב חייבים
+    const legalTabStatusIds = new Set([
+      warningId,        // מכתב התראה
+      legalProcessId,   // בהליך משפטי
+      // לטיפול משפטי
+      legalStatusList.find(s => s.name === 'לטיפול משפטי')?.id,
+    ].filter(Boolean));
+
+    // חייבים — רק active ללא רשומות שיש להם טאב ייעודי
+    const debtorsTab = active.filter((r) => !r.legal_status_id || !legalTabStatusIds.has(r.legal_status_id));
 
     return { warningTab, legalCandidatesTab, legalProcessTab, debtorsTab, archived };
   }, [records, allStatuses]);
