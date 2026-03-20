@@ -406,7 +406,7 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange }) 
 
           {/* מידע תחתית */}
           <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-200">
-            <span>{issue.reporter_email || "לא צוין"}</span>
+            <span>נוצר על ידי: {issue.reporter_email || "לא צוין"}</span>
             <span>{format(new Date(issue.created_date), "dd/MM/yy HH:mm")}</span>
           </div>
 
