@@ -8,7 +8,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import {
   AlertCircle, Search, CheckCircle2, Clock, Trash2,
-  MapPin, User, Calendar, Upload, Camera, Video, VideoIcon, X, Plus, Filter, GripVertical
+  MapPin, User, Calendar, Upload, Camera, Video, VideoIcon, X, Plus, Filter, GripVertical, Eye, Pencil, ChevronLeft, ChevronRight
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -227,8 +227,126 @@ function ReportIssueDialog({ open, onClose, onSuccess }) {
   );
 }
 
+// ---- Issue Details Dialog ----
+function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange }) {
+  const [imageIndex, setImageIndex] = useState(0);
+  const images = issue?.images || [];
+  const hasMultipleImages = images.length > 1;
+
+  if (!issue) return null;
+
+  const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${issue.target_id}`;
+
+  return (
+    <Dialog open={open} onOpenChange={onClose}>
+      <DialogContent className="max-w-2xl" dir="rtl">
+        <DialogHeader>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <MapPin className="w-5 h-5 text-slate-400" />
+              <DialogTitle className="text-xl font-black text-slate-800">{targetLabel}</DialogTitle>
+            </div>
+            <button onClick={onClose} className="text-slate-400 hover:text-slate-600">
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </DialogHeader>
+
+        <div className="space-y-4 mt-4">
+          {/* תיאור */}
+          <div className="space-y-2">
+            <h3 className="text-sm font-bold text-slate-700">תיאור התקלה</h3>
+            <p className="text-sm text-slate-600 leading-relaxed bg-slate-50 rounded-xl p-3">
+              {issue.description}
+            </p>
+          </div>
+
+          {/* קבצים */}
+          {images.length > 0 && (
+            <div className="space-y-2">
+              <h3 className="text-sm font-bold text-slate-700">קבצים שצורפו</h3>
+              <div className="bg-slate-50 rounded-xl p-3 flex flex-col items-center gap-2">
+                <img src={images[imageIndex]} alt="" className="max-h-64 rounded-lg object-contain" />
+                {hasMultipleImages && (
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setImageIndex((i) => (i - 1 + images.length) % images.length)}
+                      className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                    <span className="text-xs text-slate-500">{imageIndex + 1} / {images.length}</span>
+                    <button
+                      onClick={() => setImageIndex((i) => (i + 1) % images.length)}
+                      className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* מידע */}
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            {issue.reporter_email && (
+              <div className="bg-slate-50 rounded-xl p-2 flex items-center gap-1.5">
+                <User className="w-4 h-4 text-slate-400 flex-shrink-0" />
+                <div>
+                  <p className="text-xs text-slate-500">מדווח</p>
+                  <p className="font-medium text-slate-700 truncate">{issue.reporter_email}</p>
+                </div>
+              </div>
+            )}
+            <div className="bg-slate-50 rounded-xl p-2 flex items-center gap-1.5">
+              <Calendar className="w-4 h-4 text-slate-400 flex-shrink-0" />
+              <div>
+                <p className="text-xs text-slate-500">תאריך</p>
+                <p className="font-medium text-slate-700">{format(new Date(issue.created_date), "dd/MM/yy HH:mm")}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* סטטוס */}
+          <div className="space-y-2">
+            <h3 className="text-sm font-bold text-slate-700">שינוי סטטוס</h3>
+            <Select value={issue.status} onValueChange={(v) => onStatusChange(issue.id, v)}>
+              <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-slate-50 font-medium">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="open">פתוחה</SelectItem>
+                <SelectItem value="in_progress">בטיפול</SelectItem>
+                <SelectItem value="resolved">הושלמה</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* כפתורים */}
+          <div className="flex gap-2 pt-2">
+            <button
+              onClick={() => onDelete(issue.id)}
+              className="flex-1 h-11 rounded-xl bg-red-50 border border-red-200 text-red-600 font-bold hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
+            >
+              <Trash2 className="w-4 h-4" />
+              מחוק
+            </button>
+            <button
+              onClick={onClose}
+              className="flex-1 h-11 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors"
+            >
+              סגור
+            </button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // ---- Kanban Issue Card ----
-function KanbanCard({ issue, index, onDelete }) {
+function KanbanCard({ issue, index, onDelete, onView }) {
   const p = PRIORITY_MAP[issue.priority] || PRIORITY_MAP.medium;
   const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${issue.target_id}`;
   const isOverdue = issue.priority === "urgent" || issue.priority === "high";
@@ -273,16 +391,10 @@ function KanbanCard({ issue, index, onDelete }) {
             )}
 
             {issue.images?.length > 0 && (
-              <div className="flex gap-1">
-                {issue.images.slice(0, 2).map((url, i) => (
-                  <a key={i} href={url} target="_blank" rel="noreferrer">
-                    <img src={url} alt="" className="w-10 h-10 object-cover rounded-lg border border-slate-200" />
-                  </a>
-                ))}
-                {issue.images.length > 2 && (
-                  <div className="w-10 h-10 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-xs text-slate-500 font-bold">+{issue.images.length - 2}</div>
-                )}
-              </div>
+              <button onClick={() => onView(issue)} className="flex gap-1 hover:opacity-80 transition-opacity">
+                <Eye className="w-4 h-4 text-blue-500" />
+                <span className="text-xs text-blue-500 font-medium">{issue.images.length} קבצים</span>
+              </button>
             )}
 
             <div className="flex items-center justify-between pt-0.5">
@@ -328,7 +440,7 @@ function KanbanColumn({ col, issues, onDelete }) {
               </div>
             )}
             {issues.map((issue, index) => (
-              <KanbanCard key={issue.id} issue={issue} index={index} onDelete={onDelete} />
+              <KanbanCard key={issue.id} issue={issue} index={index} onDelete={onDelete} onView={onView} />
             ))}
             {provided.placeholder}
           </div>
@@ -343,6 +455,8 @@ export default function IssuesManagement() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [filterPriority, setFilterPriority] = useState("all");
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [selectedIssue, setSelectedIssue] = useState(null);
   const qc = useQueryClient();
 
   const { data: issues = [], isLoading } = useQuery({
@@ -371,6 +485,7 @@ export default function IssuesManagement() {
     if (!window.confirm("האם למחוק תקלה זו?")) return;
     await base44.entities.IssueReport.delete(id);
     qc.invalidateQueries({ queryKey: ["issues"] });
+    setDetailsOpen(false);
   };
 
   const handleDragEnd = async (result) => {
@@ -381,6 +496,12 @@ export default function IssuesManagement() {
     const newStatus = destination.droppableId;
     await base44.entities.IssueReport.update(draggableId, { status: newStatus });
     qc.invalidateQueries({ queryKey: ["issues"] });
+  };
+
+  const handleStatusChange = async (id, status) => {
+    await base44.entities.IssueReport.update(id, { status });
+    qc.invalidateQueries({ queryKey: ["issues"] });
+    setSelectedIssue({ ...selectedIssue, status });
   };
 
   const stats = useMemo(() => ({
@@ -466,6 +587,7 @@ export default function IssuesManagement() {
                   col={col}
                   issues={columns[col.id] || []}
                   onDelete={handleDelete}
+                  onView={(issue) => { setSelectedIssue(issue); setDetailsOpen(true); }}
                 />
               ))}
             </div>
@@ -477,6 +599,14 @@ export default function IssuesManagement() {
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onSuccess={() => { setDialogOpen(false); qc.invalidateQueries({ queryKey: ["issues"] }); }}
+      />
+
+      <IssueDetailsDialog
+        issue={selectedIssue}
+        open={detailsOpen}
+        onClose={() => setDetailsOpen(false)}
+        onDelete={handleDelete}
+        onStatusChange={handleStatusChange}
       />
     </div>
   );
