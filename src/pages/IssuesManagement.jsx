@@ -325,9 +325,15 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange }) 
 
   const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${issue.target_id}`;
 
+  const handleDelete = () => {
+    if (window.confirm("האם אתה בטוח שברצונך למחוק תקלה זו?")) {
+      onDelete(issue.id);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl" dir="rtl">
+      <DialogContent className="max-w-3xl" dir="rtl">
         <DialogHeader>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -349,66 +355,37 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange }) 
             </p>
           </div>
 
-          {/* קבצים */}
+          {/* תמונות */}
           {images.length > 0 && (
-            <div className="space-y-2">
-              <div className="flex items-center justify-between">
-                <h3 className="text-sm font-bold text-slate-700">קבצים שצורפו</h3>
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium">
-                      <Eye className="w-4 h-4" />
-                      צפה ({images.length})
+            <div className="space-y-3">
+              <h3 className="text-sm font-bold text-slate-700">תמונות ({images.length})</h3>
+              <div className="bg-slate-50 rounded-xl p-6 flex flex-col items-center gap-4">
+                <div className="relative w-full max-w-sm h-64 bg-white rounded-lg border border-slate-200 overflow-hidden flex items-center justify-center">
+                  <img src={images[imageIndex]} alt="" className="max-h-full max-w-full object-contain" />
+                </div>
+                
+                {hasMultipleImages && (
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => setImageIndex((i) => (i - 1 + images.length) % images.length)}
+                      className="w-10 h-10 rounded-lg bg-white border border-slate-300 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors font-bold text-lg"
+                      title="תמונה קודמת"
+                    >
+                      →
                     </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-96 p-4" dir="rtl">
-                    <div className="space-y-3">
-                      <div className="bg-slate-50 rounded-xl p-3 flex flex-col items-center gap-3">
-                        <img src={images[imageIndex]} alt="" className="max-h-80 rounded-lg object-contain" />
-                        {hasMultipleImages && (
-                          <div className="flex items-center gap-2">
-                            <button
-                              onClick={() => setImageIndex((i) => (i - 1 + images.length) % images.length)}
-                              className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50"
-                            >
-                              <ChevronRight className="w-4 h-4" />
-                            </button>
-                            <span className="text-xs text-slate-500">{imageIndex + 1} / {images.length}</span>
-                            <button
-                              onClick={() => setImageIndex((i) => (i + 1) % images.length)}
-                              className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50"
-                            >
-                              <ChevronLeft className="w-4 h-4" />
-                            </button>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                    <span className="text-sm font-semibold text-slate-700 min-w-fit">{imageIndex + 1} / {images.length}</span>
+                    <button
+                      onClick={() => setImageIndex((i) => (i + 1) % images.length)}
+                      className="w-10 h-10 rounded-lg bg-white border border-slate-300 flex items-center justify-center text-slate-600 hover:bg-slate-100 transition-colors font-bold text-lg"
+                      title="תמונה הבאה"
+                    >
+                      ←
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           )}
-
-          {/* מידע */}
-          <div className="grid grid-cols-2 gap-3 text-sm">
-            {issue.reporter_email && (
-              <div className="bg-slate-50 rounded-xl p-2 flex items-center gap-1.5">
-                <User className="w-4 h-4 text-slate-400 flex-shrink-0" />
-                <div>
-                  <p className="text-xs text-slate-500">מדווח</p>
-                  <p className="font-medium text-slate-700 truncate">{issue.reporter_email}</p>
-                </div>
-              </div>
-            )}
-            <div className="bg-slate-50 rounded-xl p-2 flex items-center gap-1.5">
-              <Calendar className="w-4 h-4 text-slate-400 flex-shrink-0" />
-              <div>
-                <p className="text-xs text-slate-500">תאריך</p>
-                <p className="font-medium text-slate-700">{format(new Date(issue.created_date), "dd/MM/yy HH:mm")}</p>
-              </div>
-            </div>
-          </div>
 
           {/* סטטוס */}
           <div className="space-y-2">
@@ -425,6 +402,12 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange }) 
             </Select>
           </div>
 
+          {/* מידע תחתית */}
+          <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-200">
+            <span>{issue.reporter_email || "לא צוין"}</span>
+            <span>{format(new Date(issue.created_date), "dd/MM/yy HH:mm")}</span>
+          </div>
+
           {/* כפתורים */}
           <div className="flex gap-2 pt-2 justify-end">
             <button
@@ -434,15 +417,15 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange }) 
               סגור
             </button>
             <button
-              onClick={() => onDelete(issue.id)}
+              onClick={handleDelete}
               className="w-11 h-11 rounded-xl bg-red-50 border border-red-200 text-red-600 font-bold hover:bg-red-100 transition-colors flex items-center justify-center"
               title="מחוק"
             >
               <Trash2 className="w-4 h-4" />
             </button>
             <button
-              className="w-11 h-11 rounded-xl bg-blue-50 border border-blue-200 text-blue-600 font-bold hover:bg-blue-100 transition-colors flex items-center justify-center"
-              title="עריכה"
+              className="w-11 h-11 rounded-xl bg-blue-50 border border-blue-200 text-blue-600 font-bold hover:bg-blue-100 transition-colors flex items-center justify-center cursor-not-allowed opacity-50"
+              title="עריכה (בקרוב)"
             >
               <Pencil className="w-4 h-4" />
             </button>
