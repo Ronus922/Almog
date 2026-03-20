@@ -46,8 +46,8 @@ function LayoutContent({ children, currentPageName }) {
   { name: 'UserManagement', label: 'משתמשים', icon: UsersIcon, adminOnly: true, section: 'admin' },
   { name: 'StatusManagement', label: 'סטטוסים', icon: SlidersHorizontal, adminOnly: true, section: 'admin' },
   { name: 'Import', label: 'ייבוא', icon: Upload, adminOnly: true, section: 'admin' },
-  { name: 'Tasks', label: 'משימות (ישן)', icon: ClipboardList, adminOnly: false, section: 'main' },
   { name: 'TasksPro', label: 'משימות Pro', icon: ClipboardList, adminOnly: false, section: 'main' },
+  { name: 'IssuesManagement', label: 'ניהול תקלות', icon: AlertTriangle, adminOnly: true, section: 'admin' },
   { name: 'InternalChat', label: "צ'אט פנימי", icon: MessageCircle, adminOnly: false, section: 'main' },
   { name: 'Calendar', label: 'יומן', icon: Clock, adminOnly: false, section: 'main' },
   { name: 'Documents', label: 'מסמכים', icon: BookOpen, adminOnly: false, section: 'main' },
@@ -58,8 +58,7 @@ function LayoutContent({ children, currentPageName }) {
   { name: 'TodoReminders', label: 'תזכורות', icon: AlertTriangle, adminOnly: false, section: 'main' },
   { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true, section: 'admin' },
   { name: 'ExportData', label: 'ייצוא נתונים', icon: Download, adminOnly: true, section: 'admin' },
-  { name: 'ReportIssue', label: 'דיווח תקלה', icon: AlertTriangle, adminOnly: false, section: 'main' },
-  { name: 'IssuesManagement', label: 'ניהול תקלות', icon: AlertTriangle, adminOnly: true, section: 'admin' },
+
   { name: 'RoomsAreas', label: 'ניהול אזורים', icon: MapPin, adminOnly: true, section: 'admin' },
   { name: 'UsersManagement', label: 'ניהול משתמשים', icon: UsersIcon, adminOnly: true, section: 'admin' },
   { name: 'RolesManagement', label: 'ניהול תפקידים', icon: ShieldIcon, adminOnly: true, section: 'admin' }];
