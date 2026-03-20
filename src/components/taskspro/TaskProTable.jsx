@@ -79,7 +79,7 @@ export default function TaskProTable({
   );
 
   return (
-    <div className="overflow-x-auto" dir="rtl">
+    <div className="overflow-x-auto rounded-2xl" dir="rtl">
       <table className="w-full">
         <thead>
           <tr className="border-b border-slate-200 bg-slate-50">
