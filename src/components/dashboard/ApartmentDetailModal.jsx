@@ -187,13 +187,13 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     // עדכון מיידי בטבלת הדשבורד (cache)
     queryClient.setQueryData(['debtorRecords'], (old) => {
       if (!old) return old;
-      return old.map((r) => r.id === record.id ? { ...r, legal_status_id: newStatusId } : r);
+      return old.map((r) => r.id === record.id ? { ...r, legal_status_id: newStatusId || null, isArchived: record.isArchived && !newStatusId ? false : r.isArchived } : r);
     });
 
     // עדכון מיידי ב-state המקומי
     setEditedRecord((prev) => ({
       ...prev,
-      legal_status_id: newStatusId
+      legal_status_id: newStatusId || null
     }));
 
     // 2) שליחה לשרת (ברקע, לא blocking)
