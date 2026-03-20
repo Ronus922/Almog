@@ -70,7 +70,7 @@ export default function TaskProReadOnlyDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="w-[900px] h-[700px] overflow-hidden flex flex-col p-0 gap-0 rounded-2xl" dir="rtl">
+        <DialogContent className="w-[830px] h-[960px] overflow-hidden flex flex-col p-0 gap-0 rounded-2xl" dir="rtl">
           <DialogTitle className="hidden">צפייה במשימה</DialogTitle>
 
           {/* Header */}
@@ -151,12 +151,13 @@ export default function TaskProReadOnlyDialog({
                   <div className="bg-slate-100 rounded-lg overflow-hidden">
                     <div 
                       onClick={() => setShowImageViewer(true)}
-                      className="cursor-pointer flex items-center justify-center bg-slate-200 hover:bg-slate-300 transition-colors py-48"
+                      className="cursor-pointer flex items-center justify-center bg-slate-200 hover:bg-slate-300 transition-colors py-40"
                     >
                       <img 
+                        key={images[imageIndex]?.id}
                         src={images[imageIndex]?.file_url} 
                         alt="תמונה"
-                        className="max-w-full max-h-96 object-contain"
+                        className="max-w-full max-h-80 object-contain"
                       />
                     </div>
 
