@@ -144,30 +144,29 @@ function TaskAnalyticsDashboard() {
     return { totalDebt, activeAppointments, pendingMessages };
   }, [debtors, appointments, chatMessages]);
 
-  // תרשים מגמת חובות (אחרונות 30 ימים)
+  // תרשים מגמת חובות — פילוח לפי חודשי ייבוא
   const debtTrendData = useMemo(() => {
-    const today = new Date();
-    const days = [];
+    if (!debtors.length) return [];
 
-    for (let i = 29; i >= 0; i--) {
-      const date = new Date(today);
-      date.setDate(date.getDate() - i);
-      const dateStr = date.toLocaleDateString('he-IL');
+    // קיבוץ לפי חודש של lastImportAt
+    const monthMap = {};
+    debtors.forEach((d) => {
+      const dateField = d.lastImportAt || d.last_import_at || d.lastImportAt;
+      if (!dateField) return;
+      const date = new Date(dateField);
+      if (isNaN(date)) return;
+      const key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      const label = date.toLocaleDateString('he-IL', { year: 'numeric', month: 'short' });
+      if (!monthMap[key]) monthMap[key] = { date: label, סך_חוב: 0, count: 0 };
+      monthMap[key].סך_חוב += d.totalDebt || 0;
+      monthMap[key].count += 1;
+    });
 
-      const dayDebtors = debtors.filter((d) => {
-        if (!d.lastImportAt) return false;
-        const importDate = new Date(d.lastImportAt);
-        return importDate.toLocaleDateString('he-IL') === dateStr;
-      });
+    const sorted = Object.entries(monthMap)
+      .sort(([a], [b]) => a.localeCompare(b))
+      .map(([, val]) => ({ date: val.date, סך_חוב: val.סך_חוב }));
 
-      const dayTotal = dayDebtors.reduce((sum, d) => sum + (d.totalDebt || 0), 0);
-      days.push({
-        date: date.toLocaleDateString('he-IL', { month: 'short', day: 'numeric' }),
-        סך_חוב: dayTotal || null
-      });
-    }
-
-    return days.filter((d) => d.סך_חוב !== null).length > 0 ? days : [];
+    return sorted;
   }, [debtors]);
 
   const handleDragStart = (e, cardId) => {
