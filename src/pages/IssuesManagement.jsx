@@ -350,26 +350,40 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange }) 
           {/* קבצים */}
           {images.length > 0 && (
             <div className="space-y-2">
-              <h3 className="text-sm font-bold text-slate-700">קבצים שצורפו</h3>
-              <div className="bg-slate-50 rounded-xl p-3 flex flex-col items-center gap-2">
-                <img src={images[imageIndex]} alt="" className="max-h-64 rounded-lg object-contain" />
-                {hasMultipleImages && (
-                  <div className="flex items-center gap-2">
-                    <button
-                      onClick={() => setImageIndex((i) => (i - 1 + images.length) % images.length)}
-                      className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50"
-                    >
-                      <ChevronRight className="w-4 h-4" />
+              <div className="flex items-center justify-between">
+                <h3 className="text-sm font-bold text-slate-700">קבצים שצורפו</h3>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="flex items-center gap-1.5 text-sm text-blue-600 hover:text-blue-700 font-medium">
+                      <Eye className="w-4 h-4" />
+                      צפה ({images.length})
                     </button>
-                    <span className="text-xs text-slate-500">{imageIndex + 1} / {images.length}</span>
-                    <button
-                      onClick={() => setImageIndex((i) => (i + 1) % images.length)}
-                      className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50"
-                    >
-                      <ChevronLeft className="w-4 h-4" />
-                    </button>
-                  </div>
-                )}
+                  </PopoverTrigger>
+                  <PopoverContent className="w-96 p-4" dir="rtl">
+                    <div className="space-y-3">
+                      <div className="bg-slate-50 rounded-xl p-3 flex flex-col items-center gap-3">
+                        <img src={images[imageIndex]} alt="" className="max-h-80 rounded-lg object-contain" />
+                        {hasMultipleImages && (
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => setImageIndex((i) => (i - 1 + images.length) % images.length)}
+                              className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50"
+                            >
+                              <ChevronRight className="w-4 h-4" />
+                            </button>
+                            <span className="text-xs text-slate-500">{imageIndex + 1} / {images.length}</span>
+                            <button
+                              onClick={() => setImageIndex((i) => (i + 1) % images.length)}
+                              className="w-8 h-8 rounded-lg bg-white border border-slate-200 flex items-center justify-center text-slate-600 hover:bg-slate-50"
+                            >
+                              <ChevronLeft className="w-4 h-4" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
           )}
@@ -410,19 +424,25 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange }) 
           </div>
 
           {/* כפתורים */}
-          <div className="flex gap-2 pt-2">
-            <button
-              onClick={() => onDelete(issue.id)}
-              className="flex-1 h-11 rounded-xl bg-red-50 border border-red-200 text-red-600 font-bold hover:bg-red-100 transition-colors flex items-center justify-center gap-2"
-            >
-              <Trash2 className="w-4 h-4" />
-              מחוק
-            </button>
+          <div className="flex gap-2 pt-2 justify-end">
             <button
               onClick={onClose}
-              className="flex-1 h-11 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors"
+              className="h-11 px-4 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 font-bold hover:bg-slate-50 transition-colors"
             >
               סגור
+            </button>
+            <button
+              onClick={() => onDelete(issue.id)}
+              className="w-11 h-11 rounded-xl bg-red-50 border border-red-200 text-red-600 font-bold hover:bg-red-100 transition-colors flex items-center justify-center"
+              title="מחוק"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+            <button
+              className="w-11 h-11 rounded-xl bg-blue-50 border border-blue-200 text-blue-600 font-bold hover:bg-blue-100 transition-colors flex items-center justify-center"
+              title="עריכה"
+            >
+              <Pencil className="w-4 h-4" />
             </button>
           </div>
         </div>
