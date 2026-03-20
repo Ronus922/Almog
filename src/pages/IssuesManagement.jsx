@@ -687,11 +687,11 @@ export default function IssuesManagement() {
   };
 
   const stats = useMemo(() => ({
-    open: issues.filter((i) => i.status === "open").length,
-    inProgress: issues.filter((i) => i.status === "in_progress").length,
-    resolved: issues.filter((i) => i.status === "resolved").length,
-    urgent: issues.filter((i) => i.priority === "urgent").length,
-  }), [issues]);
+    open: filtered.filter((i) => i.status === "open").length,
+    inProgress: filtered.filter((i) => i.status === "in_progress").length,
+    resolved: filtered.filter((i) => i.status === "resolved").length,
+    urgent: filtered.filter((i) => i.priority === "urgent" && (i.status === "open" || i.status === "in_progress")).length,
+  }), [filtered]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 p-6" dir="rtl">
@@ -836,7 +836,9 @@ export default function IssuesManagement() {
                    filtered
                      .sort((a, b) => {
                        const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
-                       return (priorityOrder[a.priority] || 3) - (priorityOrder[b.priority] || 3);
+                       const aPriority = priorityOrder[a.priority] ?? 3;
+                       const bPriority = priorityOrder[b.priority] ?? 3;
+                       return aPriority - bPriority;
                      })
                      .map((issue) => {
                        const p = PRIORITY_MAP[issue.priority] || PRIORITY_MAP.low;
