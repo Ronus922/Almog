@@ -145,7 +145,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
     : null;
 
   const handleSave = async () => {
-    if (titleError || !form.task_type) return;
+    if (titleError) return;
     setSaving(true);
 
     const actor = {
@@ -183,11 +183,16 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
     // Upload temp attachments
     if (!task && tempAttachments.length > 0) {
       for (const att of tempAttachments) {
-        await uploadAttachment(saved.id, att.file, {
-          username: currentUser?.username,
-          name: currentUser?.first_name ? `${currentUser.first_name} ${currentUser.last_name || ""}` : currentUser?.username
-        });
+        try {
+          await uploadAttachment(saved.id, att.file, {
+            username: authUser?.username,
+            name: authUser?.first_name ? `${authUser.first_name} ${authUser.last_name || ""}` : authUser?.username
+          });
+        } catch (e) {
+          console.error("Error uploading file:", e);
+        }
       }
+      setTempAttachments([]);
     }
 
     if (!task && form.is_recurring) {
