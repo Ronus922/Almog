@@ -53,6 +53,8 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
   const [loadingComment, setLoadingComment] = useState(false);
   const [uploadingFile, setUploadingFile] = useState(false);
   const [activeTab, setActiveTab] = useState("details");
+  const [tempAttachments, setTempAttachments] = useState([]);
+  const [tempUploadingFile, setTempUploadingFile] = useState(false);
 
   const { data: appUsers = [] } = useQuery({
     queryKey: ["appUsers"],
@@ -102,6 +104,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
       setAttendees([]);
       setComments([]);
       setAttachments([]);
+      setTempAttachments([]);
     }
     setRecurrence(defaultRecurrence);
   }, [open, task?.id]);
@@ -176,6 +179,16 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
     }
 
     await replaceAttendees(saved.id, attendees);
+
+    // Upload temp attachments
+    if (!task && tempAttachments.length > 0) {
+      for (const att of tempAttachments) {
+        await uploadAttachment(saved.id, att.file, {
+          username: currentUser?.username,
+          name: currentUser?.first_name ? `${currentUser.first_name} ${currentUser.last_name || ""}` : currentUser?.username
+        });
+      }
+    }
 
     if (!task && form.is_recurring) {
       const startDate = form.due_at ? new Date(form.due_at) : new Date();
@@ -616,9 +629,51 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
               }
                </div>
 
+               {/* העלאת קבצים (ביצירה חדשה) */}
+               {!isEdit &&
+               <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-4">
+                 <p className="text-sm font-bold text-slate-700 flex items-center gap-2">
+                   <span className="w-1.5 h-4 bg-cyan-500 rounded-full inline-block"></span>
+                   קבצים מצורפים
+                 </p>
+
+                 {tempAttachments.length > 0 && (
+                   <div className="space-y-2">
+                     {tempAttachments.map((att, idx) => (
+                       <div key={idx} className="flex items-center justify-between gap-2 bg-slate-50 rounded-lg p-2 border border-slate-200">
+                         <span className="text-xs text-slate-600 truncate flex-1">{att.file.name}</span>
+                         <button
+                           onClick={() => setTempAttachments((prev) => prev.filter((_, i) => i !== idx))}
+                           className="text-xs text-red-500 hover:text-red-700 font-medium"
+                         >
+                           הסר
+                         </button>
+                       </div>
+                     ))}
+                   </div>
+                 )}
+
+                 <label className="inline-flex items-center gap-2 cursor-pointer bg-cyan-100 hover:bg-cyan-200 text-cyan-700 text-xs font-medium px-3 py-1.5 rounded-lg transition-colors">
+                   <Paperclip className="w-3 h-3" />
+                   {tempUploadingFile ? "מעלה..." : "צרף קובץ"}
+                   <input 
+                     type="file" 
+                     className="hidden" 
+                     onChange={(e) => {
+                       const file = e.target.files?.[0];
+                       if (file) {
+                         setTempAttachments((prev) => [...prev, { file, name: file.name }]);
+                       }
+                     }}
+                     disabled={tempUploadingFile} 
+                   />
+                 </label>
+               </div>
+               }
+
                {/* מחזוריות (רק ביצירה) */}
                {!isEdit &&
-            <div className={`rounded-xl border p-5 space-y-4 transition-colors ${form.is_recurring ? "bg-blue-50 border-blue-200" : "bg-white border-slate-200"}`}>
+               <div className={`rounded-xl border p-5 space-y-4 transition-colors ${form.is_recurring ? "bg-blue-50 border-blue-200" : "bg-white border-slate-200"}`}>
                  <div className="flex items-center justify-between">
                    <div className="flex items-center gap-2">
                      <Repeat2 className={`w-4 h-4 ${form.is_recurring ? "text-blue-600" : "text-slate-400"}`} />
