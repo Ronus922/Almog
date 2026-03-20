@@ -318,6 +318,7 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify }) {
 // ---- Issue Details Dialog ----
 function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange }) {
   const [imageIndex, setImageIndex] = useState(0);
+  const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const images = issue?.images || [];
   const hasMultipleImages = images.length > 1;
 
@@ -325,10 +326,9 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange }) 
 
   const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${issue.target_id}`;
 
-  const handleDelete = () => {
-    if (window.confirm("האם אתה בטוח שברצונך למחוק תקלה זו?")) {
-      onDelete(issue.id);
-    }
+  const handleConfirmDelete = () => {
+    onDelete(issue.id);
+    setShowDeleteAlert(false);
   };
 
   return (
@@ -417,7 +417,7 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange }) 
               סגור
             </button>
             <button
-              onClick={handleDelete}
+              onClick={() => setShowDeleteAlert(true)}
               className="w-11 h-11 rounded-xl bg-red-50 border border-red-200 text-red-600 font-bold hover:bg-red-100 transition-colors flex items-center justify-center"
               title="מחוק"
             >
@@ -434,6 +434,25 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange }) 
         </div>
       </DialogContent>
     </Dialog>
+
+    <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
+      <AlertDialogContent dir="rtl">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="text-right">מחיקת התקלה</AlertDialogTitle>
+          <AlertDialogDescription className="text-right">
+            האם אתה בטוח שברצונך למחוק תקלה זו? לא ניתן לשחזר פעולה זו.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <div className="flex gap-3 justify-end pt-2">
+          <AlertDialogCancel className="h-10 px-4 rounded-xl bg-slate-100 border border-slate-200 text-slate-600 font-bold hover:bg-slate-50">
+            ביטול
+          </AlertDialogCancel>
+          <AlertDialogAction className="h-10 px-4 rounded-xl bg-red-500 text-white font-bold hover:bg-red-600" onClick={handleConfirmDelete}>
+            מחוק
+          </AlertDialogAction>
+        </div>
+      </AlertDialogContent>
+    </AlertDialog>
   );
 }
 
