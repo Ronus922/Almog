@@ -718,8 +718,8 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
 
         {/* Footer */}
         <div className="flex items-center justify-between gap-3 px-6 py-4 border-t border-slate-200 bg-white flex-shrink-0">
-          <p className="text-xs text-slate-400">
-            {!form.title.trim() ? "נדרשת כותרת למשימה" : ""}
+          <p className="text-xs text-red-500">
+            {titleError || ""}
           </p>
           <div className="flex gap-3">
             <Button variant="outline" onClick={onClose} disabled={saving} className="h-10 px-5">
