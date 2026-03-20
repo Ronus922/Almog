@@ -980,6 +980,11 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                       <SelectValue placeholder={activeLegalStatuses.length === 0 ? "אין סטטוסים זמינים" : "בחר סטטוס משפטי"} />
                     </SelectTrigger>
                     <SelectContent className="rounded-xl z-[9999]" position="popper">
+                       <SelectItem value="__clear__">
+                         <span className="inline-flex items-center rounded-full px-3 py-0.5 text-[12px] font-semibold bg-slate-100 text-slate-500">
+                           — ללא סטטוס משפטי —
+                         </span>
+                       </SelectItem>
                        {activeLegalStatuses.map((status) => (
                          <SelectItem key={status.id} value={String(status.id)}>
                            <span className={`inline-flex items-center rounded-full px-3 py-0.5 text-[12px] font-semibold ${status.color || 'bg-slate-100 text-slate-700'}`}>
