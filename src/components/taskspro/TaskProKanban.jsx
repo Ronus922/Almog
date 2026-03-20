@@ -5,9 +5,7 @@ import { Repeat2, FileText } from "lucide-react";
 const COLUMNS = [
   { key: "פתוחה",  label: "פתוחה",  color: "border-t-blue-500",   bg: "bg-blue-50" },
   { key: "בטיפול", label: "בטיפול", color: "border-t-orange-500", bg: "bg-orange-50" },
-  { key: "ממתינה", label: "ממתינה", color: "border-t-purple-500", bg: "bg-purple-50" },
   { key: "הושלמה", label: "הושלמה", color: "border-t-green-500",  bg: "bg-green-50" },
-  { key: "בוטלה",  label: "בוטלה",  color: "border-t-slate-400",  bg: "bg-slate-50" },
 ];
 
 const PRIORITY_DOT = { "גבוהה": "bg-red-500", "בינונית": "bg-yellow-400", "נמוכה": "bg-green-500" };
@@ -51,7 +49,7 @@ export default function TaskProKanban({ tasks = [], onRowClick }) {
                   </div>
                   <div className="flex items-center gap-1.5 flex-wrap">
                     <span className="text-xs text-slate-400">{task.task_type}</span>
-                    {task.source === "recurring" && <Repeat2 className="w-3 h-3 text-blue-400" />}
+                    {task.is_recurring_instance && <Repeat2 className="w-3.5 h-3.5 text-blue-500" title="משימה מחזורית" />}
                     {task.source === "template" && <FileText className="w-3 h-3 text-violet-400" />}
                   </div>
                   {task.apartment_number && (
@@ -59,7 +57,11 @@ export default function TaskProKanban({ tasks = [], onRowClick }) {
                   )}
                   <div className="flex items-center justify-between text-xs text-slate-400">
                     <span>{task.assigned_to_name || "—"}</span>
-                    {task.due_at && <span className={task.due_at.slice(0,10) < new Date().toISOString().slice(0,10) ? "text-red-500 font-semibold" : ""}>{fmt(task.due_at)}</span>}
+                    {task.due_at && (
+                      <span className={`flex items-center gap-1 ${task.due_at.slice(0,10) < new Date().toISOString().slice(0,10) ? "text-red-500 font-semibold" : ""}`}>
+                        <span className="text-slate-400">תאריך ביצוע:</span> {fmt(task.due_at)}
+                      </span>
+                    )}
                   </div>
                 </div>
               ))}

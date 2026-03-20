@@ -38,7 +38,7 @@ export default function TasksProPage() {
   const isAdmin = isManagerRole(currentUser);
   const queryClient = useQueryClient();
 
-  const [viewMode, setViewMode] = useState("table"); // table | kanban | calendar
+  const [viewMode, setViewMode] = useState("kanban"); // table | kanban | calendar
   const [activeView, setActiveView] = useState("tasks"); // tasks | rules
   const [kpiFilter, setKpiFilter] = useState(null);
   const [filters, setFilters] = useState(DEFAULT_FILTERS);

@@ -1,5 +1,5 @@
 import React from "react";
-import { ClipboardList, AlertTriangle, Clock, UserCheck } from "lucide-react";
+import { ClipboardList, AlertTriangle, Clock, CheckCircle2, Loader2 } from "lucide-react";
 
 function getTodayStr() {
   const d = new Date();
@@ -9,20 +9,22 @@ function getTodayStr() {
 export default function TaskProKpiBar({ tasks = [], currentUsername, activeFilter, onFilterChange }) {
   const today = getTodayStr();
 
-  const open = tasks.filter((t) => !t.is_archived && (t.status === "פתוחה" || t.status === "בטיפול")).length;
+  const open    = tasks.filter((t) => !t.is_archived && t.status === "פתוחה").length;
+  const inWork  = tasks.filter((t) => !t.is_archived && t.status === "בטיפול").length;
+  const done    = tasks.filter((t) => !t.is_archived && t.status === "הושלמה").length;
   const overdue = tasks.filter((t) => !t.is_archived && t.due_at && t.due_at.slice(0,10) < today && t.status !== "הושלמה" && t.status !== "בוטלה").length;
   const dueToday = tasks.filter((t) => !t.is_archived && t.due_at && t.due_at.slice(0,10) === today && t.status !== "הושלמה" && t.status !== "בוטלה").length;
-  const mine = tasks.filter((t) => !t.is_archived && t.assigned_to === currentUsername && (t.status === "פתוחה" || t.status === "בטיפול")).length;
 
   const cards = [
-    { key: "open",    label: "פתוחות",     count: open,    icon: <ClipboardList className="w-5 h-5 text-blue-600" />,   bg: "bg-blue-50",   border: "border-blue-500",   count_color: "text-blue-700" },
-    { key: "overdue", label: "באיחור",     count: overdue, icon: <AlertTriangle className="w-5 h-5 text-red-500" />,    bg: "bg-red-50",    border: "border-red-500",    count_color: "text-red-600" },
-    { key: "today",   label: "להיום",      count: dueToday,icon: <Clock className="w-5 h-5 text-orange-500" />,         bg: "bg-orange-50", border: "border-orange-500", count_color: "text-orange-600" },
-    { key: "mine",    label: "שלי",        count: mine,    icon: <UserCheck className="w-5 h-5 text-violet-600" />,     bg: "bg-violet-50", border: "border-violet-500", count_color: "text-violet-700" },
+    { key: "open",    label: "פתוחות",   count: open,     icon: <ClipboardList className="w-5 h-5 text-blue-600" />,    bg: "bg-blue-50",   border: "border-blue-500",   count_color: "text-blue-700" },
+    { key: "inwork",  label: "בטיפול",   count: inWork,   icon: <Loader2 className="w-5 h-5 text-orange-500" />,        bg: "bg-orange-50", border: "border-orange-500", count_color: "text-orange-600" },
+    { key: "done",    label: "הושלמה",   count: done,     icon: <CheckCircle2 className="w-5 h-5 text-green-600" />,    bg: "bg-green-50",  border: "border-green-500",  count_color: "text-green-700" },
+    { key: "overdue", label: "באיחור",   count: overdue,  icon: <AlertTriangle className="w-5 h-5 text-red-500" />,     bg: "bg-red-50",    border: "border-red-500",    count_color: "text-red-600" },
+    { key: "today",   label: "להיום",    count: dueToday, icon: <Clock className="w-5 h-5 text-violet-600" />,          bg: "bg-violet-50", border: "border-violet-500", count_color: "text-violet-700" },
   ];
 
   return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+    <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
       {cards.map(({ key, label, count, icon, bg, border, count_color }) => {
         const active = activeFilter === key;
         return (
