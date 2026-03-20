@@ -57,7 +57,9 @@ function LayoutContent({ children, currentPageName }) {
   { name: 'WhatsAppChat', label: 'צ\'אט וואטסאפ', icon: MessageCircle, adminOnly: false, section: 'main' },
   { name: 'TodoReminders', label: 'תזכורות', icon: AlertTriangle, adminOnly: false, section: 'main' },
   { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true, section: 'admin' },
-  { name: 'ExportData', label: 'ייצוא נתונים', icon: Download, adminOnly: true, section: 'admin' }];
+  { name: 'ExportData', label: 'ייצוא נתונים', icon: Download, adminOnly: true, section: 'admin' },
+  { name: 'ReportIssue', label: 'דיווח תקלה', icon: AlertTriangle, adminOnly: false, section: 'main' },
+  { name: 'IssuesManagement', label: 'ניהול תקלות', icon: AlertTriangle, adminOnly: true, section: 'admin' }];
 
 
   const filteredNavItems = navItems.filter((item) => {
