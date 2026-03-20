@@ -1,6 +1,6 @@
 import React from "react";
 import { format } from "date-fns";
-import { Pencil, Trash2, Archive, RotateCcw, ChevronUp, ChevronDown, ChevronsUpDown, Repeat2, FileText, ClipboardList } from "lucide-react";
+import { Pencil, Trash2, Archive, RotateCcw, ChevronUp, ChevronDown, ChevronsUpDown, Repeat2, FileText, ClipboardList, Eye } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 
@@ -99,7 +99,7 @@ export default function TaskProTable({
             <th className="px-4 py-3 text-center text-xs font-bold text-slate-600">פעולות</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-slate-100">
+        <tbody>
           {tasks.map((task) => {
             const isOverdue = task.due_at && task.due_at.slice(0,10) < today && task.status !== "הושלמה" && task.status !== "בוטלה";
             const attendees = attendeesMap[task.id] || [];
