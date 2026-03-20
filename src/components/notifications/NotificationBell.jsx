@@ -17,14 +17,25 @@ export default function NotificationBell({ currentUser }) {
     // Initial load
     base44.entities.Notification.list("-created_date", 50)
       .then(allNotifs => {
-        const userNotifs = allNotifs.filter(n => n.user_username === username);
+        console.log('All notifications loaded:', allNotifs);
+        const userNotifs = allNotifs.filter(n => {
+          console.log(`Checking notification:`, n.user_username, 'vs', username);
+          return n.user_username === username;
+        });
+        console.log('Filtered notifications for user:', userNotifs);
         setNotifications(userNotifs);
-      });
+      })
+      .catch(err => console.error('Failed to load notifications:', err));
 
     // Real-time subscription
     const unsub = base44.entities.Notification.subscribe((event) => {
-      if (event.type === 'create' && event.data?.user_username === username) {
-        setNotifications(prev => [event.data, ...prev].slice(0, 30));
+      console.log('Notification event:', event);
+      if (event.type === 'create') {
+        console.log('Create event data:', event.data);
+        if (event.data?.user_username === username) {
+          console.log('Adding notification for current user');
+          setNotifications(prev => [event.data, ...prev].slice(0, 30));
+        }
       } else if (event.type === 'update') {
         setNotifications(prev => prev.map(n => n.id === event.id ? event.data : n));
       } else if (event.type === 'delete') {
