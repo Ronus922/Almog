@@ -150,7 +150,7 @@ export default function UsersManagement() {
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="חיפוש לפי שם, דוא\"ל או שם משתמש..."
+            placeholder="חיפוש לפי שם, דואל או שם משתמש..."
             className="h-11 pr-10 rounded-xl border-slate-200"
           />
         </div>
