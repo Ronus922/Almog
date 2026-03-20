@@ -629,8 +629,21 @@ export default function IssuesManagement() {
     queryFn: () => base44.entities.IssueReport.list("-created_date"),
   });
 
+  const isAdmin = currentUser?.role === 'SUPER_ADMIN' || currentUser?.role === 'ADMIN';
+  
   const filtered = useMemo(() => {
     return issues.filter((i) => {
+      // Admin רואה את כל התקלות
+      if (isAdmin) return true;
+      
+      // משתמש רגיל רואה רק:
+      // 1. תקלות שהוא יצר
+      // 2. תקלות שהוא משותף בהן
+      const isReporter = i.reporter_email === currentUser?.username;
+      const isAssigned = i.assigned_to?.split(",").map(u => u.trim()).includes(currentUser?.username);
+      
+      if (!isReporter && !isAssigned) return false;
+      
       if (filterPriority !== "all" && i.priority !== filterPriority) return false;
       if (search) {
         const q = search.toLowerCase();
@@ -638,7 +651,7 @@ export default function IssuesManagement() {
       }
       return true;
     });
-  }, [issues, filterPriority, search]);
+  }, [issues, filterPriority, search, currentUser?.username, isAdmin]);
 
   const columns = useMemo(() => {
     const map = {};
