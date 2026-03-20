@@ -71,6 +71,7 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
     if (!form.target_id || !form.description.trim()) { setError("יש למלא את כל השדות הנדרשים"); return; }
     setSaving(true); setError("");
     const assigned_to_str = form.assigned_to?.length > 0 ? form.assigned_to.join(",") : "";
+    const reporterUser = appUsers.find(u => u.username === currentUser?.username);
     const newIssue = await base44.entities.IssueReport.create({ 
       target_type: form.target_type,
       target_id: form.target_id,
@@ -80,22 +81,21 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
       images, 
       videos,
       status: "open",
-      reporter_email: currentUser?.username || currentUser?.email || null
+      reporter_email: currentUser?.username || null
     });
     
     if (form.assigned_to?.length > 0) {
       const assignedUsers = appUsers.filter(u => form.assigned_to.includes(u.username));
       for (const user of assignedUsers) {
         try {
-          await base44.entities.Notification.create({
+          const created = await base44.entities.Notification.create({
             user_username: user.username,
             type: "task_assigned",
-            message: `תקלה חדשה ב${form.target_type === "room" ? "חדר" : "אזור"} ${form.target_id} שויכה אליך: ${form.description.substring(0, 50)}...`,
-            task_id: newIssue.id,
+            message: `תקלה חדשה ב${form.target_type === "room" ? "חדר" : "אזור"} ${form.target_id} שויכה אליך`,
             task_type: "IssueReport",
-            assigner_name: currentUser?.firstName || currentUser?.username || "מערכת",
-            is_read: false,
+            assigner_name: reporterUser?.first_name || currentUser?.username || "מערכת",
           });
+          console.log('Notification created:', created);
         } catch (notifErr) {
           console.error(`Failed to create notification for ${user.username}:`, notifErr);
         }
