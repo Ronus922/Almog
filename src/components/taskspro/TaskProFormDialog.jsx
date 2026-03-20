@@ -26,7 +26,7 @@ const DAYS_HE = [
 
 
 const defaultForm = {
-  title: "", status: "פתוחה", priority: "גבוהה",
+  title: "", status: "פתוחה", priority: "גבוהה", task_type: "משימה כללית",
   description: "", due_at: "",
   debtor_record_id: "", apartment_number: "", owner_name: "",
   source: "manual", template_id: "", is_recurring: false
@@ -155,6 +155,7 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
 
     const payload = {
       title: form.title.trim(),
+      task_type: form.task_type,
       status: task ? form.status : "פתוחה",
       priority: form.priority,
       description: form.description,
@@ -547,6 +548,23 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
                   value={form.description}
                   onChange={(e) => setF("description", e.target.value)} />
 
+               </div>
+
+               {/* סוג משימה - חובה */}
+               <div>
+                 <Label className="text-sm font-medium text-slate-700 mb-1.5 block">סוג משימה <span className="text-red-500">*</span></Label>
+                 <Select value={form.task_type} onValueChange={(v) => setF("task_type", v)}>
+                   <SelectTrigger className="h-10 bg-slate-50"><SelectValue /></SelectTrigger>
+                   <SelectContent>
+                     <SelectItem value="שיחת טלפון">שיחת טלפון</SelectItem>
+                     <SelectItem value="שליחת מכתב התראה">שליחת מכתב התראה</SelectItem>
+                     <SelectItem value="פגישה">פגישה</SelectItem>
+                     <SelectItem value="מעקב תשלום">מעקב תשלום</SelectItem>
+                     <SelectItem value="הגשת תביעה">הגשת תביעה</SelectItem>
+                     <SelectItem value="משימה כללית">משימה כללית</SelectItem>
+                     <SelectItem value="אחר">אחר</SelectItem>
+                   </SelectContent>
+                 </Select>
                </div>
 
 
