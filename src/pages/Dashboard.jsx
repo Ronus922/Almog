@@ -293,7 +293,7 @@ function DashboardContent() {
                 <p className="text-[18px] font-black uppercase" style={{color: '#1d5bbd'}}>לגבייה מיידית</p>
                 <div>
                   <p className="text-[32px] font-black leading-none text-[#ff7a5c]">
-                    {tabDatasets.debtorsTab.filter((r) => r.debt_status_auto === 'לגבייה מיידית').length}
+                    {tabDatasets.immediateCollectCount}
                   </p>
                 </div>
               </div>
