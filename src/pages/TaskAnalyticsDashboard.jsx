@@ -364,6 +364,12 @@ function TaskAnalyticsDashboard() {
                 <CardTitle className="text-lg font-bold text-slate-900 flex items-center gap-2">
                   <Calendar className="w-5 h-5 text-cyan-600" />
                   פגישות פעילות
+                  {(() => {
+                    const count = appointments.filter((a) => new Date(a.date) >= new Date()).length;
+                    return count > 0 ? (
+                      <span className="bg-cyan-100 text-cyan-700 text-xs font-bold px-2 py-0.5 rounded-full">{count}</span>
+                    ) : null;
+                  })()}
                 </CardTitle>
                 <GripVertical className="w-4 h-4 text-slate-400 group-hover:text-slate-600 opacity-0 group-hover:opacity-100 transition-opacity" />
               </CardHeader>
