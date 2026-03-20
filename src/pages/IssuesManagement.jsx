@@ -317,7 +317,7 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify }) {
 }
 
 // ---- Issue Details Dialog ----
-function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange }) {
+function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange, onView }) {
   const [imageIndex, setImageIndex] = useState(0);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const images = issue?.images || [];
