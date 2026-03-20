@@ -30,6 +30,13 @@ const COLUMNS = [
   { id: "resolved",    label: "הושלמה",  color: "border-t-green-400",  headerBg: "bg-green-50",  count_color: "bg-green-100 text-green-700" },
 ];
 
+// ---- Reporter Name Component ----
+function IssueReporterName({ reporterEmail }) {
+  const { data: appUsers = [] } = useQuery({ queryKey: ["appUsers"], queryFn: () => base44.entities.AppUser.list() });
+  const reporterUser = appUsers.find(u => u.username === reporterEmail);
+  return <span>מדווח: {reporterUser?.first_name || reporterEmail || "לא צוין"}</span>;
+}
+
 // ---- Dialog Form ----
 function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) {
   const [form, setForm] = useState({ target_type: "room", target_id: "", priority: "low", description: "", assigned_to: [], searchUser: "" });
@@ -541,7 +548,7 @@ function KanbanCard({ issue, index, onDelete, onView }) {
 
             <div className="flex items-center justify-between pt-0.5 text-xs text-slate-400">
               <span>{format(new Date(issue.created_date), "dd/MM/yy")}</span>
-              <span>מדווח: {issue.reporter_email || "לא צוין"}</span>
+              <IssueReporterName reporterEmail={issue.reporter_email} />
             </div>
           </div>
         </div>
