@@ -2,12 +2,13 @@ import React, { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ChevronLeft, ChevronRight, X, MapPin, Edit2, Trash2 } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, MapPin, Edit2, Trash2, AlertCircle } from "lucide-react";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { format } from "date-fns";
 import { he } from "date-fns/locale";
 import { updateTask, deleteTask } from "./taskProApi";
 import { useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 
 const STATUSES = ["פתוחה", "בטיפול", "ממתינה", "הושלמה", "בוטלה"];
 
@@ -16,13 +17,13 @@ export default function TaskProReadOnlyDialog({
   onClose,
   task,
   attachments = [],
-  currentUser
+  currentUser,
+  onEdit
 }) {
   const queryClient = useQueryClient();
   const [imageIndex, setImageIndex] = useState(0);
   const [showImageViewer, setShowImageViewer] = useState(false);
   const [status, setStatus] = useState(task?.status);
-  const [attendees, setAttendees] = useState([]);
 
   useEffect(() => {
     if (task) {
@@ -46,14 +47,13 @@ export default function TaskProReadOnlyDialog({
   };
 
   const handleDelete = async () => {
-    if (window.confirm("האם אתה בטוח שברצונך למחוק משימה זו?")) {
-      try {
-        await deleteTask(task.id);
-        queryClient.invalidateQueries({ queryKey: ["taskpro-tasks"] });
-        onClose();
-      } catch (e) {
-        console.error("Error deleting task:", e);
-      }
+    try {
+      await deleteTask(task.id);
+      queryClient.invalidateQueries({ queryKey: ["taskpro-tasks"] });
+      onClose();
+      toast.success("המשימה נמחקה בהצלחה");
+    } catch (e) {
+      toast.error("שגיאה במחיקת המשימה");
     }
   };
 
@@ -73,12 +73,32 @@ export default function TaskProReadOnlyDialog({
         <DialogContent className="w-[830px] max-h-[960px] overflow-hidden flex flex-col p-0 gap-0 rounded-2xl bg-slate-50 [&>button]:hidden" dir="rtl">
           <DialogTitle className="hidden">צפייה במשימה</DialogTitle>
 
-          {/* Header with close and title */}
-          <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-l from-blue-600 to-blue-700 text-white">
-            <h2 className="text-lg font-bold">צפייה במשימה</h2>
-            <button onClick={onClose} className="w-10 h-10 rounded-lg bg-blue-500 hover:bg-blue-800 text-white flex items-center justify-center transition-colors flex-shrink-0">
-              <X className="w-5 h-5" />
-            </button>
+          {/* Header with title and details */}
+          <div className="bg-gradient-to-l from-blue-600 to-blue-700 text-white px-6 py-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <h2 className="text-lg font-bold flex-1">{task.title}</h2>
+              <button onClick={onClose} className="w-10 h-10 rounded-lg bg-blue-500 hover:bg-blue-800 text-white flex items-center justify-center transition-colors flex-shrink-0">
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex items-center gap-4 flex-wrap">
+              {task.priority && (
+                <Badge className={task.priority === "urgent" ? "bg-red-500" : task.priority === "high" ? "bg-yellow-500" : "bg-blue-300"}>
+                  {task.priority === "urgent" ? "דחוף" : task.priority === "high" ? "גבוה" : "נמוך"}
+                </Badge>
+              )}
+              {status && (
+                <Badge className="bg-blue-800">
+                  {status}
+                </Badge>
+              )}
+              {task.due_at && (
+                <div className="flex items-center gap-1.5 text-sm">
+                  <MapPin className="w-4 h-4" />
+                  {format(new Date(task.due_at), "dd/MM/yyyy")}
+                </div>
+              )}
+            </div>
           </div>
 
           {/* Body - scrollable */}
@@ -153,19 +173,21 @@ export default function TaskProReadOnlyDialog({
                 </div>
               )}
 
-              {/* משתתפים */}
-              {task.attendees && task.attendees.length > 0 && (
-                <div className="bg-white rounded-xl border border-slate-200 p-4">
-                  <p className="text-sm font-bold text-slate-700 mb-3">משתתפים</p>
-                  <div className="flex flex-wrap gap-2">
-                    {task.attendees.map((a) => (
+              {/* משתתפים וצוות */}
+              <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-3">
+                <p className="text-sm font-bold text-slate-700">משתתפים וצוות</p>
+                <div className="flex flex-wrap gap-2">
+                  {task.attendees && task.attendees.length > 0 ? (
+                    task.attendees.map((a) => (
                       <Badge key={a.id} className="bg-blue-100 text-blue-700">
-                        <span className="mr-1">👤</span> {a.name || a.username}
+                        👤 {a.name || a.username || a.user_name || "משתתף"}
                       </Badge>
-                    ))}
-                  </div>
+                    ))
+                  ) : (
+                    <p className="text-xs text-slate-500">אין משתתפים</p>
+                  )}
                 </div>
-              )}
+              </div>
 
             </div>
           </div>
@@ -173,10 +195,18 @@ export default function TaskProReadOnlyDialog({
           {/* Footer with action buttons */}
           <div className="flex items-center justify-between gap-3 p-6 border-t border-slate-200 bg-white flex-shrink-0">
             <div className="flex gap-2">
-              <button className="w-10 h-10 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 flex items-center justify-center transition-colors">
+              <button 
+                onClick={() => onEdit?.(task)}
+                className="w-10 h-10 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-600 flex items-center justify-center transition-colors"
+                title="ערוך משימה"
+              >
                 <Edit2 className="w-5 h-5" />
               </button>
-              <button onClick={handleDelete} className="w-10 h-10 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 flex items-center justify-center transition-colors">
+              <button 
+                onClick={handleDelete}
+                className="w-10 h-10 rounded-lg bg-red-50 hover:bg-red-100 text-red-600 flex items-center justify-center transition-colors"
+                title="מחק משימה"
+              >
                 <Trash2 className="w-5 h-5" />
               </button>
             </div>
