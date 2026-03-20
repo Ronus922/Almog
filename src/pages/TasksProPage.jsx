@@ -121,10 +121,11 @@ export default function TasksProPage() {
     if (!filters.showArchived) r = r.filter((t) => !t.is_archived);
 
     // kpi override
-    if (kpiFilter === "open") r = r.filter((t) => t.status === "פתוחה" || t.status === "בטיפול");
+    if (kpiFilter === "open") r = r.filter((t) => t.status === "פתוחה");
+    else if (kpiFilter === "inwork") r = r.filter((t) => t.status === "בטיפול");
+    else if (kpiFilter === "done") r = r.filter((t) => t.status === "הושלמה");
     else if (kpiFilter === "overdue") r = r.filter((t) => t.due_at && t.due_at.slice(0,10) < today && t.status !== "הושלמה" && t.status !== "בוטלה");
     else if (kpiFilter === "today") r = r.filter((t) => t.due_at && t.due_at.slice(0,10) === today && t.status !== "הושלמה" && t.status !== "בוטלה");
-    else if (kpiFilter === "mine") r = r.filter((t) => t.assigned_to === currentUser?.username);
 
     // manual filters
     if (filters.status !== "הכל") r = r.filter((t) => t.status === filters.status);
