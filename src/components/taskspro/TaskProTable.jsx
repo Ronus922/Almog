@@ -31,10 +31,10 @@ function SortHeader({ label, field, sortField, sortDir, onSort }) {
   const active = sortField === field;
   return (
     <th
-      className="text-right px-4 py-3 font-semibold text-slate-600 cursor-pointer select-none hover:bg-slate-100 transition-colors whitespace-nowrap"
+      className="px-4 py-4 text-right text-xs font-bold text-slate-700 cursor-pointer select-none hover:bg-slate-50 transition-colors whitespace-nowrap"
       onClick={() => onSort(field)}
     >
-      <span className="inline-flex items-center gap-1">
+      <span className="inline-flex items-center gap-2">
         {label}
         {active
           ? sortDir === "asc" ? <ChevronUp className="w-3.5 h-3.5 text-blue-600" /> : <ChevronDown className="w-3.5 h-3.5 text-blue-600" />
@@ -80,10 +80,10 @@ export default function TaskProTable({
 
   return (
     <div className="overflow-x-auto rounded-2xl" dir="rtl">
-      <table className="w-full">
+      <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-slate-200 bg-slate-50">
-            <th className="px-4 py-3 w-10">
+          <tr className="bg-slate-50 border-b border-slate-200">
+            <th className="px-4 py-4 w-10">
               <Checkbox
                 checked={allSelected}
                 onCheckedChange={(v) => onToggleSelectAll(v)}
@@ -91,12 +91,12 @@ export default function TaskProTable({
             </th>
             <SortHeader label="כותרת / משימה" field="title" sortField={sortField} sortDir={sortDir} onSort={onSort} />
             <SortHeader label="משויך" field="assigned_to_name" sortField={sortField} sortDir={sortDir} onSort={onSort} />
-            <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">משתתפים</th>
+            <th className="px-4 py-4 text-right text-xs font-bold text-slate-700">משתתפים</th>
             <SortHeader label="תאריך יעד" field="due_at" sortField={sortField} sortDir={sortDir} onSort={onSort} />
             <SortHeader label="עדיפות" field="priority" sortField={sortField} sortDir={sortDir} onSort={onSort} />
             <SortHeader label="סטטוס" field="status" sortField={sortField} sortDir={sortDir} onSort={onSort} />
-            <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">מקור</th>
-            <th className="px-4 py-3 text-center text-xs font-bold text-slate-600">פעולות</th>
+            <th className="px-4 py-4 text-right text-xs font-bold text-slate-700">מקור</th>
+            <th className="px-4 py-4 text-center text-xs font-bold text-slate-700">פעולות</th>
           </tr>
         </thead>
         <tbody>
