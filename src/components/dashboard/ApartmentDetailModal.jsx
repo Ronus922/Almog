@@ -161,10 +161,9 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   };
 
   const handleLegalStatusChange = async (newStatusId) => {
-    // ולידציה בסיסית
-    if (!newStatusId || newStatusId === '') {
-      setStatusSaveError('חובה לבחור סטטוס');
-      return;
+    // טיפול בנקה סטטוס — העברה לטאב חייבים
+    if (newStatusId === '__clear__') {
+      newStatusId = null;
     }
 
     if (!currentUser) {
