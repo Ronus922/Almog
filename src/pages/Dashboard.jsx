@@ -87,6 +87,7 @@ function DashboardContent() {
 
     const warningId = getStatusId('מכתב התראה');
     const legalProcessId = getStatusId('בהליך משפטי');
+    const legalCandidatesId = getStatusId('לטיפול משפטי');
 
     // סריקה מלאה — כל הרשומות (גם ארכיון)
     const archived = records.filter((r) => r.isArchived === true);
@@ -95,20 +96,17 @@ function DashboardContent() {
     // רשומות עם "מכתב התראה" — רק active
     const warningTab = active.filter((r) => warningId && r.legal_status_id === warningId);
 
-    // רשומות "לטיפול משפטי" — חריגה מופרזת ללא legal_status_id, רק active
-    const legalCandidatesTab = active.filter(
-      (r) => r.debt_status_auto === 'חריגה מופרזת' && !r.legal_status_id
-    );
+    // רשומות "לטיפול משפטי" — לפי סטטוס LEGAL "לטיפול משפטי"
+    const legalCandidatesTab = active.filter((r) => legalCandidatesId && r.legal_status_id === legalCandidatesId);
 
     // רשומות "בהליך משפטי" — רק active
     const legalProcessTab = active.filter((r) => legalProcessId && r.legal_status_id === legalProcessId);
 
     // כל סטטוסי LEGAL שיש להם טאב ייעודי — אלה ייסוננו מטאב חייבים
     const legalTabStatusIds = new Set([
-      warningId,        // מכתב התראה
-      legalProcessId,   // בהליך משפטי
-      // לטיפול משפטי
-      legalStatusList.find(s => s.name === 'לטיפול משפטי')?.id,
+      warningId,
+      legalProcessId,
+      legalCandidatesId,
     ].filter(Boolean));
 
     // חייבים — רק active ללא רשומות שיש להם טאב ייעודי
