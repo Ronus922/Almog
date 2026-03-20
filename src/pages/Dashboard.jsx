@@ -5,7 +5,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from "@/components/ui/button";
 import DebtorsTable from '@/components/dashboard/DebtorsTable';
 import ApartmentDetailModal from '@/components/dashboard/ApartmentDetailModal';
-import { Users, Archive, Mail, Scale, AlertTriangle } from "lucide-react";
+import { Users, Archive, Mail, Scale, AlertTriangle, CalendarClock } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import LastImportIndicator from '@/components/dashboard/LastImportIndicator';
 
