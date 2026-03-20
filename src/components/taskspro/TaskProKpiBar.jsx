@@ -9,10 +9,11 @@ function getTodayStr() {
 const METRICS = [
   {
     key: "open",
-    label: "דחוף",
+    label: "פתוחה",
     icon: AlertCircle,
     color: "text-red-500",
     bg: "bg-red-50",
+    filterColor: "text-red-600",
   },
   {
     key: "done",
@@ -20,6 +21,7 @@ const METRICS = [
     icon: CheckCircle2,
     color: "text-green-500",
     bg: "bg-green-50",
+    filterColor: "text-green-600",
   },
   {
     key: "inwork",
@@ -27,13 +29,15 @@ const METRICS = [
     icon: Clock,
     color: "text-amber-500",
     bg: "bg-amber-50",
+    filterColor: "text-amber-600",
   },
   {
     key: "overdue",
-    label: "החזקה משחוזה",
+    label: "חקיקה משחוזה",
     icon: Zap,
     color: "text-blue-500",
     bg: "bg-blue-50",
+    filterColor: "text-blue-600",
   },
 ];
 
@@ -59,34 +63,32 @@ export default function TaskProKpiBar({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4" dir="rtl">
-      <div className="grid grid-cols-4 gap-4">
-        {METRICS.map((m) => {
-          const Icon = m.icon;
-          const count = counts[m.key];
-          const isActive = activeFilter === m.key;
+    <div className="flex gap-3 overflow-x-auto pb-2" dir="rtl">
+      {METRICS.map((m) => {
+        const Icon = m.icon;
+        const count = counts[m.key];
+        const isActive = activeFilter === m.key;
 
-          return (
-            <button
-              key={m.key}
-              onClick={() => onFilterChange(isActive ? null : m.key)}
-              className={`flex items-center gap-4 px-4 py-4 rounded-2xl transition-all duration-200 border-2 ${
-                isActive
-                  ? `${m.bg} border-current`
-                  : "bg-white border-transparent hover:border-slate-200"
-              }`}
-            >
-              <Icon className={`w-6 h-6 flex-shrink-0 ${m.color}`} />
-              <div className="text-right">
-                <div className={`text-2xl font-black ${m.color}`}>
-                  {count}
-                </div>
-                <div className="text-xs text-slate-600 font-semibold">{m.label}</div>
+        return (
+          <button
+            key={m.key}
+            onClick={() => onFilterChange(isActive ? null : m.key)}
+            className={`flex-shrink-0 flex items-center gap-3 px-5 py-4 rounded-2xl border-2 transition-all duration-200 ${
+              isActive
+                ? `${m.bg} border-current ${m.filterColor} shadow-md`
+                : "bg-white border-slate-200 hover:border-slate-300"
+            }`}
+          >
+            <Icon className={`w-6 h-6 ${m.color}`} />
+            <div className="text-right">
+              <div className={`text-2xl font-black ${m.filterColor}`}>
+                {count}
               </div>
-            </button>
-          );
-        })}
-      </div>
+              <div className="text-xs text-slate-600 font-medium">{m.label}</div>
+            </div>
+          </button>
+        );
+      })}
     </div>
   );
 }
