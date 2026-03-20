@@ -80,20 +80,25 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
       images, 
       videos,
       status: "open",
-      reporter_email: currentUser?.email || null
+      reporter_email: currentUser?.username || currentUser?.email || null
     });
     
     if (form.assigned_to?.length > 0) {
       const assignedUsers = appUsers.filter(u => form.assigned_to.includes(u.username));
       for (const user of assignedUsers) {
-        await base44.entities.Notification.create({
-          user_username: user.username,
-          type: "task_assigned",
-          message: `תקלה חדשה ב${form.target_type === "room" ? "חדר" : "אזור"} ${form.target_id} שויכה אליך`,
-          task_id: newIssue.id,
-          task_type: "IssueReport",
-          assigner_name: currentUser?.full_name || currentUser?.email || "מערכת",
-        });
+        try {
+          await base44.entities.Notification.create({
+            user_username: user.username,
+            type: "task_assigned",
+            message: `תקלה חדשה ב${form.target_type === "room" ? "חדר" : "אזור"} ${form.target_id} שויכה אליך: ${form.description.substring(0, 50)}...`,
+            task_id: newIssue.id,
+            task_type: "IssueReport",
+            assigner_name: currentUser?.firstName || currentUser?.username || "מערכת",
+            is_read: false,
+          });
+        } catch (notifErr) {
+          console.error(`Failed to create notification for ${user.username}:`, notifErr);
+        }
       }
       onNotify(`תקלה חדשה ב${form.target_type === "room" ? "חדר" : "אזור"} ${form.target_id} שוייכה ל${assignedUsers.length} משתמשים`);
     }
