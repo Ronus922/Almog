@@ -25,23 +25,18 @@ export default function TaskProKpiBar({ tasks = [], currentUsername, activeFilte
 
   return (
     <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
-      {cards.map(({ key, label, count, icon, bg, border, count_color }) => {
-        const active = activeFilter === key;
-        return (
-          <button
-            key={key}
-            onClick={() => onFilterChange(active ? null : key)}
-            className={`text-right rounded-xl p-4 flex items-center gap-3 transition-all border-2 shadow-sm bg-white w-full
-              ${active ? `${border} ${bg} shadow-md` : "border-transparent hover:border-slate-200 hover:shadow-md"}`}
-          >
-            <div className={`p-2 rounded-lg ${bg} flex-shrink-0`}>{icon}</div>
-            <div>
-              <p className={`text-2xl font-bold ${count_color}`}>{count}</p>
-              <p className="text-xs text-slate-500">{label}</p>
-            </div>
-          </button>
-        );
-      })}
+      {cards.map(({ key, label, count, icon, bg, border, count_color }) => (
+        <div
+          key={key}
+          className="text-right rounded-xl p-4 flex items-center gap-3 border border-slate-200 shadow-sm bg-white w-full"
+        >
+          <div className={`p-2 rounded-lg ${bg} flex-shrink-0`}>{icon}</div>
+          <div>
+            <p className={`text-2xl font-bold ${count_color}`}>{count}</p>
+            <p className="text-xs text-slate-500">{label}</p>
+          </div>
+        </div>
+      ))}
     </div>
   );
 }
