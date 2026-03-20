@@ -864,6 +864,39 @@ export default function ExcelImporter({ onImportComplete }) {
         console.warn('[Excel Import] Failed to update last_import_at');
       }
 
+      // שמירת DebtSnapshot — תמונת מצב יומית לגרף ההיסטורי
+      try {
+        const snapshotDate = importTimestamp.split('T')[0]; // YYYY-MM-DD
+        const totalDebtSum = finalRecords.reduce((sum, r) => sum + (r.totalDebt || 0), 0);
+        const monthlyDebtSum = finalRecords.reduce((sum, r) => sum + (r.monthlyDebt || 0), 0);
+        const specialDebtSum = finalRecords.reduce((sum, r) => sum + (r.specialDebt || 0), 0);
+        const activeDebtors = finalRecords.filter(r => !r.isArchived && (r.totalDebt || 0) > 0).length;
+
+        // בדוק אם כבר קיים snapshot לאותו יום — אם כן, עדכן
+        const existingSnapshots = await base44.entities.DebtSnapshot.filter({ snapshot_date: snapshotDate });
+        if (existingSnapshots.length > 0) {
+          await base44.entities.DebtSnapshot.update(existingSnapshots[0].id, {
+            total_debt: totalDebtSum,
+            monthly_debt: monthlyDebtSum,
+            special_debt: specialDebtSum,
+            debtor_count: activeDebtors,
+            import_run_id: importRunId
+          });
+        } else {
+          await base44.entities.DebtSnapshot.create({
+            snapshot_date: snapshotDate,
+            total_debt: totalDebtSum,
+            monthly_debt: monthlyDebtSum,
+            special_debt: specialDebtSum,
+            debtor_count: activeDebtors,
+            import_run_id: importRunId
+          });
+        }
+        console.log(`[Excel Import] ✅ DebtSnapshot saved for ${snapshotDate}: ₪${totalDebtSum.toLocaleString()}`);
+      } catch (snapshotErr) {
+        console.warn('[Excel Import] Failed to save DebtSnapshot:', snapshotErr);
+      }
+
       setImportRunData(importRun);
       setImportWarnings(allWarnings);
       setImportResult({ 
