@@ -67,7 +67,17 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify }) {
     e.preventDefault();
     if (!form.target_id || !form.description.trim()) { setError("יש למלא את כל השדות הנדרשים"); return; }
     setSaving(true); setError("");
-    const newIssue = await base44.entities.IssueReport.create({ ...form, images, videos, status: "open" });
+    const assigned_to_str = form.assigned_to?.length > 0 ? form.assigned_to.join(",") : "";
+    const newIssue = await base44.entities.IssueReport.create({ 
+      target_type: form.target_type,
+      target_id: form.target_id,
+      priority: form.priority,
+      description: form.description,
+      assigned_to: assigned_to_str || null,
+      images, 
+      videos, 
+      status: "open" 
+    });
     if (form.assigned_to?.length > 0) {
       onNotify(`תקלה חדשה בחדר ${form.target_id} שוייכה ל${form.assigned_to.length} משתמשים`);
     }
