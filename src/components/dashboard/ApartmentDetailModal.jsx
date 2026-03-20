@@ -180,7 +180,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
     const oldStatus = legalStatuses.find((s) => s.id === oldStatusId);
 
     // 1) OPTIMISTIC UPDATE - מיידי לפני השרת
-    setSelectedLegalStatusId(String(newStatusId));
+    setSelectedLegalStatusId(newStatusId ? String(newStatusId) : '');
     setStatusSaveError('');
     setSavingStatus(true);
 
