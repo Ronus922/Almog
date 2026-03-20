@@ -445,6 +445,18 @@ function DashboardContent() {
               showArchived={false} />
           }
 
+          {isAdmin && activeTab === 'next_actions' &&
+            <DebtorsTable
+              records={tabDatasets.nextActionsTab}
+              onRowClick={handleRowClick}
+              isAdmin={isAdmin}
+              settings={settings}
+              allStatuses={allStatuses}
+              onFilteredDataChange={setFilteredDataset}
+              onRecordUpdate={handleRecordUpdate}
+              showArchived={false} />
+          }
+
           {isAdmin && activeTab === 'archived' &&
             <DebtorsTable
               records={archivedRecords}
