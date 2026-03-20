@@ -163,34 +163,26 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify }) {
                     />
                     <div className="space-y-2 max-h-64 overflow-y-auto">
                       {appUsers
-                        .filter((u) =>
-                          u.first_name?.includes(form.searchUser || "") ||
-                          u.username?.includes(form.searchUser || "")
-                        )
-                        .map((u) => (
-                          <div
-                            key={u.id}
-                            className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50 cursor-pointer"
-                            onClick={() =>
+                      .filter((u) =>
+                        u.first_name?.includes(form.searchUser || "") ||
+                        u.username?.includes(form.searchUser || "")
+                      )
+                      .map((u) => (
+                        <div
+                          key={u.id}
+                          className="flex items-center gap-2 p-2 rounded-lg hover:bg-slate-50"
+                        >
+                          <Checkbox
+                            checked={form.assigned_to?.includes(u.username) || false}
+                            onCheckedChange={() => {
                               setForm((p) => ({
                                 ...p,
                                 assigned_to: form.assigned_to?.includes(u.username)
                                   ? p.assigned_to.filter((x) => x !== u.username)
                                   : [...(p.assigned_to || []), u.username],
-                              }))
-                            }
-                          >
-                            <Checkbox
-                              checked={form.assigned_to?.includes(u.username) || false}
-                              onCheckedChange={() => {
-                                setForm((p) => ({
-                                  ...p,
-                                  assigned_to: form.assigned_to?.includes(u.username)
-                                    ? p.assigned_to.filter((x) => x !== u.username)
-                                    : [...(p.assigned_to || []), u.username],
-                                }));
-                              }}
-                            />
+                              }));
+                            }}
+                          />
                             <div className="w-6 h-6 rounded-full bg-blue-400 text-white text-xs font-bold flex items-center justify-center flex-shrink-0">
                               {u.first_name?.[0] || "?"}
                             </div>
