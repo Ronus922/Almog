@@ -8,7 +8,7 @@ const COLUMNS = [
   { key: "הושלמה", label: "הושלמה", color: "border-t-green-500",  bg: "bg-green-50" },
 ];
 
-const PRIORITY_DOT = { "גבוהה": "bg-red-500", "בינונית": "bg-yellow-400", "נמוכה": "bg-green-500" };
+const PRIORITY_DOT = { "דחופה": "bg-red-500", "גבוהה": "bg-yellow-400", "נמוכה": "bg-green-500" };
 
 export default function TaskProKanban({ tasks = [], onRowClick }) {
   const byStatus = {};
@@ -48,7 +48,6 @@ export default function TaskProKanban({ tasks = [], onRowClick }) {
                     <p className="text-sm font-medium text-slate-800 leading-snug">{task.title}</p>
                   </div>
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    <span className="text-xs text-slate-400">{task.task_type}</span>
                     {task.is_recurring_instance && <Repeat2 className="w-3.5 h-3.5 text-blue-500" title="משימה מחזורית" />}
                     {task.source === "template" && <FileText className="w-3 h-3 text-violet-400" />}
                   </div>
