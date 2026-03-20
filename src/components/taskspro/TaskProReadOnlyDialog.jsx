@@ -70,18 +70,15 @@ export default function TaskProReadOnlyDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="w-[830px] max-h-[960px] overflow-hidden flex flex-col p-0 gap-0 rounded-2xl bg-slate-50" dir="rtl">
+        <DialogContent className="w-[830px] max-h-[960px] overflow-hidden flex flex-col p-0 gap-0 rounded-2xl bg-slate-50 [&>button]:hidden" dir="rtl">
           <DialogTitle className="hidden">צפייה במשימה</DialogTitle>
 
-          {/* Header with close and date */}
-          <div className="flex items-start justify-between p-6 bg-white border-b border-slate-200">
-            <button onClick={onClose} className="w-10 h-10 rounded-lg bg-blue-600 hover:bg-blue-700 text-white flex items-center justify-center transition-colors flex-shrink-0">
-              <X className="w-6 h-6" />
+          {/* Header with close and title */}
+          <div className="flex items-center justify-between px-6 py-4 bg-gradient-to-l from-blue-600 to-blue-700 text-white">
+            <h2 className="text-lg font-bold">צפייה במשימה</h2>
+            <button onClick={onClose} className="w-10 h-10 rounded-lg bg-blue-500 hover:bg-blue-800 text-white flex items-center justify-center transition-colors flex-shrink-0">
+              <X className="w-5 h-5" />
             </button>
-            <div className="flex items-center gap-2 text-slate-700">
-              <MapPin className="w-4 h-4 text-slate-400" />
-              <span className="text-sm font-semibold">{fmt(task.due_at)}</span>
-            </div>
           </div>
 
           {/* Body - scrollable */}
