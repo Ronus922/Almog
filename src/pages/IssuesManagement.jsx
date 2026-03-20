@@ -818,12 +818,12 @@ export default function IssuesManagement() {
              <table className="w-full">
                <thead>
                  <tr className="border-b border-slate-200 bg-slate-50">
-                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">משימה/מיקום</th>
-                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">משמר</th>
+                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">מיקום</th>
+                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">דווח</th>
                    <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">דחיפות</th>
                    <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">סטטוס</th>
                    <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">תאריך יצירה</th>
-                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">תיאור</th>
+                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">תיאור התקלה</th>
                    <th className="px-4 py-3 text-center text-xs font-bold text-slate-600">פעולות</th>
                  </tr>
                </thead>
@@ -870,7 +870,23 @@ export default function IssuesManagement() {
                            </td>
                            <td className="px-4 py-3 text-right text-sm text-slate-500">{format(new Date(issue.created_date), "dd/MM/yy")}</td>
                            <td className="px-4 py-3 text-right text-sm text-slate-600 max-w-xs truncate">{issue.description}</td>
-                           <td className="px-4 py-3 text-center">
+                           <td className="px-4 py-3 text-center flex items-center justify-center gap-1">
+                             {(issue.images?.length > 0 || issue.videos?.length > 0) && (
+                               <button
+                                 onClick={(e) => { e.stopPropagation(); setSelectedIssue(issue); setDetailsOpen(true); }}
+                                 className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-blue-500 hover:bg-blue-50 transition-colors"
+                                 title="צפה בתמונות"
+                               >
+                                 <Eye className="w-4 h-4" />
+                               </button>
+                             )}
+                             <button
+                               onClick={(e) => { e.stopPropagation(); setSelectedIssue(issue); setDetailsOpen(true); }}
+                               className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-slate-600 hover:bg-slate-100 transition-colors"
+                               title="עריכה"
+                             >
+                               <Pencil className="w-4 h-4" />
+                             </button>
                              <button
                                onClick={(e) => { e.stopPropagation(); handleDelete(issue.id); }}
                                className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors"
