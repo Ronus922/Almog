@@ -91,8 +91,8 @@ export default function AppLogin() {
           last_name: '',
           username,
           password_hash: passwordHash,
-          role: 'admin',
-          is_active: true
+          role: 'ADMIN',
+          active: true,
         });
         toast.success('משתמש Admin ראשון נוצר בהצלחה!');
         setIsFirstUser(false);
