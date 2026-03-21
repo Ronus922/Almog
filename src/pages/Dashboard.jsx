@@ -27,6 +27,14 @@ function DashboardContent() {
     staleTime: 0,
   });
 
+  // Subscribe to real-time updates on DebtorRecord
+  useEffect(() => {
+    const unsubscribe = base44.entities.DebtorRecord.subscribe((event) => {
+      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+    });
+    return unsubscribe;
+  }, [queryClient]);
+
   // Fetch settings
   const { data: settings } = useQuery({
     queryKey: ['settings'],
