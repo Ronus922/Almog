@@ -129,25 +129,35 @@ Deno.serve(async (req) => {
 
     // ── שלב 1: התחברות ל-Bllink ──────────────────────────────────────────
     console.log('[Import] שלב 1: התחברות ל-Bllink...');
-    const loginResp = await fetch(`${API_BASE}/api/v1/managers/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ username: BLLINK_USERNAME, password: BLLINK_PASSWORD }),
-    });
 
-    if (!loginResp.ok) {
-      // נסה endpoint חלופי
-      const loginResp2 = await fetch(`${API_BASE}/api/v1/auth/login`, {
+    // ניסיון כל endpoints אפשריים של Bllink הישראלית
+    const loginEndpoints = [
+      { url: `${API_BASE}/api/v1/managers/login`, body: { username: BLLINK_USERNAME, password: BLLINK_PASSWORD } },
+      { url: `${API_BASE}/api/v1/auth/managers/login`, body: { username: BLLINK_USERNAME, password: BLLINK_PASSWORD } },
+      { url: `${API_BASE}/auth/login`, body: { username: BLLINK_USERNAME, password: BLLINK_PASSWORD } },
+      { url: `${API_BASE}/api/v1/login`, body: { username: BLLINK_USERNAME, password: BLLINK_PASSWORD } },
+      { url: `https://app.bllink.co/api/managers/login`, body: { username: BLLINK_USERNAME, password: BLLINK_PASSWORD } },
+    ];
+
+    let loginJson = null;
+    let loginAttempts = [];
+    for (const ep of loginEndpoints) {
+      const r = await fetch(ep.url, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: BLLINK_USERNAME, password: BLLINK_PASSWORD }),
+        body: JSON.stringify(ep.body),
       });
-      if (!loginResp2.ok) {
-        throw new Error(`התחברות ל-Bllink נכשלה: ${loginResp.status} / ${loginResp2.status}`);
+      const bodyText = await r.text();
+      loginAttempts.push({ url: ep.url, status: r.status, body: bodyText.slice(0, 200) });
+      console.log(`[Login] ${ep.url} → ${r.status}: ${bodyText.slice(0, 150)}`);
+      if (r.ok) {
+        try { loginJson = JSON.parse(bodyText); } catch {}
+        if (loginJson?.token || loginJson?.access_token || loginJson?.accessToken || loginJson?.data?.token) break;
       }
-      var loginJson = await loginResp2.json();
-    } else {
-      var loginJson = await loginResp.json();
+    }
+
+    if (!loginJson) {
+      throw new Error(`התחברות ל-Bllink נכשלה בכל endpoints. ניסיונות: ${JSON.stringify(loginAttempts)}`);
     }
 
     const token = loginJson?.token || loginJson?.access_token || loginJson?.accessToken || loginJson?.data?.token;
