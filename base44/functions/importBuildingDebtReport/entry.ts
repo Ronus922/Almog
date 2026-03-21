@@ -191,7 +191,7 @@ async function srpAuth(username, password) {
   const B_big = bigInt(SRP_B, 16);
   const u = computeU(A_hex, padHex(B_big));
   const x = computeX(SALT, USER_ID_FOR_SRP, password);
-  const S = computeS(a, SRP_B, u, x);
+  const S = computeS(a, B_big, u, x);
 
   const hkdfKey = computeHkdfKey(A_hex, B_big, S);
   const ts = cognitoTimestamp();
