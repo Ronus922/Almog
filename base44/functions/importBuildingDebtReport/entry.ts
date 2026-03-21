@@ -313,44 +313,10 @@ Deno.serve(async (req) => {
     const logRecord = await base44.asServiceRole.entities.ImportRun.create(logData);
     logId = logRecord.id;
 
-    // ── שלב 1: התחברות ל-Bllink ──────────────────────────────────────────
-    console.log('[Import] שלב 1: התחברות ל-Bllink...');
-
-    // ניסיון כל endpoints אפשריים של Bllink הישראלית
-    const loginEndpoints = [
-      { url: `${API_BASE}/api/v1/managers/login`, body: { username: BLLINK_USERNAME, password: BLLINK_PASSWORD } },
-      { url: `${API_BASE}/api/v1/auth/managers/login`, body: { username: BLLINK_USERNAME, password: BLLINK_PASSWORD } },
-      { url: `${API_BASE}/auth/login`, body: { username: BLLINK_USERNAME, password: BLLINK_PASSWORD } },
-      { url: `${API_BASE}/api/v1/login`, body: { username: BLLINK_USERNAME, password: BLLINK_PASSWORD } },
-      { url: `https://app.bllink.co/api/managers/login`, body: { username: BLLINK_USERNAME, password: BLLINK_PASSWORD } },
-    ];
-
-    let loginJson = null;
-    let loginAttempts = [];
-    for (const ep of loginEndpoints) {
-      const r = await fetch(ep.url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(ep.body),
-      });
-      const bodyText = await r.text();
-      loginAttempts.push({ url: ep.url, status: r.status, body: bodyText.slice(0, 200) });
-      console.log(`[Login] ${ep.url} → ${r.status}: ${bodyText.slice(0, 150)}`);
-      if (r.ok) {
-        try { loginJson = JSON.parse(bodyText); } catch {}
-        if (loginJson?.token || loginJson?.access_token || loginJson?.accessToken || loginJson?.data?.token) break;
-      }
-    }
-
-    if (!loginJson) {
-      throw new Error(`התחברות ל-Bllink נכשלה בכל endpoints. ניסיונות: ${JSON.stringify(loginAttempts)}`);
-    }
-
-    const token = loginJson?.token || loginJson?.access_token || loginJson?.accessToken || loginJson?.data?.token;
-    if (!token) {
-      throw new Error(`לא התקבל token מ-Bllink. תשובה: ${JSON.stringify(loginJson).slice(0, 300)}`);
-    }
-    console.log('[Import] ✓ התחברות הצליחה, token התקבל');
+    // ── שלב 1: התחברות ל-Bllink דרך AWS Cognito SRP ──────────────────────
+    console.log('[Import] שלב 1: התחברות ל-Bllink דרך Cognito SRP...');
+    const token = await srpAuth(BLLINK_USERNAME, BLLINK_PASSWORD);
+    console.log('[Import] ✓ התחברות הצליחה, AccessToken התקבל');
 
     // ── שלב 2: שליפת נתוני חייבים ────────────────────────────────────────
     await base44.asServiceRole.entities.ImportRun.update(logId, { stage: 'FETCH_DATA' });
