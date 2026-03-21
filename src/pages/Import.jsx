@@ -9,6 +9,7 @@ import { ShieldAlert, ArrowRight, Loader2 } from "lucide-react";
 
 import ExcelImporter from '../components/import/ExcelImporter';
 import AuthDebugPanel from '../components/debug/AuthDebugPanel';
+import BllinkImportPanel from '../components/import/BllinkImportPanel';
 
 export default function Import() {
   const { currentUser, loading } = useAuth();
