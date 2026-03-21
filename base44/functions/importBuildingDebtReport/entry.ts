@@ -188,12 +188,12 @@ async function srpAuth(username, password) {
   const { SRP_B, SALT, SECRET_BLOCK, USER_ID_FOR_SRP } = init.ChallengeParameters;
   console.log(`[SRP] USER_ID_FOR_SRP="${USER_ID_FOR_SRP}"`);
 
-  const u = computeU(A_hex, padHex(bigInt(SRP_B, 16)));
+  const B_big = bigInt(SRP_B, 16);
+  const u = computeU(A_hex, padHex(B_big));
   const x = computeX(SALT, USER_ID_FOR_SRP, password);
   const S = computeS(a, SRP_B, u, x);
-  const S_hex = padHex(S);
 
-  const hkdfKey = computeHkdfKey(A_hex, SRP_B, S_hex);
+  const hkdfKey = computeHkdfKey(A_hex, B_big, S);
   const ts = cognitoTimestamp();
 
   const msgBytes = cat(enc(POOL_NAME), enc(USER_ID_FOR_SRP), b64d(SECRET_BLOCK), enc(ts));
