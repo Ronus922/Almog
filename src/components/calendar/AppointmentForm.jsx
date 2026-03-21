@@ -155,7 +155,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       </div>
 
       {/* Type and Location */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <Label className="block mb-2 font-bold text-slate-900 text-sm">סוג</Label>
           <select
@@ -183,7 +183,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       </div>
 
       {/* Date and Time */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <Label className="block mb-2 font-bold text-slate-900 text-sm">תאריך ושעת התחלה *</Label>
           <DateTimePicker
@@ -322,7 +322,7 @@ export default function AppointmentForm({ appointment, selectedDate, onSave, onC
       </div>
 
       {/* Reminder */}
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
           <Label className="block mb-2 font-bold text-slate-900 text-sm">תזכורת לפני</Label>
           <select
