@@ -395,14 +395,31 @@ export default function ExcelImporter({ onImportComplete }) {
       }
 
       // ═══════════════════════════════════════════════════════════
-      // STEP 1: PREFETCH - קריאה אחת לכל הרשומות
+      // STEP 1: PREFETCH - קריאה אחת לכל הרשומות + Contact
       // ═══════════════════════════════════════════════════════════
-      setProgressMessage('טוען רשומות קיימות...');
+      setProgressMessage('טוען רשומות קיימות ופרטי אנשי קשר...');
       setProgress(5);
       await base44.entities.ImportRun.update(importRun.id, { stage: 'PREFETCH' });
-      console.log(`[Excel Import] PREFETCH: Loading all existing records`);
+      console.log(`[Excel Import] PREFETCH: Loading all existing records and contacts`);
       
       const allExistingRecords = await base44.entities.DebtorRecord.list();
+      const allContacts = await base44.entities.Contact.list();
+      
+      // Build Contact map with normalized keys
+      const contactMap = {};
+      for (const contact of allContacts) {
+        const normalizedKey = normalizeApartmentKey(contact.apartment_number);
+        if (normalizedKey) {
+          contactMap[normalizedKey] = {
+            ownerName: contact.owner_name,
+            phoneOwner: contact.owner_phone,
+            phoneTenant: contact.tenant_phone,
+            phonePrimary: contact.phonePrimary,
+            phonesRaw: contact.phonesRaw || '',
+            phonesManualOverride: true, // Contact פרטים - לא מתעדכנים מאקסל
+          };
+        }
+      }
       
       // Build Map with normalized keys
       const existingMap = {};
@@ -429,7 +446,7 @@ export default function ExcelImporter({ onImportComplete }) {
       };
       }
       
-      console.log(`[Excel Import] PREFETCH: Loaded ${Object.keys(existingMap).length} records`);
+      console.log(`[Excel Import] PREFETCH: Loaded ${Object.keys(existingMap).length} DebtorRecords, ${Object.keys(contactMap).length} Contacts`);
 
       // ═══════════════════════════════════════════════════════════
       // STEP 2: PARSE + BUILD QUEUES (בלי קריאות API)
