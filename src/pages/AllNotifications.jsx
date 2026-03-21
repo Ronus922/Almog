@@ -117,52 +117,54 @@ export default function AllNotifications() {
 
         {/* Notifications Table */}
         {notifications.length === 0 ? (
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 p-12 text-center">
-            <Bell className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-            <p className="text-slate-500 text-lg">אין התראות</p>
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-16 text-center">
+            <Bell className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+            <p className="text-slate-600 text-lg font-medium">אין התראות</p>
           </div>
         ) : (
-          <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="w-full text-right text-sm">
-                <thead className="bg-slate-50 border-b border-slate-200">
-                  <tr>
-                    <th className="px-6 py-4 font-semibold text-slate-700">סוג</th>
-                    <th className="px-6 py-4 font-semibold text-slate-700">הודעה</th>
-                    <th className="px-6 py-4 font-semibold text-slate-700">תאריך</th>
-                    <th className="px-6 py-4 font-semibold text-slate-700">סטטוס</th>
-                    <th className="px-6 py-4 font-semibold text-slate-700">פעולות</th>
+                <thead>
+                  <tr className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
+                    <th className="px-6 py-4 font-bold text-slate-700 text-center w-16">סוג</th>
+                    <th className="px-6 py-4 font-bold text-slate-700">הודעה</th>
+                    <th className="px-6 py-4 font-bold text-slate-700 w-40">תאריך</th>
+                    <th className="px-6 py-4 font-bold text-slate-700 w-32">סטטוס</th>
+                    <th className="px-6 py-4 font-bold text-slate-700 w-20 text-center">פעולות</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
-                  {notifications.map(n => (
+                  {notifications.map((n, idx) => (
                     <tr 
                       key={n.id} 
-                      className={`hover:bg-slate-50 transition-colors ${!n.is_read ? 'bg-blue-50/30' : ''}`}
+                      className={`transition-all duration-200 ${!n.is_read ? 'bg-blue-50/40 hover:bg-blue-50/70' : 'hover:bg-slate-50'}`}
                     >
-                      <td className="px-6 py-4">
-                        <span className="text-lg">{typeIcon(n.type)}</span>
+                      <td className="px-6 py-4 text-center">
+                        <span className="text-2xl">{typeIcon(n.type)}</span>
                       </td>
-                      <td className={`px-6 py-4 ${!n.is_read ? 'font-semibold text-slate-800' : 'text-slate-600'}`}>
-                        {n.message}
+                      <td className={`px-6 py-4 ${!n.is_read ? 'font-semibold text-slate-800' : 'text-slate-700'}`}>
+                        <div className="line-clamp-2">{n.message}</div>
                       </td>
-                      <td className="px-6 py-4 text-slate-500">
+                      <td className="px-6 py-4 text-slate-600 text-sm">
                         {formatDate(n.created_date)}
                       </td>
                       <td className="px-6 py-4">
                         {!n.is_read ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-medium">
-                            <span className="w-1.5 h-1.5 bg-blue-500 rounded-full"></span>
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold">
+                            <span className="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></span>
                             לא קרואה
                           </span>
                         ) : (
-                          <span className="text-slate-400 text-xs">קרואה</span>
+                          <span className="inline-flex px-3 py-1.5 rounded-full bg-slate-100 text-slate-600 text-xs font-medium">
+                            קרואה
+                          </span>
                         )}
                       </td>
-                      <td className="px-6 py-4">
+                      <td className="px-6 py-4 text-center">
                         <button
                           onClick={() => deleteNotification(n.id)}
-                          className="text-slate-400 hover:text-red-500 transition-colors p-1"
+                          className="inline-flex items-center justify-center p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
                           title="מחק הודעה"
                         >
                           <Trash2 className="w-4 h-4" />
