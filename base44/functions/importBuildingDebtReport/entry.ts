@@ -69,11 +69,14 @@ function computeU(A_hex, B_hex) {
 }
 
 function hkdfSha256(ikm, salt, info, length = 16) {
-  // HKDF Extract
+  // HKDF Extract: PRK = HMAC-SHA256(salt, IKM)
   const prk = hmacSha256(salt, ikm);
-  // HKDF Expand
+  // HKDF Expand: T(1) = HMAC-SHA256(PRK, info || 0x01)
   const infoBytes = typeof info === 'string' ? new TextEncoder().encode(info) : info;
-  const T = hmacSha256(prk, new Uint8Array([...infoBytes, 1]));
+  const expandInput = new Uint8Array(infoBytes.length + 1);
+  expandInput.set(infoBytes, 0);
+  expandInput[infoBytes.length] = 0x01;
+  const T = hmacSha256(prk, expandInput);
   return T.slice(0, length);
 }
 
