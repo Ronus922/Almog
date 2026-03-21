@@ -449,7 +449,8 @@ export default function StatusManagement() {
             <CardTitle>רשימת סטטוסים</CardTitle>
           </CardHeader>
           <CardContent>
-            <Table>
+            <div className="overflow-x-auto" style={{WebkitOverflowScrolling: 'touch'}}>
+          <Table className="min-w-[600px]">
               <TableHeader>
                 <TableRow>
                   <TableHead className="text-right">שם סטטוס</TableHead>
@@ -532,6 +533,7 @@ export default function StatusManagement() {
                 })}
               </TableBody>
             </Table>
+          </div>
           </CardContent>
         </Card>
       </div>
@@ -544,7 +546,7 @@ export default function StatusManagement() {
           setEditingStatus(null);
         }
       }}>
-        <DialogContent className="max-w-md" dir="rtl">
+        <DialogContent className="max-w-md w-[95vw] max-h-[90vh] overflow-y-auto" dir="rtl">
           <DialogHeader>
             <DialogTitle>{editingStatus ? 'עריכת סטטוס' : 'הוספת סטטוס חדש'}</DialogTitle>
           </DialogHeader>
@@ -639,7 +641,7 @@ export default function StatusManagement() {
         setDeleteConfirm(null);
         setReassignTargetId('');
       }}>
-        <AlertDialogContent dir="rtl" className="max-w-lg">
+        <AlertDialogContent dir="rtl" className="max-w-lg w-[95vw]">
           <AlertDialogHeader>
             <AlertDialogTitle>מחיקת סטטוס משפטי</AlertDialogTitle>
             <AlertDialogDescription className="text-right space-y-4">
