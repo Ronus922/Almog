@@ -470,8 +470,8 @@ Deno.serve(async (req) => {
           created++;
         }
 
-        // delay קטן כל 5 רשומות למניעת rate limit
-        if ((i + 1) % 5 === 0) await sleep(300);
+        // delay בין כל רשומה למניעת rate limit
+        await sleep(200);
       } catch (rowErr) {
         if (rowErr.message?.includes('Rate limit')) {
           // המתן ונסה שוב
