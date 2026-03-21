@@ -83,7 +83,7 @@ export default function TaskProReadOnlyDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="w-[830px] max-h-[90vh] overflow-hidden flex flex-col p-0 gap-0 rounded-2xl bg-slate-50 [&>button]:hidden" dir="rtl">
+        <DialogContent className="w-[95vw] max-w-[830px] max-h-[90vh] overflow-hidden flex flex-col p-0 gap-0 rounded-2xl bg-slate-50 [&>button]:hidden" dir="rtl">
           <DialogTitle className="hidden">צפייה במשימה</DialogTitle>
 
           {/* Header */}

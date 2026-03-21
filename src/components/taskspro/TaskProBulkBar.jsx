@@ -8,7 +8,7 @@ export default function TaskProBulkBar({ selectedIds, onClear, onBulkStatus, onB
   if (count === 0) return null;
 
   return (
-    <div className="fixed bottom-6 right-1/2 translate-x-1/2 z-50 bg-slate-900 text-white rounded-2xl shadow-2xl px-5 py-3 flex items-center gap-3 flex-wrap" dir="rtl">
+    <div className="fixed bottom-4 right-2 left-2 sm:right-1/2 sm:left-auto sm:translate-x-1/2 z-50 bg-slate-900 text-white rounded-2xl shadow-2xl px-4 py-3 flex items-center gap-2 flex-wrap justify-center sm:justify-start max-w-full" dir="rtl">
       <div className="flex items-center gap-2">
         <CheckSquare className="w-4 h-4 text-blue-400" />
         <span className="text-sm font-semibold">{count} נבחרו</span>
