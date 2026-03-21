@@ -13,13 +13,22 @@ export function AuthProvider({ children }) {
     checkAuth();
   }, []);
 
+  const fetchRoleData = async (roleId) => {
+    if (!roleId) return null;
+    try {
+      const roles = await base44.entities.Role.filter({ id: roleId });
+      return roles[0] || null;
+    } catch {
+      return null;
+    }
+  };
+
   const checkAuth = async () => {
     console.log('[Auth] Starting authentication check...');
     setLoading(true);
     setAuthChecked(false);
     
     try {
-      // Check Base44 admin first - silently fail if 401
       const base44User = await base44.auth.me().catch(() => null);
       
       if (base44User && base44User.role === 'admin') {
@@ -28,7 +37,9 @@ export function AuthProvider({ children }) {
           username: base44User.email || base44User.full_name,
           firstName: base44User.full_name || 'Admin',
           role: 'SUPER_ADMIN',
-          isBase44Admin: true
+          isBase44Admin: true,
+          accessiblePages: null, // null = גישה לכל הדפים
+          roleData: null
         };
         console.log('[Auth] ✓ Base44 SUPER_ADMIN authenticated:', userData);
         setCurrentUser(userData);
@@ -37,11 +48,9 @@ export function AuthProvider({ children }) {
         return;
       }
     } catch (err) {
-      // Silent fail - 401 is expected when not logged in as Base44 admin
       console.log('[Auth] Base44 auth check complete, checking app session...');
     }
 
-    // Check internal app session
     const sessionData = localStorage.getItem('app_session');
     
     if (!sessionData) {
@@ -56,7 +65,6 @@ export function AuthProvider({ children }) {
       const session = JSON.parse(sessionData);
       console.log('[Auth] Found session:', { username: session.username, role: session.role });
       
-      // Validate session
       const users = await base44.entities.AppUser.filter({ 
         username: session.username,
         is_active: true 
@@ -74,7 +82,6 @@ export function AuthProvider({ children }) {
       const user = users[0];
       const role = normalizeRole(user.role);
 
-      // Validate normalized role
       if (!['ADMIN', 'VIEWER'].includes(role)) {
         console.error('[Auth] ✗ INVALID ROLE after normalization:', user.role, '→', role);
         localStorage.removeItem('app_session');
@@ -84,13 +91,19 @@ export function AuthProvider({ children }) {
         return;
       }
 
+      // טען נתוני תפקיד כולל accessible_pages
+      const roleData = await fetchRoleData(user.role_id);
+
       const userData = {
         email: user.username,
         username: user.username,
         firstName: user.first_name,
         lastName: user.last_name,
         role: role,
-        isBase44Admin: false
+        role_id: user.role_id,
+        isBase44Admin: false,
+        accessiblePages: roleData?.is_admin ? null : (roleData?.accessible_pages || []),
+        roleData: roleData
       };
       
       console.log('[Auth] ✓ App user authenticated:', userData);
@@ -124,11 +137,13 @@ export function AuthProvider({ children }) {
     const user = users[0];
     const role = normalizeRole(user.role);
 
-    // Validate normalized role
     if (!['ADMIN', 'VIEWER'].includes(role)) {
       console.error('[Auth] ✗ INVALID ROLE after normalization:', user.role, '→', role);
       throw new Error('תפקיד משתמש לא חוקי');
     }
+
+    // טען נתוני תפקיד כולל accessible_pages
+    const roleData = await fetchRoleData(user.role_id);
 
     const session = {
       username: user.username,
@@ -144,7 +159,10 @@ export function AuthProvider({ children }) {
       firstName: user.first_name,
       lastName: user.last_name,
       role: role,
-      isBase44Admin: false
+      role_id: user.role_id,
+      isBase44Admin: false,
+      accessiblePages: roleData?.is_admin ? null : (roleData?.accessible_pages || []),
+      roleData: roleData
     };
     
     console.log('[Auth] ✓ Login successful:', userData);
