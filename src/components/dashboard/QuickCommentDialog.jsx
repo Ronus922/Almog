@@ -88,8 +88,8 @@ export default function QuickCommentDialog({
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent 
-        className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] max-w-lg w-full p-0 overflow-hidden flex flex-col border shadow-lg rounded-lg bg-background"
-        style={{ maxHeight: '90vh', maxWidth: '472px' }}
+        className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] w-[95vw] p-0 overflow-hidden flex flex-col border shadow-lg rounded-lg bg-background"
+        style={{ maxHeight: '90vh', maxWidth: 'min(472px, 95vw)' }}
         dir="rtl"
       >
         {/* כפתור סגירה */}
