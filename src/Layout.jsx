@@ -54,28 +54,27 @@ function LayoutContent({ children, currentPageName }) {
   };
 
   const navItems = [
-  { name: 'Dashboard', label: 'דשבורד', icon: LayoutDashboard, adminOnly: false, section: 'main' },
+  // תפריט ראשי
   { name: 'TaskAnalyticsDashboard', label: 'לוח מחוונים משימות', icon: LayoutDashboard, adminOnly: false, section: 'main' },
-  { name: 'TasksManagement', label: 'ניהול משימות', icon: CheckSquare, adminOnly: false, section: 'main' },
-  { name: 'UserManagement', label: 'משתמשים', icon: UsersIcon, adminOnly: true, section: 'admin' },
-  { name: 'StatusManagement', label: 'סטטוסים', icon: SlidersHorizontal, adminOnly: true, section: 'admin' },
-  { name: 'Import', label: 'ייבוא', icon: Upload, adminOnly: true, section: 'admin' },
-  { name: 'TasksPro', label: 'משימות Pro', icon: ClipboardList, adminOnly: false, section: 'main' },
-  { name: 'IssuesManagement', label: 'ניהול תקלות', icon: AlertTriangle, adminOnly: true, section: 'admin' },
-  { name: 'InternalChat', label: "צ'אט פנימי", icon: MessageCircle, adminOnly: false, section: 'main' },
+  { name: 'Dashboard', label: 'ניהול חייבים', icon: LayoutDashboard, adminOnly: false, section: 'main' },
+  { name: 'Contacts', label: 'רשימת דיירים', icon: ContactRound, adminOnly: false, section: 'main' },
+  { name: 'SupplierManagement', label: 'ספקים', icon: Users, adminOnly: false, section: 'main' },
+  { name: 'TasksPro', label: 'משימות', icon: ClipboardList, adminOnly: false, section: 'main' },
+  { name: 'IssuesManagement', label: 'תקלות', icon: AlertTriangle, adminOnly: false, section: 'main' },
   { name: 'Calendar', label: 'יומן', icon: Clock, adminOnly: false, section: 'main' },
   { name: 'Documents', label: 'מסמכים', icon: BookOpen, adminOnly: false, section: 'main' },
-  { name: 'Contacts', label: 'אנשי קשר', icon: ContactRound, adminOnly: false, section: 'main' },
-  { name: 'SupplierManagement', label: 'ספקים', icon: Users, adminOnly: false, section: 'main' },
-  { name: 'WhatsAppTemplates', label: 'תבניות וואטסאפ', icon: MessageCircle, adminOnly: true, section: 'admin' },
-  { name: 'WhatsAppChat', label: 'צ\'אט וואטסאפ', icon: MessageCircle, adminOnly: false, section: 'main' },
+  { name: 'WhatsAppChat', label: "צ'אט וואטצאפ", icon: MessageCircle, adminOnly: false, section: 'main' },
+  { name: 'InternalChat', label: "צ'אט פנימי", icon: MessageCircle, adminOnly: false, section: 'main' },
   { name: 'TodoReminders', label: 'תזכורות', icon: AlertTriangle, adminOnly: false, section: 'main' },
-  { name: 'Settings', label: 'הגדרות', icon: Settings, adminOnly: true, section: 'admin' },
+  // תפריט ניהול
+  { name: 'Import', label: 'ייבוא נתונים', icon: Upload, adminOnly: true, section: 'admin' },
   { name: 'ExportData', label: 'ייצוא נתונים', icon: Download, adminOnly: true, section: 'admin' },
-
+  { name: 'StatusManagement', label: 'ניהול סטטוס חייבים', icon: SlidersHorizontal, adminOnly: true, section: 'admin' },
+  { name: 'WhatsAppTemplates', label: 'תבניות וואטצאפ', icon: MessageCircle, adminOnly: true, section: 'admin' },
   { name: 'RoomsAreas', label: 'ניהול אזורים', icon: MapPin, adminOnly: true, section: 'admin' },
-  { name: 'UsersManagement', label: 'ניהול משתמשים', icon: UsersIcon, adminOnly: true, section: 'admin' },
-  { name: 'RolesManagement', label: 'ניהול תפקידים', icon: ShieldIcon, adminOnly: true, section: 'admin' }];
+  { name: 'RolesManagement', label: 'הרשאות', icon: ShieldIcon, adminOnly: true, section: 'admin' },
+  { name: 'UsersManagement', label: 'משתמשים', icon: UsersIcon, adminOnly: true, section: 'admin' },
+  { name: 'Settings', label: 'הגדרות מערכת', icon: Settings, adminOnly: true, section: 'admin' }];
 
 
   const filteredNavItems = navItems.filter((item) => {
