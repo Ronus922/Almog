@@ -145,7 +145,7 @@ export default function UsersManagement() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           {[
             { label: 'סה"כ משתמשים', value: users.length, icon: Users, color: 'bg-blue-50 border-blue-200 text-blue-700' },
             { label: 'פעילים', value: activeCount, icon: UserCheck, color: 'bg-green-50 border-green-200 text-green-700' },
@@ -181,8 +181,8 @@ export default function UsersManagement() {
             <p className="font-medium">אין משתמשים</p>
           </div>
         ) : (
-          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-            <table className="w-full text-right">
+          <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-x-auto">
+            <table className="w-full text-right min-w-[700px]">
               <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
                   {['שם מלא', 'דוא"ל', 'שם משתמש', 'מחלקה', 'תפקיד / הרשאות', 'סטטוס', 'פעולות'].map((h) => (
@@ -238,14 +238,14 @@ export default function UsersManagement() {
 
       {/* Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-lg" dir="rtl">
+        <DialogContent className="max-w-lg w-[95vw] max-h-[90vh] overflow-y-auto" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-right text-lg font-bold">
               {editing ? 'עריכת משתמש' : 'משתמש חדש'}
             </DialogTitle>
           </DialogHeader>
           <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label className="text-sm font-semibold text-slate-700 mb-1.5 block">שם פרטי *</Label>
                 <Input value={form.first_name} onChange={(e) => setForm((p) => ({ ...p, first_name: e.target.value }))} placeholder="ישראל" className="h-11 rounded-xl" />
@@ -261,7 +261,7 @@ export default function UsersManagement() {
               <Input value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="user@example.com" className="h-11 rounded-xl" type="email" />
               {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label className="text-sm font-semibold text-slate-700 mb-1.5 block">שם משתמש *</Label>
                 <Input value={form.username} onChange={(e) => setForm((p) => ({ ...p, username: e.target.value }))} placeholder="User123" className="h-11 rounded-xl font-mono" disabled={!!editing} />
@@ -276,7 +276,7 @@ export default function UsersManagement() {
                 {errors.password && <p className="text-xs text-red-500 mt-1">{errors.password}</p>}
               </div>
             </div>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
                 <Label className="text-sm font-semibold text-slate-700 mb-1.5 block">תפקיד *</Label>
                 <Select value={form.role_id} onValueChange={(v) => setForm((p) => ({ ...p, role_id: v }))}>
