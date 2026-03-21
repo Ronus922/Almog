@@ -49,7 +49,7 @@ export default function AppointmentModal({ appointment, onClose, onEdit, onDelet
 
   return (
     <Dialog open={!!appointment} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col p-0" dir="rtl">
+      <DialogContent className="w-[95vw] max-w-2xl max-h-[90vh] flex flex-col p-0" dir="rtl">
         <div className="bg-gradient-to-l from-indigo-600 to-blue-600 px-6 py-6 text-white rounded-t-lg flex-shrink-0">
           <h2 className="text-2xl font-bold">פרטי הפגישה</h2>
           <p className="text-sm text-indigo-100 mt-1">{appointment?.title}</p>

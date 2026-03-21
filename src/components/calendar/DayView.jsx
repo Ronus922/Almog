@@ -59,7 +59,7 @@ export default function DayView({
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+    <div className="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden w-full">
       {/* Header */}
       <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 border-b border-slate-200 text-center">
         <div className="text-sm font-semibold text-slate-600">
@@ -71,7 +71,7 @@ export default function DayView({
       </div>
 
       {/* Grid */}
-      <div className="max-h-[70vh] overflow-y-auto grid grid-cols-12">
+       <div className="max-h-[70vh] overflow-y-auto overflow-x-auto grid grid-cols-12 min-w-full" style={{ WebkitOverflowScrolling: 'touch' }}>
         {/* Hour Column */}
         <div className="col-span-2 bg-slate-50 border-r border-slate-200">
           {HOURS.map((hour) => (
