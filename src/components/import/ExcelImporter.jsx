@@ -601,6 +601,28 @@ export default function ExcelImporter({ onImportComplete }) {
             }
           }
           
+          // אם יש פרטים ב-Contact - הם "מנצחים" ולא מתעדכנים מאקסל
+          const contactData = contactMap[apartmentKey];
+          if (contactData) {
+            // Contact פרטים שומרים - אל תדרוס מאקסל
+            delete patch.ownerName;
+            delete patch.owner_name;
+            delete patch.phoneOwner;
+            delete patch.owner_phone;
+            delete patch.phoneTenant;
+            delete patch.tenant_phone;
+            delete patch.phonePrimary;
+            delete patch.phonesRaw;
+            
+            // שמור את פרטי Contact באופן מפורש
+            patch.ownerName = contactData.ownerName;
+            patch.phoneOwner = contactData.phoneOwner;
+            patch.phoneTenant = contactData.phoneTenant;
+            patch.phonePrimary = contactData.phonePrimary;
+            patch.phonesRaw = contactData.phonesRaw;
+            patch.phonesManualOverride = true;
+          }
+          
           // שמור סטטוס משפטי אם נעול
           if (existing.legal_status_lock || existing.legal_status_overridden) {
             patch.legal_status_id = existing.legal_status_id;
