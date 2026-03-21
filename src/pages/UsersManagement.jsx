@@ -58,12 +58,11 @@ export default function UsersManagement() {
 
   const validate = () => {
     const e = {};
-    if (!form.full_name.trim()) e.full_name = 'שם מלא נדרש';
-    if (!form.email.trim() || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) e.email = 'כתובת דוא"ל לא תקינה';
+    if (!form.first_name.trim()) e.first_name = 'שם פרטי נדרש';
     if (!editing && !form.password.trim()) e.password = 'סיסמה נדרשת';
+    if (form.password && (form.password.length < 4)) e.password = 'סיסמה חייבת להיות לפחות 4 תווים';
     if (!form.role_id) e.role_id = 'יש לבחור תפקיד';
-    const usernameRe = /^(?=.*[A-Z])[a-zA-Z0-9]{4,20}$/;
-    if (!usernameRe.test(form.username)) e.username = 'שם משתמש: 4-20 תווים באנגלית עם אות גדולה אחת לפחות';
+    if (!form.username.trim()) e.username = 'שם משתמש נדרש';
     setErrors(e);
     return Object.keys(e).length === 0;
   };
