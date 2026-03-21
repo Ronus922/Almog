@@ -333,11 +333,10 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
       name: currentUser?.first_name ? `${currentUser.first_name} ${currentUser.last_name || ""}`.trim() : currentUser?.username || ""
     };
 
-    // Use first selected debtor for legacy fields
     const primaryDebtor = selectedDebtors[0];
 
     const payload = {
-      title: form.task_type, // use task_type as title since no title field
+      title: form.task_type,
       task_type: form.task_type,
       status: task ? form.status : "פתוחה",
       priority: form.priority,
@@ -353,63 +352,99 @@ export default function TaskProFormDialog({ open, onClose, task, currentUser, on
       manual_order: task?.manual_order || 0
     };
 
-    let saved;
-    if (task) {
-      saved = await updateTask(task.id, payload);
-      await logActivity(task.id, "updated", actor, { changes: "עדכון משימה" });
-    } else {
-      saved = await createTask(payload);
-      await logActivity(saved.id, "created", actor);
-    }
+    try {
+      let saved;
+      if (task) {
+        // עדכון — במקביל: עדכון + activity
+        [saved] = await Promise.all([
+          updateTask(task.id, payload),
+          logActivity(task.id, "updated", actor, { changes: "עדכון משימה" })
+        ]);
+        saved = saved || { ...task, ...payload, id: task.id };
+      } else {
+        saved = await createTask(payload);
 
-    await replaceAttendees(saved.id, attendees);
+        // כל הפעולות הנלוות במקביל
+        const parallelOps = [
+          logActivity(saved.id, "created", actor),
+          replaceAttendees(saved.id, attendees),
+        ];
 
-    // Upload temp attachments
-    if (!task && tempAttachments.length > 0) {
-      for (const att of tempAttachments) {
-        try {
-          await uploadAttachment(saved.id, att.file, {
-            username: authUser?.username,
-            name: authUser?.first_name ? `${authUser.first_name} ${authUser.last_name || ""}` : authUser?.username
+        // התראות לכל משתתף (לא לעצמנו אלא אם רוצים)
+        const notifTargets = [...attendees];
+        notifTargets.forEach((a) => {
+          if (a.username) {
+            parallelOps.push(
+              base44.entities.Notification.create({
+                user_username: a.username,
+                type: "task_pro_assigned",
+                message: `הוקצתה לך משימה: ${form.task_type}${primaryDebtor?.apartmentNumber ? ` – דירה ${primaryDebtor.apartmentNumber}` : ""}`,
+                task_pro_id: saved.id,
+                task_type: form.task_type,
+                assigner_name: actor.name || actor.username,
+                is_read: false
+              }).catch(() => {})
+            );
+          }
+        });
+
+        // קובצי temp במקביל
+        if (tempAttachments.length > 0) {
+          const fileUser = { username: authUser?.username, name: authUser?.first_name ? `${authUser.first_name} ${authUser.last_name || ""}` : authUser?.username };
+          tempAttachments.forEach((att) => {
+            parallelOps.push(
+              uploadAttachment(saved.id, att.file, fileUser).catch((e) => console.error("upload error", e))
+            );
           });
-        } catch (e) {
-          console.error("Error uploading file:", e);
         }
+
+        // כלל מחזוריות
+        if (form.is_recurring) {
+          const startDate = form.due_at ? new Date(form.due_at) : new Date();
+          parallelOps.push(
+            createRule({
+              title: form.task_type,
+              frequency: recurrence.frequency,
+              interval_value: recurrence.interval_value || 1,
+              days_of_week_json: recurrence.frequency === "weekly" ? JSON.stringify(recurrence.days_of_week) : null,
+              day_of_month: recurrence.frequency === "monthly" ? recurrence.day_of_month : null,
+              starts_at: startDate.toISOString(),
+              ends_mode: recurrence.ends_mode,
+              ends_at: recurrence.ends_at ? new Date(recurrence.ends_at).toISOString() : null,
+              max_occurrences: recurrence.max_occurrences ? parseInt(recurrence.max_occurrences) : null,
+              generate_mode: recurrence.generate_mode,
+              next_run_at: startDate.toISOString(),
+              template_task_title: form.task_type,
+              template_priority: form.priority,
+              template_description: form.description,
+              debtor_record_id: primaryDebtor?.id || null,
+              apartment_number: primaryDebtor?.apartmentNumber || "",
+              owner_name: primaryDebtor?.ownerName || "",
+              created_by: actor.username,
+              created_by_name: actor.name
+            }).catch((e) => console.error("rule error", e))
+          );
+        }
+
+        await Promise.all(parallelOps);
+        setTempAttachments([]);
       }
-      setTempAttachments([]);
-    }
 
-    if (!task && form.is_recurring) {
-      const startDate = form.due_at ? new Date(form.due_at) : new Date();
-      const nextRun = new Date(startDate);
-      await createRule({
-        title: form.task_type,
-        frequency: recurrence.frequency,
-        interval_value: recurrence.interval_value || 1,
-        days_of_week_json: recurrence.frequency === "weekly" ? JSON.stringify(recurrence.days_of_week) : null,
-        day_of_month: recurrence.frequency === "monthly" ? recurrence.day_of_month : null,
-        starts_at: startDate.toISOString(),
-        ends_mode: recurrence.ends_mode,
-        ends_at: recurrence.ends_at ? new Date(recurrence.ends_at).toISOString() : null,
-        max_occurrences: recurrence.max_occurrences ? parseInt(recurrence.max_occurrences) : null,
-        generate_mode: recurrence.generate_mode,
-        next_run_at: nextRun.toISOString(),
-        template_task_title: form.task_type,
-        template_priority: form.priority,
-        template_description: form.description,
-        debtor_record_id: primaryDebtor?.id || null,
-        apartment_number: primaryDebtor?.apartmentNumber || "",
-        owner_name: primaryDebtor?.ownerName || "",
-        created_by: actor.username,
-        created_by_name: actor.name
-      });
-    }
+      // עדכון משתתפים בעריכה
+      if (task) {
+        await replaceAttendees(saved.id || task.id, attendees);
+      }
 
-    queryClient.invalidateQueries({ queryKey: ["taskpro-tasks"] });
-    queryClient.invalidateQueries({ queryKey: ["taskpro-rules"] });
-    onSaved?.(saved);
-    setSaving(false);
-    onClose();
+      queryClient.invalidateQueries({ queryKey: ["taskpro-tasks"] });
+      queryClient.invalidateQueries({ queryKey: ["taskpro-rules"] });
+      onSaved?.(saved);
+      setSaving(false);
+      onClose();
+    } catch (err) {
+      console.error("Save error:", err);
+      toast.error("שגיאה בשמירת המשימה");
+      setSaving(false);
+    }
   };
 
   const handleAddComment = async () => {
