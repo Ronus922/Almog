@@ -91,8 +91,8 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
   return (
     <Dialog open={open} onOpenChange={onClose}>
       <DialogContent 
-        className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] max-w-lg bg-background shadow-lg border overflow-hidden flex flex-col sm:rounded-lg p-0"
-        style={{ maxWidth: "552px", maxHeight: "820px", height: "92vh", width: "100%" }}
+      className="fixed left-[50%] top-[50%] translate-x-[-50%] translate-y-[-50%] bg-background shadow-lg border overflow-hidden flex flex-col sm:rounded-lg p-0"
+      style={{ maxWidth: "min(552px, 95vw)", maxHeight: "92vh", height: "92vh", width: "100%" }}
         dir="rtl" 
         aria-describedby={undefined}
       >
@@ -169,7 +169,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
           {/* Owner Info */}
           <div className="border-t border-slate-100 pt-4">
             <h3 className="text-sm font-semibold text-slate-700 mb-3">פרטי בעל הדירה</h3>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">שם</Label>
                 <Input
@@ -222,7 +222,7 @@ export default function ContactFormDialog({ open, onClose, contact, onSave }) {
           {form.resident_type === "tenant" && (
           <div className="border-t border-slate-100 pt-4">
             <h3 className="text-sm font-semibold text-slate-700 mb-3">פרטי השוכר</h3>
-            <div className="grid grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label className="text-sm font-semibold text-slate-700">שם</Label>
                 <Input

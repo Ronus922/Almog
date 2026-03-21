@@ -476,9 +476,9 @@ function TaskAnalyticsDashboard() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 p-6" dir="rtl">
       <div className="max-w-7xl mx-auto">
         {/* כותרת */}
-        <div className="mb-8">
-          <h1 className="text-4xl font-bold text-slate-900 mb-2">לוח מחוונים משימות</h1>
-          <p className="text-slate-600">סקירה בזמן אמת של משימות, ביצוע וסטטיסטיקות</p>
+        <div className="mb-6">
+          <h1 className="text-2xl md:text-4xl font-bold text-slate-900 mb-2">לוח מחוונים משימות</h1>
+          <p className="text-slate-600 text-sm">סקירה בזמן אמת של משימות, ביצוע וסטטיסטיקות</p>
         </div>
 
         {/* סינונים */}
@@ -537,7 +537,7 @@ function TaskAnalyticsDashboard() {
         </Card>
 
         {/* KPI Cards - Building Metrics */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
           <Card className="h-full bg-gradient-to-br from-purple-50 to-purple-100 border-purple-200 rounded-xl shadow-sm hover:shadow-md transition-shadow">
             <CardContent className="pt-6">
               <div className="flex items-start justify-between">
