@@ -17,6 +17,7 @@ import {
    LayoutDashboard, Menu, X, LogOut,
    User, ChevronDown, ChevronLeft, SlidersHorizontal, Users as UsersIcon, ClipboardList, MessageCircle, ContactRound, Upload, Settings, AlertTriangle, Clock, Users, BookOpen, Download, MapPin, Shield as ShieldIcon, CheckSquare } from
  "lucide-react";
+import { PAGE_NAMES } from "@/lib/pageKeys";
 import NotificationBell from "@/components/notifications/NotificationBell";
 import BuildingAgent from "@/components/agent/BuildingAgent";
 import { AlertProvider } from "@/components/notifications/AlertContext";
