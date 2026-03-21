@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { base44 } from '@/api/base44Client';
 import { Button } from '@/components/ui/button';
-import { RefreshCw, CheckCircle2, XCircle, AlertTriangle, Clock, Download } from 'lucide-react';
+import { RefreshCw, CheckCircle2, XCircle, AlertTriangle, Clock, Download, Watch } from 'lucide-react';
 import { format } from 'date-fns';
+import { he } from 'date-fns/locale';
 
 function statusLabel(s) {
   const m = { SUCCESS: 'הצלחה', PARTIAL: 'חלקי', FAILED: 'נכשל', RUNNING: 'מתבצע...' };
@@ -64,22 +65,34 @@ export default function BllinkImportPanel() {
     <div className="space-y-6" dir="rtl">
       {/* כותרת + כפתור ייבוא */}
       <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-        <div className="flex items-center justify-between gap-4">
+        <div className="flex flex-col gap-4">
           <div>
             <h2 className="text-lg font-bold text-slate-800">ייבוא אוטומטי מ-Bllink</h2>
             <p className="text-sm text-slate-500 mt-1">
-              שולף נתוני חייבים עדכניים מ-API של Bllink ומעדכן את בסיס הנתונים אוטומטית
+              שולף נתוני חייבים עדכניים מ-API של Bllink ומעדכן את בסיס הנתונים אוטומטית כל יום בחצות
             </p>
           </div>
+
+          {/* Last Update Info */}
+          {logs.length > 0 && logs[0].finishedAt && (
+            <div className="bg-gradient-to-r from-emerald-50 to-green-50 border border-green-200 rounded-xl p-3 flex items-center gap-3">
+              <Watch className="w-5 h-5 text-green-600 flex-shrink-0" />
+              <div className="flex-1 text-right">
+                <p className="text-xs font-semibold text-green-700">עדכון אחרון</p>
+                <p className="text-sm font-medium text-green-900">{format(new Date(logs[0].finishedAt), 'dd/MM/yyyy HH:mm', { locale: he })}</p>
+              </div>
+            </div>
+          )}
+
           <Button
             onClick={runImport}
             disabled={loading}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-semibold gap-2 flex-shrink-0 shadow-sm"
+            className="w-full bg-gradient-to-l from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl font-semibold gap-2 shadow-sm"
           >
             {loading ? (
-              <><RefreshCw className="w-4 h-4 animate-spin" /> מייבא...</>
+              <><RefreshCw className="w-4 h-4 animate-spin" /> סרוק בתהליך...</>
             ) : (
-              <><Download className="w-4 h-4" /> ייבא דוח חייבים</>
+              <><Download className="w-4 h-4" /> סרוק עכשיו</>
             )}
           </Button>
         </div>
