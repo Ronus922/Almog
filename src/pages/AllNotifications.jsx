@@ -9,15 +9,29 @@ export default function AllNotifications() {
   const { currentUser } = useAuth();
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
-  const username = currentUser?.username;
+  const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!username) return;
+    if (!currentUser?.username) {
+      setLoading(false);
+      return;
+    }
 
-    setLoading(true);
-    base44.entities.Notification.filter({ user_username: username }, "-created_date", 500)
-      .then(setNotifications)
-      .finally(() => setLoading(false));
+    const loadNotifications = async () => {
+      try {
+        setError(null);
+        const data = await base44.entities.Notification.filter({ user_username: currentUser.username }, "-created_date", 500);
+        setNotifications(data || []);
+      } catch (err) {
+        console.error('Error loading notifications:', err);
+        setError('שגיאה בטעינת ההתראות');
+        setNotifications([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadNotifications();
 
     const unsub = base44.entities.Notification.subscribe((event) => {
       if (event.type === 'create' && event.data?.user_username === username) {
