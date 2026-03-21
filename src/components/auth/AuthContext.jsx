@@ -139,7 +139,7 @@ export function AuthProvider({ children }) {
     const passwordHash = btoa(password);
     const users = await base44.entities.AppUser.list();
     const user = users.find(
-      (u) => u.username === username && u.password_hash === passwordHash && u.is_active !== false
+      (u) => u.username === username && u.password_hash === passwordHash && u.active !== false
     );
 
     if (!user) {
