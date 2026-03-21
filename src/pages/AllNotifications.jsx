@@ -34,7 +34,7 @@ export default function AllNotifications() {
     loadNotifications();
 
     const unsub = base44.entities.Notification.subscribe((event) => {
-      if (event.type === 'create' && event.data?.user_username === username) {
+      if (event.type === 'create' && event.data?.user_username === currentUser.username) {
         setNotifications(prev => [event.data, ...prev]);
       } else if (event.type === 'update') {
         setNotifications(prev => prev.map(n => n.id === event.id ? event.data : n));
@@ -43,8 +43,8 @@ export default function AllNotifications() {
       }
     });
 
-    return unsub;
-  }, [username]);
+    return () => unsub?.();
+  }, [currentUser?.username]);
 
   const markAllRead = async () => {
     const unreadList = notifications.filter(n => !n.is_read);
