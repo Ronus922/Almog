@@ -1092,7 +1092,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             </div>
           )}
           </div>
-          </AppModal>
           </>
+          </AppModal>
           );
           }
