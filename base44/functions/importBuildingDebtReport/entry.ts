@@ -193,11 +193,27 @@ async function srpAuth(username, password) {
   const x = computeX(SALT, USER_ID_FOR_SRP, password);
   const S = computeS(a, B_big, u, x);
 
+  console.log('[SRP-DEBUG] POOL_NAME:', POOL_NAME);
+  console.log('[SRP-DEBUG] USER_ID_FOR_SRP:', USER_ID_FOR_SRP);
+  console.log('[SRP-DEBUG] SALT (first 16):', SALT.slice(0, 16));
+  console.log('[SRP-DEBUG] SRP_B (first 16):', SRP_B.slice(0, 16));
+  console.log('[SRP-DEBUG] A_hex (first 16):', A_hex.slice(0, 16));
+  console.log('[SRP-DEBUG] u (first 8):', u.toString(16).slice(0, 8));
+  console.log('[SRP-DEBUG] x (first 8):', x.toString(16).slice(0, 8));
+  console.log('[SRP-DEBUG] S (first 8):', S.toString(16).slice(0, 8));
+
+  // בדיקה: חשב inner hash של password בנפרד
+  const innerCheck = sha256(enc(POOL_NAME + USER_ID_FOR_SRP + password));
+  console.log('[SRP-DEBUG] innerHash (first 8):', b2h(innerCheck).slice(0, 16));
+
   const hkdfKey = computeHkdfKey(A_hex, B_big, S);
+  console.log('[SRP-DEBUG] hkdfKey:', b2h(hkdfKey));
   const ts = cognitoTimestamp();
+  console.log('[SRP-DEBUG] timestamp:', ts);
 
   const msgBytes = cat(enc(POOL_NAME), enc(USER_ID_FOR_SRP), b64d(SECRET_BLOCK), enc(ts));
   const sig = b64e(hmac(hkdfKey, msgBytes));
+  console.log('[SRP-DEBUG] sig (first 20):', sig.slice(0, 20));
 
   console.log('[SRP] RespondToAuthChallenge...');
   const respond = await cognitoPost('RespondToAuthChallenge', {
