@@ -94,7 +94,7 @@ export function AuthProvider({ children }) {
       console.log('[Auth] Restoring session for:', session.username);
 
       const users = await base44.entities.AppUser.list();
-      const user = users.find((u) => u.username === session.username && u.is_active !== false);
+      const user = users.find((u) => u.username === session.username && u.active !== false);
 
       if (!user) {
         console.log('[Auth] ✗ User not found or inactive');
