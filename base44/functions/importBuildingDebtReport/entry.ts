@@ -441,7 +441,10 @@ Deno.serve(async (req) => {
     const errorDetails = [];
     const now = new Date().toISOString();
 
-    for (const [apt, rowData] of uniqueApts) {
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+    for (let i = 0; i < uniqueApts.length; i++) {
+      const [apt, rowData] = uniqueApts[i];
       try {
         const mapped = mapBllinkRowToDebtor(apt, rowData);
         mapped.importedThisRun = true;
@@ -466,9 +469,32 @@ Deno.serve(async (req) => {
           await base44.asServiceRole.entities.DebtorRecord.create(mapped);
           created++;
         }
+
+        // delay קטן כל 5 רשומות למניעת rate limit
+        if ((i + 1) % 5 === 0) await sleep(300);
       } catch (rowErr) {
-        failed++;
-        errorDetails.push({ apartmentNumber: apt, errorMessage: rowErr.message });
+        if (rowErr.message?.includes('Rate limit')) {
+          // המתן ונסה שוב
+          await sleep(2000);
+          try {
+            const existing = existingMap.get(apt);
+            const mapped = mapBllinkRowToDebtor(apt, rowData);
+            mapped.importedThisRun = true; mapped.lastImportRunId = runId; mapped.lastImportAt = now;
+            if (existing) {
+              await base44.asServiceRole.entities.DebtorRecord.update(existing.id, mapped);
+              updated++;
+            } else {
+              await base44.asServiceRole.entities.DebtorRecord.create(mapped);
+              created++;
+            }
+          } catch (retryErr) {
+            failed++;
+            errorDetails.push({ apartmentNumber: apt, errorMessage: retryErr.message });
+          }
+        } else {
+          failed++;
+          errorDetails.push({ apartmentNumber: apt, errorMessage: rowErr.message });
+        }
       }
     }
 
