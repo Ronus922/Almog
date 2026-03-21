@@ -641,14 +641,17 @@ export default function ExcelImporter({ onImportComplete }) {
           updatesQueue.push({ id: existing.id, patch, aptKey: apartmentKey });
         } else {
           // CREATE
+          // אם יש פרטים ב-Contact - קח משם
+          const contactData = contactMap[apartmentKey];
+          
           const newRecord = {
             apartmentNumber: apartmentKey,
-            ownerName: ownerNameRaw.split(/[\/,]/)[0]?.trim() || '',
-            phoneOwner,
-            phoneTenant,
-            phonePrimary,
-            phonesRaw: phonesRaw,
-            phonesManualOverride: false,
+            ownerName: contactData?.ownerName || ownerNameRaw.split(/[\/,]/)[0]?.trim() || '',
+            phoneOwner: contactData?.phoneOwner || phoneOwner,
+            phoneTenant: contactData?.phoneTenant || phoneTenant,
+            phonePrimary: contactData?.phonePrimary || phonePrimary,
+            phonesRaw: contactData?.phonesRaw || phonesRaw,
+            phonesManualOverride: contactData ? true : false,
             totalDebt,
             monthlyDebt,
             specialDebt: hotWaterDebt,
