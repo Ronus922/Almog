@@ -203,7 +203,7 @@ export default function TaskProKanbanDnd({
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="flex gap-4 items-start" dir="rtl">
+      <div className="flex gap-3 items-start overflow-x-auto pb-4" dir="rtl" style={{WebkitOverflowScrolling: 'touch'}}>
         {COLUMNS.map((col) => (
           <KanbanColumn
             key={col.id}
