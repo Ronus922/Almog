@@ -108,15 +108,15 @@ export default function AllNotifications() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h1 className="text-3xl font-extrabold text-slate-900 mb-2">כל ההתראות</h1>
-              <p className="text-slate-600">
+              <h1 className="text-2xl font-extrabold text-slate-900 mb-1">כל ההתראות</h1>
+              <p className="text-slate-600 text-sm">
                 {notifications.length} התראות
                 {unread.length > 0 && ` • ${unread.length} לא קרואות`}
               </p>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 flex-wrap">
               {unread.length > 0 && (
                 <Button
                   onClick={markAllRead}
@@ -149,8 +149,8 @@ export default function AllNotifications() {
           </div>
         ) : (
           <div className="bg-white rounded-2xl shadow-sm border border-slate-200/60 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full text-right text-sm">
+            <div className="overflow-x-auto" style={{WebkitOverflowScrolling: 'touch'}}>
+              <table className="w-full text-right text-sm min-w-[500px]">
                 <thead>
                   <tr className="bg-gradient-to-r from-slate-50 to-slate-100 border-b border-slate-200">
                     <th className="px-6 py-4 font-bold text-slate-700 text-center w-16">סוג</th>
