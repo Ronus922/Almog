@@ -272,10 +272,10 @@ export default function TaskProReadOnlyDialog({
 
       {/* AlertDialog מחיקה */}
       <AlertDialog open={showDeleteAlert} onOpenChange={setShowDeleteAlert}>
-        <AlertDialogContent dir="rtl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>מחיקת משימה</AlertDialogTitle>
-            <AlertDialogDescription>
+        <AlertDialogContent dir="rtl" className="text-right">
+          <AlertDialogHeader className="text-right">
+            <AlertDialogTitle className="text-right">מחיקת משימה</AlertDialogTitle>
+            <AlertDialogDescription className="text-right">
               האם אתה בטוח שברצונך למחוק את המשימה <strong>"{task.title || task.task_type}"</strong>?
               <br />
               פעולה זו אינה הפיכה.
