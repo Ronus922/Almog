@@ -57,12 +57,9 @@ function padHex(n) {
 }
 
 function computeK() {
-  const nBuf = hexToBuffer(N_HEX);
-  const gBuf = hexToBuffer(N_HEX.replace(/./g, '0').slice(0, N_HEX.length - G_HEX.length) + G_HEX);
-  // g padded to length of N
   const nHex = N_HEX.length % 2 ? '0' + N_HEX : N_HEX;
   const gPadded = G_HEX.padStart(nHex.length, '0');
-  const combined = Buffer.concat([hexToBuffer(nHex), hexToBuffer(gPadded)]);
+  const combined = bufConcat(hexToBuffer(nHex), hexToBuffer(gPadded));
   return bigInt(createHash('sha256').update(combined).digest('hex'), 16);
 }
 
