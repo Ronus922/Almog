@@ -577,7 +577,7 @@ export default function ExcelImporter({ onImportComplete }) {
         };
 
         if (existing) {
-          // UPDATE - שימוש בהגנה קשיחה
+          // UPDATE - שימוש בהגנה קשיחה עם התאמת Contact
           // בנה patch בטוח: רק שדות מורשים, לא לדרוס ערכים קיימים ריקים
           const excelData = {
             apartmentNumber: apartmentKey,
@@ -601,10 +601,26 @@ export default function ExcelImporter({ onImportComplete }) {
             importTimestamp
           );
           
+          // ═══════════════════════════════════════════════════════════
+          // התאמת נתונים מ-Contact אם קיימת רשומה תואמת
+          // ═══════════════════════════════════════════════════════════
+          const contactData = contactMap[apartmentKey];
+          if (contactData) {
+            // דריסה עם נתוני Contact: שדות אלו נלקחים מ-Contact בלבד
+            patch.ownerName = contactData.ownerName || existing.ownerName || '';
+            patch.phoneOwner = contactData.phoneOwner || existing.phoneOwner || '';
+            patch.phoneTenant = contactData.phoneTenant || existing.phoneTenant || '';
+            patch.phonePrimary = contactData.phonePrimary || existing.phonePrimary || '';
+            // Operator ID: שמור מ-Contact אם קיים
+            if (contactData.operatorId) {
+              patch.operator_id = contactData.operatorId;
+            }
+          }
+          
           // הגנה כפולה: אל תכנס לטלפונים, הערות, operator_id וכו'
           // זה מוגן ב-PROTECTED_FIELDS
           for (const protectedField of Object.keys(PROTECTED_FIELDS)) {
-            if (protectedField in patch) {
+            if (protectedField in patch && protectedField !== 'ownerName' && protectedField !== 'phoneOwner' && protectedField !== 'phoneTenant' && protectedField !== 'phonePrimary') {
               console.warn(`[Import Safety] Skipping protected field: ${protectedField}`);
               delete patch[protectedField];
             }
