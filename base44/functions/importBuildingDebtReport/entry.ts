@@ -269,26 +269,53 @@ function parseNum(val) {
 
 function mapBllinkRowToDebtor(apt, data) {
   const result = { apartmentNumber: apt };
-  const ownerName = data.ownerName || data.owner_name ||
-    ([data.firstName, data.lastName].filter(Boolean).join(' ').trim()) || null;
+
+  // שם דייר/בעלים — מ-tenantDetails
+  const tenantName = data.tenantDetails?.RenterName || data.tenantDetails?.tenantName?.[0]?.tenantName;
+  const ownerName = data.ownerName || data.owner_name || tenantName || null;
   if (ownerName) result.ownerName = String(ownerName).trim();
-  const ownerPhone = data.ownerPhone || data.owner_phone || data.phone || data.phoneNumber;
-  if (ownerPhone) result.phoneOwner = String(ownerPhone).trim();
-  const tenantPhone = data.tenantPhone || data.tenant_phone;
-  if (tenantPhone) result.phoneTenant = String(tenantPhone).trim();
-  const total = parseNum(data.totalDebt ?? data.total_debt ?? data.debt ?? data.debtAmount);
-  if (total !== null) result.totalDebt = total;
-  const monthly = parseNum(data.monthlyDebt ?? data.monthly_debt ?? data.managementFee ?? data.management_fee);
-  if (monthly !== null) result.monthlyDebt = monthly;
-  const special = parseNum(data.specialDebt ?? data.special_debt ?? data.extraDebt);
-  if (special !== null) result.specialDebt = special;
-  const months = parseNum(data.monthsInArrears ?? data.months_in_arrears ?? data.arrearsMonths);
-  if (months !== null) result.monthsInArrears = months;
-  if (data.detailsMonthly || data.details_monthly) result.detailsMonthly = String(data.detailsMonthly || data.details_monthly).trim();
-  if (data.detailsSpecial || data.details_special) result.detailsSpecial = String(data.detailsSpecial || data.details_special).trim();
-  if (data.managementMonthsRaw || data.management_months_raw) result.managementMonthsRaw = String(data.managementMonthsRaw || data.management_months_raw).trim();
+
+  // טלפונים
+  const ownerPhone = data.ownerPhone || data.owner_phone || data.phone;
+  if (ownerPhone && ownerPhone !== '000000000') result.phoneOwner = String(ownerPhone).trim();
+  const tenantPhone = data.tenantDetails?.RenterPhone;
+  if (tenantPhone && tenantPhone !== '000000000') result.phoneTenant = String(tenantPhone).trim();
+
+  // חובות — מ-Bllink fields
+  // pastPaymentsLeft = חוב עבר (דמי ניהול חודשיים שלא שולמו)
+  const pastDebt = parseNum(data.pastPaymentsLeft ?? data.pastOnlyPaymentsLeft);
+  const currentMonthDebt = parseNum(data.currentMonthDebtLeft);
+  const oneTime = parseNum(data.oneTimeLeft); // חיובים חד פעמיים (מים חמים וכו')
+
+  // totalDebt = כל החוב הפתוח
+  const total = parseNum(data.totalDebt ?? data.total_debt);
+  if (total !== null) {
+    result.totalDebt = total;
+  } else if (pastDebt !== null || currentMonthDebt !== null || oneTime !== null) {
+    result.totalDebt = (pastDebt ?? 0) + (currentMonthDebt ?? 0) + (oneTime ?? 0);
+  }
+
+  // monthlyDebt = חוב חודשי נוכחי (דמי ניהול)
+  if (currentMonthDebt !== null) result.monthlyDebt = currentMonthDebt;
+  // specialDebt = חד פעמי (מים חמים)
+  if (oneTime !== null) result.specialDebt = oneTime;
+
+  // פרטי תשלומים
+  if (data.openMonthDebtPayments?.length) {
+    result.detailsMonthly = data.openMonthDebtPayments
+      .map(p => `${p.month}/${p.year}: ₪${p.amount_left?.value ?? p.total?.value ?? 0}`)
+      .join(', ');
+    result.monthsInArrears = data.openMonthDebtPayments.length;
+  }
+  if (data.openOneTimePayments?.length) {
+    result.detailsSpecial = data.openOneTimePayments
+      .map(p => `${p.payment_description}: ₪${p.amount_left?.value ?? 0}`)
+      .join(', ');
+  }
+
   const notes = data.notes || data.comment || data.comments;
   if (notes) result.notes = String(notes).trim();
+
   return result;
 }
 
