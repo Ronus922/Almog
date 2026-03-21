@@ -17,11 +17,36 @@ const g = bigInt(G_HEX, 16);
 
 function hexToBuffer(hex) {
   const even = hex.length % 2 ? '0' + hex : hex;
-  return Buffer.from(even, 'hex');
+  const arr = new Uint8Array(even.length / 2);
+  for (let i = 0; i < arr.length; i++) arr[i] = parseInt(even.substr(i * 2, 2), 16);
+  return arr;
 }
 
 function bufToHex(buf) {
-  return buf.toString('hex');
+  return Array.from(buf).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function bufConcat(...arrays) {
+  const total = arrays.reduce((s, a) => s + a.length, 0);
+  const out = new Uint8Array(total);
+  let offset = 0;
+  for (const a of arrays) { out.set(a, offset); offset += a.length; }
+  return out;
+}
+
+function strToBytes(s) {
+  return new TextEncoder().encode(s);
+}
+
+function base64ToBytes(b64) {
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return arr;
+}
+
+function bytesToBase64(arr) {
+  return btoa(String.fromCharCode(...arr));
 }
 
 function padHex(n) {
