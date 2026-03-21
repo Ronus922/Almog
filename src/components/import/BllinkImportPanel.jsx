@@ -87,7 +87,8 @@ export default function BllinkImportPanel() {
           <Button
             onClick={runImport}
             disabled={loading}
-            className="w-full bg-gradient-to-l from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-6 py-3 rounded-xl font-semibold gap-2 shadow-sm"
+            size="lg"
+            className="w-full bg-gradient-to-l from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-semibold gap-2 shadow-sm h-11"
           >
             {loading ? (
               <><RefreshCw className="w-4 h-4 animate-spin" /> סרוק בתהליך...</>
