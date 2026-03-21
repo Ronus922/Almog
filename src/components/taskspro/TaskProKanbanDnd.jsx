@@ -82,9 +82,9 @@ function TaskCard({ task, index, onRowClick, onEdit, onDelete, currentUser }) {
                       <Pencil className="w-3.5 h-3.5" />
                     </button>
                     <button
-                      onClick={(e) => { e.stopPropagation(); onDelete(task.id); }}
-                      className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-400 hover:bg-red-50 transition-colors"
-                      title="מחוק"
+                     onClick={(e) => { e.stopPropagation(); onDelete(task.id, task.title || task.task_type); }}
+                     className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-400 hover:bg-red-50 transition-colors"
+                     title="מחוק"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>

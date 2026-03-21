@@ -212,9 +212,9 @@ export default function TaskProTable({
                       </button>
                     )}
                     {isAdmin && (
-                      <button onClick={() => onDelete(task.id)} className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors" title="מחוק">
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </button>
+                     <button onClick={() => onDelete(task.id, task.title || task.task_type)} className="w-7 h-7 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors" title="מחוק">
+                       <Trash2 className="w-3.5 h-3.5" />
+                     </button>
                     )}
                   </div>
                 </td>
