@@ -164,7 +164,8 @@ async function srpAuth(username, password) {
     secretBlockBytes,
     strToBytes(timestamp),
   );
-  const sig = createHmac('sha256', hkdfKey).update(msg).digest('base64');
+  const sigBytes = createHmac('sha256', hkdfKey).update(msg).digest();
+  const sig = bytesToBase64(sigBytes);
 
   console.log('[SRP] RespondToAuthChallenge...');
   const respond = await cognitoPost('RespondToAuthChallenge', {
