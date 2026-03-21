@@ -643,13 +643,29 @@ export default function ExcelImporter({ onImportComplete }) {
           
           updatesQueue.push({ id: existing.id, patch, aptKey: apartmentKey });
         } else {
-          // CREATE
+          // CREATE - בדוק Contact אם קיימת רשומה תואמת
+          let finalOwnerName = ownerNameRaw.split(/[\/,]/)[0]?.trim() || '';
+          let finalPhoneOwner = phoneOwner;
+          let finalPhoneTenant = phoneTenant;
+          let finalPhonePrimary = phonePrimary;
+          let finalOperatorId = null;
+          
+          // אם קיימת רשומת Contact תואמת, השתמש בנתוניה
+          const contactData = contactMap[apartmentKey];
+          if (contactData) {
+            finalOwnerName = contactData.ownerName || finalOwnerName;
+            finalPhoneOwner = contactData.phoneOwner || finalPhoneOwner;
+            finalPhoneTenant = contactData.phoneTenant || finalPhoneTenant;
+            finalPhonePrimary = contactData.phonePrimary || finalPhonePrimary;
+            finalOperatorId = contactData.operatorId || null;
+          }
+          
           const newRecord = {
             apartmentNumber: apartmentKey,
-            ownerName: ownerNameRaw.split(/[\/,]/)[0]?.trim() || '',
-            phoneOwner,
-            phoneTenant,
-            phonePrimary,
+            ownerName: finalOwnerName,
+            phoneOwner: finalPhoneOwner,
+            phoneTenant: finalPhoneTenant,
+            phonePrimary: finalPhonePrimary,
             phonesRaw: phonesRaw,
             phonesManualOverride: false,
             totalDebt,
@@ -666,6 +682,11 @@ export default function ExcelImporter({ onImportComplete }) {
             flaggedAsCleared: false,
             isArchived: false
           };
+          
+          // הוסף operator_id אם קיים
+          if (finalOperatorId) {
+            newRecord.operator_id = finalOperatorId;
+          }
 
           // קביעת סטטוס משפטי לרשומה חדשה
           if (recommendedLegalStatusId) {
