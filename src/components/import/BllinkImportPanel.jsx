@@ -54,7 +54,7 @@ export default function BllinkImportPanel() {
         triggered_by: 'admin_ui',
       });
       setResult(resp.data);
-      await loadLogs();
+      setTimeout(() => loadLogs(), 500); // עדכן לוגים אחרי קצת זמן
     } catch (e) {
       setResult({ ok: false, error: e.message });
     }
@@ -75,11 +75,23 @@ export default function BllinkImportPanel() {
 
           {/* Last Update Info */}
           {logs.length > 0 && logs[0].finishedAt && (
-            <div className="bg-gradient-to-r from-emerald-50 to-green-50 border border-green-200 rounded-xl p-3 flex items-center gap-3">
-              <Watch className="w-5 h-5 text-green-600 flex-shrink-0" />
+            <div className={`rounded-xl p-3 flex items-center gap-3 border transition-all ${
+              logs[0].status === 'SUCCESS' 
+                ? 'bg-gradient-to-r from-emerald-50 to-green-50 border-green-200' 
+                : logs[0].status === 'PARTIAL'
+                ? 'bg-gradient-to-r from-amber-50 to-yellow-50 border-amber-200'
+                : 'bg-gradient-to-r from-red-50 to-rose-50 border-red-200'
+            }`}>
+              <Watch className={`w-5 h-5 flex-shrink-0 ${
+                logs[0].status === 'SUCCESS' ? 'text-green-600' : logs[0].status === 'PARTIAL' ? 'text-amber-600' : 'text-red-600'
+              }`} />
               <div className="flex-1 text-right">
-                <p className="text-xs font-semibold text-green-700">עדכון אחרון</p>
-                <p className="text-sm font-medium text-green-900">{format(new Date(logs[0].finishedAt), 'dd/MM/yyyy HH:mm', { locale: he })}</p>
+                <p className={`text-xs font-semibold ${
+                  logs[0].status === 'SUCCESS' ? 'text-green-700' : logs[0].status === 'PARTIAL' ? 'text-amber-700' : 'text-red-700'
+                }`}>עדכון אחרון</p>
+                <p className={`text-sm font-medium ${
+                  logs[0].status === 'SUCCESS' ? 'text-green-900' : logs[0].status === 'PARTIAL' ? 'text-amber-900' : 'text-red-900'
+                }`}>{format(new Date(logs[0].finishedAt), 'dd/MM/yyyy HH:mm', { locale: he })}</p>
               </div>
             </div>
           )}
