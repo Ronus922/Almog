@@ -49,7 +49,11 @@ function DashboardContent() {
     queryKey: ['settings'],
     queryFn: async () => {
       const settingsList = await base44.entities.Settings.list();
-      return settingsList[0] || {};
+      return settingsList[0] || { 
+        threshold_ok_max: 1000, 
+        threshold_collect_from: 1500, 
+        threshold_legal_from: 5000 
+      };
     }
   });
 
