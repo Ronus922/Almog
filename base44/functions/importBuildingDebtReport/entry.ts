@@ -113,7 +113,7 @@ async function cognitoPost(target, body) {
 
 async function srpAuth(username, password) {
   // Step 1: generate A
-  const aBytes = randomBytes(128);
+  const aBytes = crypto.getRandomValues(new Uint8Array(128));
   const a = bigInt(bufToHex(aBytes), 16);
   const A = g.modPow(a, N);
   const A_hex = padHex(A);
