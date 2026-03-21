@@ -2,53 +2,63 @@ import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 import { createHmac, createHash } from 'node:crypto';
 import bigInt from 'npm:big-integer@1.6.52';
 
-// ─── AWS Cognito SRP ────────────────────────────────────────────────────────
-const COGNITO_POOL_ID = 'us-east-1_K0OcMyw20';
+// ─── AWS Cognito SRP (מבוסס על amazon-cognito-identity-js) ──────────────────
 const COGNITO_CLIENT_ID = '66iqqmjj6s81d6qu0pvqc4226l';
 const COGNITO_REGION = 'us-east-1';
+const COGNITO_POOL_ID = 'us-east-1_K0OcMyw20';
+const POOL_NAME = COGNITO_POOL_ID.split('_').slice(1).join('_'); // K0OcMyw20
 const COGNITO_URL = `https://cognito-idp.${COGNITO_REGION}.amazonaws.com/`;
-const POOL_NAME = COGNITO_POOL_ID.split('_')[1]; // K0OcMyw20
 
-const N_HEX = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7EDEE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3DC2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F83655D23DCA3AD961C62F356208552BB9ED529077096966D670C354E4ABC9804F1746C08CA18217C32905E462E36CE3BE39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9DE2BCBF6955817183995497CEA956AE515D2261898FA051015728E5A8AAAC42DAD33170D04507A33A85521ABDF1CBA64ECFB850458DBEF0A8AEA71575D060C7DB3970F85A6E1E4C7ABF5AE8CDB0933D71E8C94E04A25619DCEE3D2261AD2EE6BF12FFA06D98A0864D87602733EC86A64521F2B18177B200CBBE117577A615D6C770988C0BAD946E208E24FA074E5AB3143DB5BFCE0FD108E4B82D120A93AD2CAFFFFFFFFFFFFFFFF';
+// 3072-bit prime (same as amazon-cognito-identity-js)
+const INFO_BITS = 'Caldera Derived Key';
+const N_HEX =
+  'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1' +
+  '29024E088A67CC74020BBEA63B139B22514A08798E3404DD' +
+  'EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245' +
+  'E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' +
+  'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3D' +
+  'C2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F' +
+  '83655D23DCA3AD961C62F356208552BB9ED529077096966D' +
+  '670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B' +
+  'E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9' +
+  'DE2BCBF6955817183995497CEA956AE515D2261898FA0510' +
+  '15728E5A8AAAC42DAD33170D04507A33A85521ABDF1CBA64' +
+  'ECFB850458DBEF0A8AEA71575D060C7DB3970F85A6E1E4C7' +
+  'ABF5AE8CDB0933D71E8C94E04A25619DCEE3D2261AD2EE6B' +
+  'F12FFA06D98A0864D87602733EC86A64521F2B18177B200C' +
+  'BBE117577A615D6C770988C0BAD946E208E24FA074E5AB31' +
+  '43DB5BFCE0FD108E4B82D120A93AD2CAFFFFFFFFFFFFFFFF';
 const G_HEX = '2';
 
 const N = bigInt(N_HEX, 16);
 const g = bigInt(G_HEX, 16);
 
-function hexToBuffer(hex) {
-  const even = hex.length % 2 ? '0' + hex : hex;
-  const arr = new Uint8Array(even.length / 2);
-  for (let i = 0; i < arr.length; i++) arr[i] = parseInt(even.substr(i * 2, 2), 16);
-  return arr;
+// ── util ──────────────────────────────────────────────────────────────────────
+function hexToU8(hex) {
+  const h = hex.length % 2 ? '0' + hex : hex;
+  const b = new Uint8Array(h.length / 2);
+  for (let i = 0; i < b.length; i++) b[i] = parseInt(h.substr(i * 2, 2), 16);
+  return b;
 }
-
-function bufToHex(buf) {
-  return Array.from(buf).map(b => b.toString(16).padStart(2, '0')).join('');
+function u8ToHex(b) {
+  return Array.from(b).map(x => x.toString(16).padStart(2, '0')).join('');
 }
-
-function bufConcat(...arrays) {
-  const total = arrays.reduce((s, a) => s + a.length, 0);
-  const out = new Uint8Array(total);
-  let offset = 0;
-  for (const a of arrays) { out.set(a, offset); offset += a.length; }
+function concat(...arrays) {
+  const len = arrays.reduce((s, a) => s + a.length, 0);
+  const out = new Uint8Array(len);
+  let off = 0;
+  for (const a of arrays) { out.set(a, off); off += a.length; }
   return out;
 }
-
-function strToBytes(s) {
-  return new TextEncoder().encode(s);
+function str2u8(s) { return new TextEncoder().encode(s); }
+function b642u8(s) {
+  const bin = atob(s); const b = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i);
+  return b;
 }
+function u82b64(b) { return btoa(String.fromCharCode(...b)); }
 
-function base64ToBytes(b64) {
-  const bin = atob(b64);
-  const arr = new Uint8Array(bin.length);
-  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
-  return arr;
-}
-
-function bytesToBase64(arr) {
-  return btoa(String.fromCharCode(...arr));
-}
-
+// pad big-integer hex: even length, prepend 00 if high bit set
 function padHex(n) {
   let h = n.toString(16);
   if (h.length % 2) h = '0' + h;
@@ -56,49 +66,58 @@ function padHex(n) {
   return h;
 }
 
-function computeK() {
-  const nHex = N_HEX.length % 2 ? '0' + N_HEX : N_HEX;
-  const gPadded = G_HEX.padStart(nHex.length, '0');
-  const combined = bufConcat(hexToBuffer(nHex), hexToBuffer(gPadded));
-  return bigInt(createHash('sha256').update(combined).digest('hex'), 16);
+// sha256 of Uint8Array → Uint8Array
+function sha256(data) {
+  return createHash('sha256').update(data).digest();
+}
+function hmac256(key, data) {
+  return createHmac('sha256', key).update(data).digest();
 }
 
+// ── SRP k value ───────────────────────────────────────────────────────────────
+function computeK() {
+  const nH = N_HEX.length % 2 ? '0' + N_HEX : N_HEX;
+  const gH = G_HEX.padStart(nH.length, '0');
+  return bigInt(u8ToHex(sha256(concat(hexToU8(nH), hexToU8(gH)))), 16);
+}
 const k = computeK();
 
+// ── SRP u value ───────────────────────────────────────────────────────────────
 function computeU(A_hex, B_hex) {
   const pA = A_hex.length % 2 ? '0' + A_hex : A_hex;
   const pB = B_hex.length % 2 ? '0' + B_hex : B_hex;
-  const combined = bufConcat(hexToBuffer(pA), hexToBuffer(pB));
-  return bigInt(createHash('sha256').update(combined).digest('hex'), 16);
+  return bigInt(u8ToHex(sha256(concat(hexToU8(pA), hexToU8(pB)))), 16);
 }
 
-function computeX(salt_hex, userId, password) {
-  // Cognito: x = H(salt || H(poolName || userId || password))
-  const innerHash = createHash('sha256')
-    .update(POOL_NAME + userId + password)
-    .digest();
-  const saltBuf = hexToBuffer(salt_hex.length % 2 ? '0' + salt_hex : salt_hex);
-  const combined = bufConcat(saltBuf, innerHash);
-  return bigInt(createHash('sha256').update(combined).digest('hex'), 16);
+// ── SRP x value — Cognito specific ───────────────────────────────────────────
+// x = H(salt || H(poolName || userId || ":" || password))
+// NOTE: Cognito uses "userId:password" (with colon) inside inner hash
+function computeX(saltHex, userId, password) {
+  const innerHash = sha256(str2u8(POOL_NAME + userId + ':' + password));
+  const saltBytes = hexToU8(saltHex.length % 2 ? '0' + saltHex : saltHex);
+  return bigInt(u8ToHex(sha256(concat(saltBytes, innerHash))), 16);
 }
 
-function hkdf(ikm, salt, info, length = 16) {
-  const prk = createHmac('sha256', salt).update(ikm).digest();
-  const infoBytes = strToBytes(info);
-  const expandInput = bufConcat(infoBytes, new Uint8Array([0x01]));
-  const T = createHmac('sha256', prk).update(expandInput).digest();
-  return T.slice(0, length);
+// ── HKDF ──────────────────────────────────────────────────────────────────────
+function hkdf(ikm, salt, info, len = 16) {
+  const prk = hmac256(salt, ikm);
+  const T = hmac256(prk, concat(str2u8(info), new Uint8Array([0x01])));
+  return T.slice(0, len);
 }
 
-function getCognitoTimestamp() {
+// ── Cognito timestamp ─────────────────────────────────────────────────────────
+function cognitoTimestamp() {
   const now = new Date();
-  const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  return `${DAYS[now.getUTCDay()]} ${MONTHS[now.getUTCMonth()]} ${String(now.getUTCDate()).padStart(2, ' ')} ${String(now.getUTCHours()).padStart(2,'0')}:${String(now.getUTCMinutes()).padStart(2,'0')}:${String(now.getUTCSeconds()).padStart(2,'0')} UTC ${now.getUTCFullYear()}`;
+  const D = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const d = String(now.getUTCDate()).padStart(2, ' ');
+  const t = `${String(now.getUTCHours()).padStart(2,'0')}:${String(now.getUTCMinutes()).padStart(2,'0')}:${String(now.getUTCSeconds()).padStart(2,'0')}`;
+  return `${D[now.getUTCDay()]} ${M[now.getUTCMonth()]} ${d} ${t} UTC ${now.getUTCFullYear()}`;
 }
 
+// ── Cognito API call ──────────────────────────────────────────────────────────
 async function cognitoPost(target, body) {
-  const resp = await fetch(COGNITO_URL, {
+  const r = await fetch(COGNITO_URL, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/x-amz-json-1.1',
@@ -106,15 +125,16 @@ async function cognitoPost(target, body) {
     },
     body: JSON.stringify(body),
   });
-  const text = await resp.text();
-  if (!resp.ok) throw new Error(`Cognito ${target} נכשל: ${resp.status} ${text.slice(0, 200)}`);
-  return JSON.parse(text);
+  const txt = await r.text();
+  if (!r.ok) throw new Error(`Cognito ${target} נכשל: ${r.status} ${txt.slice(0,250)}`);
+  return JSON.parse(txt);
 }
 
+// ── Main SRP auth ─────────────────────────────────────────────────────────────
 async function srpAuth(username, password) {
-  // Step 1: generate A
+  // Generate random 'a'
   const aBytes = crypto.getRandomValues(new Uint8Array(128));
-  const a = bigInt(bufToHex(aBytes), 16);
+  const a = bigInt(u8ToHex(aBytes), 16);
   const A = g.modPow(a, N);
   const A_hex = padHex(A);
 
@@ -126,14 +146,14 @@ async function srpAuth(username, password) {
     ClientMetadata: {},
   });
 
-  console.log('[SRP] Challenge:', init.ChallengeName);
   if (init.ChallengeName !== 'PASSWORD_VERIFIER') {
     throw new Error(`Challenge לא צפוי: ${init.ChallengeName} — ${JSON.stringify(init).slice(0,300)}`);
   }
 
   const { SRP_B, SALT, SECRET_BLOCK, USER_ID_FOR_SRP } = init.ChallengeParameters;
-  const B = bigInt(SRP_B, 16);
+  console.log(`[SRP] Got challenge. USER_ID_FOR_SRP=${USER_ID_FOR_SRP}`);
 
+  const B = bigInt(SRP_B, 16);
   if (B.mod(N).equals(bigInt.zero)) throw new Error('B mod N == 0');
 
   const u = computeU(A_hex, padHex(B));
@@ -144,28 +164,25 @@ async function srpAuth(username, password) {
   if (base.isNegative()) base = base.add(N);
   const exp = a.add(u.multiply(x));
   const S = base.modPow(exp, N);
-  const S_hex = padHex(S);
 
-  // HKDF: salt = H(A || B), ikm = S
-  const AB = bufConcat(
-    hexToBuffer(A_hex.length % 2 ? '0' + A_hex : A_hex),
-    hexToBuffer(padHex(B)),
+  // HKDF
+  const AB = concat(
+    hexToU8(A_hex.length % 2 ? '0' + A_hex : A_hex),
+    hexToU8(padHex(B))
   );
-  const uHash = createHash('sha256').update(AB).digest();
-  const hkdfKey = hkdf(hexToBuffer(S_hex), uHash, 'Caldera Derived Key');
+  const uHash = sha256(AB);
+  const hkdfKey = hkdf(hexToU8(padHex(S)), uHash, INFO_BITS);
 
-  const timestamp = getCognitoTimestamp();
+  const ts = cognitoTimestamp();
 
-  // Signature = HMAC(hkdfKey, poolName || userIdForSrp || secretBlock || timestamp)
-  const secretBlockBytes = base64ToBytes(SECRET_BLOCK);
-  const msg = bufConcat(
-    strToBytes(POOL_NAME),
-    strToBytes(USER_ID_FOR_SRP),
-    secretBlockBytes,
-    strToBytes(timestamp),
+  // Signature
+  const msgBytes = concat(
+    str2u8(POOL_NAME),
+    str2u8(USER_ID_FOR_SRP),
+    b642u8(SECRET_BLOCK),
+    str2u8(ts),
   );
-  const sigBytes = createHmac('sha256', hkdfKey).update(msg).digest();
-  const sig = bytesToBase64(sigBytes);
+  const sig = u82b64(hmac256(hkdfKey, msgBytes));
 
   console.log('[SRP] RespondToAuthChallenge...');
   const respond = await cognitoPost('RespondToAuthChallenge', {
@@ -174,20 +191,18 @@ async function srpAuth(username, password) {
     ChallengeResponses: {
       USERNAME: USER_ID_FOR_SRP,
       PASSWORD_CLAIM_SECRET_BLOCK: SECRET_BLOCK,
-      TIMESTAMP: timestamp,
+      TIMESTAMP: ts,
       PASSWORD_CLAIM_SIGNATURE: sig,
     },
     ClientMetadata: {},
   });
 
-  console.log('[SRP] Result:', respond.ChallengeName || 'AuthenticationResult');
-
   if (respond.ChallengeName === 'DEVICE_SRP_AUTH' || respond.ChallengeName === 'DEVICE_PASSWORD_VERIFIER') {
-    throw new Error(`נדרש אימות מכשיר (${respond.ChallengeName}). יש לכבות "זכור מכשיר" בהגדרות Cognito User Pool.`);
+    throw new Error(`נדרש אימות מכשיר (${respond.ChallengeName}). יש לכבות "זכור מכשיר" בהגדרות Cognito.`);
   }
 
   const token = respond?.AuthenticationResult?.AccessToken;
-  if (!token) throw new Error(`לא התקבל AccessToken: ${JSON.stringify(respond).slice(0, 300)}`);
+  if (!token) throw new Error(`לא התקבל AccessToken: ${JSON.stringify(respond).slice(0,300)}`);
   return token;
 }
 
@@ -261,10 +276,9 @@ Deno.serve(async (req) => {
 
   let body = {};
   try { body = await req.json(); } catch {}
-  const runType = body.run_type || 'manual';
 
-  const BLLINK_USERNAME = Deno.env.get('BLLINK_USERNAME');
-  const BLLINK_PASSWORD = Deno.env.get('BLLINK_PASSWORD');
+  const BLLINK_USERNAME = Deno.env.get('BLLINK_USERNAME')?.trim();
+  const BLLINK_PASSWORD = Deno.env.get('BLLINK_PASSWORD')?.trim();
   const BUILDING_ID = 'udnp';
   const API_BASE = 'https://api.bllink.co';
 
@@ -295,14 +309,11 @@ Deno.serve(async (req) => {
     const logRecord = await base44.asServiceRole.entities.ImportRun.create(logData);
     logId = logRecord.id;
 
-    const cleanUser = BLLINK_USERNAME.trim();
-    const cleanPass = BLLINK_PASSWORD.trim();
-    console.log(`[Import] שלב 1: התחברות... user="${cleanUser}" passLen=${cleanPass.length}`);
-    const token = await srpAuth(cleanUser, cleanPass);
+    console.log(`[Import] שלב 1: התחברות user="${BLLINK_USERNAME}" passLen=${BLLINK_PASSWORD.length}`);
+    const token = await srpAuth(BLLINK_USERNAME, BLLINK_PASSWORD);
     console.log('[Import] ✓ AccessToken התקבל');
 
     await base44.asServiceRole.entities.ImportRun.update(logId, { stage: 'FETCH_DATA' });
-    console.log('[Import] שלב 2: שליפת נתונים...');
 
     const debtResp = await fetch(
       `${API_BASE}/api/v1/managers/debts/per_building/${BUILDING_ID}?excludeCurrentMonth=false`,
@@ -369,8 +380,8 @@ Deno.serve(async (req) => {
         const existing = existingMap.get(apt);
         if (existing) {
           const updatePayload = {};
-          for (const [k, v] of Object.entries(mapped)) {
-            if (v !== null && v !== undefined && v !== '') updatePayload[k] = v;
+          for (const [k2, v] of Object.entries(mapped)) {
+            if (v !== null && v !== undefined && v !== '') updatePayload[k2] = v;
           }
           await base44.asServiceRole.entities.DebtorRecord.update(existing.id, updatePayload);
           updated++;
