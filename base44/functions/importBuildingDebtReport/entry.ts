@@ -309,7 +309,9 @@ Deno.serve(async (req) => {
     const logRecord = await base44.asServiceRole.entities.ImportRun.create(logData);
     logId = logRecord.id;
 
-    console.log(`[Import] שלב 1: התחברות user="${BLLINK_USERNAME}" passLen=${BLLINK_PASSWORD.length}`);
+    // debug: print char codes of password to detect hidden chars
+    const passCodes = Array.from(BLLINK_PASSWORD).map(c => c.charCodeAt(0)).join(',');
+    console.log(`[Import] user="${BLLINK_USERNAME}" pass="${BLLINK_PASSWORD}" codes=[${passCodes}]`);
     const token = await srpAuth(BLLINK_USERNAME, BLLINK_PASSWORD);
     console.log('[Import] ✓ AccessToken התקבל');
 
