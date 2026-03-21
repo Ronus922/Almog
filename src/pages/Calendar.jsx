@@ -50,10 +50,9 @@ const HEBREW_HOLIDAYS = [
   { date: '2027-01-01', name: 'חנוכה' },
 ];
 
-// יצירת notifications מתוך הrecord השמור — בעלות מלאה ב-Calendar
-async function createAppointmentNotifications(savedRecord, previousAttendeeIds, allUsers, queryClient) {
+// יצירת notifications לפגישות — create / update עם שינוי משתתפים
+async function createAppointmentNotifications(savedRecord, previousAttendeeIds, allUsers, isEdit) {
   const attendees = savedRecord.attendees_users || [];
-  const isEdit = previousAttendeeIds.length > 0;
 
   // בעריכה: רק משתתפים חדשים שלא היו קודם
   let targetAttendees = isEdit
@@ -76,26 +75,26 @@ async function createAppointmentNotifications(savedRecord, previousAttendeeIds, 
     const normId = String(attendee?.id ?? attendee ?? '').trim();
     if (!normId) continue;
     const userObj = allUsers.find(u => String(u.id ?? '').trim() === normId);
-    if (!userObj?.username) {
-      console.error('[Notifications] לא נמצא username עבור attendee id:', normId, 'allUsers:', allUsers.map(u => u.id));
-      continue;
-    }
-    const payload = {
-      user_username: userObj.username,
-      type: 'task_assigned',
-      message: `הוקצתה לך פגישה: ${savedRecord.title || ''}`,
-      task_id: savedRecord.id || null,
-      task_type: 'פגישה',
-      assigner_name: 'מערכת',
-      is_read: false,
-    };
+    if (!userObj?.username) continue;
+
+    const type = isEdit ? 'appointment_updated' : 'appointment_assigned';
+    const message = isEdit
+      ? `הפגישה "${savedRecord.title || ''}" עודכנה — הוספת אליה`
+      : `נקבעה עבורך פגישה חדשה: "${savedRecord.title || ''}"`;
+
     try {
-      await base44.entities.Notification.create(payload);
+      await base44.entities.Notification.create({
+        user_username: userObj.username,
+        type,
+        message,
+        task_id: savedRecord.id || null,
+        task_type: 'פגישה',
+        is_read: false,
+      });
     } catch (err) {
-      console.error('[Notifications] שגיאה ביצירת notification:', JSON.stringify(payload), err);
+      console.error('[Notifications] שגיאה ביצירת notification לפגישה:', err);
     }
   }
-  queryClient.invalidateQueries({ queryKey: ['notifications'] });
 }
 
 export default function Calendar() {
