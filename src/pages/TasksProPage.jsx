@@ -513,9 +513,14 @@ export default function TasksProPage() {
             setReadOnlyTask(null);
             setTaskAttachments([]);
           }}
-          task={readOnlyTask}
+          task={readOnlyTask ? { ...readOnlyTask, attendees: attendeesMap[readOnlyTask.id] || [] } : null}
           attachments={taskAttachments}
           currentUser={currentUser}
+          onEdit={(task) => {
+            setReadOnlyTask(null);
+            setTaskAttachments([]);
+            openEdit(task);
+          }}
         />
       </div>
     </div>
