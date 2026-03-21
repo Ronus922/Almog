@@ -34,6 +34,19 @@ Deno.serve(async (req) => {
       return Response.json({ error: 'Green API credentials not configured' }, { status: 500 });
     }
 
+    // בדיקת מצב המופע לפני סנכרון
+    const stateRes = await fetch(
+      `https://api.green-api.com/waInstance${instanceId}/getStateInstance/${apiToken}`
+    );
+    const stateData = await stateRes.json();
+    if (stateData.stateInstance !== 'authorized') {
+      return Response.json({
+        error: 'מופע Green API אינו מחובר לוואטסאפ',
+        stateInstance: stateData.stateInstance,
+        hint: 'יש להיכנס ל-console.green-api.com ולסרוק QR code מחדש'
+      }, { status: 503 });
+    }
+
     const contacts = await base44.entities.Contact.list();
     let updated = 0;
     let noAvatar = 0;
