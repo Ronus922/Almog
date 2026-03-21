@@ -383,6 +383,32 @@ export default function ExcelImporter({ onImportComplete }) {
         threshold_legal_from: 5000 
       };
 
+      // ═══════════════════════════════════════════════════════════
+      // טעינה מוקדמת של נתוני אנשי קשר (Contact)
+      // ═══════════════════════════════════════════════════════════
+      setProgressMessage('טוען נתוני אנשי קשר...');
+      setProgress(3);
+      await base44.entities.ImportRun.update(importRun.id, { stage: 'LOAD_CONTACTS' });
+      console.log(`[Excel Import] Loading all Contact records for matching...`);
+      
+      const allContacts = await base44.entities.Contact.list();
+      const contactMap = {};
+      for (const contact of allContacts) {
+        if (contact.apartment_number) {
+          const normalizedApt = normalizeApartmentKey(contact.apartment_number);
+          contactMap[normalizedApt] = {
+            id: contact.id,
+            ownerName: contact.owner_name,
+            phoneOwner: contact.owner_phone,
+            phoneTenant: contact.tenant_phone,
+            phonePrimary: contact.owner_phone || contact.tenant_phone || '',
+            operatorId: contact.operator_id,
+          };
+        }
+      }
+      
+      console.log(`[Excel Import] Loaded ${Object.keys(contactMap).length} Contact records`);
+
       // RESET MODE (optional)
       if (importMode === 'reset') {
         setProgressMessage('מוחק נתונים קיימים...');
