@@ -87,7 +87,12 @@ export default function UsersManagement() {
     e.preventDefault();
     if (!validate()) return;
     const payload = { ...form };
-    if (editing && !payload.password) delete payload.password;
+    // המר סיסמה ל-password_hash
+    if (payload.password) {
+      payload.password_hash = btoa(payload.password);
+    }
+    delete payload.password;
+    if (editing && !payload.password_hash) delete payload.password_hash;
     if (editing) {
       updateMutation.mutate({ id: editing.id, data: payload });
     } else {
