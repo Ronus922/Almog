@@ -27,12 +27,20 @@ function DashboardContent() {
     staleTime: 0,
   });
 
-  // Subscribe to real-time updates on DebtorRecord
+  // Subscribe to real-time updates on DebtorRecord and Contact
   useEffect(() => {
-    const unsubscribe = base44.entities.DebtorRecord.subscribe((event) => {
+    const unsubscribeDebtor = base44.entities.DebtorRecord.subscribe((event) => {
       queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
     });
-    return unsubscribe;
+    
+    const unsubscribeContact = base44.entities.Contact.subscribe((event) => {
+      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+    });
+    
+    return () => {
+      unsubscribeDebtor();
+      unsubscribeContact();
+    };
   }, [queryClient]);
 
   // Fetch settings
