@@ -429,7 +429,8 @@ export default function Calendar() {
 
     // צור notifications מהrecord השמור בפועל — לא מ-formData
     if (savedRecord) {
-      await createAppointmentNotifications(savedRecord, prevIds, allUsers, queryClient);
+      const wasEdit = !!selectedAppointment;
+      await createAppointmentNotifications(savedRecord, prevIds, allUsers, wasEdit);
     }
   };
 
