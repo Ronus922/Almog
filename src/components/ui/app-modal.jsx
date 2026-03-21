@@ -22,8 +22,8 @@ export default function AppModal({
       <DialogPortal>
         <DialogOverlay className="fixed inset-0 z-50 bg-slate-900/45 backdrop-blur-[2px]" />
         <DialogContent
-          className="fixed left-1/2 top-1/2 z-50 w-[min(96vw,870px)] h-[92vh] max-h-[920px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[22px] border border-slate-200 bg-[#eef3f8] shadow-[0_30px_80px_rgba(15,23,42,0.24)] flex flex-col p-0 gap-0"
-          style={{ maxWidth: '672px' }}
+        className="fixed left-1/2 top-1/2 z-50 w-[min(96vw,870px)] h-[92vh] max-h-[940px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-[24px] border-0 bg-[#f0f4f8] shadow-[0_40px_100px_rgba(15,23,42,0.30)] flex flex-col p-0 gap-0"
+        style={{ maxWidth: '800px' }}
           aria-describedby="modal-description"
           onPointerDownOutside={(e) => {
             if (dangerous) {
@@ -37,55 +37,50 @@ export default function AppModal({
           </VisuallyHidden>
 
           {/* Header */}
-          <div className="relative shrink-0 overflow-hidden bg-[linear-gradient(180deg,#23477a_0%,#274b80_45%,#2c5088_100%)] px-6 pt-5 pb-4 text-white">
-            {/* Decorative overlay layers */}
-            <div className="absolute inset-0 opacity-[0.12] bg-[radial-gradient(circle_at_top_right,white_0,transparent_42%)]" />
-            <div className="absolute -bottom-8 -left-10 h-28 w-[55%] rounded-[999px] bg-white/10 blur-2xl" />
-            <div className="absolute -top-10 right-8 h-24 w-24 rounded-full bg-white/10 blur-2xl" />
+          <div className="relative shrink-0 overflow-hidden bg-[#1a3a6b] px-6 pt-5 pb-5 text-white" dir="rtl">
+            {/* Decorative blobs */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,255,255,0.07)_0%,transparent_55%)]" />
+            <div className="absolute bottom-0 right-0 w-48 h-24 bg-white/5 rounded-full blur-3xl" />
 
-            {/* Close button */}
+            {/* Close button — left side (LTR-position = left) */}
             <button
               onClick={() => onClose()}
               type="button"
-              className="absolute left-4 top-4 inline-flex h-11 w-11 items-center justify-center rounded-[14px] border border-white/20 bg-white/10 text-white shadow-sm backdrop-blur-sm transition hover:bg-white/20 hover:bg-white/30 z-20 cursor-pointer">
-              <X className="h-5 w-5" />
-              <span className="sr-only">סגור</span>
+              className="absolute left-4 top-4 inline-flex h-10 w-10 items-center justify-center rounded-[12px] border border-white/20 bg-white/10 text-white transition hover:bg-white/25 z-20 cursor-pointer">
+              <X className="h-4 w-4" />
             </button>
 
-            {/* Header content */}
-            <div className="relative z-10 flex items-start justify-between gap-4">
-              <div className="flex-1 text-right">
-                <h2 className="text-[34px] leading-none font-black tracking-[-0.02em] text-white">{title}</h2>
-                {subtitle &&
-                <p className="mt-2 text-[13px] font-medium text-white/75">{subtitle}</p>
-                }
-              </div>
-            </div>
-
-            {/* Status pill row */}
-            {statusPill &&
-            <div className="relative z-10 mt-4 flex items-center justify-end gap-3">
-                <span className="inline-flex h-9 items-center rounded-full bg-[#ff6b63] px-5 text-[13px] font-bold text-white shadow-[0_8px_18px_rgba(255,107,99,0.35)]">
+            {/* Status pill — top left near close */}
+            {statusPill && statusPill.text !== 'לא הוגדר' && (
+              <div className="absolute left-16 top-4 z-20">
+                <span className="inline-flex items-center h-8 rounded-full bg-[#c94040] px-4 text-[12px] font-bold text-white shadow-sm">
                   {statusPill.text.replace('סטטוס משפטי: ', '')}
                 </span>
-                <span className="text-[13px] font-semibold text-white/80">סטטוס משפטי:</span>
               </div>
-            }
+            )}
+
+            {/* Title block — RTL right side */}
+            <div className="relative z-10 pr-1 pl-28 text-right">
+              <h2 className="text-[28px] sm:text-[32px] leading-none font-black tracking-[-0.02em] text-white">{title}</h2>
+              {subtitle && (
+                <p className="mt-1.5 text-[13px] font-medium text-white/70">{subtitle}</p>
+              )}
+            </div>
           </div>
 
           {/* Body - Scrollable */}
-          <div className="flex-1 overflow-y-auto px-5 py-5 bg-[#eef3f8]">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-5 bg-[#f0f4f8]" style={{ WebkitOverflowScrolling: 'touch' }}>
             {children}
           </div>
 
           {/* Footer */}
-          {footer &&
-          <div className="shrink-0 border-t border-slate-200 bg-[#f8fbff] px-4 py-4">
-              <div className="flex flex-wrap items-center justify-between gap-3">
+          {footer && (
+            <div className="shrink-0 border-t border-slate-200/80 bg-white px-4 sm:px-6 py-3.5">
+              <div className="flex flex-wrap items-center justify-between gap-2" dir="rtl">
                 {footer}
               </div>
             </div>
-          }
+          )}
         </DialogContent>
       </DialogPortal>
     </Dialog>);
