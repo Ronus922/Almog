@@ -29,8 +29,7 @@ function LayoutContent({ children, currentPageName }) {
   const { attemptNavigation, ConfirmDialog } = useNavigationBlock();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const [tasks, setTasks] = useState([]);
-  const [showNotifications, setShowNotifications] = useState(false);
+
 
   const isAdmin = isManagerRole(currentUser) || currentUser?.isBase44Admin === true || currentUser?.role === 'SUPER_ADMIN';
 
