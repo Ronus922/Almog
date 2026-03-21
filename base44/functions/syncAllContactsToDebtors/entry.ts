@@ -36,6 +36,16 @@ Deno.serve(async (req) => {
 
     let syncedCount = 0;
     let skippedCount = 0;
+    let createdCount = 0;
+
+    // בניית מפה מ-DebtorRecord לפי דירה
+    const debtorMap = {};
+    for (const debtor of allDebtors) {
+      const key = normalizeApartmentNumber(debtor.apartmentNumber);
+      if (key) {
+        debtorMap[key] = debtor;
+      }
+    }
 
     // סנכרון כל Debtor עם Contact תואם
     for (const debtor of allDebtors) {
@@ -66,7 +76,41 @@ Deno.serve(async (req) => {
       }
     }
 
-    console.log(`[syncAllContactsToDebtors] סנכרון הושלם: ${syncedCount} עודכנו, ${skippedCount} לא היה להם Contact`);
+    // יצירת DebtorRecord חדשות לכל Contact שאין לו רשומה קיימת
+    for (const [aptKey, contact] of Object.entries(contactMap)) {
+      if (!debtorMap[aptKey]) {
+        const phonePrimary = contact.owner_is_primary_contact && contact.owner_phone 
+          ? contact.owner_phone 
+          : (contact.tenant_is_primary_contact && contact.tenant_phone 
+            ? contact.tenant_phone 
+            : (contact.owner_phone || contact.tenant_phone || ''));
+
+        const newRecord = {
+          apartmentNumber: aptKey,
+          ownerName: contact.owner_name || '',
+          phoneOwner: contact.owner_phone || '',
+          phoneTenant: contact.tenant_phone || '',
+          phonePrimary: phonePrimary,
+          phonesRaw: `${contact.owner_phone || ''} ${contact.tenant_phone || ''}`.trim(),
+          phonesManualOverride: false,
+          totalDebt: 0,
+          monthlyDebt: 0,
+          specialDebt: 0,
+          debt_status_auto: 'תקין',
+          detailsMonthly: '',
+          detailsSpecial: '',
+          managementMonthsRaw: '',
+          monthsInArrears: 0,
+          isArchived: false,
+          flaggedAsCleared: false
+        };
+
+        await base44.asServiceRole.entities.DebtorRecord.create(newRecord);
+        createdCount++;
+      }
+    }
+
+    console.log(`[syncAllContactsToDebtors] סנכרון הושלם: ${syncedCount} עודכנו, ${createdCount} נוצרו חדש, ${skippedCount} לא היה להם Contact`);
 
     return Response.json({ 
       success: true, 
