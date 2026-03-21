@@ -509,8 +509,8 @@ Deno.serve(async (req) => {
           created++;
         }
 
-        // delay בין כל רשומה למניעת rate limit
-        await sleep(200);
+        // delay בין רשומות למניעת rate limit
+        await sleep(500);
       } catch (rowErr) {
         if (rowErr.message?.includes('Rate limit')) {
           // המתן ונסה שוב
