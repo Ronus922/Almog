@@ -34,14 +34,15 @@ function LayoutContent({ children, currentPageName }) {
 
   const isAdmin = isManagerRole(currentUser) || currentUser?.isBase44Admin === true || currentUser?.role === 'SUPER_ADMIN';
 
-  // בדיקת גישה לדף לפי accessiblePages של התפקיד
+  /**
+   * האם המשתמש רשאי לראות דף זה בתפריט?
+   * - null accessiblePages = גישה מלאה
+   * - מערך = רק הדפים הרשומים
+   */
   const canAccessPage = (pageName) => {
     if (!currentUser) return false;
-    // SUPER_ADMIN וmanajer role - גישה לכל הדפים
-    if (isAdmin) return true;
-    // אם accessiblePages הוא null - גישה לכל הדפים (is_admin role)
+    if (currentUser.isBase44Admin || currentUser.role === 'SUPER_ADMIN') return true;
     if (currentUser.accessiblePages === null) return true;
-    // אחרת - בדוק אם הדף ברשימה
     return (currentUser.accessiblePages || []).includes(pageName);
   };
 
