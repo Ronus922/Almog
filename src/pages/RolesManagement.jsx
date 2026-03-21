@@ -6,8 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, Pencil, Trash2, X, Save, Shield, Check } from 'lucide-react';
+import { Plus, Pencil, Trash2, X, Save, Shield, Check, Globe, Lock } from 'lucide-react';
 
 const COLOR_OPTIONS = [
   { value: 'blue', label: 'כחול', class: 'bg-blue-500' },
@@ -31,14 +30,33 @@ const COLOR_BADGE = {
   indigo: 'bg-indigo-100 text-indigo-700',
 };
 
+const ALL_PAGES = [
+  { name: 'Dashboard', label: 'דשבורד' },
+  { name: 'TaskAnalyticsDashboard', label: 'לוח מחוונים משימות' },
+  { name: 'TasksManagement', label: 'ניהול משימות' },
+  { name: 'TasksPro', label: 'משימות Pro' },
+  { name: 'Calendar', label: 'יומן' },
+  { name: 'Contacts', label: 'אנשי קשר' },
+  { name: 'Documents', label: 'מסמכים' },
+  { name: 'InternalChat', label: "צ'אט פנימי" },
+  { name: 'WhatsAppChat', label: "צ'אט וואטסאפ" },
+  { name: 'SupplierManagement', label: 'ספקים' },
+  { name: 'TodoReminders', label: 'תזכורות' },
+];
+
 const PERMISSIONS = [
-  { key: 'can_view_all_employees', label: 'צפייה בכל העובדים' },
   { key: 'can_add_records', label: 'הוספת רשומות' },
   { key: 'can_edit_records', label: 'עריכת רשומות' },
   { key: 'can_delete_records', label: 'מחיקת רשומות' },
 ];
 
-const EMPTY = { name: '', description: '', color: 'blue', can_view_all_employees: false, can_add_records: false, can_edit_records: false, can_delete_records: false, active: true };
+const EMPTY = {
+  name: '', description: '', color: 'blue',
+  is_admin: false,
+  accessible_pages: [],
+  can_add_records: false, can_edit_records: false, can_delete_records: false,
+  active: true
+};
 
 export default function RolesManagement() {
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -78,7 +96,8 @@ export default function RolesManagement() {
     setEditing(r);
     setForm({
       name: r.name, description: r.description || '', color: r.color || 'blue',
-      can_view_all_employees: r.can_view_all_employees || false,
+      is_admin: r.is_admin || false,
+      accessible_pages: r.accessible_pages || [],
       can_add_records: r.can_add_records || false,
       can_edit_records: r.can_edit_records || false,
       can_delete_records: r.can_delete_records || false,
@@ -101,6 +120,20 @@ export default function RolesManagement() {
 
   const togglePerm = (key) => setForm((p) => ({ ...p, [key]: !p[key] }));
 
+  const togglePage = (pageName) => {
+    setForm((p) => {
+      const pages = p.accessible_pages || [];
+      if (pages.includes(pageName)) {
+        return { ...p, accessible_pages: pages.filter((pg) => pg !== pageName) };
+      } else {
+        return { ...p, accessible_pages: [...pages, pageName] };
+      }
+    });
+  };
+
+  const selectAllPages = () => setForm((p) => ({ ...p, accessible_pages: ALL_PAGES.map((pg) => pg.name) }));
+  const clearAllPages = () => setForm((p) => ({ ...p, accessible_pages: [] }));
+
   const getUserCount = (roleId) => users.filter((u) => u.role_id === roleId).length;
 
   return (
@@ -114,7 +147,7 @@ export default function RolesManagement() {
               <Shield className="w-6 h-6 text-purple-600" />
               ניהול תפקידים
             </h1>
-            <p className="text-sm text-slate-500 mt-0.5">הגדרת תפקידים והרשאות המערכת</p>
+            <p className="text-sm text-slate-500 mt-0.5">הגדרת תפקידים, הרשאות ודפים נגישים</p>
           </div>
           <Button onClick={openNew} className="bg-purple-600 hover:bg-purple-700 text-white rounded-xl h-10 px-4 gap-2">
             <Plus className="w-4 h-4" />
@@ -137,23 +170,28 @@ export default function RolesManagement() {
               const badgeClass = COLOR_BADGE[role.color] || COLOR_BADGE.blue;
               const colorOpt = COLOR_OPTIONS.find((c) => c.value === role.color);
               const userCount = getUserCount(role.id);
-              const perms = PERMISSIONS.filter((p) => role[p.key]);
+              const pages = role.accessible_pages || [];
 
               return (
                 <div key={role.id} className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden hover:shadow-md transition-shadow">
                   <div className={`h-1.5 w-full ${colorOpt?.class || 'bg-blue-500'}`} />
                   <div className="p-5">
                     <div className="flex items-start justify-between mb-3">
-                      <div className="flex items-center gap-2">
+                      <div className="flex items-center gap-2 flex-wrap">
                         <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-bold ${badgeClass}`}>
                           <Shield className="w-3 h-3" />
                           {role.name}
                         </span>
+                        {role.is_admin && (
+                          <span className="px-2 py-0.5 bg-amber-100 text-amber-700 rounded-md text-xs font-semibold flex items-center gap-1">
+                            <Globe className="w-3 h-3" /> מנהל
+                          </span>
+                        )}
                         {role.active === false && (
                           <span className="px-2 py-0.5 bg-slate-100 text-slate-500 rounded-md text-xs">לא פעיל</span>
                         )}
                       </div>
-                      <div className="flex gap-1">
+                      <div className="flex gap-1 flex-shrink-0">
                         <button onClick={() => openEdit(role)} className="w-7 h-7 bg-slate-100 hover:bg-blue-100 hover:text-blue-600 rounded-lg flex items-center justify-center text-slate-500 transition-colors">
                           <Pencil className="w-3.5 h-3.5" />
                         </button>
@@ -169,14 +207,36 @@ export default function RolesManagement() {
 
                     <div className="text-xs text-slate-400 mb-3">{userCount} משתמשים בתפקיד</div>
 
-                    {perms.length > 0 && (
-                      <div className="space-y-1.5">
-                        {perms.map((p) => (
-                          <div key={p.key} className="flex items-center gap-1.5 text-xs text-slate-600">
-                            <Check className="w-3.5 h-3.5 text-green-500 flex-shrink-0" />
-                            {p.label}
+                    {/* דפים נגישים */}
+                    {!role.is_admin && (
+                      <div className="mt-3 pt-3 border-t border-slate-100">
+                        <p className="text-xs font-semibold text-slate-500 mb-1.5 flex items-center gap-1">
+                          <Lock className="w-3 h-3" />
+                          דפים נגישים ({pages.length})
+                        </p>
+                        {pages.length === 0 ? (
+                          <p className="text-xs text-red-400">אין גישה לאף דף</p>
+                        ) : (
+                          <div className="flex flex-wrap gap-1">
+                            {pages.slice(0, 4).map((pg) => {
+                              const pageLabel = ALL_PAGES.find((p) => p.name === pg)?.label || pg;
+                              return (
+                                <span key={pg} className="px-1.5 py-0.5 bg-blue-50 text-blue-600 rounded text-xs">{pageLabel}</span>
+                              );
+                            })}
+                            {pages.length > 4 && (
+                              <span className="px-1.5 py-0.5 bg-slate-100 text-slate-500 rounded text-xs">+{pages.length - 4}</span>
+                            )}
                           </div>
-                        ))}
+                        )}
+                      </div>
+                    )}
+
+                    {role.is_admin && (
+                      <div className="mt-3 pt-3 border-t border-slate-100">
+                        <p className="text-xs text-amber-600 flex items-center gap-1 font-medium">
+                          <Globe className="w-3 h-3" /> גישה לכל הדפים
+                        </p>
                       </div>
                     )}
                   </div>
@@ -189,23 +249,27 @@ export default function RolesManagement() {
 
       {/* Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-md" dir="rtl">
+        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-right text-lg font-bold">
               {editing ? 'עריכת תפקיד' : 'תפקיד חדש'}
             </DialogTitle>
           </DialogHeader>
-          <form onSubmit={handleSubmit} className="space-y-4 mt-2">
-            <div>
-              <Label className="text-sm font-semibold text-slate-700 mb-1.5 block">שם התפקיד *</Label>
-              <Input value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} placeholder="לדוגמה: מנהל, עובד, מפקח..." className="h-11 rounded-xl" required />
-            </div>
-            <div>
-              <Label className="text-sm font-semibold text-slate-700 mb-1.5 block">תיאור</Label>
-              <Textarea value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} placeholder="תיאור קצר של התפקיד..." className="rounded-xl resize-none" rows={2} />
+          <form onSubmit={handleSubmit} className="space-y-5 mt-2">
+
+            {/* שם ותיאור */}
+            <div className="space-y-3">
+              <div>
+                <Label className="text-sm font-semibold text-slate-700 mb-1.5 block">שם התפקיד *</Label>
+                <Input value={form.name} onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))} placeholder="לדוגמה: מנהל, עובד, מפקח..." className="h-11 rounded-xl" required />
+              </div>
+              <div>
+                <Label className="text-sm font-semibold text-slate-700 mb-1.5 block">תיאור</Label>
+                <Textarea value={form.description} onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))} placeholder="תיאור קצר של התפקיד..." className="rounded-xl resize-none" rows={2} />
+              </div>
             </div>
 
-            {/* Color */}
+            {/* צבע */}
             <div>
               <Label className="text-sm font-semibold text-slate-700 mb-2 block">צבע התפקיד</Label>
               <div className="flex flex-wrap gap-2">
@@ -220,9 +284,60 @@ export default function RolesManagement() {
               </div>
             </div>
 
-            {/* Permissions */}
+            {/* סוג הרשאה */}
+            <div className="bg-slate-50 rounded-xl p-4">
+              <Label className="text-sm font-semibold text-slate-700 mb-3 block">סוג גישה</Label>
+              <div className="grid grid-cols-2 gap-3">
+                <button type="button"
+                  onClick={() => setForm((p) => ({ ...p, is_admin: false }))}
+                  className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-colors ${!form.is_admin ? 'border-blue-500 bg-blue-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
+                  <Lock className={`w-5 h-5 ${!form.is_admin ? 'text-blue-600' : 'text-slate-400'}`} />
+                  <span className={`text-sm font-semibold ${!form.is_admin ? 'text-blue-700' : 'text-slate-500'}`}>גישה מוגבלת</span>
+                  <span className="text-xs text-slate-400 text-center">בחר דפים ספציפיים</span>
+                </button>
+                <button type="button"
+                  onClick={() => setForm((p) => ({ ...p, is_admin: true }))}
+                  className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-colors ${form.is_admin ? 'border-amber-500 bg-amber-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
+                  <Globe className={`w-5 h-5 ${form.is_admin ? 'text-amber-600' : 'text-slate-400'}`} />
+                  <span className={`text-sm font-semibold ${form.is_admin ? 'text-amber-700' : 'text-slate-500'}`}>גישה מלאה</span>
+                  <span className="text-xs text-slate-400 text-center">גישה לכל הדפים</span>
+                </button>
+              </div>
+            </div>
+
+            {/* בחירת דפים - רק אם גישה מוגבלת */}
+            {!form.is_admin && (
+              <div className="bg-slate-50 rounded-xl p-4">
+                <div className="flex items-center justify-between mb-3">
+                  <Label className="text-sm font-semibold text-slate-700">דפים נגישים</Label>
+                  <div className="flex gap-2">
+                    <button type="button" onClick={selectAllPages} className="text-xs text-blue-600 hover:underline">בחר הכל</button>
+                    <span className="text-slate-300">|</span>
+                    <button type="button" onClick={clearAllPages} className="text-xs text-slate-400 hover:underline">נקה הכל</button>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  {ALL_PAGES.map((pg) => {
+                    const selected = (form.accessible_pages || []).includes(pg.name);
+                    return (
+                      <div key={pg.name}
+                        onClick={() => togglePage(pg.name)}
+                        className={`flex items-center gap-2 p-2.5 rounded-lg cursor-pointer transition-colors border ${selected ? 'bg-blue-50 border-blue-200' : 'bg-white border-slate-200 hover:border-blue-200'}`}>
+                        <div className={`w-4 h-4 rounded border-2 flex items-center justify-center flex-shrink-0 transition-colors ${selected ? 'bg-blue-600 border-blue-600' : 'border-slate-300'}`}>
+                          {selected && <Check className="w-2.5 h-2.5 text-white" />}
+                        </div>
+                        <span className={`text-xs font-medium ${selected ? 'text-blue-700' : 'text-slate-600'}`}>{pg.label}</span>
+                      </div>
+                    );
+                  })}
+                </div>
+                <p className="text-xs text-slate-400 mt-2">נבחרו {(form.accessible_pages || []).length} מתוך {ALL_PAGES.length} דפים</p>
+              </div>
+            )}
+
+            {/* הרשאות */}
             <div>
-              <Label className="text-sm font-semibold text-slate-700 mb-2 block">הרשאות</Label>
+              <Label className="text-sm font-semibold text-slate-700 mb-2 block">הרשאות נוספות</Label>
               <div className="space-y-2 bg-slate-50 rounded-xl p-3">
                 {PERMISSIONS.map((p) => (
                   <div key={p.key} className="flex items-center gap-3 cursor-pointer" onClick={() => togglePerm(p.key)}>
@@ -235,8 +350,9 @@ export default function RolesManagement() {
               </div>
             </div>
 
-            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl" onClick={() => setForm((p) => ({ ...p, active: !p.active }))}>
-              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-colors ${form.active ? 'bg-purple-600 border-purple-600' : 'border-slate-300 bg-white'}`}>
+            {/* פעיל */}
+            <div className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl cursor-pointer" onClick={() => setForm((p) => ({ ...p, active: !p.active }))}>
+              <div className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-colors ${form.active ? 'bg-purple-600 border-purple-600' : 'border-slate-300 bg-white'}`}>
                 {form.active && <Check className="w-3 h-3 text-white" />}
               </div>
               <Label className="text-sm font-semibold text-slate-700 cursor-pointer">תפקיד פעיל</Label>
