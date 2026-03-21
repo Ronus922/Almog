@@ -159,7 +159,16 @@ export function AuthProvider({ children }) {
     const roleData = await loadRoleData(user.role_id);
     const accessiblePages = resolveAccessiblePages(roleData, systemRole);
 
-    console.log('[Auth] ✓ Login OK:', { username: user.username, systemRole, role_id: user.role_id, accessiblePages });
+    console.log('[Auth] ✓ Login OK:', {
+      username: user.username,
+      rawRole: user.role,
+      systemRole,
+      role_id: user.role_id,
+      roleDataName: roleData?.name,
+      roleDataIsAdmin: roleData?.is_admin,
+      roleDataPages: roleData?.accessible_pages,
+      finalAccessiblePages: accessiblePages,
+    });
 
     localStorage.setItem('app_session', JSON.stringify({
       username: user.username,
