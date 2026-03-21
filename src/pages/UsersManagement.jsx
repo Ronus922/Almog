@@ -183,7 +183,7 @@ export default function UsersManagement() {
             <table className="w-full text-right">
               <thead className="bg-slate-50 border-b border-slate-200">
                 <tr>
-                  {['שם מלא', 'דוא"ל', 'שם משתמש', 'מחלקה', 'תפקיד', 'סטטוס', 'פעולות'].map((h) => (
+                  {['שם מלא', 'דוא"ל', 'שם משתמש', 'מחלקה', 'תפקיד / הרשאות', 'סטטוס', 'פעולות'].map((h) => (
                     <th key={h} className="px-4 py-3 text-xs font-semibold text-slate-500 text-right">{h}</th>
                   ))}
                 </tr>
