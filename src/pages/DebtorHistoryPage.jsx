@@ -171,7 +171,7 @@ export default function DebtorHistoryPage() {
 
         {/* סיכום */}
         {record && (
-          <div className="grid grid-cols-3 gap-3 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
             <div className="bg-white rounded-xl border border-slate-200 px-4 py-3 shadow-sm text-center">
               <p className="text-xs text-slate-500 font-semibold mb-1">אירועים בסה״כ</p>
               <p className="text-2xl font-black text-slate-800">{timelineEvents.length}</p>
