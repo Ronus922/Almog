@@ -238,7 +238,7 @@ export default function RolesManagement() {
 
       {/* Dialog */}
       <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto" dir="rtl">
+        <DialogContent className="max-w-xl w-[95vw] max-h-[90vh] overflow-y-auto" dir="rtl">
           <DialogHeader>
             <DialogTitle className="text-right text-lg font-bold">
               {editing ? 'עריכת תפקיד' : 'תפקיד חדש'}
@@ -276,7 +276,7 @@ export default function RolesManagement() {
             {/* סוג הרשאה */}
             <div className="bg-slate-50 rounded-xl p-4">
               <Label className="text-sm font-semibold text-slate-700 mb-3 block">סוג גישה</Label>
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <button type="button"
                   onClick={() => setForm((p) => ({ ...p, is_admin: false }))}
                   className={`flex flex-col items-center gap-2 p-3 rounded-xl border-2 transition-colors ${!form.is_admin ? 'border-blue-500 bg-blue-50' : 'border-slate-200 bg-white hover:border-slate-300'}`}>
@@ -305,7 +305,7 @@ export default function RolesManagement() {
                     <button type="button" onClick={clearAllPages} className="text-xs text-slate-400 hover:underline">נקה הכל</button>
                   </div>
                 </div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
                   {ALL_PAGES.map((pg) => {
                     const selected = (form.accessible_pages || []).includes(pg.name);
                     return (
