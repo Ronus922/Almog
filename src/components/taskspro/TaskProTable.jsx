@@ -79,8 +79,8 @@ export default function TaskProTable({
   );
 
   return (
-    <div className="overflow-x-auto rounded-2xl" dir="rtl">
-      <table className="w-full text-sm">
+    <div className="overflow-x-auto rounded-2xl" dir="rtl" style={{WebkitOverflowScrolling: 'touch'}}>
+      <table className="w-full text-sm min-w-[800px]">
         <thead>
           <tr className="bg-slate-50 border-b border-slate-200">
             <th className="px-4 py-4 w-10">
