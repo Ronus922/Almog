@@ -182,7 +182,7 @@ export default function UsersManagement() {
               <tbody className="divide-y divide-slate-100">
                 {filtered.map((u) => (
                   <tr key={u.id} className="hover:bg-slate-50 transition-colors">
-                    <td className="px-4 py-3 font-medium text-slate-800">{u.full_name}</td>
+                    <td className="px-4 py-3 font-medium text-slate-800">{getFullName(u)}</td>
                     <td className="px-4 py-3 text-slate-600 text-sm">{u.email}</td>
                     <td className="px-4 py-3 text-slate-500 text-sm font-mono">{u.username}</td>
                     <td className="px-4 py-3 text-slate-500 text-sm">{u.department || '—'}</td>
