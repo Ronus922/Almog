@@ -241,26 +241,26 @@ const AuthenticatedApp = () => {
           }
         />
       ))}
-      <Route path="/Tasks" element={<LayoutWrapper currentPageName="Tasks"><Tasks /></LayoutWrapper>} />
-      <Route path="/WhatsAppTemplates" element={<LayoutWrapper currentPageName="WhatsAppTemplates"><WhatsAppTemplates /></LayoutWrapper>} />
-      <Route path="/Contacts" element={<LayoutWrapper currentPageName="Contacts"><Contacts /></LayoutWrapper>} />
-      <Route path="/WhatsAppChat" element={<LayoutWrapper currentPageName="WhatsAppChat"><WhatsAppChat /></LayoutWrapper>} />
-      <Route path="/Calendar" element={<LayoutWrapper currentPageName="Calendar"><Calendar /></LayoutWrapper>} />
-      <Route path="/Documents" element={<LayoutWrapper currentPageName="Documents"><Documents /></LayoutWrapper>} />
-      <Route path="/SupplierManagement" element={<LayoutWrapper currentPageName="SupplierManagement"><SupplierManagement /></LayoutWrapper>} />
-      <Route path="/TodoReminders" element={<LayoutWrapper currentPageName="TodoReminders"><TodoReminders /></LayoutWrapper>} />
-      <Route path="/TasksPro" element={<LayoutWrapper currentPageName="TasksPro"><TasksProPage /></LayoutWrapper>} />
-      <Route path="/InternalChat" element={<LayoutWrapper currentPageName="InternalChat"><InternalChat /></LayoutWrapper>} />
-      <Route path="/TaskAnalyticsDashboard" element={<LayoutWrapper currentPageName="TaskAnalyticsDashboard"><TaskAnalyticsDashboard /></LayoutWrapper>} />
-      <Route path="/AllNotifications" element={<LayoutWrapper currentPageName="AllNotifications"><AllNotifications /></LayoutWrapper>} />
-      <Route path="/DebtorHistory" element={<LayoutWrapper currentPageName="DebtorHistory"><DebtorHistoryPage /></LayoutWrapper>} />
-      <Route path="/ExportData" element={<LayoutWrapper currentPageName="ExportData"><ExportData /></LayoutWrapper>} />
-      <Route path="/ReportIssue" element={<LayoutWrapper currentPageName="ReportIssue"><ReportIssue /></LayoutWrapper>} />
-      <Route path="/IssuesManagement" element={<LayoutWrapper currentPageName="IssuesManagement"><IssuesManagement /></LayoutWrapper>} />
-      <Route path="/RoomsAreas" element={<LayoutWrapper currentPageName="RoomsAreas"><RoomsAreas /></LayoutWrapper>} />
-      <Route path="/UsersManagement" element={<LayoutWrapper currentPageName="UsersManagement"><UsersManagement /></LayoutWrapper>} />
-      <Route path="/RolesManagement" element={<LayoutWrapper currentPageName="RolesManagement"><RolesManagement /></LayoutWrapper>} />
-      <Route path="/TasksManagement" element={<LayoutWrapper currentPageName="TasksManagement"><TasksManagement /></LayoutWrapper>} />
+      <Route path="/Tasks" element={<LayoutWrapper currentPageName="Tasks"><PageGuard pageName="Tasks"><Tasks /></PageGuard></LayoutWrapper>} />
+      <Route path="/WhatsAppTemplates" element={<LayoutWrapper currentPageName="WhatsAppTemplates"><PageGuard pageName="WhatsAppTemplates"><WhatsAppTemplates /></PageGuard></LayoutWrapper>} />
+      <Route path="/Contacts" element={<LayoutWrapper currentPageName="Contacts"><PageGuard pageName="Contacts"><Contacts /></PageGuard></LayoutWrapper>} />
+      <Route path="/WhatsAppChat" element={<LayoutWrapper currentPageName="WhatsAppChat"><PageGuard pageName="WhatsAppChat"><WhatsAppChat /></PageGuard></LayoutWrapper>} />
+      <Route path="/Calendar" element={<LayoutWrapper currentPageName="Calendar"><PageGuard pageName="Calendar"><Calendar /></PageGuard></LayoutWrapper>} />
+      <Route path="/Documents" element={<LayoutWrapper currentPageName="Documents"><PageGuard pageName="Documents"><Documents /></PageGuard></LayoutWrapper>} />
+      <Route path="/SupplierManagement" element={<LayoutWrapper currentPageName="SupplierManagement"><PageGuard pageName="SupplierManagement"><SupplierManagement /></PageGuard></LayoutWrapper>} />
+      <Route path="/TodoReminders" element={<LayoutWrapper currentPageName="TodoReminders"><PageGuard pageName="TodoReminders"><TodoReminders /></PageGuard></LayoutWrapper>} />
+      <Route path="/TasksPro" element={<LayoutWrapper currentPageName="TasksPro"><PageGuard pageName="TasksPro"><TasksProPage /></PageGuard></LayoutWrapper>} />
+      <Route path="/InternalChat" element={<LayoutWrapper currentPageName="InternalChat"><PageGuard pageName="InternalChat"><InternalChat /></PageGuard></LayoutWrapper>} />
+      <Route path="/TaskAnalyticsDashboard" element={<LayoutWrapper currentPageName="TaskAnalyticsDashboard"><PageGuard pageName="TaskAnalyticsDashboard"><TaskAnalyticsDashboard /></PageGuard></LayoutWrapper>} />
+      <Route path="/AllNotifications" element={<LayoutWrapper currentPageName="AllNotifications"><PageGuard pageName="AllNotifications"><AllNotifications /></PageGuard></LayoutWrapper>} />
+      <Route path="/DebtorHistory" element={<LayoutWrapper currentPageName="DebtorHistory"><PageGuard pageName="DebtorHistory"><DebtorHistoryPage /></PageGuard></LayoutWrapper>} />
+      <Route path="/ExportData" element={<LayoutWrapper currentPageName="ExportData"><PageGuard pageName="ExportData"><ExportData /></PageGuard></LayoutWrapper>} />
+      <Route path="/ReportIssue" element={<LayoutWrapper currentPageName="ReportIssue"><PageGuard pageName="ReportIssue"><ReportIssue /></PageGuard></LayoutWrapper>} />
+      <Route path="/IssuesManagement" element={<LayoutWrapper currentPageName="IssuesManagement"><PageGuard pageName="IssuesManagement"><IssuesManagement /></PageGuard></LayoutWrapper>} />
+      <Route path="/RoomsAreas" element={<LayoutWrapper currentPageName="RoomsAreas"><PageGuard pageName="RoomsAreas"><RoomsAreas /></PageGuard></LayoutWrapper>} />
+      <Route path="/UsersManagement" element={<LayoutWrapper currentPageName="UsersManagement"><PageGuard pageName="UsersManagement"><UsersManagement /></PageGuard></LayoutWrapper>} />
+      <Route path="/RolesManagement" element={<LayoutWrapper currentPageName="RolesManagement"><PageGuard pageName="RolesManagement"><RolesManagement /></PageGuard></LayoutWrapper>} />
+      <Route path="/TasksManagement" element={<LayoutWrapper currentPageName="TasksManagement"><PageGuard pageName="TasksManagement"><TasksManagement /></PageGuard></LayoutWrapper>} />
       <Route path="*" element={<PageNotFound />} />
     </Routes>
   );
