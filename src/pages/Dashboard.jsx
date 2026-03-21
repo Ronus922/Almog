@@ -375,48 +375,54 @@ function DashboardContent() {
 
           {/* Tabs */}
           {isAdmin &&
-          <div className="flex flex-wrap gap-2">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2">
             <button
               onClick={() => setActiveTab('debtors')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+              className={`flex items-center justify-center gap-1 px-2 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all ${
               activeTab === 'debtors' ? 'bg-blue-600 text-white' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`}>
-              <Users className="w-4 h-4" />
-              חייבים ({tabDatasets.debtorsTab.length})
+              <Users className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">חייבים</span>
+              <span className="sm:hidden">{tabDatasets.debtorsTab.length}</span>
             </button>
             <button
               onClick={() => setActiveTab('warning')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+              className={`flex items-center justify-center gap-1 px-2 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all ${
               activeTab === 'warning' ? 'bg-amber-500 text-white' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`}>
-              <Mail className="w-4 h-4" />
-              מכתבי התראה ({tabDatasets.warningTab.length})
+              <Mail className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">התראה</span>
+              <span className="sm:hidden">{tabDatasets.warningTab.length}</span>
             </button>
             <button
               onClick={() => setActiveTab('legal_candidates')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+              className={`flex items-center justify-center gap-1 px-2 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all ${
               activeTab === 'legal_candidates' ? 'bg-purple-600 text-white' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`}>
-              <AlertTriangle className="w-4 h-4" />
-              לטיפול משפטי ({tabDatasets.legalCandidatesTab.length})
+              <AlertTriangle className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">משפטי</span>
+              <span className="sm:hidden">{tabDatasets.legalCandidatesTab.length}</span>
             </button>
             <button
               onClick={() => setActiveTab('legal_process')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+              className={`flex items-center justify-center gap-1 px-2 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all ${
               activeTab === 'legal_process' ? 'bg-red-600 text-white' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`}>
-              <Scale className="w-4 h-4" />
-              בהליך משפטי ({tabDatasets.legalProcessTab.length})
+              <Scale className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">בהליך</span>
+              <span className="sm:hidden">{tabDatasets.legalProcessTab.length}</span>
             </button>
             <button
               onClick={() => setActiveTab('next_actions')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+              className={`flex items-center justify-center gap-1 px-2 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all ${
               activeTab === 'next_actions' ? 'bg-orange-500 text-white' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`}>
-              <CalendarClock className="w-4 h-4" />
-              פעולות הבאות ({tabDatasets.nextActionsTab?.length || 0})
+              <CalendarClock className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">פעולות</span>
+              <span className="sm:hidden">{tabDatasets.nextActionsTab?.length || 0}</span>
             </button>
             <button
               onClick={() => setActiveTab('archived')}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-semibold transition-all ${
+              className={`flex items-center justify-center gap-1 px-2 py-2 rounded-lg font-semibold text-xs sm:text-sm transition-all ${
               activeTab === 'archived' ? 'bg-slate-600 text-white' : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'}`}>
-              <Archive className="w-4 h-4" />
-              ארכיון ({archivedRecords.length})
+              <Archive className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">ארכיון</span>
+              <span className="sm:hidden">{archivedRecords.length}</span>
             </button>
           </div>
           }
