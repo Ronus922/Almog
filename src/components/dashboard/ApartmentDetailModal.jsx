@@ -1031,62 +1031,68 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
 
 
 
-                {/* פעולה הבאה */}
-                <div className="rounded-[16px] border border-slate-200 bg-[#f8faff] px-4 py-4">
-                  <div className="mb-3 flex items-center gap-2 text-[14px] font-bold text-[#253b5b]">
-                    <Calendar className="w-4 h-4 text-blue-500" />
-                    פעולה הבאה
-                  </div>
-                  <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                    <div>
-                      <p className="mb-1.5 text-[12px] font-semibold text-[#7f8ea5]">תאריך פעולה הבאה</p>
-                      <input
-                        type="date"
-                        value={editedRecord?.nextActionDate || ''}
-                        onChange={(e) => setEditedRecord(prev => ({ ...prev, nextActionDate: e.target.value }))}
-                        className="w-full h-[44px] rounded-[12px] border border-slate-200 bg-white px-3 text-[14px] font-semibold text-[#223755] focus:outline-none focus:ring-2 focus:ring-blue-300 focus:border-transparent"
-                        dir="rtl"
-                        disabled={!isAdmin}
-                      />
-                      {editedRecord?.nextActionDate && new Date(editedRecord.nextActionDate) < new Date(new Date().toDateString()) && (
-                        <p className="mt-1.5 flex items-center gap-1 text-[11px] font-bold text-red-500">
-                          <span>⚠️</span> תאריך זה עבר — הרשומה תופיע בטאב "פעולות הבאות"
-                        </p>
-                      )}
-                    </div>
-                    <div>
-                      <p className="mb-1.5 text-[12px] font-semibold text-[#7f8ea5]">תיאור הפעולה</p>
-                      <input
-                        type="text"
-                        value={editedRecord?.notes?.startsWith('פעולה:') ? editedRecord.notes.split('\n')[0].replace('פעולה: ', '') : ''}
-                        placeholder="לדוגמה: שיחת טלפון, שליחת מכתב..."
-                        onChange={(e) => {
-                          const actionLine = e.target.value ? `פעולה: ${e.target.value}` : '';
-                          const existingNotes = (editedRecord?.notes || '').replace(/^פעולה:.*\n?/, '');
-                          setEditedRecord(prev => ({ ...prev, notes: actionLine ? `${actionLine}\n${existingNotes}` : existingNotes }));
-                        }}
-                        className="w-full h-[44px] rounded-[12px] border border-slate-200 bg-white px-3 text-[14px] font-semibold text-[#223755] placeholder:font-normal placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-300"
-                        dir="rtl"
-                        disabled={!isAdmin}
-                      />
-                    </div>
-                  </div>
-                </div>
+            </div>{/* end ניהול משפטי card */}
 
+            {/* פעולה הבאה לביצוע */}
+            <div className="rounded-2xl bg-white border border-slate-100 shadow-sm px-4 py-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-7 h-7 rounded-lg bg-orange-50 flex items-center justify-center">
+                  <CalendarClock className="w-3.5 h-3.5 text-orange-500" />
+                </div>
+                <p className="text-[13px] font-bold text-[#1a3a6b]">פעולה הבאה לביצוע</p>
+              </div>
+              <div className="space-y-3">
                 <div>
-                  <div className="mb-2 flex items-center gap-2 text-[14px] font-bold text-[#253b5b]">
-                    <MessageSquare className="w-4 h-4" />
-                    הערות ותיעוד
-                  </div>
-                  <CommentsSection
-                    debtorRecordId={record.id}
-                    apartmentNumber={record.apartmentNumber}
-                    currentUser={currentUser}
-                    isAdmin={isAdmin}
+                  <p className="mb-1 text-[11px] font-semibold text-slate-400 text-right">תיאור פעולה</p>
+                  <input
+                    type="text"
+                    value={editedRecord?.notes?.startsWith('פעולה:') ? editedRecord.notes.split('\n')[0].replace('פעולה: ', '') : ''}
+                    placeholder="הכנס תיאור פעולה..."
+                    onChange={(e) => {
+                      const actionLine = e.target.value ? `פעולה: ${e.target.value}` : '';
+                      const existingNotes = (editedRecord?.notes || '').replace(/^פעולה:.*\n?/, '');
+                      setEditedRecord(prev => ({ ...prev, notes: actionLine ? `${actionLine}\n${existingNotes}` : existingNotes }));
+                    }}
+                    className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-[13px] text-[#223755] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    dir="rtl"
+                    disabled={!isAdmin}
                   />
+                </div>
+                <div>
+                  <p className="mb-1 text-[11px] font-semibold text-slate-400 text-right">תאריך יעד</p>
+                  <input
+                    type="date"
+                    value={editedRecord?.nextActionDate || ''}
+                    onChange={(e) => setEditedRecord(prev => ({ ...prev, nextActionDate: e.target.value }))}
+                    className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-[13px] font-semibold text-[#223755] focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    dir="rtl"
+                    disabled={!isAdmin}
+                  />
+                  {editedRecord?.nextActionDate && new Date(editedRecord.nextActionDate) < new Date(new Date().toDateString()) && (
+                    <p className="mt-1 text-[11px] text-red-500 font-semibold text-right">⚠️ תאריך זה עבר</p>
+                  )}
                 </div>
               </div>
             </div>
+
+          </div>){/* end grid 2-cols */}
+
+          {/* === ROW 4: Comments === */}
+          {isAdmin && (
+          <div className="rounded-2xl bg-white border border-slate-100 shadow-sm px-4 py-4">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center">
+                <MessageSquare className="w-3.5 h-3.5 text-slate-500" />
+              </div>
+              <p className="text-[13px] font-bold text-[#1a3a6b]">הערות ותיעוד</p>
+            </div>
+            <CommentsSection
+              debtorRecordId={record.id}
+              apartmentNumber={record.apartmentNumber}
+              currentUser={currentUser}
+              isAdmin={isAdmin}
+            />
+          </div>
           )}
         </div>
     </AppModal>);
