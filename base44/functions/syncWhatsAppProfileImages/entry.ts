@@ -1,5 +1,26 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 
+// מנרמל מספר טלפון ישראלי ל-chatId תקין
+function normalizeToChatId(phone) {
+  if (!phone) return null;
+  const digits = phone.replace(/\D/g, '');
+  if (digits.length < 9) return null; // מספר קצר מדי / לא תקין
+
+  let normalized;
+  if (digits.startsWith('972')) {
+    normalized = digits;
+  } else if (digits.startsWith('0')) {
+    normalized = '972' + digits.substring(1);
+  } else {
+    normalized = '972' + digits;
+  }
+
+  // מספר ישראלי תקין: 972 + 9 ספרות = 12 ספרות
+  if (normalized.length !== 12) return null;
+
+  return normalized + '@c.us';
+}
+
 Deno.serve(async (req) => {
   try {
     const base44 = createClientFromRequest(req);
@@ -16,20 +37,18 @@ Deno.serve(async (req) => {
     const contacts = await base44.entities.Contact.list();
     let updated = 0;
     let noAvatar = 0;
+    let skipped = 0;
     const errors = [];
 
     for (const contact of contacts) {
       try {
         const phone = contact.owner_phone || contact.tenant_phone;
-        if (!phone) continue;
+        const chatId = normalizeToChatId(phone);
 
-        // נרמול מספר טלפון
-        const digits = phone.replace(/\D/g, '');
-        const chatId = digits.startsWith('972')
-          ? digits + '@c.us'
-          : digits.startsWith('0')
-          ? '972' + digits.substring(1) + '@c.us'
-          : '972' + digits + '@c.us';
+        if (!chatId) {
+          skipped++;
+          continue; // מספר לא תקין — דלג
+        }
 
         // קריאה ל-GetAvatar API
         const response = await fetch(
@@ -41,17 +60,17 @@ Deno.serve(async (req) => {
           }
         );
 
+        const now = new Date().toISOString();
+
         if (!response.ok) {
-          errors.push({ contactId: contact.id, apartment: contact.apartment_number, error: `HTTP ${response.status}` });
+          errors.push({ contactId: contact.id, apartment: contact.apartment_number, chatId, error: `HTTP ${response.status}` });
           continue;
         }
 
         let data;
         try { data = await response.json(); } catch { continue; }
 
-        const now = new Date().toISOString();
-
-        if (data && data.available === true && data.urlAvatar) {
+        if (data && data.urlAvatar) {
           await base44.entities.Contact.update(contact.id, {
             whatsapp_profile_image_url: data.urlAvatar,
             whatsapp_profile_sync_status: 'synced',
@@ -61,7 +80,7 @@ Deno.serve(async (req) => {
           updated++;
         } else {
           await base44.entities.Contact.update(contact.id, {
-            whatsapp_profile_sync_status: 'no_avatar',
+            whatsapp_profile_sync_status: data?.available === false ? 'unavailable' : 'no_avatar',
             whatsapp_profile_last_synced_at: now,
             whatsapp_profile_sync_error: null
           });
@@ -69,7 +88,7 @@ Deno.serve(async (req) => {
         }
 
         // עיכוב קצר למניעת rate-limiting
-        await new Promise(r => setTimeout(r, 200));
+        await new Promise(r => setTimeout(r, 150));
 
       } catch (err) {
         errors.push({
@@ -84,8 +103,9 @@ Deno.serve(async (req) => {
       success: true,
       updated,
       noAvatar,
+      skipped,
       total: contacts.length,
-      errors
+      errors: errors.slice(0, 20) // מגביל שגיאות בתשובה
     });
 
   } catch (error) {
