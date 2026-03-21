@@ -357,6 +357,18 @@ Deno.serve(async (req) => {
     });
   }
 
+  // מצב בדיקה: רק שלוף ובדוק מבנה
+  if (body?.inspect === '1') {
+    const token = await srpAuth(BLLINK_USERNAME, BLLINK_PASSWORD);
+    const resp = await fetch(`https://api.bllink.co/api/v1/managers/debts/per_building/udnp?excludeCurrentMonth=false`,
+      { headers: { Authorization: `Bearer ${token}` } });
+    const json = await resp.json();
+    const keys = Object.keys(json);
+    const valueLen = Array.isArray(json.value) ? json.value.length : 'not array';
+    const sample = Array.isArray(json.value) ? json.value.slice(0, 2) : json;
+    return Response.json({ keys, valueLen, sample });
+  }
+
   let logId = null;
   const runId = `bllink-${Date.now()}`;
 
