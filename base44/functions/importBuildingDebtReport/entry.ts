@@ -295,8 +295,10 @@ Deno.serve(async (req) => {
     const logRecord = await base44.asServiceRole.entities.ImportRun.create(logData);
     logId = logRecord.id;
 
-    console.log('[Import] שלב 1: התחברות...');
-    const token = await srpAuth(BLLINK_USERNAME, BLLINK_PASSWORD);
+    const cleanUser = BLLINK_USERNAME.trim();
+    const cleanPass = BLLINK_PASSWORD.trim();
+    console.log(`[Import] שלב 1: התחברות... user="${cleanUser}" passLen=${cleanPass.length}`);
+    const token = await srpAuth(cleanUser, cleanPass);
     console.log('[Import] ✓ AccessToken התקבל');
 
     await base44.asServiceRole.entities.ImportRun.update(logId, { stage: 'FETCH_DATA' });
