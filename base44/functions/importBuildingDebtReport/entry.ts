@@ -142,10 +142,9 @@ async function srpAuth(username, password) {
   const u = computeU(A_hex, padHex(B));
   const uBig = BigInteger(u, 16);
 
-  // x = H(SALT || H(poolName || ":" || username || ":" || password))
-  // Cognito uses: poolName + ":" + username + ":" + password (with colons)
+  // x = H(SALT || H(poolName || username || password))  — Cognito: NO colons
   const userPoolName = COGNITO_POOL_ID.split('_')[1];
-  const credHash = sha256hex(`${userPoolName}:${username}:${password}`);
+  const credHash = sha256hex(`${userPoolName}${USER_ID_FOR_SRP}${password}`);
   const saltEven = SALT.length % 2 ? '0' + SALT : SALT;
   const saltedInput = new Uint8Array(saltEven.length / 2 + credHash.length / 2);
   saltedInput.set(hexToUint8(saltEven), 0);
