@@ -181,15 +181,31 @@ async function cognitoPost(target, body) {
 }
 
 async function srpAuth(username, password) {
-  const k = await computeK();
+  // ניסיון ראשון: USER_PASSWORD_AUTH (פשוט יותר, אם Pool מאפשר)
+  try {
+    const resp = await cognitoPost('InitiateAuth', {
+      AuthFlow: 'USER_PASSWORD_AUTH',
+      ClientId: COGNITO_CLIENT_ID,
+      AuthParameters: { USERNAME: username, PASSWORD: password },
+      ClientMetadata: {},
+    });
+    const token = resp?.AuthenticationResult?.AccessToken;
+    if (token) return token;
+    if (resp.ChallengeName) throw new Error(`Challenge נדרש: ${resp.ChallengeName}`);
+    throw new Error(`USER_PASSWORD_AUTH לא החזיר token: ${JSON.stringify(resp).slice(0, 200)}`);
+  } catch (e) {
+    if (!e.message.includes('NotAuthorizedException') && !e.message.includes('ALLOW_USER_PASSWORD_AUTH')) {
+      throw e; // שגיאה שלא קשורה ל-flow — העבר הלאה
+    }
+    // fallback: USER_SRP_AUTH
+  }
 
-  // Generate random a and A = g^a mod N
+  const k = await computeK();
   const aBytes = crypto.getRandomValues(new Uint8Array(128));
-  let a = BigInt('0x' + bytesToHex(aBytes)) % N;
+  const a = BigInt('0x' + bytesToHex(aBytes)) % N;
   const A = modPow(g, a, N);
   const A_hex = padHex(A);
 
-  // Step 1: InitiateAuth
   const init = await cognitoPost('InitiateAuth', {
     AuthFlow: 'USER_SRP_AUTH',
     ClientId: COGNITO_CLIENT_ID,
@@ -205,16 +221,12 @@ async function srpAuth(username, password) {
   const B = BigInt('0x' + SRP_B);
   const B_padHex = padHex(B);
 
-  // Compute u, x, S
   const u = await computeU(A_hex, B_padHex);
   const x = await computeX(SALT, USER_ID_FOR_SRP, password);
   const S = computeS(a, B, k, u, x);
-
-  // Derive HKDF key
   const hkdfKey = await computeHkdfKey(A_hex, B_padHex, S);
   const ts = cognitoTimestamp();
 
-  // Build signature: HMAC(hkdfKey, POOL_NAME || USER_ID || SECRET_BLOCK_bytes || timestamp)
   const msg = concat(
     new TextEncoder().encode(POOL_NAME),
     new TextEncoder().encode(USER_ID_FOR_SRP),
@@ -224,7 +236,6 @@ async function srpAuth(username, password) {
   const sigBytes = await hmacSha256(hkdfKey, msg);
   const sig = bytesToBase64(sigBytes);
 
-  // Step 2: RespondToAuthChallenge
   const respond = await cognitoPost('RespondToAuthChallenge', {
     ChallengeName: 'PASSWORD_VERIFIER',
     ClientId: COGNITO_CLIENT_ID,
@@ -237,9 +248,7 @@ async function srpAuth(username, password) {
     ClientMetadata: {},
   });
 
-  if (respond.ChallengeName) {
-    throw new Error(`אתגר נוסף נדרש: ${respond.ChallengeName}`);
-  }
+  if (respond.ChallengeName) throw new Error(`אתגר נוסף: ${respond.ChallengeName}`);
 
   const token = respond?.AuthenticationResult?.AccessToken;
   if (!token) throw new Error(`לא התקבל AccessToken: ${JSON.stringify(respond).slice(0, 300)}`);
