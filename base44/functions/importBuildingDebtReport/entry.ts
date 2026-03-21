@@ -13,14 +13,15 @@ const COGNITO_URL = `https://cognito-idp.${COGNITO_REGION}.amazonaws.com/`;
 const N_HEX = 'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD129024E088A67CC74020BBEA63B139B22514A08798E3404DDEF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7EDEE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3DC2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F83655D23DCA3AD961C62F356208552BB9ED529077096966D670C354E4ABC9804F1746C08CA18217C32905E462E36CE3BE39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9DE2BCBF6955817183995497CEA956AE515D2261898FA051015728E5A8AAAC42DAD33170D04507A33A85521ABDF1CBA64ECFB850458DBEF0A8AEA71575D060C7DB3970F85A6E1E4C7ABF5AE8CDB0933D71E8C94E04A25619DCEE3D2261AD2EE6BF12FFA06D98A0864D87602733EC86A64521F2B18177B200CBBE117577A615D6C770988C0BAD946E208E24FA074E5AB3143DB5BFCE0FD108E4B82D120A93AD2CAFFFFFFFFFFFFFFFF';
 const G_HEX = '2';
 
-function hexToBytes(hex) {
-  const bytes = [];
-  for (let i = 0; i < hex.length; i += 2) bytes.push(parseInt(hex.substr(i, 2), 16));
-  return new Uint8Array(bytes);
+function hexToUint8(hex) {
+  const even = hex.length % 2 ? '0' + hex : hex;
+  const arr = new Uint8Array(even.length / 2);
+  for (let i = 0; i < arr.length; i++) arr[i] = parseInt(even.substr(i * 2, 2), 16);
+  return arr;
 }
 
-function bytesToHex(bytes) {
-  return Array.from(bytes).map(b => b.toString(16).padStart(2, '0')).join('');
+function uint8ToHex(arr) {
+  return Array.from(arr).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 function padHex(bigInt) {
@@ -30,27 +31,61 @@ function padHex(bigInt) {
   return hex;
 }
 
-function hexHash(hexStr) {
-  return createHash('sha256').update(Buffer.from(hexStr, 'hex')).digest('hex');
+function sha256hex(data) {
+  // data: Uint8Array or string
+  const input = typeof data === 'string'
+    ? new TextEncoder().encode(data)
+    : data;
+  return createHash('sha256').update(input).digest('hex');
 }
 
-function computeH(uHex, nHex) {
-  const combined = hexStr1 => {
-    const a = hexStr1.length % 2 ? '0' + hexStr1 : hexStr1;
-    return a;
-  };
-  const buf = Buffer.concat([
-    Buffer.from(combined(uHex), 'hex'),
-    Buffer.from(combined(nHex), 'hex')
-  ]);
-  return createHash('sha256').update(buf).digest('hex');
+function sha256hexFromHex(hexStr) {
+  return createHash('sha256').update(hexToUint8(hexStr)).digest('hex');
+}
+
+function hmacSha256(keyBytes, data) {
+  const mac = createHmac('sha256', keyBytes);
+  mac.update(data);
+  return mac.digest();
 }
 
 function computeK() {
   const nHex = N_HEX.length % 2 ? '0' + N_HEX : N_HEX;
   const gHex = G_HEX.padStart(nHex.length, '0');
-  const buf = Buffer.concat([Buffer.from(nHex, 'hex'), Buffer.from(gHex, 'hex')]);
-  return BigInteger(createHash('sha256').update(buf).digest('hex'), 16);
+  const combined = new Uint8Array(nHex.length / 2 + gHex.length / 2);
+  combined.set(hexToUint8(nHex), 0);
+  combined.set(hexToUint8(gHex), nHex.length / 2);
+  return BigInteger(createHash('sha256').update(combined).digest('hex'), 16);
+}
+
+function computeU(A_hex, B_hex) {
+  const pA = A_hex.length % 2 ? '0' + A_hex : A_hex;
+  const pB = B_hex.length % 2 ? '0' + B_hex : B_hex;
+  const combined = new Uint8Array(pA.length / 2 + pB.length / 2);
+  combined.set(hexToUint8(pA), 0);
+  combined.set(hexToUint8(pB), pA.length / 2);
+  return BigInteger(createHash('sha256').update(combined).digest('hex'), 16);
+}
+
+function hkdfSha256(ikm, salt, info, length = 16) {
+  // HKDF Extract
+  const prk = hmacSha256(salt, ikm);
+  // HKDF Expand
+  const infoBytes = typeof info === 'string' ? new TextEncoder().encode(info) : info;
+  const T = hmacSha256(prk, new Uint8Array([...infoBytes, 1]));
+  return T.slice(0, length);
+}
+
+// base64 decode without Buffer
+function base64ToUint8(b64) {
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return arr;
+}
+
+function uint8ToBase64(arr) {
+  return btoa(String.fromCharCode(...arr));
 }
 
 async function srpAuth(username, password) {
@@ -58,22 +93,13 @@ async function srpAuth(username, password) {
   const g = BigInteger(G_HEX, 16);
   const k = computeK();
 
-  // Generate random a
+  // Generate random a (1024-bit)
   const aBytes = crypto.getRandomValues(new Uint8Array(128));
-  const a = BigInteger(bytesToHex(aBytes), 16);
+  const a = BigInteger(uint8ToHex(aBytes), 16);
   const A = g.modPow(a, N);
   const A_hex = padHex(A);
 
-  // Step 1: InitiateAuth
-  const initiateBody = {
-    AuthFlow: 'USER_SRP_AUTH',
-    ClientId: COGNITO_CLIENT_ID,
-    AuthParameters: {
-      USERNAME: username,
-      SRP_A: A_hex,
-    },
-    ClientMetadata: {},
-  };
+  console.log('[SRP] Step 1: InitiateAuth...');
 
   const initResp = await fetch(COGNITO_URL, {
     method: 'POST',
@@ -81,7 +107,12 @@ async function srpAuth(username, password) {
       'Content-Type': 'application/x-amz-json-1.1',
       'X-Amz-Target': 'AWSCognitoIdentityProviderService.InitiateAuth',
     },
-    body: JSON.stringify(initiateBody),
+    body: JSON.stringify({
+      AuthFlow: 'USER_SRP_AUTH',
+      ClientId: COGNITO_CLIENT_ID,
+      AuthParameters: { USERNAME: username, SRP_A: A_hex },
+      ClientMetadata: {},
+    }),
   });
 
   if (!initResp.ok) {
@@ -90,71 +121,67 @@ async function srpAuth(username, password) {
   }
 
   const initJson = await initResp.json();
-  const { ChallengeName, ChallengeParameters, Session } = initJson;
+  const { ChallengeName, ChallengeParameters } = initJson;
 
   if (ChallengeName !== 'PASSWORD_VERIFIER') {
-    throw new Error(`Cognito challenge לא צפוי: ${ChallengeName}`);
+    throw new Error(`Cognito challenge לא צפוי: ${ChallengeName}. תשובה: ${JSON.stringify(initJson).slice(0, 300)}`);
   }
+
+  console.log('[SRP] Step 2: PASSWORD_VERIFIER...');
 
   const { SRP_B, SALT, SECRET_BLOCK, USER_ID_FOR_SRP } = ChallengeParameters;
   const B = BigInteger(SRP_B, 16);
 
   if (B.mod(N).equals(BigInteger.zero)) throw new Error('Cognito: B mod N == 0');
 
-  // u = H(A, B)
-  const u = BigInteger(computeH(A_hex, padHex(B)), 16);
+  // u = H(A || B)
+  const u = computeU(A_hex, padHex(B));
+  const uBig = BigInteger(u, 16);
 
-  // x = H(salt | H(poolName | ':' | username | ':' | password))
+  // x = H(SALT || H(poolName || username || ':' || password))
   const userPoolName = COGNITO_POOL_ID.split('_')[1];
-  const innerHash = createHash('sha256').update(`${userPoolName}${username}:${password}`).digest('hex');
-  const saltedHex = (SALT.length % 2 ? '0' + SALT : SALT) + innerHash;
-  const x = BigInteger(createHash('sha256').update(Buffer.from(saltedHex, 'hex')).digest('hex'), 16);
+  const credHash = sha256hex(`${userPoolName}${username}:${password}`);
+  const saltEven = SALT.length % 2 ? '0' + SALT : SALT;
+  const saltedInput = new Uint8Array(saltEven.length / 2 + credHash.length / 2);
+  saltedInput.set(hexToUint8(saltEven), 0);
+  saltedInput.set(hexToUint8(credHash), saltEven.length / 2);
+  const x = BigInteger(createHash('sha256').update(saltedInput).digest('hex'), 16);
 
-  // S = (B - k * g^x)^(a + u*x) mod N
+  // S = (B - k * g^x) ^ (a + u * x) mod N
   const gX = g.modPow(x, N);
-  let bMinuskgX = B.subtract(k.multiply(gX)).mod(N);
-  if (bMinuskgX.isNegative()) bMinuskgX = bMinuskgX.add(N);
-  const S = bMinuskgX.modPow(a.add(u.multiply(x)), N);
+  let base = B.subtract(k.multiply(gX)).mod(N);
+  if (base.isNegative()) base = base.add(N);
+  const exp = a.add(uBig.multiply(x));
+  const S = base.modPow(exp, N);
   const S_hex = padHex(S);
 
-  // HKDF
-  function hkdf(ikm, salt, info, len = 16) {
-    const prk = createHmac('sha256', salt).update(ikm).digest();
-    const infoBuf = Buffer.concat([Buffer.from(info), Buffer.from([1])]);
-    return createHmac('sha256', prk).update(infoBuf).digest().slice(0, len);
-  }
+  // HKDF to get session key
+  const uHashBytes = hexToUint8(uint8ToHex(createHash('sha256').update(new Uint8Array([
+    ...hexToUint8(A_hex.length % 2 ? '0' + A_hex : A_hex),
+    ...hexToUint8(padHex(B)),
+  ])).digest()));
+  const hkdfKey = hkdfSha256(hexToUint8(S_hex), uHashBytes, 'Caldera Derived Key');
 
-  const S_bytes = Buffer.from(S_hex, 'hex');
-  const salt_hkdf = Buffer.from(createHash('sha256').update(Buffer.from(padHex(BigInteger(hexHash(A_hex + padHex(B)), 16)), 'hex')).digest('hex'), 'hex');
-  const hkdfKey = hkdf(S_bytes, Buffer.from('Caldera Derived Key'), 'Caldera Derived Key');
-
-  // Timestamp
+  // Timestamp (Cognito format)
   const now = new Date();
   const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const dateStr = `${DAYS[now.getUTCDay()]} ${MONTHS[now.getUTCMonth()]} ${String(now.getUTCDate()).padStart(2,' ')} ${String(now.getUTCHours()).padStart(2,'0')}:${String(now.getUTCMinutes()).padStart(2,'0')}:${String(now.getUTCSeconds()).padStart(2,'0')} UTC ${now.getUTCFullYear()}`;
+  const dateStr = `${DAYS[now.getUTCDay()]} ${MONTHS[now.getUTCMonth()]} ${String(now.getUTCDate()).padStart(2, ' ')} ${String(now.getUTCHours()).padStart(2, '0')}:${String(now.getUTCMinutes()).padStart(2, '0')}:${String(now.getUTCSeconds()).padStart(2, '0')} UTC ${now.getUTCFullYear()}`;
 
-  // Signature
-  const msg = Buffer.concat([
-    Buffer.from(userPoolName, 'utf8'),
-    Buffer.from(USER_ID_FOR_SRP, 'utf8'),
-    Buffer.from(SECRET_BLOCK, 'base64'),
-    Buffer.from(dateStr, 'utf8'),
+  // Signature = HMAC-SHA256(hkdfKey, poolName || userID || secretBlock || timestamp)
+  const poolNameBytes = new TextEncoder().encode(userPoolName);
+  const userIdBytes = new TextEncoder().encode(USER_ID_FOR_SRP);
+  const secretBlockBytes = base64ToUint8(SECRET_BLOCK);
+  const dateBytes = new TextEncoder().encode(dateStr);
+
+  const msgBytes = new Uint8Array([
+    ...poolNameBytes,
+    ...userIdBytes,
+    ...secretBlockBytes,
+    ...dateBytes,
   ]);
-  const signature = createHmac('sha256', hkdfKey).update(msg).digest('base64');
-
-  // Step 2: RespondToAuthChallenge
-  const respondBody = {
-    ChallengeName: 'PASSWORD_VERIFIER',
-    ClientId: COGNITO_CLIENT_ID,
-    ChallengeResponses: {
-      USERNAME: USER_ID_FOR_SRP,
-      PASSWORD_CLAIM_SECRET_BLOCK: SECRET_BLOCK,
-      TIMESTAMP: dateStr,
-      PASSWORD_CLAIM_SIGNATURE: signature,
-    },
-    ClientMetadata: {},
-  };
+  const sigBytes = hmacSha256(hkdfKey, msgBytes);
+  const signature = uint8ToBase64(sigBytes);
 
   const respondResp = await fetch(COGNITO_URL, {
     method: 'POST',
@@ -162,7 +189,17 @@ async function srpAuth(username, password) {
       'Content-Type': 'application/x-amz-json-1.1',
       'X-Amz-Target': 'AWSCognitoIdentityProviderService.RespondToAuthChallenge',
     },
-    body: JSON.stringify(respondBody),
+    body: JSON.stringify({
+      ChallengeName: 'PASSWORD_VERIFIER',
+      ClientId: COGNITO_CLIENT_ID,
+      ChallengeResponses: {
+        USERNAME: USER_ID_FOR_SRP,
+        PASSWORD_CLAIM_SECRET_BLOCK: SECRET_BLOCK,
+        TIMESTAMP: dateStr,
+        PASSWORD_CLAIM_SIGNATURE: signature,
+      },
+      ClientMetadata: {},
+    }),
   });
 
   if (!respondResp.ok) {
@@ -171,11 +208,11 @@ async function srpAuth(username, password) {
   }
 
   const respondJson = await respondResp.json();
+  console.log('[SRP] Cognito respond result:', respondJson.ChallengeName || 'AuthenticationResult received');
 
-  // If DEVICE_SRP_AUTH challenge - skip device verification, return what we have
+  // Handle DEVICE_SRP_AUTH or DEVICE_PASSWORD_VERIFIER
   if (respondJson.ChallengeName === 'DEVICE_SRP_AUTH' || respondJson.ChallengeName === 'DEVICE_PASSWORD_VERIFIER') {
-    // Device not remembered - we can't complete this challenge without device keys
-    throw new Error('Cognito DEVICE_SRP_AUTH נדרש — המכשיר לא זכור. פרטים נוספים: יש להיכנס פעם ראשונה מהדפדפן ולבטל "זכור מכשיר".');
+    throw new Error(`Cognito דורש אימות מכשיר (${respondJson.ChallengeName}). יש לכבות "זכור מכשיר" בהגדרות Cognito User Pool, או להשתמש ב-ACCESS_TOKEN ישירות.`);
   }
 
   const accessToken = respondJson?.AuthenticationResult?.AccessToken;
