@@ -912,40 +912,37 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             </div>
           )}
 
-          {/* Debt summary section */}
-          <div className="rounded-[22px] border border-slate-200/80 bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
-            <div className="mb-5 flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#fff1f2] text-[#ff5b6e]">
-                    <Wallet className="w-6 h-6" />
-                  </div>
-                  <h3 className="text-[26px] leading-none font-black tracking-[-0.02em] text-[#253b5b]">פירוט חובות</h3>
-                </div>
+          {/* === ROW 2: Debt cards === */}
+          <div className="rounded-2xl bg-white border border-slate-100 shadow-sm px-4 py-4">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-[11px] text-slate-400">עודכן לאחרונה: לפני שעתיים</p>
+              <div className="flex items-center gap-2">
+                <Wallet className="w-4 h-4 text-[#1a3a6b]" />
+                <p className="text-[14px] font-bold text-[#1a3a6b]">פירוט חובות ותשלומים</p>
               </div>
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-              {/* Total debt KPI */}
-              <div className="relative overflow-hidden rounded-[20px] border border-slate-200/80 bg-[#fffefe] px-5 py-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
-                <div className="absolute inset-y-0 right-0 w-[5px] rounded-r-[20px] bg-[#ff4d6d]" />
-                <div className="space-y-2 text-right">
-                  <p className="text-[14px] font-semibold text-[#97a6bb]">סה״כ חוב</p>
-                  <p className="text-[26px] leading-none font-black tracking-[-0.03em] text-[#ff4d6d]">{formatCurrency(record.totalDebt)}</p>
-                </div>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              {/* סה״כ - highlighted */}
+              <div className="rounded-xl bg-[#fff0f0] border border-[#ffd5d5] px-4 py-3 text-right">
+                <p className="text-[11px] font-semibold text-[#cc4444] mb-1">סה״כ חוב</p>
+                <p className="text-[22px] font-black text-[#cc2222] leading-none">{formatCurrency(record.totalDebt)}</p>
               </div>
-              {/* Management fees KPI */}
-              <div className="relative overflow-hidden rounded-[20px] border border-slate-200/80 bg-[#fffefe] px-5 py-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
-                <div className="absolute inset-y-0 right-0 w-[5px] rounded-r-[20px] bg-[#f5a623]" />
-                <div className="space-y-2 text-right">
-                  <p className="text-[14px] font-semibold text-[#97a6bb]">דמי ניהול</p>
-                  <p className="text-[26px] leading-none font-black tracking-[-0.03em] text-[#f59e0b]">{formatCurrency(record.monthlyDebt)}</p>
-                </div>
+              {/* דמי ניהול */}
+              <div className="rounded-xl bg-[#f0f5ff] border border-[#d0deff] px-4 py-3 text-right">
+                <p className="text-[11px] font-semibold text-[#4466cc] mb-1">דמי ניהול</p>
+                <p className="text-[22px] font-black text-[#1a3a6b] leading-none">{formatCurrency(record.monthlyDebt)}</p>
               </div>
-              {/* Water fees KPI */}
-              <div className="relative overflow-hidden rounded-[20px] border border-slate-200/80 bg-[#fffefe] px-5 py-5 shadow-[0_8px_24px_rgba(15,23,42,0.04)]">
-                <div className="absolute inset-y-0 right-0 w-[5px] rounded-r-[20px] bg-[#8b5cf6]" />
-                <div className="space-y-2 text-right">
-                  <p className="text-[14px] font-semibold text-[#97a6bb]">מים חמים</p>
-                  <p className="text-[26px] leading-none font-black tracking-[-0.03em] text-[#8b5cf6]">{formatCurrency(record.specialDebt)}</p>
-                </div>
+              {/* מים חמים */}
+              <div className="rounded-xl bg-[#f5f0ff] border border-[#e0d0ff] px-4 py-3 text-right">
+                <p className="text-[11px] font-semibold text-[#7744cc] mb-1">מים חמים</p>
+                <p className="text-[22px] font-black text-[#6633bb] leading-none">{formatCurrency(record.specialDebt)}</p>
+              </div>
+              {/* אחר */}
+              <div className="rounded-xl bg-[#f5f5f5] border border-[#e5e5e5] px-4 py-3 text-right">
+                <p className="text-[11px] font-semibold text-slate-500 mb-1">אחר</p>
+                <p className="text-[22px] font-black text-slate-600 leading-none">
+                  {formatCurrency((record.totalDebt || 0) - (record.monthlyDebt || 0) - (record.specialDebt || 0))}
+                </p>
               </div>
             </div>
           </div>
