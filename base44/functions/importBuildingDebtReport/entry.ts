@@ -137,8 +137,8 @@ function computeX(saltHex, username, password) {
   return bigInt(b2h(sha256(cat(saltB, inner))), 16);
 }
 
-function computeS(a, B_hex, u, x) {
-  const B = bigInt(B_hex, 16);
+function computeS(a, B_big, u, x) {
+  const B = B_big;
   if (B.mod(N).equals(bigInt.zero)) throw new Error('B mod N == 0');
   // S = (B - k * g^x) ^ (a + u * x) mod N
   let base = B.subtract(k.multiply(g.modPow(x, N))).mod(N);
