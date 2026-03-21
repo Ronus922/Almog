@@ -403,10 +403,11 @@ Deno.serve(async (req) => {
     let rows = [];
     if (Array.isArray(debtJson)) rows = debtJson;
     else if (Array.isArray(debtJson?.data)) rows = debtJson.data;
+    else if (Array.isArray(debtJson?.value)) rows = debtJson.value;
     else if (Array.isArray(debtJson?.apartments)) rows = debtJson.apartments;
     else if (Array.isArray(debtJson?.debts)) rows = debtJson.debts;
     else if (Array.isArray(debtJson?.results)) rows = debtJson.results;
-    else throw new Error(`מבנה תשובה לא מזוהה: ${Object.keys(debtJson).join(', ')}`);
+    else throw new Error(`מבנה תשובה לא מזוהה: ${Object.keys(debtJson).join(', ')}. דוגמה: ${JSON.stringify(debtJson).slice(0, 500)}`);
 
     if (rows.length === 0) throw new Error('API החזיר 0 שורות');
 
