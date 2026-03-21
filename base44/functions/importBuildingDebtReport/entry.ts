@@ -320,6 +320,21 @@ Deno.serve(async (req) => {
     return Response.json({ error: 'BLLINK_USERNAME / BLLINK_PASSWORD חסרים' }, { status: 500 });
   }
 
+  // DEBUG: בדיקת credentials (נמחק לאחר אימות)
+  const urlParams = new URL(req.url).searchParams;
+  if (urlParams.get('debug') === '1') {
+    return Response.json({
+      username_length: BLLINK_USERNAME.length,
+      username_first3: BLLINK_USERNAME.slice(0, 3),
+      username_last3: BLLINK_USERNAME.slice(-3),
+      password_length: BLLINK_PASSWORD.length,
+      password_first2: BLLINK_PASSWORD.slice(0, 2),
+      password_last2: BLLINK_PASSWORD.slice(-2),
+      pool_name: POOL_NAME,
+      client_id_first8: COGNITO_CLIENT_ID.slice(0, 8),
+    });
+  }
+
   let logId = null;
   const runId = `bllink-${Date.now()}`;
 
