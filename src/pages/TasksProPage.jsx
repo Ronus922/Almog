@@ -2,6 +2,11 @@ import React, { useState, useMemo, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Plus, LayoutGrid, List, Calendar, Repeat2, RefreshCw } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel,
+  AlertDialogContent, AlertDialogDescription, AlertDialogFooter,
+  AlertDialogHeader, AlertDialogTitle
+} from "@/components/ui/alert-dialog";
 import { useAuth } from "@/components/auth/AuthContext";
 import { isManagerRole } from "@/components/utils/roles";
 import {
@@ -52,6 +57,7 @@ export default function TasksProPage() {
   const [attendeesMap, setAttendeesMap] = useState({});
   const [readOnlyTask, setReadOnlyTask] = useState(null);
   const [taskAttachments, setTaskAttachments] = useState([]);
+  const [deleteTarget, setDeleteTarget] = useState(null); // { id, title }
 
   // Queries
   const { data: allTasks = [], isLoading } = useQuery({
@@ -198,10 +204,15 @@ export default function TasksProPage() {
     await unarchiveTask(task.id);
     queryClient.invalidateQueries({ queryKey: ["taskpro-tasks"] });
   };
-  const doDelete = async (id) => {
-    if (!window.confirm("למחוק משימה זו לצמיתות?")) return;
-    await base44.entities.TaskPro.delete(id);
+  const doDelete = (id, title) => {
+    setDeleteTarget({ id, title });
+  };
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    await base44.entities.TaskPro.delete(deleteTarget.id);
     queryClient.invalidateQueries({ queryKey: ["taskpro-tasks"] });
+    setDeleteTarget(null);
   };
 
   // Bulk
