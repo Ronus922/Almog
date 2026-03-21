@@ -947,17 +947,18 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             </div>
           </div>
 
-          {/* Legal management section */}
+          {/* === ROW 3: Legal + Next Action in 2 cols === */}
           {isAdmin && (
-          <div className="rounded-[22px] border border-slate-200/80 bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.05)]">
-              <div className="mb-5 flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-[16px] bg-[#eef4ff] text-[#3b82f6]">
-                      <Scale className="w-6 h-6" />
-                    </div>
-                    <h3 className="text-[26px] leading-none font-black tracking-[-0.02em] text-[#253b5b]">ניהול משפטי</h3>
-                  </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+
+            {/* ניהול משפטי */}
+            <div className="rounded-2xl bg-white border border-slate-100 shadow-sm px-4 py-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-7 h-7 rounded-lg bg-blue-50 flex items-center justify-center">
+                  <Scale className="w-3.5 h-3.5 text-[#1a3a6b]" />
                 </div>
+                <p className="text-[13px] font-bold text-[#1a3a6b]">ניהול משפטי</p>
+              </div>
 
               <div className="space-y-4 text-right">
                 <div>
