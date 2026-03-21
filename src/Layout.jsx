@@ -33,6 +33,17 @@ function LayoutContent({ children, currentPageName }) {
 
   const isAdmin = isManagerRole(currentUser) || currentUser?.isBase44Admin === true || currentUser?.role === 'SUPER_ADMIN';
 
+  // בדיקת גישה לדף לפי accessiblePages של התפקיד
+  const canAccessPage = (pageName) => {
+    if (!currentUser) return false;
+    // SUPER_ADMIN וmanajer role - גישה לכל הדפים
+    if (isAdmin) return true;
+    // אם accessiblePages הוא null - גישה לכל הדפים (is_admin role)
+    if (currentUser.accessiblePages === null) return true;
+    // אחרת - בדוק אם הדף ברשימה
+    return (currentUser.accessiblePages || []).includes(pageName);
+  };
+
   const handleNavigation = (pageName) => {
     attemptNavigation(() => {
       navigate(createPageUrl(pageName));
