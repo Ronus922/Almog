@@ -25,6 +25,7 @@ function DashboardContent() {
     queryKey: ['debtorRecords'],
     queryFn: () => base44.entities.DebtorRecord.list(),
     staleTime: 0,
+    refetchOnWindowFocus: true,
   });
 
   // Subscribe to real-time updates on DebtorRecord and Contact
