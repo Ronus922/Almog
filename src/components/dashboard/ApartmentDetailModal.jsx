@@ -997,7 +997,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                         {statusSaveError && <span className="text-xs text-red-600 font-semibold">{statusSaveError}</span>}
                       </div>
                     ) : null;
-                  })()}
+                  })}
 
                   {!selectedLegalStatusId &&
               <div className="text-xs text-slate-500 bg-slate-50 rounded-lg p-2">
