@@ -692,55 +692,56 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
       }}
       onHeaderClose={onClose}
       footer={
-        <>
-          {isAdmin && (
+        <div className="flex items-center justify-between w-full gap-2 flex-wrap" dir="rtl">
+          {/* Right side: save + close */}
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <Button
+                onClick={handleSave}
+                disabled={isSaving}
+                className="h-9 px-5 rounded-xl bg-[#1a3a6b] hover:bg-[#142d54] text-white text-[13px] font-bold gap-1.5 shadow-md"
+              >
+                <Save className="h-3.5 w-3.5" />
+                {isSaving ? 'שומר...' : 'שמור שינויים'}
+              </Button>
+            )}
             <Button
-              onClick={handleSave}
-              disabled={isSaving}
-              className="h-10 min-w-[140px] rounded-[14px] border-0 bg-[linear-gradient(180deg,#2d6cff_0%,#1f5cf2_100%)] px-4 text-[15px] font-black text-white shadow-[0_14px_28px_rgba(37,99,235,0.35)] transition hover:brightness-[1.04]"
+              variant="outline"
+              onClick={() => { window.location.href = `/DebtorHistory?id=${record.id}`; }}
+              className="h-9 px-4 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 gap-1.5 hover:bg-slate-50"
             >
-              <Save className="mr-2 h-3 w-3" />
-              {isSaving ? 'שומר...' : 'שמור'}
+              <History className="h-3.5 w-3.5" />
+              היסטוריה
             </Button>
-          )}
-          <Button
-            variant="outline"
-            onClick={handleExportPDF}
-            disabled={isExporting}
-            className="h-10 min-w-[90px] rounded-[14px] border border-slate-200 bg-white px-3 text-[14px] font-bold text-[#243858] shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition hover:bg-slate-50"
-          >
-            <FileDown className="mr-1.5 h-3 w-3" />
-            PDF
-          </Button>
-          <Button
-            variant="outline"
-            onClick={handlePrint}
-            className="h-10 min-w-[90px] rounded-[14px] border border-slate-200 bg-white px-3 text-[14px] font-bold text-[#243858] shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition hover:bg-slate-50"
-          >
-            <Printer className="mr-1.5 h-3 w-3" />
-            הדפסה
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => {
-              window.location.href = `/DebtorHistory?id=${record.id}`;
-            }}
-            className="h-10 min-w-[110px] rounded-[14px] border border-slate-200 bg-white px-3 text-[14px] font-bold text-[#243858] shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition hover:bg-slate-50"
-          >
-            <History className="mr-1.5 h-3 w-3" />
-            היסטוריה
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => {
-              queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
-              onClose();
-            }}
-            className="h-10 min-w-[90px] rounded-[14px] border border-slate-200 bg-white px-3 text-[14px] font-bold text-[#243858] shadow-[0_4px_16px_rgba(15,23,42,0.04)] transition hover:bg-slate-50"
-          >
-            סגור
-          </Button>
-        </>
+          </div>
+          {/* Left side: PDF + Print + Close */}
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              onClick={handleExportPDF}
+              disabled={isExporting}
+              className="h-9 w-9 p-0 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+              title="ייצוא PDF"
+            >
+              <FileDown className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              onClick={handlePrint}
+              className="h-9 w-9 p-0 rounded-xl border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"
+              title="הדפסה"
+            >
+              <Printer className="h-4 w-4" />
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => { queryClient.invalidateQueries({ queryKey: ['debtorRecords'] }); onClose(); }}
+              className="h-9 px-4 rounded-xl border border-slate-200 bg-white text-[13px] font-semibold text-slate-700 hover:bg-slate-50"
+            >
+              סגור
+            </Button>
+          </div>
+        </div>
       }>
 
         {!isAdmin && (
