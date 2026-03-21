@@ -78,13 +78,25 @@ export default function AllNotifications() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 p-6">
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 p-6" dir="rtl">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center justify-center h-64">
             <div className="text-center">
-              <Bell className="w-12 h-12 text-slate-300 mx-auto mb-3 animate-pulse" />
-              <p className="text-slate-500">טוען התראות...</p>
+              <Bell className="w-12 h-12 text-slate-400 mx-auto mb-3 animate-pulse" />
+              <p className="text-slate-600 font-medium">טוען התראות...</p>
             </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 p-6" dir="rtl">
+        <div className="max-w-6xl mx-auto">
+          <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center">
+            <p className="text-red-700 font-medium">{error}</p>
           </div>
         </div>
       </div>
