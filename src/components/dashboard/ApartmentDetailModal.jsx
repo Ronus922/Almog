@@ -743,8 +743,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           </div>
         </div>
       }
-      >
-       <>
+    >
        {!isAdmin && (
          <div className="rounded-[20px] border border-slate-200/80 bg-white px-5 py-5 shadow-[0_10px_30px_rgba(15,23,42,0.05)] mb-5" dir="rtl">
             <div className="flex items-center gap-3">
@@ -1049,7 +1048,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                        const existingNotes = notes.startsWith('פעולה:') ? notes.substring(notes.indexOf('\n') + 1) : notes;
                        setEditedRecord(prev => ({ ...prev, notes: actionLine ? `${actionLine}\n${existingNotes}` : existingNotes }));
                      }}
-                    className="w-full h-10 rounded-xl border border-slate-200 bg-slaste-50 px-3 text-[13px] text-[#223755] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-[13px] text-[#223755] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
                     dir="rtl"
                     disabled={!isAdmin}
                   />
@@ -1091,9 +1090,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               />
             </div>
           )}
-        </div>
-      </div>
-          </AppModal>
-          </>
-          );
-          }
+    </AppModal>
+  );
+}
