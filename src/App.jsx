@@ -169,6 +169,7 @@ window.documentService = {
   },
 };
 
+import PageGuard from "@/components/auth/PageGuard";
 import Tasks from "./pages/Tasks.jsx";
 import InternalChat from "./pages/InternalChat.jsx";
 import TasksProPage from "./pages/TasksProPage.jsx";
