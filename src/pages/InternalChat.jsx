@@ -133,8 +133,8 @@ export default function InternalChat() {
 
   return (
     <div className="flex h-[calc(100vh-0px)] bg-slate-100" dir="rtl">
-      {/* Sidebar */}
-      <div className="w-80 flex-shrink-0 border-l border-slate-200 h-full overflow-hidden">
+      {/* Sidebar — hidden on mobile when chat is selected */}
+      <div className={`${selectedConv ? 'hidden md:flex' : 'flex'} w-full md:w-80 flex-shrink-0 border-l border-slate-200 h-full overflow-hidden flex-col`}>
         <ChatConversationList
           conversations={conversations}
           currentUser={currentUser}
@@ -145,8 +145,8 @@ export default function InternalChat() {
         />
       </div>
 
-      {/* Chat Area */}
-      <div className="flex-1 h-full overflow-hidden">
+      {/* Chat Area — full width on mobile when chat selected */}
+      <div className={`${selectedConv ? 'flex' : 'hidden md:flex'} flex-1 h-full overflow-hidden flex-col`}>
         {selectedConv ? (
           <ChatWindow
             conversation={selectedConv}
@@ -156,7 +156,7 @@ export default function InternalChat() {
             onMarkRead={(conv) => markReadMutation.mutate(conv)}
           />
         ) : (
-          <div className="flex flex-col items-center justify-center h-full gap-4 text-slate-400">
+          <div className="hidden md:flex flex-col items-center justify-center h-full gap-4 text-slate-400">
             <div className="w-20 h-20 rounded-full bg-white shadow-md flex items-center justify-center">
               <MessageCircle className="w-10 h-10 text-blue-400" />
             </div>
