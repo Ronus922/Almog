@@ -1,11 +1,102 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
-import { SRPClient, calculateSignature, getNowString } from 'npm:amazon-cognito-srp-client@2.0.2';
+import { createHmac, createHash } from 'node:crypto';
+import bigInt from 'npm:big-integer@1.6.52';
 
-// ─── AWS Cognito ─────────────────────────────────────────────────────────────
+/**
+ * Cognito SRP — מימוש מבוסס על קוד מקורי של amazon-cognito-identity-js
+ * https://github.com/aws-amplify/amplify-js/blob/main/packages/amazon-cognito-identity-js/src/AuthenticationHelper.js
+ */
+
 const COGNITO_CLIENT_ID = '66iqqmjj6s81d6qu0pvqc4226l';
-const COGNITO_REGION = 'us-east-1';
-const COGNITO_POOL_ID = 'us-east-1_K0OcMyw20';
-const COGNITO_URL = `https://cognito-idp.${COGNITO_REGION}.amazonaws.com/`;
+const COGNITO_REGION    = 'us-east-1';
+const COGNITO_POOL_ID   = 'us-east-1_K0OcMyw20';
+const POOL_NAME         = COGNITO_POOL_ID.split('_').slice(1).join('_'); // "K0OcMyw20"
+const COGNITO_URL       = `https://cognito-idp.${COGNITO_REGION}.amazonaws.com/`;
+
+const N_HEX =
+  'FFFFFFFFFFFFFFFFC90FDAA22168C234C4C6628B80DC1CD1' +
+  '29024E088A67CC74020BBEA63B139B22514A08798E3404DD' +
+  'EF9519B3CD3A431B302B0A6DF25F14374FE1356D6D51C245' +
+  'E485B576625E7EC6F44C42E9A637ED6B0BFF5CB6F406B7ED' +
+  'EE386BFB5A899FA5AE9F24117C4B1FE649286651ECE45B3D' +
+  'C2007CB8A163BF0598DA48361C55D39A69163FA8FD24CF5F' +
+  '83655D23DCA3AD961C62F356208552BB9ED529077096966D' +
+  '670C354E4ABC9804F1746C08CA18217C32905E462E36CE3B' +
+  'E39E772C180E86039B2783A2EC07A28FB5C55DF06F4C52C9' +
+  'DE2BCBF6955817183995497CEA956AE515D2261898FA0510' +
+  '15728E5A8AAAC42DAD33170D04507A33A85521ABDF1CBA64' +
+  'ECFB850458DBEF0A8AEA71575D060C7DB3970F85A6E1E4C7' +
+  'ABF5AE8CDB0933D71E8C94E04A25619DCEE3D2261AD2EE6B' +
+  'F12FFA06D98A0864D87602733EC86A64521F2B18177B200C' +
+  'BBE117577A615D6C770988C0BAD946E208E24FA074E5AB31' +
+  '43DB5BFCE0FD108E4B82D120A93AD2CAFFFFFFFFFFFFFFFF';
+
+const G_HEX = '2';
+const N = bigInt(N_HEX, 16);
+const g = bigInt(G_HEX, 16);
+
+// ── helpers ───────────────────────────────────────────────────────────────────
+
+/** hex string → Uint8Array */
+function h2b(hex) {
+  const h = hex.length % 2 ? '0' + hex : hex;
+  const b = new Uint8Array(h.length / 2);
+  for (let i = 0; i < b.length; i++) b[i] = parseInt(h.substr(i * 2, 2), 16);
+  return b;
+}
+
+/** Uint8Array → hex string */
+function b2h(b) {
+  return Array.from(b).map(x => x.toString(16).padStart(2, '0')).join('');
+}
+
+/** concat Uint8Arrays */
+function cat(...arrs) {
+  const len = arrs.reduce((s, a) => s + a.length, 0);
+  const out = new Uint8Array(len); let off = 0;
+  for (const a of arrs) { out.set(a, off); off += a.length; }
+  return out;
+}
+
+/** string → Uint8Array (UTF-8) */
+const enc = (s) => new TextEncoder().encode(s);
+
+/** base64 → Uint8Array */
+function b64d(s) {
+  const bin = atob(s); const b = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) b[i] = bin.charCodeAt(i);
+  return b;
+}
+
+/** Uint8Array → base64 */
+function b64e(b) { return btoa(String.fromCharCode(...b)); }
+
+/** sha256(Uint8Array) → Uint8Array */
+function sha256(data) { return createHash('sha256').update(data).digest(); }
+
+/** hmac-sha256(key: Uint8Array, data: Uint8Array) → Uint8Array */
+function hmac(key, data) { return createHmac('sha256', key).update(data).digest(); }
+
+/**
+ * Pad bigInt hex: ensure even length, prepend 00 if MSB >= 0x80
+ * This matches amazon-cognito-identity-js padHex()
+ */
+function padHex(n) {
+  let h = n.toString(16);
+  if (h.length % 2 !== 0) h = '0' + h;
+  if ('89abcdef'.includes(h[0])) h = '00' + h;
+  return h;
+}
+
+// ── Precomputed k ─────────────────────────────────────────────────────────────
+function computeK() {
+  const nH = N_HEX.length % 2 ? '0' + N_HEX : N_HEX;
+  const gH = G_HEX.padStart(nH.length, '0');
+  return bigInt(b2h(sha256(cat(h2b(nH), h2b(gH)))), 16);
+}
+const k = computeK();
+
+// ── Cognito SRP auth ──────────────────────────────────────────────────────────
 
 async function cognitoPost(target, body) {
   const r = await fetch(COGNITO_URL, {
@@ -17,41 +108,94 @@ async function cognitoPost(target, body) {
     body: JSON.stringify(body),
   });
   const txt = await r.text();
-  if (!r.ok) throw new Error(`Cognito ${target} נכשל: ${r.status} ${txt.slice(0,300)}`);
+  if (!r.ok) throw new Error(`Cognito ${target} נכשל: ${r.status} ${txt.slice(0, 300)}`);
   return JSON.parse(txt);
 }
 
+function generateSrpA() {
+  const aBytes = crypto.getRandomValues(new Uint8Array(128));
+  const a = bigInt(b2h(aBytes), 16).mod(N);
+  const A = g.modPow(a, N);
+  return { a, A_hex: padHex(A) };
+}
+
+function computeU(A_hex, B_hex) {
+  const pA = A_hex.length % 2 ? '0' + A_hex : A_hex;
+  const pB = B_hex.length % 2 ? '0' + B_hex : B_hex;
+  return bigInt(b2h(sha256(cat(h2b(pA), h2b(pB)))), 16);
+}
+
+/**
+ * Cognito x calculation (matches AuthenticationHelper.js exactly):
+ * x = H(SALT || H(poolName || username || password))
+ * Note: NO colon separator — direct concatenation of strings
+ */
+function computeX(saltHex, username, password) {
+  // inner = sha256(POOL_NAME + username + password)  (as UTF-8 bytes)
+  const inner = sha256(enc(POOL_NAME + username + password));
+  const saltB = h2b(saltHex.length % 2 ? '0' + saltHex : saltHex);
+  return bigInt(b2h(sha256(cat(saltB, inner))), 16);
+}
+
+function computeS(a, B_hex, u, x) {
+  const B = bigInt(B_hex, 16);
+  if (B.mod(N).equals(bigInt.zero)) throw new Error('B mod N == 0');
+  // S = (B - k * g^x) ^ (a + u * x) mod N
+  let base = B.subtract(k.multiply(g.modPow(x, N))).mod(N);
+  if (base.isNegative()) base = base.add(N);
+  const exp = a.add(u.multiply(x));
+  return base.modPow(exp, N);
+}
+
+function computeHkdfKey(A_hex, B_hex, S_hex) {
+  // salt for HKDF = H(A_hex_bytes || B_hex_bytes)
+  const pA = A_hex.length % 2 ? '0' + A_hex : A_hex;
+  const pB = B_hex.length % 2 ? '0' + B_hex : B_hex;
+  const uHash = sha256(cat(h2b(pA), h2b(pB)));
+  // IKM = S bytes, info = 'Caldera Derived Key'
+  const prk = hmac(uHash, h2b(padHex(bigInt(S_hex, 16))));
+  const T   = hmac(prk, cat(enc('Caldera Derived Key'), new Uint8Array([0x01])));
+  return T.slice(0, 16);
+}
+
+function cognitoTimestamp() {
+  const D = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const now = new Date();
+  const d = String(now.getUTCDate()).padStart(2, ' ');
+  const t = `${pad2(now.getUTCHours())}:${pad2(now.getUTCMinutes())}:${pad2(now.getUTCSeconds())}`;
+  return `${D[now.getUTCDay()]} ${M[now.getUTCMonth()]} ${d} ${t} UTC ${now.getUTCFullYear()}`;
+}
+function pad2(n) { return String(n).padStart(2, '0'); }
+
 async function srpAuth(username, password) {
-  const srp = new SRPClient(COGNITO_POOL_ID);
-  const SRP_A = srp.getA();
+  const { a, A_hex } = generateSrpA();
 
   console.log('[SRP] InitiateAuth...');
   const init = await cognitoPost('InitiateAuth', {
     AuthFlow: 'USER_SRP_AUTH',
     ClientId: COGNITO_CLIENT_ID,
-    AuthParameters: { USERNAME: username, SRP_A },
+    AuthParameters: { USERNAME: username, SRP_A: A_hex },
     ClientMetadata: {},
   });
 
   if (init.ChallengeName !== 'PASSWORD_VERIFIER') {
-    throw new Error(`Challenge לא צפוי: ${init.ChallengeName} — ${JSON.stringify(init).slice(0,300)}`);
+    throw new Error(`Challenge לא צפוי: ${init.ChallengeName} — ${JSON.stringify(init).slice(0, 300)}`);
   }
 
   const { SRP_B, SALT, SECRET_BLOCK, USER_ID_FOR_SRP } = init.ChallengeParameters;
-  console.log(`[SRP] USER_ID_FOR_SRP=${USER_ID_FOR_SRP}`);
+  console.log(`[SRP] USER_ID_FOR_SRP="${USER_ID_FOR_SRP}"`);
 
-  const dateNow = getNowString();
-  const signature = calculateSignature({
-    userPoolId: COGNITO_POOL_ID,
-    username: USER_ID_FOR_SRP,
-    password,
-    srpB: SRP_B,
-    salt: SALT,
-    secretBlock: SECRET_BLOCK,
-    dateNow,
-    srpA: SRP_A,
-    srpSmallA: srp.a,
-  });
+  const u = computeU(A_hex, padHex(bigInt(SRP_B, 16)));
+  const x = computeX(SALT, USER_ID_FOR_SRP, password);
+  const S = computeS(a, SRP_B, u, x);
+  const S_hex = padHex(S);
+
+  const hkdfKey = computeHkdfKey(A_hex, SRP_B, S_hex);
+  const ts = cognitoTimestamp();
+
+  const msgBytes = cat(enc(POOL_NAME), enc(USER_ID_FOR_SRP), b64d(SECRET_BLOCK), enc(ts));
+  const sig = b64e(hmac(hkdfKey, msgBytes));
 
   console.log('[SRP] RespondToAuthChallenge...');
   const respond = await cognitoPost('RespondToAuthChallenge', {
@@ -60,18 +204,20 @@ async function srpAuth(username, password) {
     ChallengeResponses: {
       USERNAME: USER_ID_FOR_SRP,
       PASSWORD_CLAIM_SECRET_BLOCK: SECRET_BLOCK,
-      TIMESTAMP: dateNow,
-      PASSWORD_CLAIM_SIGNATURE: signature,
+      TIMESTAMP: ts,
+      PASSWORD_CLAIM_SIGNATURE: sig,
     },
     ClientMetadata: {},
   });
 
+  console.log('[SRP] respond ChallengeName:', respond.ChallengeName ?? 'none (success)');
+
   if (respond.ChallengeName === 'DEVICE_SRP_AUTH' || respond.ChallengeName === 'DEVICE_PASSWORD_VERIFIER') {
-    throw new Error(`נדרש אימות מכשיר (${respond.ChallengeName}).`);
+    throw new Error(`נדרש אימות מכשיר (${respond.ChallengeName}). יש לכבות "זכור מכשיר" ב-Cognito.`);
   }
 
   const token = respond?.AuthenticationResult?.AccessToken;
-  if (!token) throw new Error(`לא התקבל AccessToken: ${JSON.stringify(respond).slice(0,300)}`);
+  if (!token) throw new Error(`לא התקבל AccessToken: ${JSON.stringify(respond).slice(0, 300)}`);
   return token;
 }
 
@@ -191,7 +337,7 @@ Deno.serve(async (req) => {
 
     if (!debtResp.ok) {
       const txt = await debtResp.text();
-      throw new Error(`שליפת נתוני חוב נכשלה: ${debtResp.status} ${txt.slice(0,200)}`);
+      throw new Error(`שליפת נתוני חוב נכשלה: ${debtResp.status} ${txt.slice(0, 200)}`);
     }
 
     const debtJson = await debtResp.json();
@@ -203,10 +349,10 @@ Deno.serve(async (req) => {
     else if (Array.isArray(debtJson?.apartments)) rows = debtJson.apartments;
     else if (Array.isArray(debtJson?.debts)) rows = debtJson.debts;
     else if (Array.isArray(debtJson?.results)) rows = debtJson.results;
-    else throw new Error(`מבנה תשובה לא מזוהה. מפתחות: ${Object.keys(debtJson).join(', ')}. ${JSON.stringify(debtJson).slice(0, 400)}`);
+    else throw new Error(`מבנה תשובה לא מזוהה: ${Object.keys(debtJson).join(', ')}. ${JSON.stringify(debtJson).slice(0, 400)}`);
 
-    console.log(`[Import] ${rows.length} שורות`);
     if (rows.length === 0) throw new Error('API החזיר 0 שורות');
+    console.log(`[Import] ${rows.length} שורות`);
 
     await base44.asServiceRole.entities.ImportRun.update(logId, { stage: 'PARSE', totalRowsRead: rows.length });
 
