@@ -147,14 +147,16 @@ function computeS(a, B_hex, u, x) {
   return base.modPow(exp, N);
 }
 
-function computeHkdfKey(A_hex, B_hex, S_hex) {
-  // salt for HKDF = H(A_hex_bytes || B_hex_bytes)
+function computeHkdfKey(A_hex, B_hex, S) {
+  // salt = H(A || B)  — same bytes used for u
   const pA = A_hex.length % 2 ? '0' + A_hex : A_hex;
-  const pB = B_hex.length % 2 ? '0' + B_hex : B_hex;
+  const pB = padHex(B);
   const uHash = sha256(cat(h2b(pA), h2b(pB)));
-  // IKM = S bytes, info = 'Caldera Derived Key'
-  const prk = hmac(uHash, h2b(padHex(bigInt(S_hex, 16))));
-  const T   = hmac(prk, cat(enc('Caldera Derived Key'), new Uint8Array([0x01])));
+  // HKDF-Extract: PRK = HMAC(key=salt, data=IKM)  → key=uHash, data=S_bytes
+  const S_bytes = h2b(padHex(S));
+  const prk = hmac(uHash, S_bytes);
+  // HKDF-Expand:  T(1) = HMAC(key=PRK, data=info||0x01)
+  const T = hmac(prk, cat(enc('Caldera Derived Key'), new Uint8Array([0x01])));
   return T.slice(0, 16);
 }
 
