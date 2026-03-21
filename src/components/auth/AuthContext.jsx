@@ -30,12 +30,10 @@ async function loadRoleData(roleId) {
  * null = גישה מלאה, [] = אין גישה, [..] = רשימה ספציפית
  */
 function resolveAccessiblePages(roleData, systemRole) {
-  // SUPER_ADMIN מ-Base44 = גישה מלאה
-  if (systemRole === 'SUPER_ADMIN') return null;
-  // אם אין role_id מוגדר = fallback לפי system role
-  if (!roleData) {
-    return systemRole === 'ADMIN' ? null : [];
-  }
+  // SUPER_ADMIN / ADMIN ללא role_id = גישה מלאה
+  if (systemRole === 'SUPER_ADMIN' || systemRole === 'ADMIN') return null;
+  // אם אין roleData = אין גישה לשום דף
+  if (!roleData) return [];
   // תפקיד עם is_admin = true → גישה מלאה
   if (roleData.is_admin) return null;
   // אחרת - רשימה ספציפית (יכולה להיות ריקה)
