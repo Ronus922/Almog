@@ -137,7 +137,7 @@ export default function CalendarGrid({
       </div>
 
       {/* Calendar grid */}
-      <div className="grid grid-cols-7 gap-0 flex-1 overflow-y-auto" dir="rtl">
+      <div className="grid grid-cols-7 gap-0 flex-1 overflow-y-auto overflow-x-auto min-w-[500px]" dir="rtl" style={{ WebkitOverflowScrolling: 'touch' }}>
         {days.map((date, idx) => {
           const dayAppointments = getAppointmentsForDay(date);
           const holiday = getIsraeliHolidayName(date);

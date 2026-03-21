@@ -23,7 +23,8 @@ export default function TaskProKanban({ tasks = [], onRowClick }) {
   };
 
   return (
-    <div className="grid grid-cols-3 gap-4 pb-4" dir="rtl">
+    <div className="w-full overflow-x-auto pb-4" dir="rtl" style={{ WebkitOverflowScrolling: 'touch' }}>
+      <div className="grid grid-cols-3 gap-4 pb-4 min-w-[800px]" dir="rtl">
       {COLUMNS.map(({ key, label, color, bg }) => (
         <div key={key} className="min-w-0">
           <div className={`rounded-xl border-2 border-t-4 ${color} border-slate-200 bg-white shadow-sm overflow-hidden`}>
@@ -68,6 +69,7 @@ export default function TaskProKanban({ tasks = [], onRowClick }) {
           </div>
         </div>
       ))}
+      </div>
     </div>
   );
 }

@@ -286,8 +286,8 @@ export default function Documents() {
   // ============== RENDER ==============
 
   return (
-    <div className="w-screen min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100 p-4 md:p-8" dir="rtl">
-      <div className="max-w-7xl mx-auto flex flex-col" style={{ minHeight: 'calc(100vh - 2rem)' }}>
+    <div className="w-[100vw] min-h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100 p-2 md:p-4 overflow-x-hidden" dir="rtl">
+      <div className="w-full flex flex-col" style={{ minHeight: 'calc(100vh - 2rem)' }}>
 
         {/* Header */}
         <div className="bg-gradient-to-l from-blue-600 to-indigo-600 text-white rounded-xl shadow-lg p-6 mb-6">

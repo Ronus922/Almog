@@ -521,14 +521,14 @@ export default function Calendar() {
   const monthRangeStr = `${format(monthStart, 'dd/MM/yyyy')} - ${format(monthEnd, 'dd/MM/yyyy')}`;
 
   return (
-    <div className="w-screen h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100 p-4 md:p-8 overflow-auto" dir="rtl">
+    <div className="w-screen h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100 p-2 md:p-4 overflow-auto" dir="rtl">
       <div className="w-full min-h-screen flex flex-col">
         <PageHeader 
           title="יומן פגישות" 
           subtitle="ניהול פגישות ומשימות בקלות ובארגון"
         />
 
-        <div className="flex items-center justify-between gap-4 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 sm:mb-6">
           {/* Add Button */}
           <Button
             onClick={() => {
