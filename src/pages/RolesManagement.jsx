@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Plus, Pencil, Trash2, X, Save, Shield, Check, Globe, Lock } from 'lucide-react';
+import { PAGE_KEYS } from '@/lib/pageKeys';
 
 const COLOR_OPTIONS = [
   { value: 'blue', label: 'כחול', class: 'bg-blue-500' },
@@ -30,19 +31,7 @@ const COLOR_BADGE = {
   indigo: 'bg-indigo-100 text-indigo-700',
 };
 
-const ALL_PAGES = [
-  { name: 'Dashboard', label: 'דשבורד' },
-  { name: 'TaskAnalyticsDashboard', label: 'לוח מחוונים משימות' },
-  { name: 'TasksManagement', label: 'ניהול משימות' },
-  { name: 'TasksPro', label: 'משימות Pro' },
-  { name: 'Calendar', label: 'יומן' },
-  { name: 'Contacts', label: 'אנשי קשר' },
-  { name: 'Documents', label: 'מסמכים' },
-  { name: 'InternalChat', label: "צ'אט פנימי" },
-  { name: 'WhatsAppChat', label: "צ'אט וואטסאפ" },
-  { name: 'SupplierManagement', label: 'ספקים' },
-  { name: 'TodoReminders', label: 'תזכורות' },
-];
+const ALL_PAGES = PAGE_KEYS;
 
 const PERMISSIONS = [
   { key: 'can_add_records', label: 'הוספת רשומות' },
