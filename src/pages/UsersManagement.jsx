@@ -103,9 +103,16 @@ export default function UsersManagement() {
   };
 
   const getRoleName = (roleId) => roles.find((r) => r.id === roleId)?.name || '—';
+  const getRoleObj = (roleId) => roles.find((r) => r.id === roleId);
   const getRoleColor = (roleId) => {
-    const role = roles.find((r) => r.id === roleId);
+    const role = getRoleObj(roleId);
     return role ? COLOR_MAP[role.color] || COLOR_MAP.blue : COLOR_MAP.blue;
+  };
+  const getRolePages = (roleId) => {
+    const role = getRoleObj(roleId);
+    if (!role) return null;
+    if (role.is_admin) return null; // גישה מלאה
+    return role.accessible_pages || [];
   };
 
   const getFullName = (u) => [u.first_name, u.last_name].filter(Boolean).join(' ') || u.username;
