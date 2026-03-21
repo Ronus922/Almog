@@ -20,7 +20,7 @@ const COLOR_MAP = {
   indigo: 'bg-indigo-100 text-indigo-700',
 };
 
-const EMPTY = { full_name: '', email: '', username: '', password: '', role_id: '', department: '', active: true };
+const EMPTY = { first_name: '', last_name: '', email: '', username: '', password: '', role_id: '', department: '', active: true };
 
 export default function UsersManagement() {
   const [dialogOpen, setDialogOpen] = useState(false);
