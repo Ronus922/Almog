@@ -1,6 +1,7 @@
 import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
 import { createHmac, createHash } from 'node:crypto';
-import { BigInteger } from 'npm:big-integer@1.6.52';
+import bigInteger from 'npm:big-integer@1.6.52';
+const BigInteger = bigInteger;
 
 // ─── AWS Cognito SRP Authentication ───────────────────────────────────────────
 const COGNITO_POOL_ID = 'us-east-1_K0OcMyw20';
