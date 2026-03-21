@@ -93,8 +93,10 @@ export default function UsersManagement() {
     }
     delete payload.password;
     if (editing && !payload.password_hash) delete payload.password_hash;
-    // וודא שיש role (VIEWER כברירת מחדל לכל המשתמשים)
-    if (!payload.role) payload.role = 'VIEWER';
+    // וודא שיש role
+    // אם עורכים וה-role קיים ב-DB, שמור אותו. אחרת VIEWER כברירת מחדל.
+    if (editing && !payload.role) payload.role = editing.role || 'VIEWER';
+    else if (!payload.role) payload.role = 'VIEWER';
     if (editing) {
       updateMutation.mutate({ id: editing.id, data: payload });
     } else {
