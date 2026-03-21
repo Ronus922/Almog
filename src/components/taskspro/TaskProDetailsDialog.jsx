@@ -87,7 +87,7 @@ export default function TaskProDetailsDialog({ task, open, onClose, onEdit, onAr
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-0" dir="rtl">
+      <DialogContent className="max-w-3xl w-[95vw] max-h-[90vh] overflow-y-auto p-0" dir="rtl">
         {/* Header */}
         <div className="bg-gradient-to-l from-blue-600 to-blue-700 p-6 text-white rounded-t-lg">
           <div className="flex items-start justify-between gap-4">
