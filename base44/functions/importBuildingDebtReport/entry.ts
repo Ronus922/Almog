@@ -157,10 +157,12 @@ async function srpAuth(username, password) {
   const S_hex = padHex(S);
 
   // HKDF to get session key
-  const uHashBytes = hexToUint8(uint8ToHex(createHash('sha256').update(new Uint8Array([
+  // salt = H(pad(A) || pad(B)) — same as u computation
+  const AB_combined = new Uint8Array([
     ...hexToUint8(A_hex.length % 2 ? '0' + A_hex : A_hex),
     ...hexToUint8(padHex(B)),
-  ])).digest()));
+  ]);
+  const uHashBytes = createHash('sha256').update(AB_combined).digest();
   const hkdfKey = hkdfSha256(hexToUint8(S_hex), uHashBytes, 'Caldera Derived Key');
 
   // Timestamp (Cognito format)
