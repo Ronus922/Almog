@@ -335,6 +335,19 @@ Deno.serve(async (req) => {
     });
   }
 
+  // DEBUG mode
+  let body = {};
+  try { body = await req.json(); } catch {}
+  if (body?.debug === '1') {
+    return Response.json({
+      username_length: BLLINK_USERNAME.length,
+      username_chars: [...BLLINK_USERNAME].map(c => c.charCodeAt(0)),
+      password_length: BLLINK_PASSWORD.length,
+      password_chars: [...BLLINK_PASSWORD].map(c => c.charCodeAt(0)),
+      pool_name: POOL_NAME,
+    });
+  }
+
   let logId = null;
   const runId = `bllink-${Date.now()}`;
 
