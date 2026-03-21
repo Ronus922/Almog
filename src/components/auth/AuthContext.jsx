@@ -109,7 +109,16 @@ export function AuthProvider({ children }) {
       const roleData = await loadRoleData(user.role_id);
       const accessiblePages = resolveAccessiblePages(roleData, systemRole);
 
-      console.log('[Auth] ✓ Session restored:', { username: user.username, systemRole, role_id: user.role_id, accessiblePages });
+      console.log('[Auth] ✓ Session restored:', {
+        username: user.username,
+        rawRole: user.role,
+        systemRole,
+        role_id: user.role_id,
+        roleDataName: roleData?.name,
+        roleDataIsAdmin: roleData?.is_admin,
+        roleDataPages: roleData?.accessible_pages,
+        finalAccessiblePages: accessiblePages,
+      });
 
       setCurrentUser({
         email: user.email || user.username,
