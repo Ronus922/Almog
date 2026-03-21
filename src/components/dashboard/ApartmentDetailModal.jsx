@@ -990,21 +990,14 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 {/* סטטוס נוכחי + מידע Audit */}
                 <div className="mt-3 space-y-2">
                   {(() => {
-                const currentStatus = legalStatuses.find((s) => s.id === selectedLegalStatusId);
-                return currentStatus &&
-                <div className="flex items-center gap-2">
-                        
-
-
-                        {savingStatus &&
-                  <span className="text-xs text-blue-600 font-semibold">שומר...</span>
-                  }
-                        {statusSaveError &&
-                  <span className="text-xs text-red-600 font-semibold">{statusSaveError}</span>
-                  }
-                      </div>;
-
-              })()}
+                    const currentStatus = legalStatuses.find((s) => s.id === selectedLegalStatusId);
+                    return currentStatus ? (
+                      <div className="flex items-center gap-2">
+                        {savingStatus && <span className="text-xs text-blue-600 font-semibold">שומר...</span>}
+                        {statusSaveError && <span className="text-xs text-red-600 font-semibold">{statusSaveError}</span>}
+                      </div>
+                    ) : null;
+                  })()}
 
                   {!selectedLegalStatusId &&
               <div className="text-xs text-slate-500 bg-slate-50 rounded-lg p-2">
