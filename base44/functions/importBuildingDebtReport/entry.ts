@@ -90,10 +90,11 @@ function computeU(A_hex, B_hex) {
 }
 
 // ── SRP x value — Cognito specific ───────────────────────────────────────────
-// x = H(salt || H(poolName || userId || ":" || password))
-// NOTE: Cognito uses "userId:password" (with colon) inside inner hash
+// x = H(salt || H(poolName || userId || password))
+// Cognito: inner = H(poolName + userId + password) — NO colon, NO separator
+// See: https://github.com/aws-amplify/amplify-js/blob/main/packages/amazon-cognito-identity-js/src/AuthenticationHelper.js
 function computeX(saltHex, userId, password) {
-  const innerHash = sha256(str2u8(POOL_NAME + userId + ':' + password));
+  const innerHash = sha256(str2u8(POOL_NAME + userId + password));
   const saltBytes = hexToU8(saltHex.length % 2 ? '0' + saltHex : saltHex);
   return bigInt(u8ToHex(sha256(concat(saltBytes, innerHash))), 16);
 }
