@@ -512,11 +512,30 @@ export default function TasksProPage() {
         {/* Dialogs */}
         <TaskProFormDialog
           open={showForm}
-          onClose={() => setShowForm(false)}
+          onClose={() => { setShowForm(false); setEditTask(null); }}
           task={editTask}
           currentUser={currentUser}
           onSaved={() => queryClient.invalidateQueries({ queryKey: ["taskpro-tasks"] })}
         />
+
+        {/* AlertDialog מחיקה */}
+        <AlertDialog open={!!deleteTarget} onOpenChange={(o) => { if (!o) setDeleteTarget(null); }}>
+          <AlertDialogContent dir="rtl">
+            <AlertDialogHeader>
+              <AlertDialogTitle>מחיקת משימה</AlertDialogTitle>
+              <AlertDialogDescription>
+                האם אתה בטוח שברצונך למחוק את המשימה <strong>"{deleteTarget?.title}"</strong>?
+                <br />פעולה זו אינה הפיכה.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex-row-reverse gap-2">
+              <AlertDialogCancel>ביטול</AlertDialogCancel>
+              <AlertDialogAction onClick={confirmDelete} className="bg-red-600 hover:bg-red-700 text-white">
+                מחק
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
 
         <TaskProReadOnlyDialog
           open={!!readOnlyTask}
