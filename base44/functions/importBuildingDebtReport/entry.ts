@@ -193,21 +193,10 @@ async function srpAuth(username, password) {
   const x = computeX(SALT, USER_ID_FOR_SRP, password);
   const S = computeS(a, B_big, u, x);
 
-  console.error('[SRP-DEBUG] POOL_NAME:', POOL_NAME);
-  console.error('[SRP-DEBUG] USER_ID_FOR_SRP:', USER_ID_FOR_SRP);
-  console.error('[SRP-DEBUG] SALT (first 16):', SALT.slice(0, 16));
-  console.error('[SRP-DEBUG] u (first 8):', u.toString(16).slice(0, 8));
-  console.error('[SRP-DEBUG] x (first 8):', x.toString(16).slice(0, 8));
-  console.error('[SRP-DEBUG] S (first 8):', S.toString(16).slice(0, 8));
-
   const hkdfKey = computeHkdfKey(A_hex, B_big, S);
-  console.error('[SRP-DEBUG] hkdfKey:', b2h(hkdfKey));
   const ts = cognitoTimestamp();
-  console.error('[SRP-DEBUG] timestamp:', ts);
-
   const msgBytes = cat(enc(POOL_NAME), enc(USER_ID_FOR_SRP), b64d(SECRET_BLOCK), enc(ts));
   const sig = b64e(hmac(hkdfKey, msgBytes));
-  console.error('[SRP-DEBUG] sig (first 20):', sig.slice(0, 20));
 
   console.log('[SRP] RespondToAuthChallenge...');
   const respond = await cognitoPost('RespondToAuthChallenge', {
