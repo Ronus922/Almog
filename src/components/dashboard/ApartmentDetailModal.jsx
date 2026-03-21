@@ -1042,10 +1042,11 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                     value={editedRecord?.notes?.startsWith('פעולה:') ? editedRecord.notes.split('\n')[0].replace('פעולה: ', '') : ''}
                     placeholder="הכנס תיאור פעולה..."
                     onChange={(e) => {
-                      const actionLine = e.target.value ? `פעולה: ${e.target.value}` : '';
-                      const existingNotes = (editedRecord?.notes || '').replace(/^פעולה:.*\n?/, '');
-                      setEditedRecord(prev => ({ ...prev, notes: actionLine ? `${actionLine}\n${existingNotes}` : existingNotes }));
-                    }}
+                       const actionLine = e.target.value ? `פעולה: ${e.target.value}` : '';
+                       const notes = editedRecord?.notes || '';
+                       const existingNotes = notes.startsWith('פעולה:') ? notes.substring(notes.indexOf('\n') + 1) : notes;
+                       setEditedRecord(prev => ({ ...prev, notes: actionLine ? `${actionLine}\n${existingNotes}` : existingNotes }));
+                     }}
                     className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-[13px] text-[#223755] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
                     dir="rtl"
                     disabled={!isAdmin}
