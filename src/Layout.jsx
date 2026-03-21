@@ -79,13 +79,10 @@ function LayoutContent({ children, currentPageName }) {
 
 
   const filteredNavItems = navItems.filter((item) => {
-    // סנן לפי הרשאות מנהל
-    if (item.adminOnly && !isAdmin) return false;
-    // סנן לפי דפים נגישים של התפקיד (רק למשתמשים שאינם אדמין)
-    if (!isAdmin) {
-      return canAccessPage(item.name);
-    }
-    return true;
+    // אדמין רואה הכל
+    if (isAdmin) return true;
+    // לא-אדמין: בדוק גישה ספציפית לפי accessiblePages
+    return canAccessPage(item.name);
   });
 
   const mainItems = filteredNavItems.filter((i) => i.section === 'main');
