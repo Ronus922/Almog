@@ -228,15 +228,19 @@ export default function UsersManagement() {
           <form onSubmit={handleSubmit} className="space-y-4 mt-2">
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label className="text-sm font-semibold text-slate-700 mb-1.5 block">שם מלא *</Label>
-                <Input value={form.full_name} onChange={(e) => setForm((p) => ({ ...p, full_name: e.target.value }))} placeholder="ישראל ישראלי" className="h-11 rounded-xl" />
-                {errors.full_name && <p className="text-xs text-red-500 mt-1">{errors.full_name}</p>}
+                <Label className="text-sm font-semibold text-slate-700 mb-1.5 block">שם פרטי *</Label>
+                <Input value={form.first_name} onChange={(e) => setForm((p) => ({ ...p, first_name: e.target.value }))} placeholder="ישראל" className="h-11 rounded-xl" />
+                {errors.first_name && <p className="text-xs text-red-500 mt-1">{errors.first_name}</p>}
               </div>
               <div>
-                <Label className="text-sm font-semibold text-slate-700 mb-1.5 block">דוא"ל *</Label>
-                <Input value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="user@example.com" className="h-11 rounded-xl" type="email" />
-                {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
+                <Label className="text-sm font-semibold text-slate-700 mb-1.5 block">שם משפחה</Label>
+                <Input value={form.last_name} onChange={(e) => setForm((p) => ({ ...p, last_name: e.target.value }))} placeholder="ישראלי" className="h-11 rounded-xl" />
               </div>
+            </div>
+            <div>
+              <Label className="text-sm font-semibold text-slate-700 mb-1.5 block">דוא"ל</Label>
+              <Input value={form.email} onChange={(e) => setForm((p) => ({ ...p, email: e.target.value }))} placeholder="user@example.com" className="h-11 rounded-xl" type="email" />
+              {errors.email && <p className="text-xs text-red-500 mt-1">{errors.email}</p>}
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
