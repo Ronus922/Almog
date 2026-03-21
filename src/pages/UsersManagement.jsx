@@ -76,7 +76,7 @@ export default function UsersManagement() {
 
   const openEdit = (u) => {
     setEditing(u);
-    setForm({ full_name: u.full_name, email: u.email, username: u.username, password: '', role_id: u.role_id || '', department: u.department || '', active: u.active !== false });
+    setForm({ first_name: u.first_name || '', last_name: u.last_name || '', email: u.email || '', username: u.username, password: '', role_id: u.role_id || '', department: u.department || '', active: u.active !== false });
     setErrors({});
     setDialogOpen(true);
   };
