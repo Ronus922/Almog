@@ -116,7 +116,7 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto" dir="rtl">
+      <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center">
@@ -130,7 +130,7 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5 mt-2">
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-sm font-semibold text-slate-700">סוג מיקום *</label>
               <Select value={form.target_type} onValueChange={(v) => setForm((p) => ({ ...p, target_type: v, target_id: "" }))}>
@@ -154,7 +154,7 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-1.5">
               <label className="text-sm font-semibold text-slate-700">שתף עם</label>
               <Popover>
@@ -373,7 +373,7 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange, on
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-3xl" dir="rtl">
+        <DialogContent className="max-w-3xl w-[95vw] max-h-[90vh] overflow-y-auto" dir="rtl">
           <DialogHeader>
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -708,20 +708,20 @@ export default function IssuesManagement() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 p-6" dir="rtl">
-      <div className="w-4/5 mx-auto space-y-5">
+      <div className="w-full max-w-6xl mx-auto space-y-5">
 
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-orange-100 flex items-center justify-center shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-orange-100 flex items-center justify-center shadow-sm flex-shrink-0">
               <AlertCircle className="w-6 h-6 text-orange-500" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-slate-800">ניהול תקלות</h1>
+              <h1 className="text-xl font-black text-slate-800">ניהול תקלות</h1>
               <p className="text-sm text-slate-400 mt-0.5">גררו תקלות בין עמודות לשינוי סטטוס</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             {/* View Mode Tabs */}
             <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
               <button
@@ -758,10 +758,10 @@ export default function IssuesManagement() {
 
             <button
               onClick={() => setDialogOpen(true)}
-              className="flex items-center gap-2 h-11 px-5 rounded-xl bg-gradient-to-l from-red-500 to-orange-400 text-white font-bold shadow-lg hover:opacity-90 transition-all text-sm"
+              className="flex items-center gap-2 h-11 px-4 rounded-xl bg-gradient-to-l from-red-500 to-orange-400 text-white font-bold shadow-lg hover:opacity-90 transition-all text-sm whitespace-nowrap"
             >
               <Plus className="w-4 h-4" />
-              דווח על תקלה חדשה
+              תקלה חדשה
             </button>
           </div>
         </div>
@@ -810,7 +810,7 @@ export default function IssuesManagement() {
           <div className="text-center py-16 text-slate-400">טוען...</div>
         ) : viewMode === "kanban" ? (
           <DragDropContext onDragEnd={handleDragEnd}>
-            <div className="flex gap-4 items-start">
+            <div className="flex gap-3 items-start overflow-x-auto pb-4 min-w-0" style={{WebkitOverflowScrolling: 'touch'}}>
               {COLUMNS.map((col) => (
                 <KanbanColumn
                    key={col.id}
