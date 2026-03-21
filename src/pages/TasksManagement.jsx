@@ -124,7 +124,7 @@ function ReportTaskDialog({ open, onClose, onSuccess, onNotify, currentUser }) {
 
   return (
     <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl" dir="rtl">
+      <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
           <DialogTitle className="text-right">דיווח על משימה חדשה</DialogTitle>
         </DialogHeader>
@@ -140,7 +140,7 @@ function ReportTaskDialog({ open, onClose, onSuccess, onNotify, currentUser }) {
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700">סוג יעד *</label>
               <Select value={form.target_type} onValueChange={(v) => setForm(p => ({ ...p, target_type: v }))}>
@@ -373,7 +373,7 @@ function TaskDetailsDialog({ task, open, onClose, onDelete, onStatusChange, onVi
   return (
     <>
       <Dialog open={open} onOpenChange={onClose}>
-        <DialogContent className="max-w-4xl" dir="rtl">
+        <DialogContent className="max-w-4xl w-[95vw] max-h-[90vh] overflow-y-auto" dir="rtl">
           <DialogHeader>
             <div className="flex items-center justify-between w-full">
               <div className="flex items-center gap-2">
@@ -684,17 +684,17 @@ export default function TasksManagement() {
       <div className="w-full max-w-6xl mx-auto space-y-5">
 
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center shadow-sm">
+            <div className="w-12 h-12 rounded-2xl bg-blue-100 flex items-center justify-center shadow-sm flex-shrink-0">
               <Clock className="w-6 h-6 text-blue-500" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-slate-800">ניהול משימות</h1>
+              <h1 className="text-xl font-black text-slate-800">ניהול משימות</h1>
               <p className="text-sm text-slate-400 mt-0.5">גררו משימות בין עמודות לשינוי סטטוס</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <div className="flex gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
               <button
                 onClick={() => setViewMode('kanban')}
@@ -772,7 +772,7 @@ export default function TasksManagement() {
           <div className="text-center py-16 text-slate-400">טוען...</div>
         ) : viewMode === 'kanban' ? (
           <DragDropContext onDragEnd={handleDragEnd}>
-            <div className="flex gap-4 items-start">
+            <div className="flex gap-3 items-start overflow-x-auto pb-4 min-w-0" style={{WebkitOverflowScrolling: 'touch'}}>
               {COLUMNS.map((col) => (
                 <KanbanColumn
                   key={col.id}
