@@ -89,8 +89,11 @@ export default function NotificationBell({ currentUser }) {
   };
 
   const typeIcon = (type) => {
-    if (type === 'task_due_soon' || type === 'task_pro_due_soon') return '⏰';
+    if (['task_due_soon', 'task_pro_due_soon', 'task_due_today', 'task_pro_due_today'].includes(type)) return '⚠️';
+    if (['task_due_tomorrow', 'task_pro_due_tomorrow'].includes(type)) return '📅';
     if (type === 'task_pro_completed') return '✅';
+    if (['appointment_assigned', 'appointment_updated'].includes(type)) return '🗓️';
+    if (['appointment_due_today', 'appointment_due_tomorrow'].includes(type)) return '📅';
     return '📋';
   };
 
