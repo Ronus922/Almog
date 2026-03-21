@@ -106,8 +106,10 @@ export default function UsersManagement() {
     return role ? COLOR_MAP[role.color] || COLOR_MAP.blue : COLOR_MAP.blue;
   };
 
+  const getFullName = (u) => [u.first_name, u.last_name].filter(Boolean).join(' ') || u.username;
+
   const filtered = users.filter((u) =>
-    !search || u.full_name?.includes(search) || u.email?.includes(search) || u.username?.includes(search)
+    !search || getFullName(u).includes(search) || u.email?.includes(search) || u.username?.includes(search)
   );
 
   const activeCount = users.filter((u) => u.active !== false).length;
