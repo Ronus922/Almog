@@ -197,11 +197,19 @@ export default function UsersManagement() {
                     <td className="px-4 py-3 text-slate-500 text-sm">{u.department || '—'}</td>
                     <td className="px-4 py-3">
                       {u.role_id ? (
-                        <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold ${getRoleColor(u.role_id)}`}>
-                          <ShieldCheck className="w-3 h-3" />
-                          {getRoleName(u.role_id)}
-                        </span>
-                      ) : <span className="text-slate-400 text-xs">—</span>}
+                        <div className="flex flex-col gap-1">
+                          <span className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold ${getRoleColor(u.role_id)}`}>
+                            <ShieldCheck className="w-3 h-3" />
+                            {getRoleName(u.role_id)}
+                          </span>
+                          {(() => {
+                            const pages = getRolePages(u.role_id);
+                            if (pages === null) return <span className="text-xs text-amber-600">גישה מלאה</span>;
+                            if (pages.length === 0) return <span className="text-xs text-red-500">ללא גישה</span>;
+                            return <span className="text-xs text-slate-400">{pages.length} דפים</span>;
+                          })()}
+                        </div>
+                      ) : <span className="text-slate-400 text-xs">ללא תפקיד</span>}
                     </td>
                     <td className="px-4 py-3">
                       <span className={`inline-flex px-2.5 py-1 rounded-lg text-xs font-semibold ${u.active !== false ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
