@@ -147,23 +147,23 @@ async function srpAuth(username, password) {
   const S_hex = padHex(S);
 
   // HKDF: salt = H(A || B), ikm = S
-  const AB = Buffer.concat([
+  const AB = bufConcat(
     hexToBuffer(A_hex.length % 2 ? '0' + A_hex : A_hex),
     hexToBuffer(padHex(B)),
-  ]);
+  );
   const uHash = createHash('sha256').update(AB).digest();
   const hkdfKey = hkdf(hexToBuffer(S_hex), uHash, 'Caldera Derived Key');
 
   const timestamp = getCognitoTimestamp();
 
   // Signature = HMAC(hkdfKey, poolName || userIdForSrp || secretBlock || timestamp)
-  const secretBlockBytes = Buffer.from(SECRET_BLOCK, 'base64');
-  const msg = Buffer.concat([
-    Buffer.from(POOL_NAME, 'utf8'),
-    Buffer.from(USER_ID_FOR_SRP, 'utf8'),
+  const secretBlockBytes = base64ToBytes(SECRET_BLOCK);
+  const msg = bufConcat(
+    strToBytes(POOL_NAME),
+    strToBytes(USER_ID_FOR_SRP),
     secretBlockBytes,
-    Buffer.from(timestamp, 'utf8'),
-  ]);
+    strToBytes(timestamp),
+  );
   const sig = createHmac('sha256', hkdfKey).update(msg).digest('base64');
 
   console.log('[SRP] RespondToAuthChallenge...');
