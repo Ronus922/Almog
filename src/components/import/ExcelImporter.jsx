@@ -395,31 +395,14 @@ export default function ExcelImporter({ onImportComplete }) {
       }
 
       // ═══════════════════════════════════════════════════════════
-      // STEP 1: PREFETCH - קריאה אחת לכל הרשומות + Contact
+      // STEP 1: PREFETCH - קריאה אחת לכל הרשומות
       // ═══════════════════════════════════════════════════════════
-      setProgressMessage('טוען רשומות קיימות ופרטי אנשי קשר...');
+      setProgressMessage('טוען רשומות קיימות...');
       setProgress(5);
       await base44.entities.ImportRun.update(importRun.id, { stage: 'PREFETCH' });
-      console.log(`[Excel Import] PREFETCH: Loading all existing records and contacts`);
+      console.log(`[Excel Import] PREFETCH: Loading all existing records`);
       
       const allExistingRecords = await base44.entities.DebtorRecord.list();
-      const allContacts = await base44.entities.Contact.list();
-      
-      // Build Contact map with normalized keys
-      const contactMap = {};
-      for (const contact of allContacts) {
-        const normalizedKey = normalizeApartmentKey(contact.apartment_number);
-        if (normalizedKey) {
-          contactMap[normalizedKey] = {
-            ownerName: contact.owner_name,
-            phoneOwner: contact.owner_phone,
-            phoneTenant: contact.tenant_phone,
-            phonePrimary: contact.phonePrimary,
-            phonesRaw: contact.phonesRaw || '',
-            phonesManualOverride: true, // Contact פרטים - לא מתעדכנים מאקסל
-          };
-        }
-      }
       
       // Build Map with normalized keys
       const existingMap = {};
@@ -446,7 +429,7 @@ export default function ExcelImporter({ onImportComplete }) {
       };
       }
       
-      console.log(`[Excel Import] PREFETCH: Loaded ${Object.keys(existingMap).length} DebtorRecords, ${Object.keys(contactMap).length} Contacts`);
+      console.log(`[Excel Import] PREFETCH: Loaded ${Object.keys(existingMap).length} records`);
 
       // ═══════════════════════════════════════════════════════════
       // STEP 2: PARSE + BUILD QUEUES (בלי קריאות API)
@@ -601,28 +584,6 @@ export default function ExcelImporter({ onImportComplete }) {
             }
           }
           
-          // אם יש פרטים ב-Contact - הם "מנצחים" ולא מתעדכנים מאקסל
-          const contactData = contactMap[apartmentKey];
-          if (contactData) {
-            // Contact פרטים שומרים - אל תדרוס מאקסל
-            delete patch.ownerName;
-            delete patch.owner_name;
-            delete patch.phoneOwner;
-            delete patch.owner_phone;
-            delete patch.phoneTenant;
-            delete patch.tenant_phone;
-            delete patch.phonePrimary;
-            delete patch.phonesRaw;
-            
-            // שמור את פרטי Contact באופן מפורש
-            patch.ownerName = contactData.ownerName;
-            patch.phoneOwner = contactData.phoneOwner;
-            patch.phoneTenant = contactData.phoneTenant;
-            patch.phonePrimary = contactData.phonePrimary;
-            patch.phonesRaw = contactData.phonesRaw;
-            patch.phonesManualOverride = true;
-          }
-          
           // שמור סטטוס משפטי אם נעול
           if (existing.legal_status_lock || existing.legal_status_overridden) {
             patch.legal_status_id = existing.legal_status_id;
@@ -641,17 +602,14 @@ export default function ExcelImporter({ onImportComplete }) {
           updatesQueue.push({ id: existing.id, patch, aptKey: apartmentKey });
         } else {
           // CREATE
-          // אם יש פרטים ב-Contact - קח משם
-          const contactData = contactMap[apartmentKey];
-          
           const newRecord = {
             apartmentNumber: apartmentKey,
-            ownerName: contactData?.ownerName || ownerNameRaw.split(/[\/,]/)[0]?.trim() || '',
-            phoneOwner: contactData?.phoneOwner || phoneOwner,
-            phoneTenant: contactData?.phoneTenant || phoneTenant,
-            phonePrimary: contactData?.phonePrimary || phonePrimary,
-            phonesRaw: contactData?.phonesRaw || phonesRaw,
-            phonesManualOverride: contactData ? true : false,
+            ownerName: ownerNameRaw.split(/[\/,]/)[0]?.trim() || '',
+            phoneOwner,
+            phoneTenant,
+            phonePrimary,
+            phonesRaw: phonesRaw,
+            phonesManualOverride: false,
             totalDebt,
             monthlyDebt,
             specialDebt: hotWaterDebt,
