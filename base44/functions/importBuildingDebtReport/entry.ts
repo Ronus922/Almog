@@ -147,10 +147,10 @@ function computeS(a, B_big, u, x) {
   return base.modPow(exp, N);
 }
 
-function computeHkdfKey(A_hex, B_hex, S) {
+function computeHkdfKey(A_hex, B_big, S) {
   // salt = H(A || B)  — same bytes used for u
   const pA = A_hex.length % 2 ? '0' + A_hex : A_hex;
-  const pB = padHex(B);
+  const pB = padHex(B_big);
   const uHash = sha256(cat(h2b(pA), h2b(pB)));
   // HKDF-Extract: PRK = HMAC(key=salt, data=IKM)  → key=uHash, data=S_bytes
   const S_bytes = h2b(padHex(S));
