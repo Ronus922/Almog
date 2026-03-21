@@ -1076,24 +1076,24 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               </div>
             </div>
 
-          </div>){/* end grid 2-cols */}
+          </div>
 
           {/* === ROW 4: Comments === */}
           {isAdmin && (
-          <div className="rounded-2xl bg-white border border-slate-100 shadow-sm px-4 py-4">
-            <div className="flex items-center justify-between mb-3">
-              <div className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center">
-                <MessageSquare className="w-3.5 h-3.5 text-slate-500" />
+            <div className="rounded-2xl bg-white border border-slate-100 shadow-sm px-4 py-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="w-7 h-7 rounded-lg bg-slate-50 flex items-center justify-center">
+                  <MessageSquare className="w-3.5 h-3.5 text-slate-500" />
+                </div>
+                <p className="text-[13px] font-bold text-[#1a3a6b]">הערות ותיעוד</p>
               </div>
-              <p className="text-[13px] font-bold text-[#1a3a6b]">הערות ותיעוד</p>
+              <CommentsSection
+                debtorRecordId={record.id}
+                apartmentNumber={record.apartmentNumber}
+                currentUser={currentUser}
+                isAdmin={isAdmin}
+              />
             </div>
-            <CommentsSection
-              debtorRecordId={record.id}
-              apartmentNumber={record.apartmentNumber}
-              currentUser={currentUser}
-              isAdmin={isAdmin}
-            />
-          </div>
           )}
         </div>
     </AppModal>);
