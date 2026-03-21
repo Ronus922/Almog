@@ -68,29 +68,25 @@ const k = computeK();
 function computeU(A_hex, B_hex) {
   const pA = A_hex.length % 2 ? '0' + A_hex : A_hex;
   const pB = B_hex.length % 2 ? '0' + B_hex : B_hex;
-  const combined = Buffer.concat([hexToBuffer(pA), hexToBuffer(pB)]);
+  const combined = bufConcat(hexToBuffer(pA), hexToBuffer(pB));
   return bigInt(createHash('sha256').update(combined).digest('hex'), 16);
 }
 
-function computeX(salt_hex, username, password) {
-  // Cognito: x = H(salt || H(poolName || username || password))
-  // H(poolName || username || password) — no colons
+function computeX(salt_hex, userId, password) {
+  // Cognito: x = H(salt || H(poolName || userId || password))
   const innerHash = createHash('sha256')
-    .update(POOL_NAME + username + password)
+    .update(POOL_NAME + userId + password)
     .digest();
   const saltBuf = hexToBuffer(salt_hex.length % 2 ? '0' + salt_hex : salt_hex);
-  const combined = Buffer.concat([saltBuf, innerHash]);
+  const combined = bufConcat(saltBuf, innerHash);
   return bigInt(createHash('sha256').update(combined).digest('hex'), 16);
 }
 
 function hkdf(ikm, salt, info, length = 16) {
-  // Extract
   const prk = createHmac('sha256', salt).update(ikm).digest();
-  // Expand
-  const infoBytes = Buffer.from(info, 'utf8');
-  const T = createHmac('sha256', prk)
-    .update(Buffer.concat([infoBytes, Buffer.from([0x01])]))
-    .digest();
+  const infoBytes = strToBytes(info);
+  const expandInput = bufConcat(infoBytes, new Uint8Array([0x01]));
+  const T = createHmac('sha256', prk).update(expandInput).digest();
   return T.slice(0, length);
 }
 
