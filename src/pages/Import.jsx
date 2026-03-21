@@ -9,7 +9,6 @@ import { ShieldAlert, ArrowRight, Loader2 } from "lucide-react";
 
 import ExcelImporter from '../components/import/ExcelImporter';
 import AuthDebugPanel from '../components/debug/AuthDebugPanel';
-import BllinkImportPanel from '../components/import/BllinkImportPanel';
 
 export default function Import() {
   const { currentUser, loading } = useAuth();
@@ -58,24 +57,11 @@ export default function Import() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 py-10 px-6" dir="rtl">
-      {/* ייבוא אוטומטי מ-Bllink */}
-      <div className="max-w-4xl mx-auto mb-8">
-        <BllinkImportPanel />
+      <div className="max-w-4xl mx-auto">
+          <ExcelImporter onImportComplete={handleImportComplete} />
+        {/* Debug Panel */}
+        <AuthDebugPanel currentUser={currentUser} />
       </div>
-
-      {/* קו הפרדה */}
-      <div className="max-w-4xl mx-auto mb-8">
-        <div className="flex items-center gap-3">
-          <div className="flex-1 h-px bg-slate-300" />
-          <span className="text-xs text-slate-400 font-medium">ייבוא ידני מקובץ Excel</span>
-          <div className="flex-1 h-px bg-slate-300" />
-        </div>
-      </div>
-
-      <ExcelImporter onImportComplete={handleImportComplete} />
-      
-      {/* Debug Panel */}
-      <AuthDebugPanel currentUser={currentUser} />
     </div>
   );
 }
