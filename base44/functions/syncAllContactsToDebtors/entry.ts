@@ -115,6 +115,7 @@ Deno.serve(async (req) => {
     return Response.json({ 
       success: true, 
       syncedCount, 
+      createdCount,
       skippedCount,
       totalDebtors: allDebtors.length,
       totalContacts: allContacts.length
