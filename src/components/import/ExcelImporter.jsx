@@ -1288,6 +1288,39 @@ export default function ExcelImporter({ onImportComplete }) {
 
         {step === 2.5 && importPreview && (
           <div className="space-y-6" dir="rtl">
+            {isImporting && (
+              <div className="mt-6 p-4 bg-blue-50 rounded-xl import-progress-wrapper" style={rtlWrapStyle}>
+                <div style={{ display: "flex", justifyContent: "space-between", gap: 10, marginBottom: 6 }}>
+                  <span style={progressPercentStyle}>{progress}%</span>
+                  <span style={progressTextStyle}>{progressMessage || 'מעבד...'}</span>
+                </div>
+
+                <div className="import-progress-bar-container" style={{
+                  width: "100%",
+                  height: 15,
+                  minHeight: 15,
+                  maxHeight: 15,
+                  backgroundColor: "#e5e7eb",
+                  borderRadius: 999,
+                  overflow: "hidden",
+                }}>
+                  <div style={{
+                    width: `${progress}%`,
+                    height: 15,
+                    minHeight: 15,
+                    maxHeight: 15,
+                    backgroundColor: "#2563eb",
+                    borderRadius: 999,
+                    transition: "width 180ms linear",
+                  }} />
+                </div>
+                
+                <p className="text-xs text-slate-500 mt-2 text-center">
+                  ייבוא חכם עם Throttle ו-Retry
+                </p>
+              </div>
+            )}
+
             <Alert className="bg-blue-50 border-blue-300" dir="rtl">
               <AlertDescription className="text-blue-800 text-right">
                 <div style={mappingTitleStyle}>תצוגה מקדימה של היבוא</div>
