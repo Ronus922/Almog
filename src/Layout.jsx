@@ -86,17 +86,7 @@ function LayoutContent({ children, currentPageName }) {
   const mainItems = filteredNavItems.filter((i) => i.section === 'main');
   const adminItems = filteredNavItems.filter((i) => i.section === 'admin');
 
-  // Handle new task events from Tasks page
-  useEffect(() => {
-    const handleNewTask = (e) => {
-      if (e.detail?.task) {
-        setTasks((prev) => [e.detail.task, ...prev]);
-        setShowNotifications(true);
-      }
-    };
-    window.addEventListener('newTask', handleNewTask);
-    return () => window.removeEventListener('newTask', handleNewTask);
-  }, []);
+
 
   const renderNavSection = (items) =>
   <div className="space-y-1">
