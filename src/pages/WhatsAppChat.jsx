@@ -351,6 +351,25 @@ export default function WhatsAppChat() {
     }
   };
 
+  const handleDeleteConversation = async (conv) => {
+    try {
+      let msgs;
+      if (conv._isUnlinked) {
+        const all = await base44.entities.ChatMessage.filter({ link_status: 'unlinked' });
+        msgs = all.filter((m) => (m.contact_phone || m.sender_phone_raw) === conv.phone);
+      } else {
+        msgs = await base44.entities.ChatMessage.filter({ contact_id: conv.id });
+      }
+      await Promise.all(msgs.map((m) => base44.entities.ChatMessage.delete(m.id)));
+      if (selectedContact?.id === conv.id) setSelectedContact(null);
+      queryClient.invalidateQueries({ queryKey: ['contacts'] });
+      queryClient.invalidateQueries({ queryKey: ['chatMessages'] });
+      setDeleteConfirmId(null);
+    } catch (err) {
+      console.error('Delete conversation error:', err);
+    }
+  };
+
   const handleEmojiSelect = (emoji) => {
     setMessageInput(messageInput + emoji);
   };
