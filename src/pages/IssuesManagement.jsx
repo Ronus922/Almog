@@ -30,10 +30,29 @@ const COLUMNS = [
   { id: "resolved",    label: "הושלמה",  color: "border-t-green-400",  headerBg: "bg-green-50",  count_color: "bg-green-100 text-green-700" },
 ];
 
-// ---- Reporter Name Component ----
-function IssueReporterName({ reporterEmail, appUsers }) {
-  const reporterUser = appUsers?.find(u => u.username === reporterEmail);
-  return <span>מדווח: {reporterUser?.first_name || reporterEmail || "לא צוין"}</span>;
+// ---- Issue Person Label Component ----
+// currentUsername = המשתמש המחובר
+// מציג: אם אני המדווח → "גורם מטפל: X", אם אני המטפל → "מדווח: X"
+function IssuePersonLabel({ issue, appUsers, currentUsername }) {
+  const isReporter = issue.reporter_email === currentUsername;
+
+  if (isReporter) {
+    // אני המדווח → הצג גורם מטפל
+    const assignedUsernames = issue.assigned_to?.split(",").map(u => u.trim()).filter(Boolean) || [];
+    if (assignedUsernames.length === 0) return <span className="text-slate-400">ללא גורם מטפל</span>;
+    const names = assignedUsernames.map(un => {
+      const u = appUsers?.find(u => u.username === un);
+      return u ? `${u.first_name || ""}${u.last_name ? " " + u.last_name : ""}`.trim() : un;
+    }).join(", ");
+    return <span>גורם מטפל: {names}</span>;
+  } else {
+    // אני המטפל → הצג מדווח
+    const reporterUser = appUsers?.find(u => u.username === issue.reporter_email);
+    const reporterName = reporterUser
+      ? `${reporterUser.first_name || ""}${reporterUser.last_name ? " " + reporterUser.last_name : ""}`.trim()
+      : issue.reporter_email || "לא צוין";
+    return <span>מדווח: {reporterName}</span>;
+  }
 }
 
 // ---- Dialog Form ----
