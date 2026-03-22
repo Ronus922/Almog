@@ -890,7 +890,9 @@ export default function IssuesManagement() {
                            onClick={() => { setSelectedIssue(issue); setDetailsOpen(true); }}
                          >
                            <td className="px-4 py-3 text-right text-sm font-semibold text-slate-800">{targetLabel}</td>
-                           <td className="px-4 py-3 text-right text-sm text-slate-600">{reporterUser?.first_name || issue.reporter_email}</td>
+                           <td className="px-4 py-3 text-right text-sm text-slate-600">
+                             <IssuePersonLabel issue={issue} appUsers={appUsers} currentUsername={currentUser?.username} />
+                           </td>
                            <td className="px-4 py-3 text-center">
                              <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg" style={{ backgroundColor: `${p.bg}20`, color: p.color }}>
                                <span className={`w-2 h-2 rounded-full ${p.dot}`}></span>
