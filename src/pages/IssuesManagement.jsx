@@ -601,7 +601,7 @@ function KanbanCard({ issue, index, onDelete, onView, appUsers, areas }) {
 
             <div className="flex items-center justify-between pt-0.5 text-xs text-slate-400">
               <span>{format(new Date(issue.created_date), "dd/MM/yy")}</span>
-              <IssueReporterName reporterEmail={issue.reporter_email} appUsers={appUsers} />
+              <IssuePersonLabel issue={issue} appUsers={appUsers} currentUsername={issue._currentUsername} />
             </div>
           </div>
         </div>
