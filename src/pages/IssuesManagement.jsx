@@ -465,7 +465,7 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange, on
           {/* מידע תחתית */}
           <div className="flex items-center justify-between text-xs text-slate-500 pt-2 border-t border-slate-200">
             <span>{format(new Date(issue.created_date), "dd/MM/yy")}</span>
-            <IssueReporterName reporterEmail={issue.reporter_email} appUsers={appUsers} />
+            <IssuePersonLabel issue={issue} appUsers={appUsers} currentUsername={currentUsername} />
           </div>
 
           {/* משתמשים משותפים */}
