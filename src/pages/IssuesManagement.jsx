@@ -825,6 +825,7 @@ export default function IssuesManagement() {
                      setDetailsOpen(true); 
                    }}
                    appUsers={appUsers}
+                   areas={areas}
                  />
               ))}
             </div>
