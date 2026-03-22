@@ -48,6 +48,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
   
   const [phoneEditMode, setPhoneEditMode] = useState(null);
   const [phoneEditValue, setPhoneEditValue] = useState('');
+  const [showWhatsAppDialog, setShowWhatsAppDialog] = useState(false);
 
   const queryClient = useQueryClient();
 
