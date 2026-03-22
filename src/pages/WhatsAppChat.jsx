@@ -44,6 +44,13 @@ export default function WhatsAppChat() {
     staleTime: 1000 * 60 * 5
   });
 
+  // Helper: clean name from any appended URLs or whitespace
+  const cleanName = (name) => {
+    if (!name) return name;
+    // Remove anything that looks like a URL (http/https)
+    return name.replace(/\s*(https?:\/\/\S+)/g, '').trim();
+  };
+
   // Helper: get primary display name
   const getPrimaryName = (contact) => {
     if (!contact) return '';
@@ -51,10 +58,10 @@ export default function WhatsAppChat() {
     if (contact._isSupplier) return contact.company_name || contact.contact_person_name || 'ספק';
     if (contact.operator_is_primary_contact && contact.operator_id) {
       const op = operators.find((o) => o.id === contact.operator_id);
-      if (op) return op.company_name || op.contact_name;
+      if (op) return cleanName(op.company_name || op.contact_name);
     }
-    if (contact.tenant_is_primary_contact && contact.tenant_name) return contact.tenant_name;
-    return contact.owner_name || contact.tenant_name || 'ללא שם';
+    if (contact.tenant_is_primary_contact && contact.tenant_name) return cleanName(contact.tenant_name);
+    return cleanName(contact.owner_name || contact.tenant_name) || 'ללא שם';
   };
 
   // Helper: get secondary row info
