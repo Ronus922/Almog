@@ -856,7 +856,7 @@ export default function IssuesManagement() {
                <thead>
                  <tr className="border-b border-slate-200 bg-slate-50">
                    <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">מיקום</th>
-                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">דווח</th>
+                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">מדווח / מטפל</th>
                    <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">דחיפות</th>
                    <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">סטטוס</th>
                    <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">תאריך יצירה</th>
