@@ -13,7 +13,7 @@ export default function LinkedContactInfo({ contact }) {
   return (
     <div className="text-sm text-gray-600 mt-1 space-y-2">
       <div className="flex items-center gap-2">
-        {contact.whatsapp_profile_image_url || contact.whatsapp_profile_image && (
+        {(contact.whatsapp_profile_image_url || contact.whatsapp_profile_image) && (
           <div className="w-8 h-8 rounded-full overflow-hidden flex-shrink-0">
             <img 
               src={contact.whatsapp_profile_image_url || contact.whatsapp_profile_image} 
