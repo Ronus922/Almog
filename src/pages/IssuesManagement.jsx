@@ -355,7 +355,7 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
 }
 
 // ---- Issue Details Dialog ----
-function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange, onView, appUsers }) {
+function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange, onView, appUsers, areas }) {
   const [imageIndex, setImageIndex] = useState(0);
   const [showDeleteAlert, setShowDeleteAlert] = useState(false);
   const images = issue?.images || [];
@@ -363,7 +363,8 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange, on
 
   if (!issue) return null;
 
-  const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${issue.target_id}`;
+  const getAreaName = (id) => areas?.find(a => a.id === id)?.name || id;
+  const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${getAreaName(issue.target_id)}`;
 
   const handleConfirmDelete = () => {
     onDelete(issue.id);
