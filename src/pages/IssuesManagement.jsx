@@ -635,7 +635,7 @@ function KanbanColumn({ col, issues, onDelete, onView, appUsers, areas, currentU
               </div>
             )}
             {issues.map((issue, index) => (
-              <KanbanCard key={issue.id} issue={issue} index={index} onDelete={onDelete} onView={onView} appUsers={appUsers} areas={areas} />
+              <KanbanCard key={issue.id} issue={issue} index={index} onDelete={onDelete} onView={onView} appUsers={appUsers} areas={areas} currentUsername={currentUsername} />
             ))}
             {provided.placeholder}
           </div>
