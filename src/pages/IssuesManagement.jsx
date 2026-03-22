@@ -845,6 +845,7 @@ export default function IssuesManagement() {
                    }}
                    appUsers={appUsers}
                    areas={areas}
+                   currentUsername={currentUser?.username}
                  />
               ))}
             </div>
