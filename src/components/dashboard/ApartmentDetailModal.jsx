@@ -797,7 +797,24 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                       {formatPhone(editedRecord?.phoneOwner || record.phoneOwner || 'אין')}
                     </p>
                   )}
-                  <p className="text-[11px] text-slate-400">טלפון</p>
+                  <p className="text-[11px] text-slate-400">טלפון בעלים</p>
+                </div>
+                <div className="flex items-center justify-between">
+                  {isAdmin ? (
+                    <button
+                      onClick={() => { setPhoneEditMode('phoneTenant'); setPhoneEditValue(editedRecord?.phoneTenant || record.phoneTenant || ''); }}
+                      className="text-[13px] font-semibold text-[#1a3a6b] hover:text-blue-700 flex items-center gap-1"
+                    >
+                      <Phone className="w-3 h-3" />
+                      {formatPhone(editedRecord?.phoneTenant || record.phoneTenant || 'אין')}
+                    </button>
+                  ) : (
+                    <p className="text-[13px] font-semibold text-slate-700 flex items-center gap-1">
+                      <Phone className="w-3 h-3 text-slate-400" />
+                      {formatPhone(editedRecord?.phoneTenant || record.phoneTenant || 'אין')}
+                    </p>
+                  )}
+                  <p className="text-[11px] text-slate-400">טלפון שוכר</p>
                 </div>
               </div>
             </div>
