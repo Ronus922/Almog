@@ -999,6 +999,7 @@ export default function IssuesManagement() {
          onStatusChange={handleStatusChange}
          onView={(issue) => { setSelectedIssue(issue); setDetailsOpen(true); }}
          appUsers={appUsers}
+         areas={areas}
        />
     </div>
   );
