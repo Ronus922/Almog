@@ -829,15 +829,15 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               </div>
               <div className="space-y-2">
                 {editedRecord?.detailsMonthly && (
-                  <div className="flex items-center justify-between">
-                    <p className="text-[12px] text-slate-600 truncate max-w-[70%]">{editedRecord.detailsMonthly}</p>
-                    <p className="text-[11px] text-slate-400">פרטים</p>
+                  <div className="text-right">
+                    <p className="text-[11px] text-slate-400 mb-1">פרטים</p>
+                    <p className="text-[12px] text-slate-600 whitespace-pre-wrap break-words">{editedRecord.detailsMonthly}</p>
                   </div>
                 )}
-                {record?.management_fees != null && (
+                {(editedRecord?.monthsInArrears != null && editedRecord.monthsInArrears > 0) && (
                   <div className="flex items-center justify-between">
-                    <p className="text-[13px] font-semibold text-slate-700">₪{record.management_fees}</p>
-                    <p className="text-[11px] text-slate-400">דמי ניהול</p>
+                    <p className="text-[13px] font-bold text-red-600">{editedRecord.monthsInArrears}</p>
+                    <p className="text-[11px] text-slate-400">חודשי פיגור</p>
                   </div>
                 )}
                 {editedRecord?.lastContactDate && (
@@ -845,18 +845,6 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                     <p className="text-[12px] text-slate-600">{new Date(editedRecord.lastContactDate).toLocaleDateString('he-IL')}</p>
                     <p className="text-[11px] text-slate-400">קשר אחרון</p>
                   </div>
-                )}
-                {isAdmin && (
-                  <button
-                    onClick={() => { setPhoneEditMode('phoneTenant'); setPhoneEditValue(editedRecord?.phoneTenant || record.phoneTenant || ''); }}
-                    className="flex items-center justify-between w-full hover:bg-slate-50 rounded-lg px-1 -mx-1 transition-colors"
-                  >
-                    <p className="text-[12px] font-semibold text-[#1a3a6b] flex items-center gap-1">
-                      <Phone className="w-3 h-3" />
-                      {formatPhone(editedRecord?.phoneTenant || record.phoneTenant || 'אין')}
-                    </p>
-                    <p className="text-[11px] text-slate-400">טלפון שוכר</p>
-                  </button>
                 )}
               </div>
             </div>
