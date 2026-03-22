@@ -637,6 +637,7 @@ export default function IssuesManagement() {
   const [viewMode, setViewMode] = useState("kanban"); // kanban, list, calendar
   const { currentUser } = useAuth();
   const { data: appUsers = [] } = useQuery({ queryKey: ["appUsers"], queryFn: () => base44.entities.AppUser.list() });
+  const { data: areas = [] } = useQuery({ queryKey: ["areas"], queryFn: () => base44.entities.Area.list() });
   const qc = useQueryClient();
 
   const { data: issues = [], isLoading } = useQuery({
