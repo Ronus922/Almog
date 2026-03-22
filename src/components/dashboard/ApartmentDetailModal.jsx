@@ -773,13 +773,13 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               </div>
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <p className="text-[18px] font-black text-[#1a3a6b]">{editedRecord?.apartmentNumber}</p>
-                  <p className="text-[11px] text-slate-400">מספר דירה</p>
+                  <p className="text-[22px] font-black text-[#1a3a6b]">{editedRecord?.apartmentNumber}</p>
+                  <p className="text-[12px] text-slate-400 font-medium">מספר דירה</p>
                 </div>
                 {editedRecord?.ownerName && (
                   <div className="flex items-center justify-between">
-                    <p className="text-[13px] font-bold text-slate-700 truncate max-w-[70%]">{editedRecord.ownerName}</p>
-                    <p className="text-[11px] text-slate-400">בעל הדירה</p>
+                    <p className="text-[15px] font-bold text-slate-700 truncate max-w-[70%]">{editedRecord.ownerName}</p>
+                    <p className="text-[12px] text-slate-400 font-medium">בעל הדירה</p>
                   </div>
                 )}
                 <div className="flex items-center justify-between">
