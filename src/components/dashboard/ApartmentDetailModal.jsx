@@ -1085,6 +1085,14 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
             </div>
           )}
         </div>
+
+        {showWhatsAppDialog && (
+          <WhatsAppDialog
+            record={editedRecord || record}
+            isOpen={showWhatsAppDialog}
+            onClose={() => setShowWhatsAppDialog(false)}
+          />
+        )}
     </>
   </AppModal>
 );
