@@ -1019,34 +1019,29 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
               </div>
               <div className="space-y-3">
                 <div>
-                  <p className="mb-1 text-[11px] font-semibold text-slate-400 text-right">תיאור פעולה</p>
+                  <p className="mb-1 text-[12px] font-semibold text-slate-500 text-right">תיאור פעולה</p>
                   <input
                     type="text"
-                    value={editedRecord?.notes?.startsWith('פעולה:') ? editedRecord.notes.split('\n')[0].replace('פעולה: ', '') : ''}
+                    value={editedRecord?.notes || ''}
                     placeholder="הכנס תיאור פעולה..."
-                    onChange={(e) => {
-                       const actionLine = e.target.value ? `פעולה: ${e.target.value}` : '';
-                       const notes = editedRecord?.notes || '';
-                       const existingNotes = notes.startsWith('פעולה:') ? notes.substring(notes.indexOf('\n') + 1) : notes;
-                       setEditedRecord(prev => ({ ...prev, notes: actionLine ? `${actionLine}\n${existingNotes}` : existingNotes }));
-                     }}
-                    className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-[13px] text-[#223755] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    onChange={(e) => setEditedRecord(prev => ({ ...prev, notes: e.target.value }))}
+                    className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-[14px] text-[#223755] placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-200"
                     dir="rtl"
                     disabled={!isAdmin}
                   />
                 </div>
                 <div>
-                  <p className="mb-1 text-[11px] font-semibold text-slate-400 text-right">תאריך יעד</p>
+                  <p className="mb-1 text-[12px] font-semibold text-slate-500 text-right">תאריך יעד לפעולה</p>
                   <input
                     type="date"
                     value={editedRecord?.nextActionDate || ''}
                     onChange={(e) => setEditedRecord(prev => ({ ...prev, nextActionDate: e.target.value }))}
-                    className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-[13px] font-semibold text-[#223755] focus:outline-none focus:ring-2 focus:ring-blue-200"
+                    className="w-full h-10 rounded-xl border border-slate-200 bg-slate-50 px-3 text-[14px] font-semibold text-[#223755] focus:outline-none focus:ring-2 focus:ring-blue-200"
                     dir="rtl"
                     disabled={!isAdmin}
                   />
                   {editedRecord?.nextActionDate && new Date(editedRecord.nextActionDate) < new Date(new Date().toDateString()) && (
-                    <p className="mt-1 text-[11px] text-red-500 font-semibold text-right">⚠️ תאריך זה עבר</p>
+                    <p className="mt-1 text-[12px] text-red-500 font-semibold text-right">⚠️ תאריך יעד זה עבר</p>
                   )}
                 </div>
               </div>
