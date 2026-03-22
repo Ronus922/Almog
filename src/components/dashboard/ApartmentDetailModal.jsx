@@ -858,31 +858,19 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 <p className="text-[13px] font-bold text-[#1a3a6b]">פעולות מהירות</p>
               </div>
               <div className="space-y-2">
-                {displayPhone && (
-                  <a
-                    href={`https://wa.me/972${(displayPhone || '').replace(/^0/, '').replace(/\D/g, '')}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-2 w-full h-8 rounded-xl bg-[#25d366] text-white text-[12px] font-bold hover:bg-[#20b858] transition-colors"
-                  >
-                    <MessageSquare className="w-3 h-3" />
-                    WhatsApp
-                  </a>
+                <button
+                  onClick={() => setShowWhatsAppDialog(true)}
+                  className="flex items-center justify-center gap-2 w-full h-8 rounded-xl bg-[#25d366] text-white text-[12px] font-bold hover:bg-[#20b858] transition-colors"
+                >
+                  <Send className="w-3 h-3" />
+                  שלח וואטצאפ
+                </button>
+                {(editedRecord?.monthsInArrears != null && editedRecord.monthsInArrears > 0) && (
+                  <div className="flex items-center justify-between bg-red-50 rounded-xl px-3 h-8">
+                    <p className="text-[13px] font-black text-red-600">{editedRecord.monthsInArrears}</p>
+                    <p className="text-[11px] font-semibold text-red-400">חודשי פיגור</p>
+                  </div>
                 )}
-                <button
-                  onClick={handlePrint}
-                  className="flex items-center justify-center gap-2 w-full h-8 rounded-xl bg-slate-100 text-slate-700 text-[12px] font-bold hover:bg-slate-200 transition-colors"
-                >
-                  <Printer className="w-3 h-3" />
-                  הדפסה
-                </button>
-                <button
-                  onClick={() => { window.location.href = `/DebtorHistory?id=${record.id}`; }}
-                  className="flex items-center justify-center gap-2 w-full h-8 rounded-xl bg-slate-100 text-slate-700 text-[12px] font-bold hover:bg-slate-200 transition-colors"
-                >
-                  <History className="w-3 h-3" />
-                  היסטוריה
-                </button>
               </div>
             </div>
           </div>
