@@ -10,8 +10,9 @@ import { Separator } from "@/components/ui/separator";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import {
   Home, Phone, Wallet, Calendar, FileText, Scale,
-  Save, X, AlertTriangle, Lock, User, Pencil, Check, MessageSquare, FileDown, Printer, History, CalendarClock } from
+  Save, X, AlertTriangle, Lock, User, Pencil, Check, MessageSquare, FileDown, Printer, History, CalendarClock, Send } from
 "lucide-react";
+import WhatsAppDialog from '@/components/whatsapp/WhatsAppDialog';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { base44 } from '@/api/base44Client';
 import { useAlert } from '@/components/notifications/AlertContext';
