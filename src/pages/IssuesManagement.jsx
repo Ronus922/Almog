@@ -538,7 +538,7 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange, on
 }
 
 // ---- Kanban Issue Card ----
-function KanbanCard({ issue, index, onDelete, onView, appUsers, areas }) {
+function KanbanCard({ issue, index, onDelete, onView, appUsers, areas, currentUsername }) {
   const p = PRIORITY_MAP[issue.priority] || PRIORITY_MAP.low;
   const getAreaName = (id) => areas?.find(a => a.id === id)?.name || id;
   const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${getAreaName(issue.target_id)}`;
