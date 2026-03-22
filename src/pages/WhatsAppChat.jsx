@@ -557,44 +557,57 @@ export default function WhatsAppChat() {
               }
 
               return (
-                <button
-                  key={conv.id}
-                  onClick={() => setSelectedContact(conv)}
-                  className={`w-full p-3 text-right hover:bg-gray-50 transition-colors flex items-center gap-3 border-r-4 ${isSelected ? 'border-r-blue-500' : 'border-r-transparent'}`}
-                  style={isSelected ? { backgroundColor: '#f9fff5' } : {}}>
-                  
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 overflow-hidden ${
-                  isUnlinked ?
-                  'bg-gradient-to-br from-orange-400 to-orange-600' :
-                  conv._isSupplier ?
-                  'bg-gradient-to-br from-purple-400 to-purple-600' :
-                  'bg-gradient-to-br from-blue-400 to-blue-600'}`
-                  }>
-                      {!isUnlinked && !conv._isSupplier && (conv.whatsapp_profile_image_url || conv.whatsapp_profile_image) ?
-                    <img src={conv.whatsapp_profile_image_url || conv.whatsapp_profile_image} alt={displayName} className="w-full h-full object-cover" /> :
-                    isUnlinked ?
-                    <AlertCircle className="w-6 h-6" /> :
-
-                    initials
-                    }
+                <div key={conv.id} className="relative group">
+                  {deleteConfirmId === conv.id ? (
+                    <div className="flex items-center gap-2 px-3 py-3 bg-red-50 border-r-4 border-r-red-400">
+                      <button
+                        onClick={() => handleDeleteConversation(conv)}
+                        className="flex-1 text-xs text-white bg-red-500 hover:bg-red-600 rounded-lg px-3 py-1.5 font-bold transition-colors"
+                      >
+                        אשר מחיקה
+                      </button>
+                      <button
+                        onClick={() => setDeleteConfirmId(null)}
+                        className="text-xs text-gray-600 bg-gray-100 hover:bg-gray-200 rounded-lg px-3 py-1.5 font-medium transition-colors"
+                      >
+                        ביטול
+                      </button>
+                      <span className="text-xs text-red-600 font-semibold text-right flex-shrink-0">מחק שיחה?</span>
                     </div>
-                    <div className="flex-1 text-right min-w-0">
-                      <div className="font-semibold text-gray-900 text-sm truncate">{displayName}</div>
-                      {!isUnlinked && !conv._isSupplier &&
-                    <div className="text-xs text-gray-600 mt-0.5 truncate">דירה {conv.apartment_number}</div>
-                    }
-                      {conv._isSupplier &&
-                    <div className="text-xs text-purple-600 mt-0.5 font-medium">ספק</div>
-                    }
-                      {isUnlinked &&
-                    <div className="text-xs text-orange-600 mt-0.5 font-medium">לא משויך לאיש קשר</div>
-                    }
-                      {secondaryInfo &&
-                    <div className="text-xs text-gray-500 mt-0.5 truncate">{secondaryInfo}</div>
-                    }
-                    </div>
-                    {timeDisplay && <div className="text-slate-400 text-xs font-medium flex-shrink-0">{timeDisplay}</div>}
-                  </button>);
+                  ) : (
+                    <>
+                      <button
+                        onClick={() => setSelectedContact(conv)}
+                        className={`w-full p-3 text-right hover:bg-gray-50 transition-colors flex items-center gap-3 border-r-4 ${isSelected ? 'border-r-blue-500' : 'border-r-transparent'}`}
+                        style={isSelected ? { backgroundColor: '#f9fff5' } : {}}>
+                        <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 overflow-hidden ${
+                          isUnlinked ? 'bg-gradient-to-br from-orange-400 to-orange-600' :
+                          conv._isSupplier ? 'bg-gradient-to-br from-purple-400 to-purple-600' :
+                          'bg-gradient-to-br from-blue-400 to-blue-600'}`}>
+                          {!isUnlinked && !conv._isSupplier && (conv.whatsapp_profile_image_url || conv.whatsapp_profile_image) ?
+                            <img src={conv.whatsapp_profile_image_url || conv.whatsapp_profile_image} alt={displayName} className="w-full h-full object-cover" /> :
+                            isUnlinked ? <AlertCircle className="w-6 h-6" /> : initials
+                          }
+                        </div>
+                        <div className="flex-1 text-right min-w-0">
+                          <div className="font-semibold text-gray-900 text-sm truncate">{displayName}</div>
+                          {!isUnlinked && !conv._isSupplier && <div className="text-xs text-gray-600 mt-0.5 truncate">דירה {conv.apartment_number}</div>}
+                          {conv._isSupplier && <div className="text-xs text-purple-600 mt-0.5 font-medium">ספק</div>}
+                          {isUnlinked && <div className="text-xs text-orange-600 mt-0.5 font-medium">לא משויך לאיש קשר</div>}
+                          {secondaryInfo && <div className="text-xs text-gray-500 mt-0.5 truncate">{secondaryInfo}</div>}
+                        </div>
+                        {timeDisplay && <div className="text-slate-400 text-xs font-medium flex-shrink-0">{timeDisplay}</div>}
+                      </button>
+                      <button
+                        onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(conv.id); }}
+                        className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity w-7 h-7 rounded-full bg-red-100 hover:bg-red-200 text-red-500 flex items-center justify-center"
+                        title="מחק שיחה"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </>
+                  )}
+                </div>);
 
             })
             }
