@@ -827,22 +827,22 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 </div>
                 <p className="text-[13px] font-bold text-[#1a3a6b]">מידע נוסף</p>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-3">
                 {editedRecord?.detailsMonthly && (
                   <div className="text-right">
-                    <p className="text-[11px] text-slate-400 mb-1">פרטים</p>
-                    <p className="text-[12px] text-slate-600 whitespace-pre-wrap break-words">{editedRecord.detailsMonthly}</p>
+                    <p className="text-[11px] font-semibold text-slate-400 mb-1">פרטים</p>
+                    <p className="text-[14px] font-semibold text-slate-700 whitespace-pre-wrap break-words leading-relaxed">{editedRecord.detailsMonthly}</p>
                   </div>
                 )}
-                {(editedRecord?.monthsInArrears != null && editedRecord.monthsInArrears > 0) && (
-                  <div className="flex items-center justify-between">
-                    <p className="text-[13px] font-bold text-red-600">{editedRecord.monthsInArrears}</p>
-                    <p className="text-[11px] text-slate-400">חודשי פיגור</p>
+                {(editedRecord?.managementMonthsRaw || record?.managementMonthsRaw) && (
+                  <div className="text-right">
+                    <p className="text-[11px] font-semibold text-slate-400 mb-1">חודשי פיגור</p>
+                    <p className="text-[13px] font-semibold text-red-600 whitespace-pre-wrap break-words leading-relaxed">{editedRecord?.managementMonthsRaw || record?.managementMonthsRaw}</p>
                   </div>
                 )}
                 {editedRecord?.lastContactDate && (
                   <div className="flex items-center justify-between">
-                    <p className="text-[12px] text-slate-600">{new Date(editedRecord.lastContactDate).toLocaleDateString('he-IL')}</p>
+                    <p className="text-[13px] font-semibold text-slate-600">{new Date(editedRecord.lastContactDate).toLocaleDateString('he-IL')}</p>
                     <p className="text-[11px] text-slate-400">קשר אחרון</p>
                   </div>
                 )}
