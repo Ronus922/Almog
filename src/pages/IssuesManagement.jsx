@@ -860,7 +860,8 @@ export default function IssuesManagement() {
                      .map((issue) => {
                        const p = PRIORITY_MAP[issue.priority] || PRIORITY_MAP.low;
                        const reporterUser = appUsers?.find(u => u.username === issue.reporter_email);
-                       const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${issue.target_id}`;
+                       const getAreaName = (id) => areas?.find(a => a.id === id)?.name || id;
+                       const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${getAreaName(issue.target_id)}`;
                        const statusLabel = issue.status === "open" ? "פתוחה" : issue.status === "in_progress" ? "בטיפול" : "הושלמה";
                        return (
                          <tr 
