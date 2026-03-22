@@ -1089,9 +1089,9 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 currentUser={currentUser}
                 isAdmin={isAdmin}
               />
+            </div>
           )}
         </div>
-      </div>
       </div>
     </>
   </AppModal>
