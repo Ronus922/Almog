@@ -1020,6 +1020,7 @@ export default function IssuesManagement() {
          onView={(issue) => { setSelectedIssue(issue); setDetailsOpen(true); }}
          appUsers={appUsers}
          areas={areas}
+         currentUsername={currentUser?.username}
        />
     </div>
   );
