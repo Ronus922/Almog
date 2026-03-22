@@ -1086,13 +1086,11 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
           )}
         </div>
 
-        {showWhatsAppDialog && (
-          <WhatsAppDialog
-            record={editedRecord || record}
-            isOpen={showWhatsAppDialog}
-            onClose={() => setShowWhatsAppDialog(false)}
-          />
-        )}
+        <WhatsAppDialog
+          record={editedRecord || record}
+          open={showWhatsAppDialog}
+          onClose={() => setShowWhatsAppDialog(false)}
+        />
     </>
   </AppModal>
 );
