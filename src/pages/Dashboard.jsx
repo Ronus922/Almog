@@ -134,11 +134,10 @@ function DashboardContent() {
     // חייבים — רק active ללא רשומות שיש להם טאב ייעודי
     const debtorsTab = active.filter((r) => !r.legal_status_id || !legalTabStatusIds.has(r.legal_status_id));
 
-    // פעולות הבאות — תאריך nextActionDate עבר
-    const today = new Date().toISOString().split('T')[0];
-    const nextActionsTab = active.filter(
-      (r) => r.nextActionDate && r.nextActionDate < today
-    );
+    // פעולות הבאות — כל הרשומות עם nextActionDate, ממויינות מהקרוב למרוחק
+    const nextActionsTab = active
+      .filter((r) => r.nextActionDate)
+      .sort((a, b) => new Date(a.nextActionDate) - new Date(b.nextActionDate));
 
     // ספירות דינמיות לפי ספי ה-Settings הנוכחיים
     const calcStatus = (r) => settings ? calculateDebtStatus(r.totalDebt, settings) : r.debt_status_auto;
