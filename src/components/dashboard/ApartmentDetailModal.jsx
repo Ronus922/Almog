@@ -928,13 +928,7 @@ export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, 
                 <p className="text-[11px] font-semibold text-[#7744cc] mb-1">מים חמים</p>
                 <p className="text-[22px] font-black text-[#6633bb] leading-none">{formatCurrency(record.specialDebt)}</p>
               </div>
-              {/* אחר */}
-              <div className="rounded-xl bg-[#f5f5f5] border border-[#e5e5e5] px-4 py-3 text-right">
-                <p className="text-[11px] font-semibold text-slate-500 mb-1">אחר</p>
-                <p className="text-[22px] font-black text-slate-600 leading-none">
-                  {formatCurrency((record.totalDebt || 0) - (record.monthlyDebt || 0) - (record.specialDebt || 0))}
-                </p>
-              </div>
+
             </div>
           </div>
 
