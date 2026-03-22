@@ -611,7 +611,7 @@ function KanbanCard({ issue, index, onDelete, onView, appUsers, areas, currentUs
 }
 
 // ---- Kanban Column ----
-function KanbanColumn({ col, issues, onDelete, onView, appUsers, areas }) {
+function KanbanColumn({ col, issues, onDelete, onView, appUsers, areas, currentUsername }) {
   return (
     <div className="flex-1 min-w-0 flex flex-col">
       {/* Column header */}
