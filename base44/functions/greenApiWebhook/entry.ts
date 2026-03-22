@@ -35,6 +35,12 @@ Deno.serve(async (req) => {
     if (phone.startsWith('972')) phone = '0' + phone.slice(3);
 
     const typeMessage = payload.messageData?.typeMessage;
+
+    // סינון reactionMessage — לא שומרים תגובות emoji
+    if (typeMessage === 'reactionMessage') {
+      return Response.json({ ok: true }, { status: 200 });
+    }
+
     let messageType = 'text';
     let content = '';
     if (typeMessage === 'textMessage' || typeMessage === 'extendedTextMessage') {
