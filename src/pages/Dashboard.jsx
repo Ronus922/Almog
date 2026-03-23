@@ -256,15 +256,12 @@ function DashboardContent() {
           <div className="-mt-2 md:-mt-4 px-3 md:px-[26px] pb-4 md:pb-6 relative z-4">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
               {/* KPI 1 */}
-              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between">
-                <p className="text-[18px] font-black uppercase letter-spacing" style={{color: '#1d5bbd'}}>סה״כ חוב</p>
+              <div className="kpi-card-glow min-h-[80px] md:min-h-[108px] rounded-[16px] md:rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-3 md:p-4 flex flex-col justify-between">
+                <p className="text-[14px] md:text-[18px] font-black uppercase letter-spacing" style={{color: '#1d5bbd'}}>סה״כ חוב</p>
                 <div>
-                  <p className="text-[32px] font-black leading-none text-[#2bc9a8]">
+                  <p className="text-[24px] md:text-[32px] font-black leading-none text-[#2bc9a8]">
                     {new Intl.NumberFormat('he-IL', { notation: 'compact', maximumFractionDigits: 0 }).format(records.reduce((sum, r) => sum + (r.totalDebt || 0), 0))}
                   </p>
-                  
-
-
                 </div>
               </div>
 
