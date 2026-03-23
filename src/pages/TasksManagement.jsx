@@ -570,7 +570,7 @@ function KanbanCard({ task, index, onDelete, onView, appUsers }) {
 
 function KanbanColumn({ col, tasks, onDelete, onView, appUsers }) {
   return (
-    <div className="w-[270px] flex-shrink-0 md:flex-1 md:min-w-0 flex flex-col">
+    <div className="w-full md:flex-1 md:min-w-0 flex flex-col">
       {/* Column header */}
       <div className={`rounded-t-2xl border-t-4 ${col.color} bg-white border border-slate-200 px-4 py-3 flex items-center justify-between mb-0`}>
         <span className="font-black text-slate-700 text-base">{col.label}</span>
@@ -775,7 +775,7 @@ export default function TasksManagement() {
           <DragDropContext onDragEnd={handleDragEnd}>
             {/* Mobile: tab per column */}
             <div className="md:hidden" style={{width: '98%', marginLeft: 'auto', marginRight: 'auto'}}>
-              <div className="flex bg-white rounded-t-2xl border border-slate-200 overflow-hidden mb-3">
+              <div className="flex bg-white rounded-t-2xl border border-slate-200 overflow-hidden mb-5">
                 {COLUMNS.map(col => (
                   <button key={col.id} onClick={() => setMobileTab(col.id)}
                     className={`flex-1 py-3 text-xs font-bold transition-colors border-b-2 ${
