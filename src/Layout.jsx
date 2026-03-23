@@ -280,7 +280,7 @@ function LayoutContent({ children, currentPageName }) {
 
       }
 
-      <div className={`flex-1 flex flex-col transition-all duration-300 ${isCollapsed ? 'md:mr-20' : 'md:mr-64'}`}>
+      <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${isCollapsed ? 'md:mr-20' : 'md:mr-64'}`}>
         {/* Mobile Header */}
         <header className="md:hidden bg-white border-b border-slate-200 sticky top-0 z-[45] shadow-sm">
           <div className="px-3 flex items-center justify-between h-14 gap-2">
