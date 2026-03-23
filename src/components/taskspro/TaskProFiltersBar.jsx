@@ -121,6 +121,7 @@ export default function TaskProFiltersBar({
             ))}
           </SelectContent>
         </Select>
+        </div>{/* end mobile row */}
 
         {/* Advanced filters toggle */}
         <Button
@@ -130,21 +131,12 @@ export default function TaskProFiltersBar({
           className="h-10 rounded-xl gap-2 border-slate-200"
         >
           <Filter className="w-4 h-4" />
-          <ChevronDown
-            className={`w-4 h-4 transition-transform ${
-              showAdvanced ? "rotate-180" : ""
-            }`}
-          />
+          <ChevronDown className={`w-4 h-4 transition-transform ${showAdvanced ? "rotate-180" : ""}`} />
         </Button>
 
         {/* Clear all */}
         {isFiltered && (
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={handleClearAll}
-            className="h-10 text-slate-400 hover:text-slate-600"
-          >
+          <Button variant="ghost" size="sm" onClick={handleClearAll} className="h-10 text-slate-400 hover:text-slate-600">
             ✕ איפוס
           </Button>
         )}
@@ -202,27 +194,11 @@ export default function TaskProFiltersBar({
           )}
 
           {/* Date range */}
-          <div className="flex items-center gap-3">
-            <label className="text-sm font-medium text-slate-600 min-w-20">
-              תאריך:
-            </label>
-            <input
-              type="date"
-              value={filters.dueDateFrom || ""}
-              onChange={(e) =>
-                onChange({ ...filters, dueDateFrom: e.target.value })
-              }
-              className="h-9 px-3 rounded-xl border border-slate-200 bg-slate-50 text-sm"
-            />
+          <div className="flex flex-wrap items-center gap-2">
+            <label className="text-sm font-medium text-slate-600 min-w-20">תאריך:</label>
+            <input type="date" value={filters.dueDateFrom || ""} onChange={(e) => onChange({ ...filters, dueDateFrom: e.target.value })} className="flex-1 min-w-[130px] h-9 px-3 rounded-xl border border-slate-200 bg-slate-50 text-sm" />
             <span className="text-slate-400">עד</span>
-            <input
-              type="date"
-              value={filters.dueDateTo || ""}
-              onChange={(e) =>
-                onChange({ ...filters, dueDateTo: e.target.value })
-              }
-              className="h-9 px-3 rounded-xl border border-slate-200 bg-slate-50 text-sm"
-            />
+            <input type="date" value={filters.dueDateTo || ""} onChange={(e) => onChange({ ...filters, dueDateTo: e.target.value })} className="flex-1 min-w-[130px] h-9 px-3 rounded-xl border border-slate-200 bg-slate-50 text-sm" />
           </div>
 
           {/* Save view */}
