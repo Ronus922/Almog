@@ -126,7 +126,7 @@ export default function BuildingAgent() {
           setIsMinimized(false);
           setHasUnread(false);
         }}
-        className={`fixed bottom-6 left-6 z-50 w-16 h-16 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 ${
+        className={`fixed bottom-4 left-4 z-50 w-14 h-14 md:w-16 md:h-16 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 ${
           isOpen ? 'opacity-0 pointer-events-none scale-75' : 'opacity-100 scale-100'
         } bg-gradient-to-br from-blue-600 to-indigo-700`}
         title="עוזר הבניין"
@@ -143,10 +143,13 @@ export default function BuildingAgent() {
       {isOpen && (
         <div
           dir="rtl"
-          className={`fixed bottom-6 left-6 z-50 flex flex-col bg-white rounded-3xl shadow-2xl border border-slate-200 transition-all duration-300 overflow-hidden ${
-            isMinimized ? 'h-16 w-72' : 'w-96 h-[600px]'
-          }`}
-          style={{ maxHeight: 'calc(100vh - 100px)' }}
+          className={`fixed z-50 flex flex-col bg-white shadow-2xl border border-slate-200 transition-all duration-300 overflow-hidden
+            ${
+              isMinimized
+                ? 'bottom-4 left-4 right-4 md:right-auto md:w-72 h-16 rounded-2xl'
+                : 'inset-2 md:inset-auto md:bottom-6 md:left-6 md:w-96 md:h-[600px] rounded-2xl md:rounded-3xl'
+            }`}
+          style={{ maxHeight: isMinimized ? '4rem' : 'calc(100dvh - 1rem)' }}
         >
           {/* Header */}
           <div className="bg-gradient-to-r from-blue-600 to-indigo-700 px-4 py-3 flex items-center justify-between flex-shrink-0">
