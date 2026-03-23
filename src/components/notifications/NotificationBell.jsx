@@ -154,17 +154,13 @@ export default function NotificationBell({ currentUser }) {
 
       {open && (
         <>
-          {/* Mobile: full-screen overlay */}
+          {/* Mobile: overlay + panel מלא דף */}
           <div
-            className="md:hidden fixed inset-0 z-50 bg-black/40"
+            className="md:hidden fixed inset-0 z-[200] bg-black/40"
             onClick={() => setOpen(false)}
           />
           <div
-            className={`
-              md:hidden fixed right-0 left-0 bottom-0 top-14 z-50
-              bg-white flex flex-col overflow-hidden
-              md:absolute md:right-0 md:top-full md:bottom-auto md:left-auto md:w-96 md:rounded-xl md:shadow-2xl md:border md:border-slate-200
-            `}
+            className="md:hidden fixed inset-x-0 top-14 bottom-0 z-[201] bg-white flex flex-col overflow-hidden"
             dir="rtl"
           >
             {/* Header */}
@@ -264,9 +260,9 @@ export default function NotificationBell({ currentUser }) {
             </div>
           </div>
 
-          {/* Desktop: standard dropdown */}
+          {/* Desktop: dropdown סטנדרטי */}
           <div
-            className="hidden md:flex md:flex-col absolute right-0 top-full mt-2 w-96 bg-white rounded-xl shadow-2xl border border-slate-200 z-50 overflow-hidden"
+            className="hidden md:flex md:flex-col absolute left-0 top-full mt-2 w-96 bg-white rounded-xl shadow-2xl border border-slate-200 z-50 overflow-hidden"
             dir="rtl"
             style={{ maxHeight: 'calc(100vh - 80px)' }}
           >
