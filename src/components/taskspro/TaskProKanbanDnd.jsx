@@ -129,7 +129,7 @@ function TaskCard({ task, index, onRowClick, onEdit, onDelete, currentUser }) {
 
 function KanbanColumn({ col, tasks, onRowClick, onEdit, onDelete, currentUser }) {
   return (
-    <div className="flex-1 min-w-0 flex flex-col">
+    <div className="w-[280px] flex-shrink-0 md:flex-1 md:min-w-0 flex flex-col">
       {/* Column header */}
       <div className={`rounded-t-2xl border-t-4 ${col.color} bg-white border border-slate-200 px-4 py-3 flex items-center justify-between mb-0`}>
         <span className="font-black text-slate-700 text-base">{col.label}</span>
@@ -203,7 +203,7 @@ export default function TaskProKanbanDnd({
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="flex gap-3 items-start overflow-x-auto pb-4" dir="rtl" style={{WebkitOverflowScrolling: 'touch'}}>
+      <div className="flex gap-3 items-start overflow-x-auto pb-4 -mx-2 px-2" dir="rtl" style={{WebkitOverflowScrolling: 'touch', scrollSnapType: 'x mandatory'}}>
         {COLUMNS.map((col) => (
           <KanbanColumn
             key={col.id}

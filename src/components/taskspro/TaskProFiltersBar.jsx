@@ -79,39 +79,38 @@ export default function TaskProFiltersBar({
   return (
     <div className="space-y-3" dir="rtl">
       {/* Main filter bar */}
-      <div className="bg-white rounded-2xl border border-slate-100 p-4 flex items-center gap-3 flex-wrap shadow-sm">
+      <div className="bg-white rounded-2xl border border-slate-100 p-3 md:p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 flex-wrap shadow-sm">
         {/* Search */}
-        <div className="flex-1 min-w-[200px] relative">
+        <div className="flex-1 min-w-0 relative">
           <Input
             type="text"
             placeholder="חיפוש משימות..."
             value={filters.search || ""}
             onChange={(e) => handleSearchChange(e.target.value)}
-            className="h-10 pr-10 bg-slate-50 border-slate-200 rounded-xl focus:bg-white"
+            className="h-10 pr-10 bg-slate-50 border-slate-200 rounded-xl focus:bg-white w-full"
           />
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
         </div>
 
+        {/* Status + Priority row on mobile */}
+        <div className="flex gap-2 sm:contents">
         {/* Status */}
         <Select value={filters.status || "הכל"} onValueChange={handleStatusChange}>
-          <SelectTrigger className="w-32 h-10 rounded-xl bg-slate-50 border-slate-200">
+          <SelectTrigger className="flex-1 sm:w-32 h-10 rounded-xl bg-slate-50 border-slate-200">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
             {STATUS_OPTIONS.map((s) => (
-              <SelectItem key={s} value={s}>
-                {s}
-              </SelectItem>
+              <SelectItem key={s} value={s}>{s}</SelectItem>
             ))}
           </SelectContent>
         </Select>
-
         {/* Priority */}
         <Select
           value={filters.priority || "הכל"}
           onValueChange={handlePriorityChange}
         >
-          <SelectTrigger className="w-32 h-10 rounded-xl bg-slate-50 border-slate-200">
+          <SelectTrigger className="flex-1 sm:w-32 h-10 rounded-xl bg-slate-50 border-slate-200">
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
