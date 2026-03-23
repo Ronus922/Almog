@@ -774,26 +774,8 @@ export default function TasksManagement() {
         ) : viewMode === 'kanban' ? (
           <>
             {/* Mobile: tab per column */}
-            <div className="md:hidden">
-              <div className="flex bg-white rounded-t-2xl border border-slate-200 overflow-hidden">
-                {COLUMNS.map(col => (
-                  <button key={col.id} onClick={() => setMobileTab(col.id)}
-                    className={`flex-1 py-3 text-xs font-bold transition-colors border-b-2 ${
-                      mobileTab === col.id ? 'border-blue-500 text-blue-600' : 'border-transparent text-slate-500'
-                    }`}>
-                    {col.label} <span className={`mr-1 px-1.5 rounded-full text-[10px] ${col.count_color}`}>{(columns[col.id]||[]).length}</span>
-                  </button>
-                ))}
-              </div>
-              <DragDropContext onDragEnd={handleDragEnd}>
-                {COLUMNS.filter(c => c.id === mobileTab).map(col => (
-                  <KanbanColumn key={col.id} col={col} tasks={columns[col.id]||[]}
-                    onDelete={handleDelete} onView={(t)=>{ setSelectedTask(t); setDetailsOpen(true); }}
-                    appUsers={appUsers} />
-                ))}
-              </DragDropContext>
-            </div>
-            {/* Desktop: all columns */}
+            <div className="md:hidden" style={{width: '98%', marginLeft: 'auto', marginRight: 'auto'}}>
+              <div className="flex bg-white rounded-t-2xl border border-slate-200 overflow-hidden mb-3">
             <div className="hidden md:block">
               <DragDropContext onDragEnd={handleDragEnd}>
                 <div className="flex gap-3 items-start pb-4">
