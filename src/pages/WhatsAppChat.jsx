@@ -505,11 +505,11 @@ export default function WhatsAppChat() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100" dir="rtl" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Cpath d=\'M0 0h100v100H0z\' fill=\'%23ECE5DD\'/%3E%3Cpath d=\'M50 0L100 50L50 100L0 50z\' fill=\'%23E8DED2\' opacity=\'0.3\'/%3E%3C/svg%3E")', backgroundSize: '100px 100px' }}>
-      <div className="h-screen flex gap-0">
+    <div className="bg-gray-100" dir="rtl" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Cpath d=\'M0 0h100v100H0z\' fill=\'%23ECE5DD\'/%3E%3Cpath d=\'M50 0L100 50L50 100L0 50z\' fill=\'%23E8DED2\' opacity=\'0.3\'/%3E%3C/svg%3E")', backgroundSize: '100px 100px' }}>
+      <div className="flex" style={{ height: 'calc(100dvh - 3.5rem)' }}>
 
         {/* ---- רשימת שיחות ---- */}
-        <div className={`${mobileShowChat ? 'hidden md:flex' : 'flex'} w-full md:w-96 bg-white flex-col shadow-lg border-l border-gray-200`}>
+        <div className={`${mobileShowChat ? 'hidden md:flex' : 'flex'} w-full md:w-80 lg:w-96 bg-white flex-col shadow-lg border-l border-gray-200 flex-shrink-0`}>
           <div className="p-4 border-b border-gray-200 bg-white">
             <div className="flex items-center justify-between mb-3">
               <Button
@@ -610,7 +610,7 @@ export default function WhatsAppChat() {
                       </button>
                       <button
                         onClick={(e) => { e.stopPropagation(); setDeleteConfirmId(conv.id); }}
-                        className="absolute left-2 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-opacity w-7 h-7 rounded-full bg-red-100 hover:bg-red-200 text-red-500 flex items-center justify-center"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 md:opacity-0 md:group-hover:opacity-100 opacity-30 hover:opacity-100 transition-opacity w-7 h-7 rounded-full bg-red-100 hover:bg-red-200 text-red-500 flex items-center justify-center"
                         title="מחק שיחה"
                       >
                         <Trash2 className="w-3.5 h-3.5" />
@@ -712,7 +712,7 @@ export default function WhatsAppChat() {
               </div>
 
               {/* Input */}
-              <div className="p-4 bg-white border-t border-gray-200 flex gap-2 shadow-lg">
+              <div className="p-2 md:p-4 bg-white border-t border-gray-200 flex gap-1.5 md:gap-2 shadow-lg flex-shrink-0">
                 {selectedContact._isUnlinked ?
               <div className="flex-1 flex items-center justify-center text-orange-500 text-sm gap-2 py-2">
                     <AlertCircle className="w-4 h-4" />
