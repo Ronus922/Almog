@@ -245,7 +245,7 @@ function LayoutContent({ children, currentPageName }) {
       </aside>
 
       {/* Mobile Sidebar */}
-      <aside className={`md:hidden fixed right-0 top-0 h-screen w-72 bg-gradient-to-b from-slate-800 via-slate-800 to-slate-900 shadow-2xl transform transition-transform duration-300 z-40 overflow-y-auto border-l border-slate-700 ${
+      <aside className={`md:hidden fixed right-0 top-0 h-screen w-[280px] max-w-[85vw] bg-gradient-to-b from-slate-800 via-slate-800 to-slate-900 shadow-2xl transform transition-transform duration-300 z-[46] overflow-y-auto border-l border-slate-700 ${
       isSidebarOpen ? 'translate-x-0' : 'translate-x-full'}`
       }>
         <div className="p-4 border-b border-slate-700 flex items-center justify-between">
@@ -275,7 +275,7 @@ function LayoutContent({ children, currentPageName }) {
       {/* Mobile Overlay */}
       {isSidebarOpen &&
       <div
-        className="md:hidden fixed inset-0 bg-black/30 z-30"
+        className="md:hidden fixed inset-0 bg-black/30 z-[44]"
         onClick={() => setIsSidebarOpen(false)} />
 
       }
