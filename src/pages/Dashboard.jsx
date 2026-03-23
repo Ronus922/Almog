@@ -242,19 +242,19 @@ function DashboardContent() {
 
 
           {/* HERO SECTION */}
-          <div className="relative min-h-[148px] pt-5 pr-[34px] pl-[34px] pb-[26px] bg-gradient-to-br from-[rgba(187,234,255,0.40)] via-[rgba(217,230,255,0.33)] to-[rgba(239,230,255,0.28)] overflow-hidden">
+          <div className="relative min-h-[100px] md:min-h-[148px] pt-4 pr-4 md:pt-5 md:pr-[34px] md:pl-[34px] pl-4 pb-4 md:pb-[26px] bg-gradient-to-br from-[rgba(187,234,255,0.40)] via-[rgba(217,230,255,0.33)] to-[rgba(239,230,255,0.28)] overflow-hidden">
             <div className="hero-glow hero-glow-1"></div>
             <div className="hero-glow hero-glow-2"></div>
             
             <div className="relative z-2">
-              <h1 className="text-[44px] font-black leading-[1.05] text-[#2f3969] text-right">דשבורד חייבים</h1>
+              <h1 className="text-2xl md:text-[44px] font-black leading-[1.05] text-[#2f3969] text-right">דשבורד חייבים</h1>
               <p className="mt-1.5 text-[13px] font-medium text-[#96a1c6] text-right">ניהול וניטור מלא של חייבים בנכסים</p>
             </div>
           </div>
 
           {/* KPI CARDS WRAPPER */}
-          <div className="-mt-4 px-[26px] pb-6 relative z-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="-mt-2 md:-mt-4 px-3 md:px-[26px] pb-4 md:pb-6 relative z-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
               {/* KPI 1 */}
               <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between">
                 <p className="text-[18px] font-black uppercase letter-spacing" style={{color: '#1d5bbd'}}>סה״כ חוב</p>
