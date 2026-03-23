@@ -17,6 +17,7 @@ import QuickTemplatesMenu from '@/components/whatsapp/QuickTemplatesMenu';
 
 export default function WhatsAppChat() {
   const [selectedContact, setSelectedContact] = useState(null);
+  const [mobileShowChat, setMobileShowChat] = useState(false);
   // selectedContact יכול להיות: Contact רגיל, או { _isUnlinked: true, phone, chatId }
   const [searchQuery, setSearchQuery] = useState('');
   const [messageInput, setMessageInput] = useState('');
@@ -494,12 +495,21 @@ export default function WhatsAppChat() {
   // ==========================================
   // RENDER
   // ==========================================
+  const handleSelectContact = (conv) => {
+    setSelectedContact(conv);
+    setMobileShowChat(true);
+  };
+
+  const handleMobileBack = () => {
+    setMobileShowChat(false);
+  };
+
   return (
     <div className="min-h-screen bg-gray-100" dir="rtl" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Cpath d=\'M0 0h100v100H0z\' fill=\'%23ECE5DD\'/%3E%3Cpath d=\'M50 0L100 50L50 100L0 50z\' fill=\'%23E8DED2\' opacity=\'0.3\'/%3E%3C/svg%3E")', backgroundSize: '100px 100px' }}>
       <div className="h-screen flex gap-0">
 
         {/* ---- רשימת שיחות ---- */}
-        <div className="w-96 bg-white flex flex-col shadow-lg border-l border-gray-200">
+        <div className={`${mobileShowChat ? 'hidden md:flex' : 'flex'} w-full md:w-96 bg-white flex-col shadow-lg border-l border-gray-200`}>
           <div className="p-4 border-b border-gray-200 bg-white">
             <div className="flex items-center justify-between mb-3">
               <Button
@@ -577,7 +587,7 @@ export default function WhatsAppChat() {
                   ) : (
                     <>
                       <button
-                        onClick={() => setSelectedContact(conv)}
+                        onClick={() => handleSelectContact(conv)}
                         className={`w-full p-3 text-right hover:bg-gray-50 transition-colors flex items-center gap-3 border-r-4 ${isSelected ? 'border-r-blue-500' : 'border-r-transparent'}`}
                         style={isSelected ? { backgroundColor: '#f9fff5' } : {}}>
                         <div className={`w-12 h-12 rounded-full flex items-center justify-center text-white font-bold text-sm flex-shrink-0 overflow-hidden ${
@@ -615,12 +625,18 @@ export default function WhatsAppChat() {
         </div>
 
         {/* ---- חלון צ'אט ---- */}
-        <div className="flex-1 flex flex-col overflow-hidden" style={{ backgroundImage: `url('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69b3212f206c95cdd3b3e777/a209df2b7_BGWHATS.png')`, backgroundRepeat: 'repeat', backgroundSize: 'auto' }}>
+        <div className={`${mobileShowChat ? 'flex' : 'hidden md:flex'} flex-1 flex-col overflow-hidden`} style={{ backgroundImage: `url('https://qtrypzzcjebvfcihiynt.supabase.co/storage/v1/object/public/base44-prod/public/69b3212f206c95cdd3b3e777/a209df2b7_BGWHATS.png')`, backgroundRepeat: 'repeat', backgroundSize: 'auto' }}>
           {selectedContact ?
           <>
               {/* Header */}
-              <div className="p-4 bg-white border-b border-gray-200 flex justify-between items-center shadow-sm">
-                <div className="flex items-center gap-3">
+              <div className="p-3 md:p-4 bg-white border-b border-gray-200 flex justify-between items-center shadow-sm">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={handleMobileBack}
+                    className="md:hidden w-8 h-8 flex items-center justify-center text-gray-600 hover:bg-gray-100 rounded-lg"
+                  >
+                    &#x2192;
+                  </button>
                   {selectedContact._isUnlinked ?
                 <Button
                   variant="outline"
