@@ -196,94 +196,80 @@ export default function SupplierManagement() {
 
         </div>
 
-        {/* Table */}
-         <div className={tableStyles.wrapper}>
-           {loadingSuppliers ?
-           <div className={tableStyles.loadingContainer}>
-               <div className={tableStyles.loadingSpinner}></div>
-             </div> :
-           filteredSuppliers.length === 0 ?
-           <div className={tableStyles.emptyContainer}>
-               {suppliers.length === 0 ? 'אין ספקים בעדיין' : 'לא נמצאו ספקים תואמים לחיפוש'}
-             </div> :
+        {/* Mobile Cards */}
+        <div className="md:hidden space-y-3">
+          {loadingSuppliers ? (
+            <div className="text-center py-10 text-slate-400">טוען...</div>
+          ) : filteredSuppliers.length === 0 ? (
+            <div className="text-center py-10 text-slate-400">{suppliers.length === 0 ? 'אין ספקים עדיין' : 'לא נמצאו ספקים'}</div>
+          ) : filteredSuppliers.map(supplier => (
+            <div key={supplier.id}
+              onClick={() => handleEdit(supplier)}
+              className="bg-white rounded-xl border border-slate-200 shadow-sm p-4 cursor-pointer hover:shadow-md transition-shadow"
+            >
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <p className="font-bold text-slate-800">{supplier.company_name}</p>
+                  {categories[supplier.category_id]?.name && <Badge variant="outline" className="text-xs mt-1">{categories[supplier.category_id].name}</Badge>}
+                </div>
+                <div className="flex gap-1">
+                  {supplier.contact_mobile_whatsapp && <button onClick={(e) => { e.stopPropagation(); handleWhatsApp(supplier); }} className={`${tableStyles.actionButton} ${tableStyles.actionButtonGreen}`}><MessageCircle className="w-4 h-4" /></button>}
+                  {supplier.company_phone && <button onClick={(e) => { e.stopPropagation(); handleCall(supplier.company_phone); }} className={`${tableStyles.actionButton} ${tableStyles.actionButtonBlue}`}><Phone className="w-4 h-4" /></button>}
+                  <button onClick={(e) => { e.stopPropagation(); handleDelete(supplier.id); }} className={`${tableStyles.actionButton} ${tableStyles.actionButtonRed}`}><Trash2 className="w-4 h-4" /></button>
+                </div>
+              </div>
+              {supplier.contact_person_name && <p className="text-sm text-slate-600">איש קשר: {supplier.contact_person_name}</p>}
+              {supplier.contact_mobile_whatsapp && <p className="text-sm text-blue-600" dir="ltr">{supplier.contact_mobile_whatsapp}</p>}
+              {supplier.email && <p className="text-xs text-slate-400 truncate">{supplier.email}</p>}
+            </div>
+          ))}
+        </div>
 
-           <div className="overflow-x-auto">
-               <Table>
-                 <TableHeader>
-                   <TableRow className={tableStyles.headerRow}>
-                     <TableHead className={`${tableStyles.headerCell} w-28`}>שם החברה</TableHead>
-                     <TableHead className={`${tableStyles.headerCell} w-20`}>קטגוריה</TableHead>
-                     <TableHead className={`${tableStyles.headerCell} w-24`}>איש קשר</TableHead>
-                     <TableHead className={`${tableStyles.headerCell} w-20`}>טלפון נייד</TableHead>
-                     <TableHead className={`${tableStyles.headerCell} w-20`}>טלפון במשרד</TableHead>
-                     <TableHead className={`${tableStyles.headerCell} w-24`}>אימייל</TableHead>
-                     <TableHead className={`${tableStyles.headerCell} w-20`}>מסמכים</TableHead>
-                     <TableHead className={`${tableStyles.stickyHeaderCell} w-28`}>פעולות</TableHead>
-                   </TableRow>
-                 </TableHeader>
-                 <TableBody>
-                   {filteredSuppliers.map((supplier) =>
-                 <TableRow key={supplier.id} className={tableStyles.bodyRow} onClick={() => handleEdit(supplier)}>
-                       <TableCell className={`${tableStyles.bodyCell} font-medium`}>{supplier.company_name}</TableCell>
-                       <TableCell className={tableStyles.bodyCell}>
-                         {categories[supplier.category_id]?.name ?
-                     <Badge variant="outline" className="text-xs">{categories[supplier.category_id].name}</Badge> :
-
-                     <span className="text-slate-400">-</span>
-                     }
-                       </TableCell>
-                       <TableCell className={tableStyles.bodyCell}>{supplier.contact_person_name || '-'}</TableCell>
-                       <TableCell className={`${tableStyles.bodyCell} text-blue-600`}>
-                         {supplier.contact_mobile_whatsapp ?
-                     <span className="cursor-pointer hover:underline">{supplier.contact_mobile_whatsapp}</span> :
-                     '-'}
-                       </TableCell>
-                       <TableCell className={tableStyles.bodyCell}>{supplier.company_phone || '-'}</TableCell>
-                       <TableCell className={`${tableStyles.bodyCell} text-slate-600 truncate`}>{supplier.email || '-'}</TableCell>
-                       <TableCell className={`${tableStyles.bodyCell} text-slate-600`}>{documentCounts[supplier.id] || '-'}</TableCell>
-                       <TableCell className={tableStyles.stickyCellActions}>
-                         <div className="flex gap-1 justify-end">
-                           {supplier.contact_mobile_whatsapp &&
-                       <button
-                         onClick={() => handleWhatsApp(supplier)}
-                         className={`${tableStyles.actionButton} ${tableStyles.actionButtonGreen}`}
-                         title="וואטסאפ">
-
-                               <MessageCircle className="w-4 h-4" />
-                             </button>
-                       }
-                           {supplier.company_phone &&
-                       <button
-                         onClick={() => handleCall(supplier.company_phone)}
-                         className={`${tableStyles.actionButton} ${tableStyles.actionButtonBlue}`}
-                         title="התקשר">
-
-                               <Phone className="w-4 h-4" />
-                             </button>
-                       }
-                           <button
-                         onClick={() => handleEdit(supplier)}
-                         className={`${tableStyles.actionButton} ${tableStyles.actionButtonGray}`}
-                         title="ערוך">
-
-                             <Edit2 className="w-4 h-4" />
-                           </button>
-                           <button
-                         onClick={() => handleDelete(supplier.id)}
-                         className={`${tableStyles.actionButton} ${tableStyles.actionButtonRed}`}
-                         title="מחק">
-
-                             <Trash2 className="w-4 h-4" />
-                           </button>
-                         </div>
-                       </TableCell>
-                     </TableRow>
-                 )}
-                 </TableBody>
-               </Table>
-             </div>
-           }
-         </div>
+        {/* Desktop Table */}
+        <div className={`hidden md:block ${tableStyles.wrapper}`}>
+          {loadingSuppliers ?
+          <div className={tableStyles.loadingContainer}><div className={tableStyles.loadingSpinner}></div></div> :
+          filteredSuppliers.length === 0 ?
+          <div className={tableStyles.emptyContainer}>{suppliers.length === 0 ? 'אין ספקים בעדיין' : 'לא נמצאו ספקים תואמים לחיפוש'}</div> :
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader>
+                <TableRow className={tableStyles.headerRow}>
+                  <TableHead className={`${tableStyles.headerCell} w-28`}>שם החברה</TableHead>
+                  <TableHead className={`${tableStyles.headerCell} w-20`}>קטגוריה</TableHead>
+                  <TableHead className={`${tableStyles.headerCell} w-24`}>איש קשר</TableHead>
+                  <TableHead className={`${tableStyles.headerCell} w-20`}>טלפון נייד</TableHead>
+                  <TableHead className={`${tableStyles.headerCell} w-20`}>טלפון במשרד</TableHead>
+                  <TableHead className={`${tableStyles.headerCell} w-24`}>אימייל</TableHead>
+                  <TableHead className={`${tableStyles.headerCell} w-20`}>מסמכים</TableHead>
+                  <TableHead className={`${tableStyles.stickyHeaderCell} w-28`}>פעולות</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredSuppliers.map((supplier) =>
+                <TableRow key={supplier.id} className={tableStyles.bodyRow} onClick={() => handleEdit(supplier)}>
+                  <TableCell className={`${tableStyles.bodyCell} font-medium`}>{supplier.company_name}</TableCell>
+                  <TableCell className={tableStyles.bodyCell}>{categories[supplier.category_id]?.name ? <Badge variant="outline" className="text-xs">{categories[supplier.category_id].name}</Badge> : <span className="text-slate-400">-</span>}</TableCell>
+                  <TableCell className={tableStyles.bodyCell}>{supplier.contact_person_name || '-'}</TableCell>
+                  <TableCell className={`${tableStyles.bodyCell} text-blue-600`}>{supplier.contact_mobile_whatsapp || '-'}</TableCell>
+                  <TableCell className={tableStyles.bodyCell}>{supplier.company_phone || '-'}</TableCell>
+                  <TableCell className={`${tableStyles.bodyCell} text-slate-600 truncate`}>{supplier.email || '-'}</TableCell>
+                  <TableCell className={`${tableStyles.bodyCell} text-slate-600`}>{documentCounts[supplier.id] || '-'}</TableCell>
+                  <TableCell className={tableStyles.stickyCellActions}>
+                    <div className="flex gap-1 justify-end">
+                      {supplier.contact_mobile_whatsapp && <button onClick={(e) => { e.stopPropagation(); handleWhatsApp(supplier); }} className={`${tableStyles.actionButton} ${tableStyles.actionButtonGreen}`} title="וואטסאפ"><MessageCircle className="w-4 h-4" /></button>}
+                      {supplier.company_phone && <button onClick={(e) => { e.stopPropagation(); handleCall(supplier.company_phone); }} className={`${tableStyles.actionButton} ${tableStyles.actionButtonBlue}`} title="התקשר"><Phone className="w-4 h-4" /></button>}
+                      <button onClick={(e) => { e.stopPropagation(); handleEdit(supplier); }} className={`${tableStyles.actionButton} ${tableStyles.actionButtonGray}`} title="ערוך"><Edit2 className="w-4 h-4" /></button>
+                      <button onClick={(e) => { e.stopPropagation(); handleDelete(supplier.id); }} className={`${tableStyles.actionButton} ${tableStyles.actionButtonRed}`} title="מחק"><Trash2 className="w-4 h-4" /></button>
+                    </div>
+                  </TableCell>
+                </TableRow>
+                )}
+              </TableBody>
+            </Table>
+          </div>
+          }
+        </div>
 
         {/* Dialogs */}
         <SupplierFormDialog
