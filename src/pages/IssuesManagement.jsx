@@ -836,6 +836,20 @@ export default function IssuesManagement() {
         ) : viewMode === "kanban" ? (
           <DragDropContext onDragEnd={handleDragEnd}>
             <div className="flex gap-3 items-start overflow-x-auto pb-4" style={{WebkitOverflowScrolling: 'touch'}}>
+              {COLUMNS.map((col) => (
+                <KanbanColumn
+                  key={col.id}
+                  col={col}
+                  issues={columns[col.id] || []}
+                  onDelete={handleDelete}
+                  onView={(issue) => { setSelectedIssue(issue); setDetailsOpen(true); }}
+                  appUsers={appUsers}
+                  areas={areas}
+                  currentUsername={currentUser?.username}
+                />
+              ))}
+            </div>
+          </DragDropContext>
         ) : viewMode === "list" ? (
            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-x-auto">
              <table className="w-full">
@@ -852,74 +866,28 @@ export default function IssuesManagement() {
                </thead>
                <tbody>
                  {filtered.length === 0 ? (
-                   <tr>
-                     <td colSpan="7" className="p-8 text-center text-slate-400">אין תקלות</td>
-                   </tr>
+                   <tr><td colSpan="7" className="p-8 text-center text-slate-400">אין תקלות</td></tr>
                  ) : (
                    filtered
-                     .sort((a, b) => {
-                       const priorityOrder = { urgent: 0, high: 1, medium: 2, low: 3 };
-                       const aPriority = priorityOrder[a.priority] ?? 3;
-                       const bPriority = priorityOrder[b.priority] ?? 3;
-                       return aPriority - bPriority;
-                     })
+                     .sort((a, b) => ({ urgent: 0, high: 1, medium: 2, low: 3 }[a.priority] ?? 3) - ({ urgent: 0, high: 1, medium: 2, low: 3 }[b.priority] ?? 3))
                      .map((issue) => {
                        const p = PRIORITY_MAP[issue.priority] || PRIORITY_MAP.low;
-                       const reporterUser = appUsers?.find(u => u.username === issue.reporter_email);
                        const getAreaName = (id) => areas?.find(a => a.id === id)?.name || id;
                        const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${getAreaName(issue.target_id)}`;
                        const statusLabel = issue.status === "open" ? "פתוחה" : issue.status === "in_progress" ? "בטיפול" : "הושלמה";
                        return (
-                         <tr 
-                           key={issue.id} 
-                           className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors"
-                           onClick={() => { setSelectedIssue(issue); setDetailsOpen(true); }}
-                         >
+                         <tr key={issue.id} className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors" onClick={() => { setSelectedIssue(issue); setDetailsOpen(true); }}>
                            <td className="px-4 py-3 text-right text-sm font-semibold text-slate-800">{targetLabel}</td>
-                           <td className="px-4 py-3 text-right text-sm text-slate-600">
-                             <IssuePersonLabel issue={issue} appUsers={appUsers} currentUsername={currentUser?.username} />
-                           </td>
-                           <td className="px-4 py-3 text-center">
-                             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg" style={{ backgroundColor: `${p.bg}20`, color: p.color }}>
-                               <span className={`w-2 h-2 rounded-full ${p.dot}`}></span>
-                               <span className="text-xs font-semibold">{p.label}</span>
-                             </div>
-                           </td>
-                           <td className="px-4 py-3 text-center">
-                             <span className={`inline-block px-3 py-1 rounded-lg text-xs font-semibold ${
-                               issue.status === "resolved" ? "bg-green-100 text-green-700" :
-                               issue.status === "in_progress" ? "bg-amber-100 text-amber-700" :
-                               "bg-blue-100 text-blue-700"
-                             }`}>
-                               {statusLabel}
-                             </span>
-                           </td>
+                           <td className="px-4 py-3 text-right text-sm text-slate-600"><IssuePersonLabel issue={issue} appUsers={appUsers} currentUsername={currentUser?.username} /></td>
+                           <td className="px-4 py-3 text-center"><div className="inline-flex items-center gap-1 px-2 py-1 rounded-lg" style={{ backgroundColor: `${p.bg}20`, color: p.color }}><span className={`w-2 h-2 rounded-full ${p.dot}`}></span><span className="text-xs font-semibold">{p.label}</span></div></td>
+                           <td className="px-4 py-3 text-center"><span className={`inline-block px-2 py-1 rounded-lg text-xs font-semibold ${issue.status === "resolved" ? "bg-green-100 text-green-700" : issue.status === "in_progress" ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"}`}>{statusLabel}</span></td>
                            <td className="px-4 py-3 text-right text-sm text-slate-500">{format(new Date(issue.created_date), "dd/MM/yy")}</td>
                            <td className="px-4 py-3 text-right text-sm text-slate-600 max-w-xs truncate">{issue.description}</td>
-                           <td className="px-4 py-3 text-center flex items-center justify-center gap-1">
-                             {(issue.images?.length > 0 || issue.videos?.length > 0) && (
-                               <button
-                                 onClick={(e) => { e.stopPropagation(); setSelectedIssue(issue); setDetailsOpen(true); }}
-                                 className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-blue-500 hover:bg-blue-50 transition-colors"
-                                 title="צפה בתמונות"
-                               >
-                                 <Eye className="w-4 h-4" />
-                               </button>
-                             )}
-                             <button
-                               onClick={(e) => { e.stopPropagation(); setSelectedIssue(issue); setDetailsOpen(true); }}
-                               className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-                               title="עריכה"
-                             >
-                               <Pencil className="w-4 h-4" />
-                             </button>
-                             <button
-                               onClick={(e) => { e.stopPropagation(); handleDelete(issue.id); }}
-                               className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors"
-                               title="מחוק"
-                             >
-                               <Trash2 className="w-4 h-4" />
-                             </button>
+                           <td className="px-4 py-3 text-center">
+                             <div className="flex items-center justify-center gap-1">
+                               <button onClick={(e) => { e.stopPropagation(); setSelectedIssue(issue); setDetailsOpen(true); }} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-blue-500 hover:bg-blue-50"><Eye className="w-4 h-4" /></button>
+                               <button onClick={(e) => { e.stopPropagation(); handleDelete(issue.id); }} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50"><Trash2 className="w-4 h-4" /></button>
+                             </div>
                            </td>
                          </tr>
                        );
@@ -929,45 +897,7 @@ export default function IssuesManagement() {
              </table>
            </div>
         ) : (
-          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
-            <div className="grid grid-cols-7 gap-2 mb-4">
-              {['ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שבת'].map(day => (
-                <div key={day} className="text-center font-bold text-sm text-slate-600 py-2">{day}</div>
-              ))}
-            </div>
-            <div className="grid grid-cols-7 gap-2 auto-rows-[100px]">
-              {Array.from({ length: 35 }).map((_, i) => {
-                const dayIssues = filtered.filter(issue => {
-                  const issueDate = new Date(issue.created_date);
-                  return issueDate.getDate() === i + 1;
-                });
-                return (
-                  <div key={i} className="border border-slate-200 rounded-lg p-2 bg-slate-50 hover:bg-slate-100 transition-colors">
-                    {i > 0 && i <= 31 && (
-                      <>
-                        <div className="text-xs font-semibold text-slate-700 mb-1">{i}</div>
-                        <div className="space-y-1">
-                          {dayIssues.slice(0, 2).map(issue => (
-                            <div 
-                              key={issue.id}
-                              onClick={() => { setSelectedIssue(issue); setDetailsOpen(true); }}
-                              className="text-xs bg-blue-100 text-blue-700 rounded px-1.5 py-0.5 truncate cursor-pointer hover:bg-blue-200"
-                              title={issue.description}
-                            >
-                              {issue.target_id}
-                            </div>
-                          ))}
-                          {dayIssues.length > 2 && (
-                            <div className="text-xs text-slate-500">+{dayIssues.length - 2} עוד</div>
-                          )}
-                        </div>
-                      </>
-                    )}
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+          <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 text-center text-slate-400">תצוגת יומן אינה זמינה כעת</div>
         )}
       </div>
 
