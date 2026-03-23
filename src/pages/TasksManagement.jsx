@@ -774,22 +774,24 @@ export default function TasksManagement() {
         ) : viewMode === 'kanban' ? (
           <DragDropContext onDragEnd={handleDragEnd}>
             {/* Mobile: tab per column */}
-            <div className="md:hidden w-full">
-              <div className="flex bg-white rounded-t-2xl border border-slate-200 overflow-hidden mb-5">
+            <div className="md:hidden -mx-3">
+              <div className="flex bg-white border-b border-slate-200 overflow-hidden mb-5">
                 {COLUMNS.map(col => (
                   <button key={col.id} onClick={() => setMobileTab(col.id)}
                     className={`flex-1 py-3 text-xs font-bold transition-colors border-b-2 ${
-                      mobileTab === col.id ? 'border-blue-500 text-blue-600' : 'border-transparent text-slate-500'
+                      mobileTab === col.id ? 'border-blue-500 text-blue-600 bg-blue-50/40' : 'border-transparent text-slate-500'
                     }`}>
                     {col.label} <span className={`mr-1 px-1.5 rounded-full text-[10px] ${col.count_color}`}>{(columns[col.id]||[]).length}</span>
                   </button>
                 ))}
               </div>
+              <div className="px-3">
               {COLUMNS.filter(c => c.id === mobileTab).map(col => (
                 <KanbanColumn key={col.id} col={col} tasks={columns[col.id]||[]}
                   onDelete={handleDelete} onView={(t)=>{ setSelectedTask(t); setDetailsOpen(true); }}
                   appUsers={appUsers} />
               ))}
+              </div>
             </div>
             {/* Desktop: all columns */}
             <div className="hidden md:flex gap-3 items-start pb-4">
