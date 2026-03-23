@@ -852,7 +852,7 @@ export default function IssuesManagement() {
           </DragDropContext>
         ) : viewMode === "list" ? (
            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-x-auto">
-             <table className="w-full">
+             <table className="w-full min-w-[700px]">
                <thead>
                  <tr className="border-b border-slate-200 bg-slate-50">
                    <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">מיקום</th>
