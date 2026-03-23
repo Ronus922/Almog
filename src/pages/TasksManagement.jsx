@@ -773,6 +773,18 @@ export default function TasksManagement() {
         ) : viewMode === 'kanban' ? (
           <DragDropContext onDragEnd={handleDragEnd}>
             <div className="flex gap-3 items-start overflow-x-auto pb-4" style={{WebkitOverflowScrolling: 'touch'}}>
+              {COLUMNS.map((col) => (
+                <KanbanColumn
+                  key={col.id}
+                  col={col}
+                  tasks={columns[col.id] || []}
+                  onDelete={handleDelete}
+                  onView={(task) => { setSelectedTask(task); setDetailsOpen(true); }}
+                  appUsers={appUsers}
+                />
+              ))}
+            </div>
+          </DragDropContext>
         ) : (
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-x-auto">
             <table className="w-full">
@@ -788,71 +800,24 @@ export default function TasksManagement() {
               </thead>
               <tbody>
                 {filtered.length === 0 ? (
-                  <tr>
-                    <td colSpan="6" className="p-8 text-center text-slate-400">אין משימות</td>
-                  </tr>
+                  <tr><td colSpan="6" className="p-8 text-center text-slate-400">אין משימות</td></tr>
                 ) : (
                   filtered.map((task) => {
                     const p = PRIORITY_MAP[task.priority] || PRIORITY_MAP.low;
                     const targetLabel = task.target_type === 'room' ? `חדר ${task.target_id}` : `אזור ${task.target_id}`;
                     const statusLabel = task.status === 'open' ? 'פתוחה' : task.status === 'in_progress' ? 'בטיפול' : 'הושלמה';
                     return (
-                      <tr
-                        key={task.id}
-                        className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors"
-                        onClick={() => {
-                          setSelectedTask(task);
-                          setDetailsOpen(true);
-                        }}
-                      >
+                      <tr key={task.id} className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors" onClick={() => { setSelectedTask(task); setDetailsOpen(true); }}>
                         <td className="px-4 py-3 text-right text-sm font-semibold text-slate-800">{task.title}</td>
                         <td className="px-4 py-3 text-right text-sm text-slate-600">{targetLabel}</td>
-                        <td className="px-4 py-3 text-center">
-                          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg" style={{ backgroundColor: `${p.bg}`, color: p.color }}>
-                            <span className={`w-2 h-2 rounded-full ${p.dot}`}></span>
-                            <span className="text-xs font-semibold">{p.label}</span>
-                          </div>
-                        </td>
-                        <td className="px-4 py-3 text-center">
-                          <span className={`inline-block px-3 py-1 rounded-lg text-xs font-semibold ${
-                            task.status === 'resolved' ? 'bg-green-100 text-green-700' :
-                            task.status === 'in_progress' ? 'bg-amber-100 text-amber-700' :
-                            'bg-blue-100 text-blue-700'
-                          }`}>
-                            {statusLabel}
-                          </span>
-                        </td>
+                        <td className="px-4 py-3 text-center"><div className="inline-flex items-center gap-1 px-2 py-1 rounded-lg" style={{ backgroundColor: `${p.bg}`, color: p.color }}><span className={`w-2 h-2 rounded-full ${p.dot}`}></span><span className="text-xs font-semibold">{p.label}</span></div></td>
+                        <td className="px-4 py-3 text-center"><span className={`inline-block px-2 py-1 rounded-lg text-xs font-semibold ${task.status === 'resolved' ? 'bg-green-100 text-green-700' : task.status === 'in_progress' ? 'bg-amber-100 text-amber-700' : 'bg-blue-100 text-blue-700'}`}>{statusLabel}</span></td>
                         <td className="px-4 py-3 text-right text-sm text-slate-500">{format(new Date(task.created_date), 'dd/MM/yy')}</td>
-                        <td className="px-4 py-3 text-center flex items-center justify-center gap-1">
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedTask(task);
-                              setDetailsOpen(true);
-                            }}
-                            className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-blue-500 hover:bg-blue-50 transition-colors"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setSelectedTask(task);
-                              setDetailsOpen(true);
-                            }}
-                            className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-slate-600 hover:bg-slate-100 transition-colors"
-                          >
-                            <Pencil className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              handleDelete(task.id);
-                            }}
-                            className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50 transition-colors"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                        <td className="px-4 py-3 text-center">
+                          <div className="flex items-center justify-center gap-1">
+                            <button onClick={(e) => { e.stopPropagation(); setSelectedTask(task); setDetailsOpen(true); }} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-blue-500 hover:bg-blue-50"><Eye className="w-4 h-4" /></button>
+                            <button onClick={(e) => { e.stopPropagation(); handleDelete(task.id); }} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50"><Trash2 className="w-4 h-4" /></button>
+                          </div>
                         </td>
                       </tr>
                     );
