@@ -156,6 +156,7 @@ export default function InternalChat() {
             messages={messages}
             onSend={(msgData) => sendMutation.mutate({ msgData, conv: selectedConv })}
             onMarkRead={(conv) => markReadMutation.mutate(conv)}
+            onBack={() => setMobileShowChat(false)}
           />
         ) : (
           <div className="hidden md:flex flex-col items-center justify-center h-full gap-4 text-slate-400">
