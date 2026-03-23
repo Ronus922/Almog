@@ -131,22 +131,24 @@ export default function InternalChat() {
     return sum + unread;
   }, 0);
 
+  const [mobileShowChat, setMobileShowChat] = useState(false);
+
   return (
-    <div className="flex h-[calc(100vh-0px)] bg-slate-100" dir="rtl">
+    <div className="flex bg-slate-100" dir="rtl" style={{ height: 'calc(100dvh - 3.5rem)', minHeight: 0 }}>
       {/* Sidebar — hidden on mobile when chat is selected */}
-      <div className={`${selectedConv ? 'hidden md:flex' : 'flex'} w-full md:w-80 flex-shrink-0 border-l border-slate-200 h-full overflow-hidden flex-col`}>
+      <div className={`${mobileShowChat ? 'hidden md:flex' : 'flex'} w-full md:w-80 flex-shrink-0 border-l border-slate-200 h-full overflow-hidden flex-col`}>
         <ChatConversationList
           conversations={conversations}
           currentUser={currentUser}
           selectedConvId={selectedConv?.conversation_id}
-          onSelect={setSelectedConv}
+          onSelect={(conv) => { setSelectedConv(conv); setMobileShowChat(true); }}
           onNewChat={() => setShowNewChat(true)}
           users={users}
         />
       </div>
 
       {/* Chat Area — full width on mobile when chat selected */}
-      <div className={`${selectedConv ? 'flex' : 'hidden md:flex'} flex-1 h-full overflow-hidden flex-col`}>
+      <div className={`${mobileShowChat ? 'flex' : 'hidden md:flex'} flex-1 h-full overflow-hidden flex-col`}>
         {selectedConv ? (
           <ChatWindow
             conversation={selectedConv}
