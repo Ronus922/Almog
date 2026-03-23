@@ -261,9 +261,36 @@ export default function DebtorsTable({
             </div>
           </CardHeader>
 
+          {/* Mobile Filters */}
+          <div className="block lg:hidden px-4 py-3 border-b border-slate-100 bg-white space-y-2">
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <Search className="absolute right-3 top-2.5 w-4 h-4 text-slate-400" />
+                <Input
+                  placeholder="מספר דירה..."
+                  value={apartmentSearch}
+                  onChange={(e) => {setApartmentSearch(e.target.value); setPage(1);}}
+                  className="pr-9 h-9 rounded-lg border-slate-200 text-sm" />
+              </div>
+              <div className="relative flex-1">
+                <Search className="absolute right-3 top-2.5 w-4 h-4 text-slate-400" />
+                <Input
+                  placeholder="שם בעלים..."
+                  value={ownerNameFilter}
+                  onChange={(e) => {setOwnerNameFilter(e.target.value); setPage(1);}}
+                  className="pr-9 h-9 rounded-lg border-slate-200 text-sm" />
+              </div>
+            </div>
+            {(apartmentSearch || ownerNameFilter) && (
+              <button onClick={clearFilters} className="text-xs text-slate-400 hover:text-slate-600 flex items-center gap-1">
+                <X className="w-3 h-3" /> נקה פילטרים
+              </button>
+            )}
+          </div>
+
           <CardContent className="p-0">
             {/* Mobile View */}
-            <div className="block lg:hidden p-4 space-y-3">
+            <div className="block lg:hidden p-3 space-y-3">
               {paginatedRecords.length === 0 ?
               <div className="text-center py-12">
                   <p className="text-slate-600 font-semibold">לא נמצאו רשומות</p>
