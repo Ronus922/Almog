@@ -299,14 +299,10 @@ function DashboardContent() {
 
 
               {/* KPI 5 - לגבייה מיידית */}
-              <div className="kpi-card-glow min-h-[108px] rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all"
+              <div className="kpi-card-glow min-h-[80px] md:min-h-[108px] rounded-[16px] md:rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-3 md:p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all"
                 onClick={() => { setActiveTab('debtors'); }}>
-                <p className="text-[18px] font-black uppercase" style={{color: '#1d5bbd'}}>לגבייה מיידית</p>
-                <div>
-                  <p className="text-[32px] font-black leading-none text-[#ff7a5c]">
-                    {tabDatasets.immediateCollectCount}
-                  </p>
-                </div>
+                <p className="text-[14px] md:text-[18px] font-black uppercase" style={{color: '#1d5bbd'}}>לגבייה מיידית</p>
+                <div><p className="text-[24px] md:text-[32px] font-black leading-none text-[#ff7a5c]">{tabDatasets.immediateCollectCount}</p></div>
               </div>
 
               {/* KPI 6 - חריגה מופרזת */}
