@@ -774,7 +774,7 @@ export default function TasksManagement() {
         ) : viewMode === 'kanban' ? (
           <DragDropContext onDragEnd={handleDragEnd}>
             {/* Mobile: tab per column */}
-            <div className="md:hidden -mx-3">
+            <div className="md:hidden" style={{width:'98vw', marginRight:'-0.75rem'}}>
               <div className="flex bg-white rounded-t-2xl border border-slate-200 overflow-hidden mb-5">
                 {COLUMNS.map(col => (
                   <button key={col.id} onClick={() => setMobileTab(col.id)}
