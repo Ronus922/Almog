@@ -81,16 +81,16 @@ export default function RoomsAreas() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-3 md:p-6" dir="rtl">
       <div className="max-w-5xl mx-auto space-y-6">
 
         {/* Header */}
-        <div className="flex items-center justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">ניהול אזורים</h1>
+            <h1 className="text-xl md:text-2xl font-bold text-slate-800">ניהול אזורים</h1>
             <p className="text-sm text-slate-500 mt-0.5">ניהול אזורי הבניין</p>
           </div>
-          <Button onClick={openNew} className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-10 px-4 gap-2">
+          <Button onClick={openNew} className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl h-10 px-4 gap-2 self-start sm:self-auto">
             <Plus className="w-4 h-4" />
             אזור חדש
           </Button>
