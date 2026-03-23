@@ -736,9 +736,9 @@ export default function TasksManagement() {
             { label: 'הושלמו', count: stats.resolved, icon: <CheckCircle2 className="w-5 h-5 text-green-500" />, bg: 'bg-green-50', accent: 'text-green-600', border: 'border-green-100' },
             { label: 'דחוף', count: stats.urgent, icon: <AlertCircle className="w-5 h-5 text-red-500" />, bg: 'bg-red-50', accent: 'text-red-600', border: 'border-red-100' },
           ].map(({ label, count, icon, bg, accent, border }) => (
-            <div key={label} className={`rounded-2xl border ${border} bg-white p-4 flex items-center justify-between shadow-sm`}>
-              <div>
-                <p className={`text-3xl font-black ${accent}`}>{count}</p>
+            <div key={label} className={`rounded-2xl border ${border} bg-white p-3 md:p-4 flex items-center justify-between shadow-sm`}>
+              <div className="min-w-0">
+                <p className={`text-2xl md:text-3xl font-black ${accent}`}>{count}</p>
                 <p className="text-xs text-slate-500 mt-0.5">{label}</p>
               </div>
               <div className={`p-2.5 rounded-xl ${bg}`}>{icon}</div>
@@ -787,7 +787,7 @@ export default function TasksManagement() {
           </DragDropContext>
         ) : (
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-x-auto">
-            <table className="w-full">
+            <table className="w-full min-w-[600px]">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50">
                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">כותרת</th>
