@@ -506,7 +506,7 @@ export default function WhatsAppChat() {
 
   return (
     <div className="bg-gray-100" dir="rtl" style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'100\' height=\'100\'%3E%3Cpath d=\'M0 0h100v100H0z\' fill=\'%23ECE5DD\'/%3E%3Cpath d=\'M50 0L100 50L50 100L0 50z\' fill=\'%23E8DED2\' opacity=\'0.3\'/%3E%3C/svg%3E")', backgroundSize: '100px 100px' }}>
-      <div className="flex" style={{ height: 'calc(100dvh - 3.5rem)' }}>
+      <div className="flex" style={{ height: 'calc(100dvh - 3.5rem)', minHeight: 0 }}>
 
         {/* ---- רשימת שיחות ---- */}
         <div className={`${mobileShowChat ? 'hidden md:flex' : 'flex'} w-full md:w-80 lg:w-96 bg-white flex-col shadow-lg border-l border-gray-200 flex-shrink-0`}>
