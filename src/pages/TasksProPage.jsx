@@ -319,7 +319,7 @@ export default function TasksProPage() {
 
             {/* Display mode (only on tasks) */}
             {activeView === "tasks" && (
-              <div className="hidden sm:flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
+              <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm">
                 <button
                   onClick={() => setViewMode("table")}
                   className={`p-1.5 rounded-lg transition-all ${viewMode === "table" ? "bg-blue-600 text-white" : "text-slate-500 hover:bg-slate-100"}`}
