@@ -570,7 +570,7 @@ function KanbanCard({ task, index, onDelete, onView, appUsers }) {
 
 function KanbanColumn({ col, tasks, onDelete, onView, appUsers }) {
   return (
-    <div className="flex-1 min-w-0 flex flex-col">
+    <div className="w-[270px] flex-shrink-0 md:flex-1 md:min-w-0 flex flex-col">
       {/* Column header */}
       <div className={`rounded-t-2xl border-t-4 ${col.color} bg-white border border-slate-200 px-4 py-3 flex items-center justify-between mb-0`}>
         <span className="font-black text-slate-700 text-base">{col.label}</span>
@@ -680,8 +680,8 @@ export default function TasksManagement() {
   }), [filtered]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 p-6" dir="rtl">
-      <div className="w-full max-w-6xl mx-auto space-y-5">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 p-3 md:p-6" dir="rtl">
+      <div className="w-full max-w-6xl mx-auto space-y-4">
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -747,16 +747,16 @@ export default function TasksManagement() {
         </div>
 
         {/* Filters */}
-        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm px-5 py-4 flex flex-wrap items-center gap-3">
+        <div className="bg-white rounded-2xl border border-slate-100 shadow-sm px-4 py-3 flex flex-wrap items-center gap-2">
           <Filter className="w-4 h-4 text-slate-400 flex-shrink-0" />
-          <div className="relative flex-1 min-w-[180px]">
+          <div className="relative flex-1 min-w-[140px]">
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
             <Input value={search} onChange={(e) => setSearch(e.target.value)}
-              placeholder="חפש בכותרת, מיקום..."
+              placeholder="חפש..."
               className="h-10 pr-9 rounded-xl border-slate-200 bg-slate-50 text-sm" />
           </div>
           <Select value={filterPriority} onValueChange={setFilterPriority}>
-            <SelectTrigger className="h-10 w-36 rounded-xl border-slate-200 bg-slate-50 text-sm"><SelectValue placeholder="דחיפות" /></SelectTrigger>
+            <SelectTrigger className="h-10 w-32 rounded-xl border-slate-200 bg-slate-50 text-sm"><SelectValue placeholder="דחיפות" /></SelectTrigger>
             <SelectContent>
               <SelectItem value="all">כל הדחיפויות</SelectItem>
               <SelectItem value="urgent">דחוף</SelectItem>
@@ -764,7 +764,7 @@ export default function TasksManagement() {
               <SelectItem value="low">נמוכה</SelectItem>
             </SelectContent>
           </Select>
-          <span className="text-sm text-slate-400 mr-auto">{filtered.length} משימות</span>
+          <span className="text-sm text-slate-400">{filtered.length} משימות</span>
         </div>
 
         {/* Kanban Board */}
@@ -772,22 +772,7 @@ export default function TasksManagement() {
           <div className="text-center py-16 text-slate-400">טוען...</div>
         ) : viewMode === 'kanban' ? (
           <DragDropContext onDragEnd={handleDragEnd}>
-            <div className="flex gap-3 items-start overflow-x-auto pb-4 min-w-0" style={{WebkitOverflowScrolling: 'touch'}}>
-              {COLUMNS.map((col) => (
-                <KanbanColumn
-                  key={col.id}
-                  col={col}
-                  tasks={columns[col.id] || []}
-                  onDelete={handleDelete}
-                  onView={(task) => {
-                    setSelectedTask(task);
-                    setDetailsOpen(true);
-                  }}
-                  appUsers={appUsers}
-                />
-              ))}
-            </div>
-          </DragDropContext>
+            <div className="flex gap-3 items-start overflow-x-auto pb-4" style={{WebkitOverflowScrolling: 'touch'}}>
         ) : (
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-x-auto">
             <table className="w-full">

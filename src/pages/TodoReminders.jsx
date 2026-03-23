@@ -222,24 +222,24 @@ export default function TodoReminders() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50" dir="rtl">
       {/* Header */}
-      <div className="bg-gradient-to-l text-white my-4 py-6 px-4 from-blue-600 to-indigo-600 md:px-8">
+      <div className="bg-gradient-to-l text-white py-5 px-4 from-blue-600 to-indigo-600 md:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-3 mb-1">
-            <ClipboardList className="w-7 h-7" />
-            <h1 className="text-2xl md:text-3xl font-bold">תזכורות</h1>
+            <ClipboardList className="w-6 h-6 flex-shrink-0" />
+            <h1 className="text-xl md:text-2xl font-bold">תזכורות</h1>
           </div>
           <p className="text-blue-100 text-sm">ניהול תזכורות ומשימות אישיות לפי קטגוריות</p>
         </div>
       </div>
 
-      <div className="max-w-6xl mx-auto px-4 md:px-8 py-6">
+      <div className="max-w-6xl mx-auto px-3 md:px-8 py-4">
         {/* Filter Tabs */}
-          <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm mb-6 overflow-x-auto max-w-full">
+          <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm mb-4 overflow-x-auto">
             {FILTERS.map((f) =>
             <button
               key={f.key}
               onClick={() => setActiveFilter(f.key)}
-              className={`px-3 py-1.5 rounded-lg text-sm font-semibold transition-all whitespace-nowrap ${
+              className={`flex-1 px-3 py-2 rounded-lg text-sm font-semibold transition-all whitespace-nowrap ${
               activeFilter === f.key ?
               'bg-blue-600 text-white shadow-sm' :
               'text-slate-600 hover:bg-slate-100'}`

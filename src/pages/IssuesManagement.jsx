@@ -732,8 +732,8 @@ export default function IssuesManagement() {
   }), [filtered]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 p-6" dir="rtl">
-      <div className="w-full max-w-6xl mx-auto space-y-5">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 p-3 md:p-6" dir="rtl">
+      <div className="w-full max-w-6xl mx-auto space-y-4">
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -835,24 +835,7 @@ export default function IssuesManagement() {
           <div className="text-center py-16 text-slate-400">טוען...</div>
         ) : viewMode === "kanban" ? (
           <DragDropContext onDragEnd={handleDragEnd}>
-            <div className="flex gap-3 items-start overflow-x-auto pb-4 min-w-0" style={{WebkitOverflowScrolling: 'touch'}}>
-              {COLUMNS.map((col) => (
-                <KanbanColumn
-                   key={col.id}
-                   col={col}
-                   issues={columns[col.id] || []}
-                   onDelete={handleDelete}
-                   onView={(issue) => { 
-                     setSelectedIssue(issue); 
-                     setDetailsOpen(true); 
-                   }}
-                   appUsers={appUsers}
-                   areas={areas}
-                   currentUsername={currentUser?.username}
-                 />
-              ))}
-            </div>
-          </DragDropContext>
+            <div className="flex gap-3 items-start overflow-x-auto pb-4" style={{WebkitOverflowScrolling: 'touch'}}>
         ) : viewMode === "list" ? (
            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-x-auto">
              <table className="w-full">
