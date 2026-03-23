@@ -222,7 +222,7 @@ export default function TodoReminders() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50" dir="rtl">
       {/* Header */}
-      <div className="bg-gradient-to-l text-white my-4 py-6 from-blue-600 to-indigo-600 md:px-8">
+      <div className="bg-gradient-to-l text-white my-4 py-6 px-4 from-blue-600 to-indigo-600 md:px-8">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-3 mb-1">
             <ClipboardList className="w-7 h-7" />
@@ -234,7 +234,7 @@ export default function TodoReminders() {
 
       <div className="max-w-6xl mx-auto px-4 md:px-8 py-6">
         {/* Filter Tabs */}
-          <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm mb-6 w-fit">
+          <div className="flex items-center gap-1 bg-white border border-slate-200 rounded-xl p-1 shadow-sm mb-6 overflow-x-auto max-w-full">
             {FILTERS.map((f) =>
             <button
               key={f.key}

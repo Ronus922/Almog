@@ -158,11 +158,15 @@ export default function Contacts() {
           <p className="text-sm text-slate-500">{contacts.length} דירות במערכת</p>
         </div>
         <div className="flex gap-2 flex-wrap">
-          <Button variant="outline" className="gap-2" onClick={() => setImportOpen(true)}>
-            <Upload className="w-4 h-4" /> ייבוא Excel
+          <Button variant="outline" className="gap-2 h-9 text-sm" onClick={() => setImportOpen(true)}>
+            <Upload className="w-4 h-4" />
+            <span className="hidden sm:inline">ייבוא Excel</span>
+            <span className="sm:hidden">ייבוא</span>
           </Button>
-          <Button variant="outline" className="gap-2" onClick={handleExportCSV}>
-            <Download className="w-4 h-4" /> ייצוא CSV
+          <Button variant="outline" className="gap-2 h-9 text-sm" onClick={handleExportCSV}>
+            <Download className="w-4 h-4" />
+            <span className="hidden sm:inline">ייצוא CSV</span>
+            <span className="sm:hidden">ייצוא</span>
           </Button>
           {selected.length > 0 && (
             <>
@@ -183,10 +187,12 @@ export default function Contacts() {
           )}
           <Button
             variant="outline"
-            className="gap-2"
+            className="gap-2 h-9 text-sm"
             onClick={() => setOperatorManagementOpen(true)}
           >
-            <Users className="w-4 h-4" /> ניהול מפעילים
+            <Users className="w-4 h-4" />
+            <span className="hidden sm:inline">ניהול מפעילים</span>
+            <span className="sm:hidden">מפעילים</span>
           </Button>
           <Button
             className="gap-2 bg-[#3563d0] hover:bg-[#2a50b0] text-white"

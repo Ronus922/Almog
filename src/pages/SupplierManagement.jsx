@@ -159,7 +159,7 @@ export default function SupplierManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 p-6" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 p-3 md:p-6" dir="rtl">
       <div className="max-w-7xl mx-auto">
         {/* Header */}
         <div className="flex justify-between items-center mb-8">
@@ -167,13 +167,13 @@ export default function SupplierManagement() {
             <h1 className="text-3xl font-bold text-slate-900">ספקים</h1>
             <p className="text-slate-600 text-sm mt-1">ניהול בסיס הנתונים של ספקים ושירותים</p>
           </div>
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap justify-end">
             <Button
               onClick={() => setIsCategoryDialogOpen(true)}
               className="h-10 bg-slate-600 hover:bg-slate-700 text-white gap-2">
-
               <Tag className="w-5 h-5" />
-              הוסף תחום עיסוק
+              <span className="hidden sm:inline">הוסף תחום עיסוק</span>
+              <span className="sm:hidden">תחום</span>
             </Button>
             <Button
               onClick={handleNewSupplier}

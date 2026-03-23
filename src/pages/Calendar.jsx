@@ -521,7 +521,7 @@ export default function Calendar() {
   const monthRangeStr = `${format(monthStart, 'dd/MM/yyyy')} - ${format(monthEnd, 'dd/MM/yyyy')}`;
 
   return (
-    <div className="w-screen h-screen bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100 p-2 md:p-4 overflow-auto" dir="rtl">
+    <div className="min-h-screen w-full max-w-full bg-gradient-to-br from-slate-50 via-slate-50 to-slate-100 p-2 md:p-4 overflow-auto overflow-x-hidden" dir="rtl">
       <div className="w-full min-h-screen flex flex-col">
         <PageHeader 
           title="יומן פגישות" 

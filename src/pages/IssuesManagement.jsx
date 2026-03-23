@@ -616,7 +616,7 @@ function KanbanCard({ issue, index, onDelete, onView, appUsers, areas, currentUs
 // ---- Kanban Column ----
 function KanbanColumn({ col, issues, onDelete, onView, appUsers, areas, currentUsername }) {
   return (
-    <div className="flex-1 min-w-0 flex flex-col">
+    <div className="w-[290px] flex-shrink-0 md:flex-1 md:min-w-0 flex flex-col">
       {/* Column header */}
       <div className={`rounded-t-2xl border-t-4 ${col.color} bg-white border border-slate-200 px-4 py-3 flex items-center justify-between mb-0`}>
         <span className="font-black text-slate-700 text-base">{col.label}</span>
