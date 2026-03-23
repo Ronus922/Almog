@@ -128,7 +128,7 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
           console.error(`Failed to create notification for ${user.username}:`, notifErr);
         }
       }
-      onNotify(`תקלה חדשה ב${form.target_type === "room" ? "חדר" : "אזור"} ${form.target_id} שוייכה ל${assignedUsers.length} משתמשים`);
+      onNotify(`תקלה חדשה ב${locationLabel} שוייכה ל${assignedUsers.length} משתמשים`);
     }
     setSaving(false);
     setForm({ target_type: "room", target_id: "", priority: "low", description: "", assigned_to: [], searchUser: "" });
