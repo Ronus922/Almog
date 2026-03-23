@@ -111,12 +111,15 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
     
     if (form.assigned_to?.length > 0) {
       const assignedUsers = appUsers.filter(u => form.assigned_to.includes(u.username));
+      const locationLabel = form.target_type === "room"
+        ? `חדר ${form.target_id}`
+        : `אזור ${areas.find(a => a.id === form.target_id)?.name || form.target_id}`;
       for (const user of assignedUsers) {
         try {
           const created = await base44.entities.Notification.create({
             user_username: user.username,
             type: "task_assigned",
-            message: `תקלה חדשה ב${form.target_type === "room" ? "חדר" : "אזור"} ${form.target_id} שויכה אליך`,
+            message: `תקלה חדשה ב${locationLabel} שויכה אליך`,
             task_type: "IssueReport",
             assigner_name: reporterUser?.first_name || currentUser?.username || "מערכת",
           });
