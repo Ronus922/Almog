@@ -283,18 +283,21 @@ function LayoutContent({ children, currentPageName }) {
       <div className={`flex-1 flex flex-col min-w-0 transition-all duration-300 ${isCollapsed ? 'md:mr-20' : 'md:mr-64'}`}>
         {/* Mobile Header */}
         <header className="md:hidden bg-white border-b border-slate-200 sticky top-0 z-[45] shadow-sm">
-          <div className="px-3 flex items-center justify-between h-14 gap-2">
-            <div className="flex items-center bg-slate-700 rounded-lg px-1">
-              <NotificationBell currentUser={currentUser} />
-            </div>
-            <h1 className="text-base font-bold text-slate-900 flex-1 text-center truncate">מערכת</h1>
+          <div className="px-3 flex items-center justify-between h-14 gap-2" dir="rtl">
+            {/* ימין: כפתור המבורגר */}
             <Button
               variant="ghost"
               size="icon"
-              className="h-9 w-9 flex-shrink-0"
+              className="h-9 w-9 flex-shrink-0 text-slate-700"
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
               {isSidebarOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
             </Button>
+            {/* מרכז: כותרת */}
+            <h1 className="text-base font-bold text-slate-900 flex-1 text-center truncate">מערכת ניהול</h1>
+            {/* שמאל: פעמון התראות */}
+            <div className="flex items-center bg-slate-700 rounded-lg px-1 flex-shrink-0">
+              <NotificationBell currentUser={currentUser} />
+            </div>
           </div>
         </header>
 
