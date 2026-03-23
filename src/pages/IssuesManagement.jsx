@@ -835,22 +835,34 @@ export default function IssuesManagement() {
         {isLoading ? (
           <div className="text-center py-16 text-slate-400">טוען...</div>
         ) : viewMode === "kanban" ? (
-          <>
+          <DragDropContext onDragEnd={handleDragEnd}>
             {/* Mobile: tab per column */}
             <div className="md:hidden" style={{width: '98%', marginLeft: 'auto', marginRight: 'auto'}}>
               <div className="flex bg-white rounded-t-2xl border border-slate-200 overflow-hidden mb-3">
-            <div className="hidden md:block">
-              <DragDropContext onDragEnd={handleDragEnd}>
-                <div className="flex gap-3 items-start pb-4">
-                  {COLUMNS.map((col) => (
-                    <KanbanColumn key={col.id} col={col} issues={columns[col.id]||[]}
-                      onDelete={handleDelete} onView={(issue)=>{ setSelectedIssue(issue); setDetailsOpen(true); }}
-                      appUsers={appUsers} areas={areas} currentUsername={currentUser?.username} />
-                  ))}
-                </div>
-              </DragDropContext>
+                {COLUMNS.map(col => (
+                  <button key={col.id} onClick={() => setMobileTab(col.id)}
+                    className={`flex-1 py-3 text-xs font-bold transition-colors border-b-2 ${
+                      mobileTab === col.id ? 'border-blue-500 text-blue-600' : 'border-transparent text-slate-500'
+                    }`}>
+                    {col.label} <span className={`mr-1 px-1.5 rounded-full text-[10px] ${col.count_color}`}>{(columns[col.id]||[]).length}</span>
+                  </button>
+                ))}
+              </div>
+              {COLUMNS.filter(c => c.id === mobileTab).map(col => (
+                <KanbanColumn key={col.id} col={col} issues={columns[col.id]||[]}
+                  onDelete={handleDelete} onView={(i)=>{ setSelectedIssue(i); setDetailsOpen(true); }}
+                  appUsers={appUsers} areas={areas} currentUsername={currentUser?.username} />
+              ))}
             </div>
-          </>
+            {/* Desktop: all columns */}
+            <div className="hidden md:flex gap-3 items-start pb-4">
+              {COLUMNS.map((col) => (
+                <KanbanColumn key={col.id} col={col} issues={columns[col.id]||[]}
+                  onDelete={handleDelete} onView={(issue)=>{ setSelectedIssue(issue); setDetailsOpen(true); }}
+                  appUsers={appUsers} areas={areas} currentUsername={currentUser?.username} />
+              ))}
+            </div>
+          </DragDropContext>
         ) : viewMode === "list" ? (
            <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-x-auto">
              <table className="w-full min-w-[700px]">
