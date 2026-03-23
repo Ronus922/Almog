@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Paperclip, X, Link, CheckCheck, Check, ExternalLink } from 'lucide-react';
+import { Send, Paperclip, X, Link, CheckCheck, Check, ExternalLink, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { base44 } from '@/api/base44Client';
 import { format } from 'date-fns';
 import TaskLinkPicker from './TaskLinkPicker';
 
-export default function ChatWindow({ conversation, currentUser, messages, onSend, onMarkRead }) {
+export default function ChatWindow({ conversation, currentUser, messages, onSend, onMarkRead, onBack }) {
   const [text, setText] = useState('');
   const [replyTo, setReplyTo] = useState(null);
   const [showTaskLink, setShowTaskLink] = useState(false);
@@ -55,8 +55,13 @@ export default function ChatWindow({ conversation, currentUser, messages, onSend
   return (
     <div className="flex flex-col h-full bg-slate-50" dir="rtl">
       {/* Header */}
-      <div className="bg-white border-b border-slate-200 px-5 py-3.5 flex items-center gap-3 shadow-sm">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+      <div className="bg-white border-b border-slate-200 px-3 md:px-5 py-3 flex items-center gap-2 md:gap-3 shadow-sm">
+        {onBack && (
+          <button onClick={onBack} className="md:hidden p-1.5 text-slate-500 hover:text-slate-800">
+            <ArrowRight className="w-5 h-5" />
+          </button>
+        )}
+        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
           {initials}
         </div>
         <div>
