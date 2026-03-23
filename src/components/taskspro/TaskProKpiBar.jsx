@@ -68,9 +68,9 @@ export default function TaskProKpiBar({
             onClick={() => onFilterChange(m.key)}
             className={`rounded-2xl border ${m.border} bg-white p-4 cursor-pointer hover:shadow-md transition-all flex items-center justify-between shadow-sm`}
           >
-            <div>
-              <p className={`text-3xl font-black ${m.color}`}>{count}</p>
-              <p className="text-xs text-slate-500 mt-0.5">{m.label}</p>
+            <div className="min-w-0">
+              <p className={`text-2xl md:text-3xl font-black ${m.color}`}>{count}</p>
+              <p className="text-xs text-slate-500 mt-0.5 leading-tight">{m.label}</p>
             </div>
             <div className={`p-2.5 rounded-xl ${m.bg}`}>
               <Icon className={`w-5 h-5 ${m.color}`} />
