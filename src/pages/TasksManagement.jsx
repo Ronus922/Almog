@@ -681,8 +681,8 @@ export default function TasksManagement() {
   }), [filtered]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 p-3 md:p-6" dir="rtl">
-      <div className="w-full max-w-6xl mx-auto space-y-4">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50/30 px-2 py-3 md:p-6" dir="rtl">
+      <div className="w-full md:max-w-6xl md:mx-auto space-y-4">
 
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -774,8 +774,8 @@ export default function TasksManagement() {
         ) : viewMode === 'kanban' ? (
           <DragDropContext onDragEnd={handleDragEnd}>
             {/* Mobile: tab per column */}
-            <div className="md:hidden -mx-3">
-              <div className="flex bg-white border-b border-slate-200 overflow-hidden mb-5">
+            <div className="md:hidden w-full">
+              <div className="flex bg-white rounded-t-2xl border border-slate-200 overflow-hidden mb-5">
                 {COLUMNS.map(col => (
                   <button key={col.id} onClick={() => setMobileTab(col.id)}
                     className={`flex-1 py-3 text-xs font-bold transition-colors border-b-2 ${
@@ -785,13 +785,11 @@ export default function TasksManagement() {
                   </button>
                 ))}
               </div>
-              <div className="px-3">
               {COLUMNS.filter(c => c.id === mobileTab).map(col => (
                 <KanbanColumn key={col.id} col={col} tasks={columns[col.id]||[]}
                   onDelete={handleDelete} onView={(t)=>{ setSelectedTask(t); setDetailsOpen(true); }}
                   appUsers={appUsers} />
               ))}
-              </div>
             </div>
             {/* Desktop: all columns */}
             <div className="hidden md:flex gap-3 items-start pb-4">
