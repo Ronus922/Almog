@@ -340,4 +340,3 @@ export default function NotificationBell({ currentUser }) {
     </div>
   );
 }
-‏השינויים בשני המקומות (מובייל + דסקטופ):
