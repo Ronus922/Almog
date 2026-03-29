@@ -182,13 +182,13 @@ export default function NotificationBell({ currentUser }) {
               </div>
             </div>
 
-            {/* Tabs */}
-            <div className="flex overflow-x-auto border-b border-slate-100 bg-white scrollbar-hide flex-shrink-0">
+            {/* Tabs - Mobile */}
+            <div className="flex flex-wrap border-b border-slate-100 bg-white flex-shrink-0">
               {TABS.map(tab => (
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`flex-shrink-0 px-3 py-2 text-xs font-medium transition-colors whitespace-nowrap border-b-2 ${
+                  className={`px-3 py-2 text-xs font-medium transition-colors whitespace-nowrap border-b-2 ${
                     activeTab === tab.key
                       ? 'border-blue-500 text-blue-600'
                       : 'border-transparent text-slate-500 hover:text-slate-700'
@@ -281,12 +281,13 @@ export default function NotificationBell({ currentUser }) {
                 )}
               </div>
             </div>
-            <div className="flex overflow-x-auto border-b border-slate-100 bg-white scrollbar-hide flex-shrink-0">
+            {/* Tabs - Desktop */}
+            <div className="flex flex-wrap border-b border-slate-100 bg-white flex-shrink-0">
               {TABS.map(tab => (
                 <button
                   key={tab.key}
                   onClick={() => setActiveTab(tab.key)}
-                  className={`flex-shrink-0 px-3 py-2 text-xs font-medium transition-colors whitespace-nowrap border-b-2 ${
+                  className={`px-3 py-2 text-xs font-medium transition-colors whitespace-nowrap border-b-2 ${
                     activeTab === tab.key ? 'border-blue-500 text-blue-600' : 'border-transparent text-slate-500 hover:text-slate-700'
                   }`}
                 >
@@ -339,3 +340,4 @@ export default function NotificationBell({ currentUser }) {
     </div>
   );
 }
+‏השינויים בשני המקומות (מובייל + דסקטופ):
