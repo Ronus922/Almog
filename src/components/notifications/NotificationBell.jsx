@@ -262,7 +262,7 @@ export default function NotificationBell({ currentUser }) {
 
           {/* Desktop: dropdown סטנדרטי */}
           <div
-            className="hidden md:flex md:flex-col absolute left-0 top-full mt-2 w-96 bg-white rounded-xl shadow-2xl border border-slate-200 z-50 overflow-hidden"
+            className="hidden md:flex md:flex-col absolute right-0 top-full mt-2 w-96 bg-white rounded-xl shadow-2xl border border-slate-200 z-50 overflow-hidden"
             dir="rtl"
             style={{ maxHeight: 'calc(100vh - 80px)' }}
           >
