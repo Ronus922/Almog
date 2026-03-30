@@ -124,13 +124,14 @@ export default function Dashboard() {
           if (settingsList.length > 0) { await base44.entities.Settings.update(settingsList[0].id, { last_import_at: now }); }
           else { await base44.entities.Settings.create({ last_import_at: now }); }
         } catch (e) {}
-        window.location.reload();
+        queryClient.invalidateQueries({ queryKey: ['settings'] });
+        queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
       } else { setSyncError(data.error || 'שגיאה בסנכרון'); }
     } catch (err) { setSyncError('שגיאה בסנכרון'); }
     finally { setSyncing(false); }
   };
 
-  const importDate = lastImportAt || settings?.last_import_at;
+  const importDate = settings?.last_import_at || lastImportAt;
   const nowMs = Date.now();
   const lastMs = importDate ? new Date(importDate).getTime() : null;
   const noDate = !importDate || isNaN(lastMs);
@@ -205,7 +206,6 @@ export default function Dashboard() {
 
         <div className="w-full space-y-4 md:space-y-6 p-3 md:p-6">
 
-          {/* Import Status Bar */}
           <div className={`mb-6 px-5 py-3 rounded-xl border ${barBg[severity]} ${barBorder[severity]}`} dir="rtl">
             <div className="flex flex-row items-center justify-between gap-4">
               <div className="flex-1 text-right">
