@@ -107,4 +107,4 @@ function ImportBar({ lastImportAt, isAdmin }) {
       </div>
     </div>
   );
-}
+  }
