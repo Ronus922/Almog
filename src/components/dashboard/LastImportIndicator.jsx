@@ -1,23 +1,45 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
+import { Upload, RefreshCw } from "lucide-react";
 
 export default function LastImportIndicator({ lastImportAt, isAdmin = false }) {
   const navigate = useNavigate();
+  const [syncing, setSyncing] = useState(false);
+  const [syncError, setSyncError] = useState(null);
 
   const handleNavigateToImport = () => {
     navigate(createPageUrl('Import'));
   };
 
-  // חישוב זמן מאז העדכון האחרון
+  const handleSync = async () => {
+    setSyncing(true);
+    setSyncError(null);
+    try {
+      const res = await fetch('/api/admin/jobs/syncBllinkDebt', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json();
+      if (data.ok) {
+        window.location.reload();
+      } else {
+        setSyncError(data.error || 'שגיאה בסנכרון');
+      }
+    } catch (err) {
+      setSyncError('שגיאה בסנכרון');
+    } finally {
+      setSyncing(false);
+    }
+  };
+
   const nowMs = Date.now();
   const lastMs = lastImportAt ? new Date(lastImportAt).getTime() : null;
   const noDate = !lastImportAt || isNaN(lastMs);
   const hoursSince = noDate ? null : (nowMs - lastMs) / (1000 * 60 * 60);
 
-  // קביעת severity
   let severity = 'ok';
   if (noDate) {
     severity = 'red';
@@ -27,7 +49,6 @@ export default function LastImportIndicator({ lastImportAt, isAdmin = false }) {
     severity = 'yellow';
   }
 
-  // צבעי רקע לפי severity
   const bgColors = {
     ok: 'bg-white',
     yellow: 'bg-[#fef9c3]',
@@ -40,22 +61,23 @@ export default function LastImportIndicator({ lastImportAt, isAdmin = false }) {
     red: 'border-red-300',
   };
 
-  // פורמט תאריך - ללא שעה
   const formattedDate = noDate ? '—' : new Date(lastImportAt).toLocaleDateString('he-IL', {
     day: '2-digit',
     month: '2-digit',
     year: 'numeric'
+  }) + ' ' + new Date(lastImportAt).toLocaleTimeString('he-IL', {
+    hour: '2-digit',
+    minute: '2-digit'
   });
 
   const showWarning = (hoursSince !== null && hoursSince >= 24) || noDate;
 
   return (
-    <div 
+    <div
       className={`mb-6 px-5 py-3 rounded-xl border ${bgColors[severity]} ${borderColors[severity]}`}
       dir="rtl"
     >
       <div className="flex flex-row items-center justify-between gap-4">
-        {/* טקסט בצד ימין */}
         <div className="flex-1 text-right">
           <div className="text-slate-900 font-black" style={{ fontSize: '16px' }}>
             העדכון האחרון בוצע: {formattedDate}
@@ -75,18 +97,32 @@ export default function LastImportIndicator({ lastImportAt, isAdmin = false }) {
               נדרש לייבא נתונים מעדכניים
             </div>
           )}
+          {syncError && (
+            <div className="mt-0.5 text-sm text-red-600 font-medium">{syncError}</div>
+          )}
         </div>
 
-        {/* כפתור בצד שמאל */}
-        {isAdmin && showWarning && (
-          <Button 
-            onClick={handleNavigateToImport}
-            className="bg-blue-600 hover:bg-blue-700 text-white h-9 px-4 rounded-lg font-bold text-sm flex-shrink-0 gap-2"
-          >
-            <Upload className="w-4 h-4" />
-            ייבוא נתונים
-          </Button>
-        )}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {isAdmin && (
+            <Button
+              onClick={handleSync}
+              disabled={syncing}
+              className="bg-emerald-600 hover:bg-emerald-700 text-white h-9 px-4 rounded-lg font-bold text-sm gap-2"
+            >
+              <RefreshCw className={`w-4 h-4 ${syncing ? 'animate-spin' : ''}`} />
+              {syncing ? 'מסנכרן...' : 'סנכרן עכשיו'}
+            </Button>
+          )}
+          {isAdmin && showWarning && (
+            <Button
+              onClick={handleNavigateToImport}
+              className="bg-blue-600 hover:bg-blue-700 text-white h-9 px-4 rounded-lg font-bold text-sm gap-2"
+            >
+              <Upload className="w-4 h-4" />
+              ייבוא נתונים
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );
