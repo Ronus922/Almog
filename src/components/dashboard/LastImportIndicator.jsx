@@ -17,7 +17,7 @@ export default function LastImportIndicator({ lastImportAt, isAdmin = false }) {
     setSyncing(true);
     setSyncError(null);
     try {
-      const res = await fetch('/api/admin/jobs/syncBllinkDebt', {
+      const res = await fetch('https://crm.bios.co.il/api/admin/jobs/syncBllinkDebt', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({}),
