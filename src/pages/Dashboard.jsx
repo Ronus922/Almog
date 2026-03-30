@@ -21,7 +21,6 @@ function DashboardContent() {
 
   const isAdmin = currentUser?.role === 'ADMIN' || currentUser?.isBase44Admin;
 
-  // Fetch ALL records (no filtering here — useMemo below handles it)
   const { data: rawRecords = [] } = useQuery({
     queryKey: ['debtorRecords'],
     queryFn: () => base44.entities.DebtorRecord.list(),
@@ -29,10 +28,16 @@ function DashboardContent() {
     refetchOnWindowFocus: true,
   });
 
-  // Deduplicate — one record per apartment
   const records = useMemo(() => getUniqueDebtorRecords(rawRecords), [rawRecords]);
 
-  // Subscribe to real-time updates on DebtorRecord and Contact
+  const lastImportAt = useMemo(() => {
+    if (records.length === 0) return null;
+    return records.reduce((latest, r) => {
+      const d = r.lastImportAt || r.last_import_at || r.updated_date;
+      return d && d > latest ? d : latest;
+    }, '');
+  }, [records]);
+
   useEffect(() => {
     const unsubscribeDebtor = base44.entities.DebtorRecord.subscribe((event) => {
       queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
@@ -48,7 +53,6 @@ function DashboardContent() {
     };
   }, [queryClient]);
 
-  // Fetch settings
   const { data: settings } = useQuery({
     queryKey: ['settings'],
     queryFn: async () => {
@@ -61,13 +65,11 @@ function DashboardContent() {
     }
   });
 
-  // Fetch statuses
   const { data: allStatuses = [], refetch: refetchStatuses } = useQuery({
     queryKey: ['allStatuses'],
     queryFn: () => base44.entities.Status.list()
   });
 
-  // ===== וידוא קיום סטטוסים LEGAL נדרשים + יצירתם אם חסרים =====
   const [statusesReady, setStatusesReady] = useState(false);
 
   useEffect(() => {
@@ -89,7 +91,6 @@ function DashboardContent() {
       return;
     }
 
-    // יצירת סטטוסים חסרים בסדרה ורענון
     Promise.all(
       missing.map((req) =>
         base44.entities.Status.create({
@@ -106,7 +107,6 @@ function DashboardContent() {
     });
   }, [allStatuses]);
 
-  // ===== חישוב datasets לטאבים — עובד על כל הרשומות הקיימות =====
   const tabDatasets = useMemo(() => {
     const legalStatusList = allStatuses.filter((s) => s.type === 'LEGAL');
     const getStatusId = (name) => legalStatusList.find((s) => s.name === name)?.id || null;
@@ -115,35 +115,25 @@ function DashboardContent() {
     const legalProcessId = getStatusId('בהליך משפטי');
     const legalCandidatesId = getStatusId('לטיפול משפטי');
 
-    // סריקה מלאה — כל הרשומות (גם ארכיון)
     const archived = records.filter((r) => r.isArchived === true);
     const active = records.filter((r) => !r.isArchived);
 
-    // רשומות עם "מכתב התראה" — רק active
     const warningTab = active.filter((r) => warningId && r.legal_status_id === warningId);
-
-    // רשומות "לטיפול משפטי" — לפי סטטוס LEGAL "לטיפול משפטי"
     const legalCandidatesTab = active.filter((r) => legalCandidatesId && r.legal_status_id === legalCandidatesId);
-
-    // רשומות "בהליך משפטי" — רק active
     const legalProcessTab = active.filter((r) => legalProcessId && r.legal_status_id === legalProcessId);
 
-    // כל סטטוסי LEGAL שיש להם טאב ייעודי — אלה ייסוננו מטאב חייבים
     const legalTabStatusIds = new Set([
       warningId,
       legalProcessId,
       legalCandidatesId,
     ].filter(Boolean));
 
-    // חייבים — רק active ללא רשומות שיש להם טאב ייעודי
     const debtorsTab = active.filter((r) => !r.legal_status_id || !legalTabStatusIds.has(r.legal_status_id));
 
-    // פעולות הבאות — כל הרשומות עם nextActionDate, ממויינות מהקרוב למרוחק
     const nextActionsTab = active
       .filter((r) => r.nextActionDate)
       .sort((a, b) => new Date(a.nextActionDate) - new Date(b.nextActionDate));
 
-    // ספירות דינמיות לפי ספי ה-Settings הנוכחיים
     const calcStatus = (r) => settings ? calculateDebtStatus(r.totalDebt, settings) : r.debt_status_auto;
     const excessiveDebtCount = active.filter((r) => calcStatus(r) === 'חריגה מופרזת').length;
     const immediateCollectCount = active.filter((r) => calcStatus(r) === 'לגבייה מיידית').length;
@@ -151,7 +141,6 @@ function DashboardContent() {
     return { warningTab, legalCandidatesTab, legalProcessTab, debtorsTab, archived, nextActionsTab, excessiveDebtCount, immediateCollectCount };
   }, [records, allStatuses, settings]);
 
-  // ארכיון
   const archivedRecords = tabDatasets.archived;
   const debtorRecords = tabDatasets.debtorsTab;
 
@@ -315,9 +304,8 @@ function DashboardContent() {
         {/* REST OF PAGE */}
          <div className="w-full space-y-4 md:space-y-6 p-3 md:p-6">
 
-
           {/* Last Import Indicator */}
-          <LastImportIndicator lastImportAt={settings?.last_import_at} isAdmin={isAdmin} />
+          <LastImportIndicator lastImportAt={lastImportAt || settings?.last_import_at} isAdmin={isAdmin} />
 
           {/* Tabs */}
           {isAdmin &&
@@ -373,7 +361,6 @@ function DashboardContent() {
           </div>
           }
 
-          {/* Tables — לפי טאב פעיל */}
           {(activeTab === 'debtors' || !isAdmin) &&
             <DebtorsTable
               records={tabDatasets.debtorsTab}
@@ -446,7 +433,6 @@ function DashboardContent() {
               showArchived={true} />
           }
 
-          {/* Modal */}
           <ApartmentDetailModal
             record={selectedRecord}
             isOpen={isModalOpen}
