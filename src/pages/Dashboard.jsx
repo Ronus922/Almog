@@ -9,6 +9,7 @@ import { Users, Archive, Mail, Scale, AlertTriangle, CalendarClock } from "lucid
 import { TooltipProvider } from "@/components/ui/tooltip";
 import LastImportIndicator from '@/components/dashboard/LastImportIndicator';
 import { calculateDebtStatus } from '@/components/utils/debtStatusCalculator';
+import { getUniqueDebtorRecords } from '@/components/utils/debtorFilters';
 
 function DashboardContent() {
   const { currentUser } = useAuth();
@@ -21,12 +22,15 @@ function DashboardContent() {
   const isAdmin = currentUser?.role === 'ADMIN' || currentUser?.isBase44Admin;
 
   // Fetch ALL records (no filtering here — useMemo below handles it)
-  const { data: records = [] } = useQuery({
+  const { data: rawRecords = [] } = useQuery({
     queryKey: ['debtorRecords'],
     queryFn: () => base44.entities.DebtorRecord.list(),
     staleTime: 0,
     refetchOnWindowFocus: true,
   });
+
+  // Deduplicate — one record per apartment
+  const records = useMemo(() => getUniqueDebtorRecords(rawRecords), [rawRecords]);
 
   // Subscribe to real-time updates on DebtorRecord and Contact
   useEffect(() => {
@@ -223,24 +227,6 @@ function DashboardContent() {
           {/* HEADER */}
           
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
           {/* HERO SECTION */}
           <div className="relative min-h-[100px] md:min-h-[148px] pt-4 pr-4 md:pt-5 md:pr-[34px] md:pl-[34px] pl-4 pb-4 md:pb-[26px] bg-gradient-to-br from-[rgba(187,234,255,0.40)] via-[rgba(217,230,255,0.33)] to-[rgba(239,230,255,0.28)] overflow-hidden">
             <div className="hero-glow hero-glow-1"></div>
@@ -287,16 +273,6 @@ function DashboardContent() {
 
               {/* KPI 4 */}
               
-
-
-
-
-
-
-
-
-
-
 
               {/* KPI 5 - לגבייה מיידית */}
               <div className="kpi-card-glow min-h-[80px] md:min-h-[108px] rounded-[16px] md:rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-3 md:p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all"
