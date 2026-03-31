@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import DebtorsTable from '@/components/dashboard/DebtorsTable';
 import ApartmentDetailModal from '@/components/dashboard/ApartmentDetailModal';
-import { Users, Archive, Mail, Scale, AlertTriangle, CalendarClock, Upload, RefreshCw } from "lucide-react";
+import { Users, Archive, Mail, Scale, AlertTriangle, CalendarClock, Upload, RefreshCw, CreditCard, Droplets, FileText, Gavel, Flame, ShieldCheck } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { calculateDebtStatus } from '@/components/utils/debtStatusCalculator';
 import { getUniqueDebtorRecords } from '@/components/utils/debtorFilters';
@@ -108,7 +108,7 @@ export default function Dashboard() {
       await base44.entities.DebtorRecord.update(updatedRecord.id, updatedRecord);
       queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
       setIsModalOpen(false); setSelectedRecord(null);
-    } catch (error) { console.error('Error saving record:', error); }
+    } catch (error) {}
   };
   const handleRecordUpdate = () => { queryClient.invalidateQueries({ queryKey: ['debtorRecords'] }); };
 
@@ -145,68 +145,49 @@ export default function Dashboard() {
   const formattedDate = noDate ? '—' : new Date(importDate).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + new Date(importDate).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
   const showWarning = (hoursSince !== null && hoursSince >= 24) || noDate;
 
+  const totalMonthly = records.reduce((s,r) => s + (r.monthlyDebt || 0), 0);
+  const totalSpecial = records.reduce((s,r) => s + (r.specialDebt || 0), 0);
+  const formatNum = (n) => new Intl.NumberFormat('he-IL').format(Math.round(n));
+
+  const kpiCards = [
+    { label: 'חוב דמי ניהול', value: `${formatNum(totalMonthly)}₪`, icon: <CreditCard className="w-5 h-5" />, iconBg: 'bg-purple-100', iconColor: 'text-purple-600', onClick: () => setActiveTab('debtors') },
+    { label: 'חוב מים חמים', value: `${formatNum(totalSpecial)}₪`, icon: <Droplets className="w-5 h-5" />, iconBg: 'bg-blue-100', iconColor: 'text-blue-600', onClick: () => setActiveTab('debtors') },
+    { label: 'מכתבי התראה', value: tabDatasets.warningTab.length, sub: `${tabDatasets.warningTab.length} מכתבים`, icon: <Mail className="w-5 h-5" />, iconBg: 'bg-violet-100', iconColor: 'text-violet-600', onClick: () => setActiveTab('warning') },
+    { label: 'לטיפול משפטי', value: tabDatasets.legalCandidatesTab.length, icon: <Flame className="w-5 h-5" />, iconBg: 'bg-red-100', iconColor: 'text-red-500', onClick: () => setActiveTab('legal_candidates') },
+    { label: 'דחוף', value: tabDatasets.immediateCollectCount, icon: <AlertTriangle className="w-5 h-5" />, iconBg: 'bg-orange-100', iconColor: 'text-orange-600', onClick: () => setActiveTab('debtors') },
+    { label: 'בהליך משפטי', value: tabDatasets.legalProcessTab.length, icon: <Gavel className="w-5 h-5" />, iconBg: 'bg-slate-100', iconColor: 'text-slate-700', onClick: () => setActiveTab('legal_process') },
+  ];
+
   return (
     <TooltipProvider>
-      <style>{`
-        .kpi-card-glow { position: relative; overflow: hidden; }
-        .kpi-card-glow::before { content: ''; position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, transparent 70%); animation: float 6s ease-in-out infinite; pointer-events: none; }
-        @keyframes float { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(-10px, -10px); } }
-        .hero-glow { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.35; mix-blend-mode: screen; }
-        .hero-glow-1 { width: 400px; height: 400px; background: #a8d4ff; top: -100px; right: -150px; }
-        .hero-glow-2 { width: 350px; height: 350px; background: #d8bcff; bottom: -120px; left: -100px; }
-      `}</style>
-
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-slate-50 overflow-x-hidden" dir="rtl">
-        <section className="relative m-2 md:m-6 rounded-2xl md:rounded-3xl bg-gradient-to-b from-[#f5f7ff] to-[#edf2ff] border border-[rgba(184,198,245,0.60)] shadow-[0_24px_70px_rgba(109,132,220,0.14),0_8px_24px_rgba(160,180,255,0.10),inset_0_1px_0_rgba(255,255,255,0.95)] overflow-hidden">
-          <div className="relative min-h-[100px] md:min-h-[148px] pt-4 pr-4 md:pt-5 md:pr-[34px] md:pl-[34px] pl-4 pb-4 md:pb-[26px] bg-gradient-to-br from-[rgba(187,234,255,0.40)] via-[rgba(217,230,255,0.33)] to-[rgba(239,230,255,0.28)] overflow-hidden">
-            <div className="hero-glow hero-glow-1"></div>
-            <div className="hero-glow hero-glow-2"></div>
-            <div className="relative z-2">
-              <h1 className="text-2xl md:text-[44px] font-black leading-[1.05] text-[#2f3969] text-right">דשבורד חייבים</h1>
-              <p className="mt-1.5 text-[13px] font-medium text-[#96a1c6] text-right">ניהול וניטור מלא של חייבים בנכסים</p>
+
+        {/* KPI CARDS - New Design */}
+        <div className="px-3 md:px-6 pt-4 md:pt-6">
+          <div className="rounded-2xl bg-gradient-to-r from-[#f3eeff] via-[#ede4ff] to-[#f0e8ff] p-4 md:p-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
+              {kpiCards.map((card, i) => (
+                <div key={i} onClick={card.onClick}
+                  className="bg-white rounded-2xl p-4 flex flex-col justify-between min-h-[120px] cursor-pointer hover:shadow-lg transition-all relative overflow-hidden">
+                  <div className="flex items-start justify-between">
+                    <div className={`w-10 h-10 rounded-xl ${card.iconBg} flex items-center justify-center ${card.iconColor}`}>
+                      {card.icon}
+                    </div>
+                    {card.sub && <span className="text-xs font-medium text-slate-400 mt-1">{card.sub}</span>}
+                  </div>
+                  <div className="mt-3">
+                    <p className="text-xs font-medium text-slate-500 mb-1">{card.label}</p>
+                    <p className="text-2xl md:text-3xl font-black text-slate-900 leading-none">{card.value}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-          <div className="-mt-2 md:-mt-4 px-3 md:px-[26px] pb-4 md:pb-6 relative z-4">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-4">
-              <div className="kpi-card-glow min-h-[80px] md:min-h-[108px] rounded-[16px] md:rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-3 md:p-4 flex flex-col justify-between">
-                <p className="text-[14px] md:text-[18px] font-black uppercase" style={{color:'#1d5bbd'}}>סה״כ חוב</p>
-                <div><p className="text-[24px] md:text-[32px] font-black leading-none text-[#2bc9a8]">{new Intl.NumberFormat('he-IL',{notation:'compact',maximumFractionDigits:0}).format(records.reduce((s,r)=>s+(r.totalDebt||0),0))}</p></div>
-              </div>
-              <div className="kpi-card-glow min-h-[80px] md:min-h-[108px] rounded-[16px] md:rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-3 md:p-4 flex flex-col justify-between">
-                <p className="text-[14px] md:text-[18px] font-black uppercase" style={{color:'#1d5bbd'}}>דמי ניהול</p>
-                <div><p className="text-[24px] md:text-[32px] font-black leading-none text-[#6270ff]">{new Intl.NumberFormat('he-IL',{notation:'compact',maximumFractionDigits:0}).format(records.reduce((s,r)=>s+(r.monthlyDebt||0),0))}</p></div>
-              </div>
-              <div className="kpi-card-glow min-h-[80px] md:min-h-[108px] rounded-[16px] md:rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-3 md:p-4 flex flex-col justify-between">
-                <p className="text-[14px] md:text-[18px] font-black uppercase" style={{color:'#1d5bbd'}}>מים חמים</p>
-                <div><p className="text-[24px] md:text-[32px] font-black leading-none text-[#f5a623]">{new Intl.NumberFormat('he-IL',{notation:'compact',maximumFractionDigits:0}).format(records.reduce((s,r)=>s+(r.specialDebt||0),0))}</p></div>
-              </div>
-              <div className="kpi-card-glow min-h-[80px] md:min-h-[108px] rounded-[16px] md:rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-3 md:p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all" onClick={()=>setActiveTab('debtors')}>
-                <p className="text-[14px] md:text-[18px] font-black uppercase" style={{color:'#1d5bbd'}}>לגבייה מיידית</p>
-                <div><p className="text-[24px] md:text-[32px] font-black leading-none text-[#ff7a5c]">{tabDatasets.immediateCollectCount}</p></div>
-              </div>
-              <div className="kpi-card-glow min-h-[80px] md:min-h-[108px] rounded-[16px] md:rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-3 md:p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all" onClick={()=>setActiveTab('debtors')}>
-                <p className="text-[14px] md:text-[18px] font-black uppercase" style={{color:'#1d5bbd'}}>חריגה מופרזת</p>
-                <div><p className="text-[24px] md:text-[32px] font-black leading-none text-[#ff3b3b]">{tabDatasets.excessiveDebtCount}</p></div>
-              </div>
-              <div className="kpi-card-glow min-h-[80px] md:min-h-[108px] rounded-[16px] md:rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-3 md:p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all" onClick={()=>setActiveTab('warning')}>
-                <p className="text-[14px] md:text-[18px] font-black uppercase" style={{color:'#1d5bbd'}}>מכתבי התראה</p>
-                <div><p className="text-[24px] md:text-[32px] font-black leading-none text-[#ffa500]">{tabDatasets.warningTab.length}</p></div>
-              </div>
-              <div className="kpi-card-glow min-h-[80px] md:min-h-[108px] rounded-[16px] md:rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-3 md:p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all" onClick={()=>setActiveTab('legal_candidates')}>
-                <p className="text-[14px] md:text-[18px] font-black uppercase" style={{color:'#1d5bbd'}}>לטיפול משפטי</p>
-                <div><p className="text-[24px] md:text-[32px] font-black leading-none text-[#5b6cff]">{tabDatasets.legalCandidatesTab.length}</p></div>
-              </div>
-              <div className="kpi-card-glow min-h-[80px] md:min-h-[108px] rounded-[16px] md:rounded-[20px] bg-[rgba(255,255,255,0.90)] backdrop-blur-[12px] border border-[rgba(225,231,248,0.96)] shadow-[0_12px_30px_rgba(126,145,220,0.12),inset_0_1px_0_rgba(255,255,255,0.96)] p-3 md:p-4 flex flex-col justify-between cursor-pointer hover:shadow-md transition-all" onClick={()=>setActiveTab('legal_process')}>
-                <p className="text-[14px] md:text-[18px] font-black uppercase" style={{color:'#1d5bbd'}}>בהליך משפטי</p>
-                <div><p className="text-[24px] md:text-[32px] font-black leading-none text-[#2bc9a8]">{tabDatasets.legalProcessTab.length}</p></div>
-              </div>
-            </div>
-          </div>
-        </section>
+        </div>
 
         <div className="w-full space-y-4 md:space-y-6 p-3 md:p-6">
 
-          <div className={`mb-6 px-5 py-3 rounded-xl border ${barBg[severity]} ${barBorder[severity]}`} dir="rtl">
+          <div className={`px-5 py-3 rounded-xl border ${barBg[severity]} ${barBorder[severity]}`} dir="rtl">
             <div className="flex flex-row items-center justify-between gap-4">
               <div className="flex-1 text-right">
                 <div className="text-slate-900 font-black" style={{fontSize:'16px'}}>העדכון האחרון בוצע: {formattedDate}</div>
