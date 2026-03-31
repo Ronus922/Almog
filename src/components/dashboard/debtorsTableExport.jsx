@@ -6,45 +6,28 @@ const formatCurrency = (num) =>
   new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num || 0);
 
 export const handleExportExcel = (filteredRecords, getLegalStatusForRecord, getPhonePrimaryForTable) => {
-  const data = filteredRecords.map((r) => ({
-    'מספר דירה': r.apartmentNumber,
-    'שם בעלים': r.ownerName?.split(/[\/,]/)[0]?.trim() || '-',
-    'טלפון': getPhonePrimaryForTable(r),
-    'סה״כ חוב': r.totalDebt || 0,
-    'דמי ניהול': r.monthlyDebt || 0,
-    'מים חמים': r.specialDebt || 0,
-    'מצב משפטי': getLegalStatusForRecord(r)?.name || '-'
-  }));
+  // Build CSV with BOM for Hebrew support
+  const headers = ['מספר דירה', 'שם בעלים', 'טלפון', 'סה״כ חוב', 'דמי ניהול', 'מים חמים', 'מצב משפטי'];
+  const rows = filteredRecords.map((r) => [
+    r.apartmentNumber,
+    r.ownerName?.split(/[\/,]/)[0]?.trim() || '-',
+    getPhonePrimaryForTable(r),
+    r.totalDebt || 0,
+    r.monthlyDebt || 0,
+    r.specialDebt || 0,
+    getLegalStatusForRecord(r)?.name || '-'
+  ]);
 
-  const ws = XLSX.utils.json_to_sheet(data);
-
-  // Set RTL for the sheet
-  if (!ws['!sheetViews']) ws['!sheetViews'] = [{}];
-  ws['!sheetViews'][0].rightToLeft = true;
-
-  // Set column widths for Hebrew readability
-  ws['!cols'] = [
-    { wch: 12 },  // מספר דירה
-    { wch: 25 },  // שם בעלים
-    { wch: 15 },  // טלפון
-    { wch: 14 },  // סה״כ חוב
-    { wch: 14 },  // דמי ניהול
-    { wch: 14 },  // מים חמים
-    { wch: 16 },  // מצב משפטי
-  ];
-
-  const wb = XLSX.utils.book_new();
-  wb.Workbook = { Views: [{ RTL: true }] };
-  XLSX.utils.book_append_sheet(wb, ws, 'חייבים');
-
-  // Write with bookType xlsx which supports UTF-8 natively
-  XLSX.writeFile(wb, `חייבים_${new Date().toISOString().split('T')[0]}.xlsx`, {
-    bookType: 'xlsx',
-    type: 'binary',
-    bookSST: true,
-    codepage: 65001
-  });
-  toast.success('קובץ אקסל הורד בהצלחה');
+  const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+  const BOM = '\uFEFF';
+  const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = `חייבים_${new Date().toISOString().split('T')[0]}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+  toast.success('קובץ הורד בהצלחה - פתח באקסל');
 };
 
 export const handleExportPDF = (filteredRecords, getLegalStatusForRecord) => {
