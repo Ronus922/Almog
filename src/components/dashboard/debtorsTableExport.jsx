@@ -17,9 +17,33 @@ export const handleExportExcel = (filteredRecords, getLegalStatusForRecord, getP
   }));
 
   const ws = XLSX.utils.json_to_sheet(data);
+
+  // Set RTL for the sheet
+  if (!ws['!sheetViews']) ws['!sheetViews'] = [{}];
+  ws['!sheetViews'][0].rightToLeft = true;
+
+  // Set column widths for Hebrew readability
+  ws['!cols'] = [
+    { wch: 12 },  // מספר דירה
+    { wch: 25 },  // שם בעלים
+    { wch: 15 },  // טלפון
+    { wch: 14 },  // סה״כ חוב
+    { wch: 14 },  // דמי ניהול
+    { wch: 14 },  // מים חמים
+    { wch: 16 },  // מצב משפטי
+  ];
+
   const wb = XLSX.utils.book_new();
+  wb.Workbook = { Views: [{ RTL: true }] };
   XLSX.utils.book_append_sheet(wb, ws, 'חייבים');
-  XLSX.writeFile(wb, `חייבים_${new Date().toISOString().split('T')[0]}.xlsx`);
+
+  // Write with bookType xlsx which supports UTF-8 natively
+  XLSX.writeFile(wb, `חייבים_${new Date().toISOString().split('T')[0]}.xlsx`, {
+    bookType: 'xlsx',
+    type: 'binary',
+    bookSST: true,
+    codepage: 65001
+  });
   toast.success('קובץ אקסל הורד בהצלחה');
 };
 
@@ -35,11 +59,9 @@ export const handleExportPDF = (filteredRecords, getLegalStatusForRecord) => {
     const pageHeight = doc.internal.pageSize.getHeight();
     const margin = 10;
 
-    // כותרת
     doc.setFontSize(16);
     doc.text('דוח חייבים', pageWidth / 2, margin + 10, { align: 'center' });
 
-    // נתונים
     doc.setFontSize(10);
     const headers = ['מספר דירה', 'שם בעלים', 'סה״כ חוב', 'דמי ניהול', 'מים חמים', 'מצב משפטי'];
     const rows = filteredRecords.map((r) => [
@@ -55,7 +77,6 @@ export const handleExportPDF = (filteredRecords, getLegalStatusForRecord) => {
     let currentY = startY;
     const rowHeight = 8;
 
-    // כותרות טבלה
     doc.setFillColor(240, 240, 240);
     headers.forEach((header, idx) => {
       const x = margin + (idx * (pageWidth - 2 * margin) / headers.length);
@@ -63,7 +84,6 @@ export const handleExportPDF = (filteredRecords, getLegalStatusForRecord) => {
     });
     currentY += rowHeight;
 
-    // שורות
     rows.forEach((row) => {
       if (currentY + rowHeight > pageHeight - margin) {
         doc.addPage();
@@ -79,7 +99,6 @@ export const handleExportPDF = (filteredRecords, getLegalStatusForRecord) => {
     doc.save(`חייבים_${new Date().toISOString().split('T')[0]}.pdf`);
     toast.success('קובץ PDF הורד בהצלחה');
   } catch (error) {
-    console.error('PDF export error:', error);
     toast.error('שגיאה בייצוא PDF');
   }
 };
@@ -89,9 +108,10 @@ export const handlePrint = (filteredRecords, getLegalStatusForRecord) => {
   const html = `
     <html dir="rtl">
     <head>
+      <meta charset="utf-8">
       <title>דוח חייבים</title>
       <style>
-        body { font-family: Arial, sans-serif; direction: rtl; }
+        body { font-family: 'Segoe UI', Arial, sans-serif; direction: rtl; }
         table { width: 100%; border-collapse: collapse; margin: 20px 0; }
         th, td { border: 1px solid #ddd; padding: 12px; text-align: right; }
         th { background-color: #f0f0f0; font-weight: bold; }
