@@ -1,4 +1,3 @@
-import * as XLSX from 'xlsx';
 import { jsPDF } from 'jspdf';
 import { toast } from 'sonner';
 
@@ -6,28 +5,65 @@ const formatCurrency = (num) =>
   new Intl.NumberFormat('he-IL', { style: 'currency', currency: 'ILS', maximumFractionDigits: 0 }).format(num || 0);
 
 export const handleExportExcel = (filteredRecords, getLegalStatusForRecord, getPhonePrimaryForTable) => {
-  // Build CSV with BOM for Hebrew support
-  const headers = ['מספר דירה', 'שם בעלים', 'טלפון', 'סה״כ חוב', 'דמי ניהול', 'מים חמים', 'מצב משפטי'];
-  const rows = filteredRecords.map((r) => [
-    r.apartmentNumber,
-    r.ownerName?.split(/[\/,]/)[0]?.trim() || '-',
-    getPhonePrimaryForTable(r),
-    r.totalDebt || 0,
-    r.monthlyDebt || 0,
-    r.specialDebt || 0,
-    getLegalStatusForRecord(r)?.name || '-'
-  ]);
+  const rows = filteredRecords.map((r) => `
+    <tr>
+      <td>${r.apartmentNumber}</td>
+      <td>${r.ownerName?.split(/[\/,]/)[0]?.trim() || '-'}</td>
+      <td>${getPhonePrimaryForTable(r) || '-'}</td>
+      <td>${r.totalDebt || 0}</td>
+      <td>${r.monthlyDebt || 0}</td>
+      <td>${r.specialDebt || 0}</td>
+      <td>${getLegalStatusForRecord(r)?.name || '-'}</td>
+    </tr>`).join('');
 
-  const csvContent = [headers, ...rows].map(row => row.map(cell => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
-  const BOM = '\uFEFF';
-  const blob = new Blob([BOM + csvContent], { type: 'text/csv;charset=utf-8;' });
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<!--[if gte mso 9]><xml>
+<x:ExcelWorkbook>
+<x:ExcelWorksheets>
+<x:ExcelWorksheet>
+<x:Name>חייבים</x:Name>
+<x:WorksheetOptions>
+<x:DisplayRightToLeft/>
+</x:WorksheetOptions>
+</x:ExcelWorksheet>
+</x:ExcelWorksheets>
+</x:ExcelWorkbook>
+</xml><![endif]-->
+<style>
+  table { direction: rtl; }
+  th { background-color: #f0f0f0; font-weight: bold; font-size: 14px; }
+  th, td { text-align: right; padding: 8px; border: 1px solid #ccc; font-family: Arial, sans-serif; }
+</style>
+</head>
+<body>
+<table dir="rtl">
+  <thead>
+    <tr>
+      <th>מספר דירה</th>
+      <th>שם בעלים</th>
+      <th>טלפון</th>
+      <th>סה״כ חוב</th>
+      <th>דמי ניהול</th>
+      <th>מים חמים</th>
+      <th>מצב משפטי</th>
+    </tr>
+  </thead>
+  <tbody>${rows}</tbody>
+</table>
+</body>
+</html>`;
+
+  const blob = new Blob(['\ufeff' + html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `חייבים_${new Date().toISOString().split('T')[0]}.csv`;
+  link.download = `חייבים_${new Date().toISOString().split('T')[0]}.xls`;
   link.click();
   URL.revokeObjectURL(url);
-  toast.success('קובץ הורד בהצלחה - פתח באקסל');
+  toast.success('קובץ אקסל הורד בהצלחה');
 };
 
 export const handleExportPDF = (filteredRecords, getLegalStatusForRecord) => {
