@@ -1,3 +1,4 @@
+import html2pdf from 'html2pdf.js';
 import { toast } from 'sonner';
 
 const formatCurrency = (num) =>
@@ -19,7 +20,8 @@ function buildXlsxBlob(headers, rows, sheetName) {
 <Styles>
   <Style ss:ID="header">
     <Font ss:Bold="1" ss:Size="12" ss:FontName="Arial"/>
-    <Interior ss:Color="#E8E8E8" ss:Pattern="Solid"/>
+    <Interior ss:Color="#334155" ss:Pattern="Solid"/>
+    <Font ss:Bold="1" ss:Size="12" ss:FontName="Arial" ss:Color="#FFFFFF"/>
     <Alignment ss:Horizontal="Right" ss:ReadingOrder="RightToLeft"/>
   </Style>
   <Style ss:ID="cell">
@@ -55,36 +57,6 @@ function buildXlsxBlob(headers, rows, sheetName) {
   return new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8' });
 }
 
-function buildPdfBlob(headers, rows, title) {
-  const escapeHtml = (str) => String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-
-  const html = `<html dir="rtl">
-<head>
-<meta charset="utf-8">
-<style>
-  @page { size: A4 landscape; margin: 10mm; }
-  body { font-family: Arial, sans-serif; direction: rtl; margin: 0; padding: 20px; }
-  h1 { text-align: center; color: #333; font-size: 22px; margin-bottom: 5px; }
-  .meta { text-align: center; color: #666; margin-bottom: 15px; font-size: 12px; }
-  table { width: 100%; border-collapse: collapse; }
-  th, td { border: 1px solid #999; padding: 8px 10px; text-align: right; font-size: 11px; }
-  th { background-color: #e8e8e8; font-weight: bold; font-size: 12px; }
-  tr:nth-child(even) { background-color: #f5f5f5; }
-</style>
-</head>
-<body>
-  <h1>${escapeHtml(title)}</h1>
-  <p class="meta">תאריך הפקה: ${new Date().toLocaleDateString('he-IL')} | סה״כ ${rows.length} רשומות</p>
-  <table>
-    <thead><tr>${headers.map(h => `<th>${escapeHtml(h)}</th>`).join('')}</tr></thead>
-    <tbody>${rows.map(row => `<tr>${row.map(c => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`).join('')}</tbody>
-  </table>
-</body>
-</html>`;
-
-  return html;
-}
-
 export const handleExportExcel = (filteredRecords, getLegalStatusForRecord, getPhonePrimaryForTable) => {
   const headers = ['מספר דירה', 'שם בעלים', 'טלפון', 'סה״כ חוב', 'דמי ניהול', 'מים חמים', 'מצב משפטי'];
   const rows = filteredRecords.map((r) => [
@@ -107,67 +79,156 @@ export const handleExportExcel = (filteredRecords, getLegalStatusForRecord, getP
   toast.success('קובץ אקסל הורד בהצלחה');
 };
 
-export const handleExportPDF = (filteredRecords, getLegalStatusForRecord) => {
-  const headers = ['מספר דירה', 'שם בעלים', 'סה״כ חוב', 'דמי ניהול', 'מים חמים', 'מצב משפטי'];
-  const rows = filteredRecords.map((r) => [
-    String(r.apartmentNumber || ''),
-    r.ownerName?.split(/[\/,]/)[0]?.trim() || '-',
-    formatCurrency(r.totalDebt),
-    formatCurrency(r.monthlyDebt),
-    formatCurrency(r.specialDebt),
-    getLegalStatusForRecord(r)?.name || '-'
-  ]);
+export const handleExportPDF = async (filteredRecords, getLegalStatusForRecord) => {
+  try {
+    const exportDate = new Date().toLocaleDateString('he-IL', {
+      year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
 
-  const html = buildPdfBlob(headers, rows, 'דוח חייבים');
+    const htmlContent = `
+      <div id="pdf-root" dir="rtl" lang="he" style="direction: rtl; text-align: right; unicode-bidi: plaintext; font-family: Arial, sans-serif;">
+        <style>
+          #pdf-root, #pdf-root * {
+            direction: rtl !important;
+            text-align: right !important;
+            unicode-bidi: plaintext !important;
+          }
+          #pdf-root table {
+            direction: rtl !important;
+            border-collapse: collapse;
+            width: 100%;
+            font-size: 9px;
+          }
+          #pdf-root th, #pdf-root td {
+            text-align: right !important;
+            padding: 6px 8px;
+            border: 1px solid #e2e8f0;
+            white-space: nowrap;
+          }
+          #pdf-root th {
+            background-color: #334155;
+            color: white;
+            font-weight: bold;
+            font-size: 10px;
+          }
+          #pdf-root tr:nth-child(even) {
+            background-color: #f8fafc;
+          }
+          #pdf-root .num {
+            direction: ltr !important;
+            unicode-bidi: isolate !important;
+            display: inline-block;
+            font-weight: bold;
+          }
+          .header { text-align: center; margin-bottom: 20px; }
+          .header h1 { font-size: 24px; font-weight: bold; margin: 0 0 10px 0; }
+          .header p { font-size: 12px; margin: 5px 0; }
+        </style>
+        <div class="header">
+          <h1>דו״ח חייבים</h1>
+          <p>תאריך הפקה: ${exportDate}</p>
+          <p style="font-weight: bold;">סה״כ ${filteredRecords.length} רשומות</p>
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>מס׳ דירה</th>
+              <th>שם בעל הדירה</th>
+              <th>סה״כ חוב</th>
+              <th>דמי ניהול</th>
+              <th>מים חמים</th>
+              <th>מצב משפטי</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${filteredRecords.map((r) => {
+              const legalName = getLegalStatusForRecord(r)?.name || '-';
+              return `<tr>
+                <td><span class="num">${r.apartmentNumber || ''}</span></td>
+                <td>${r.ownerName?.split(/[\/,]/)[0]?.trim() || '-'}</td>
+                <td><span class="num">${formatCurrency(r.totalDebt)}</span></td>
+                <td><span class="num">${formatCurrency(r.monthlyDebt)}</span></td>
+                <td><span class="num">${formatCurrency(r.specialDebt)}</span></td>
+                <td>${legalName}</td>
+              </tr>`;
+            }).join('')}
+          </tbody>
+        </table>
+      </div>`;
 
-  // Render HTML in hidden iframe, use browser print-to-PDF API
-  const iframe = document.createElement('iframe');
-  iframe.style.position = 'fixed';
-  iframe.style.left = '-9999px';
-  iframe.style.width = '1200px';
-  iframe.style.height = '900px';
-  document.body.appendChild(iframe);
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = htmlContent;
+    tempDiv.style.position = 'absolute';
+    tempDiv.style.left = '-9999px';
+    document.body.appendChild(tempDiv);
 
-  iframe.contentDocument.open();
-  iframe.contentDocument.write(html);
-  iframe.contentDocument.close();
+    await document.fonts.ready;
 
-  iframe.onload = () => {
-    try {
-      // Try using browser's print-to-PDF (downloads directly in some browsers)
-      const blob = new Blob(['\ufeff' + html], { type: 'application/pdf' });
-      // Fallback: save as HTML that opens as PDF-like document
-      const htmlBlob = new Blob(['\ufeff' + html], { type: 'text/html;charset=utf-8' });
-      const url = URL.createObjectURL(htmlBlob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `חייבים_${new Date().toISOString().split('T')[0]}.pdf.html`;
-      link.click();
-      URL.revokeObjectURL(url);
-      toast.success('קובץ דוח הורד בהצלחה');
-    } finally {
-      document.body.removeChild(iframe);
-    }
-  };
+    await html2pdf()
+      .set({
+        margin: 10,
+        filename: `חייבים_${new Date().toISOString().split('T')[0]}.pdf`,
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 1, useCORS: true, backgroundColor: '#ffffff' },
+        jsPDF: { unit: 'mm', format: 'a4', orientation: 'landscape' }
+      })
+      .from(tempDiv.querySelector('#pdf-root'))
+      .save();
+
+    document.body.removeChild(tempDiv);
+    toast.success('קובץ PDF הורד בהצלחה');
+  } catch (error) {
+    toast.error('שגיאה בייצוא PDF');
+  }
 };
 
 export const handlePrint = (filteredRecords, getLegalStatusForRecord) => {
-  const headers = ['מספר דירה', 'שם בעלים', 'סה״כ חוב', 'דמי ניהול', 'מים חמים', 'מצב משפטי'];
-  const rows = filteredRecords.map((r) => [
-    String(r.apartmentNumber || ''),
-    r.ownerName?.split(/[\/,]/)[0]?.trim() || '-',
-    formatCurrency(r.totalDebt),
-    formatCurrency(r.monthlyDebt),
-    formatCurrency(r.specialDebt),
-    getLegalStatusForRecord(r)?.name || '-'
-  ]);
-
-  const html = buildPdfBlob(headers, rows, 'דוח חייבים');
   const printWindow = window.open('', '_blank');
+  const html = `
+    <html dir="rtl">
+    <head>
+      <meta charset="utf-8">
+      <title>דוח חייבים</title>
+      <style>
+        body { font-family: Arial, sans-serif; direction: rtl; }
+        table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+        th, td { border: 1px solid #ddd; padding: 12px; text-align: right; }
+        th { background-color: #334155; color: white; font-weight: bold; }
+        tr:nth-child(even) { background-color: #f9f9f9; }
+        h1 { text-align: center; color: #333; }
+      </style>
+    </head>
+    <body>
+      <h1>דוח חייבים</h1>
+      <p style="text-align:center">תאריך: ${new Date().toLocaleDateString('he-IL')}</p>
+      <table>
+        <thead>
+          <tr>
+            <th>מספר דירה</th>
+            <th>שם בעלים</th>
+            <th>סה״כ חוב</th>
+            <th>דמי ניהול</th>
+            <th>מים חמים</th>
+            <th>מצב משפטי</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${filteredRecords.map((r) => `
+            <tr>
+              <td>${r.apartmentNumber}</td>
+              <td>${r.ownerName?.split(/[\/,]/)[0]?.trim() || '-'}</td>
+              <td>${formatCurrency(r.totalDebt)}</td>
+              <td>${formatCurrency(r.monthlyDebt)}</td>
+              <td>${formatCurrency(r.specialDebt)}</td>
+              <td>${getLegalStatusForRecord(r)?.name || '-'}</td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table>
+    </body>
+    </html>
+  `;
   printWindow.document.write(html);
   printWindow.document.close();
-  printWindow.onload = () => {
-    printWindow.focus();
-    printWindow.print();
-  };
+  printWindow.onload = () => { printWindow.focus(); printWindow.print(); };
 };
