@@ -164,7 +164,7 @@ export default function Dashboard() {
 
         {/* KPI CARDS - New Design */}
         <div className="px-3 md:px-6 pt-4 md:pt-6">
-          <div className="rounded-2xl bg-gradient-to-r from-[#f3eeff] via-[#ede4ff] to-[#f0e8ff] p-4 md:p-6">
+            <div className="p-4 md:p-6">
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
               {kpiCards.map((card, i) => (
                 <div key={i} onClick={card.onClick}
