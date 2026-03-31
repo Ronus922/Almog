@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import DebtorsTable from '@/components/dashboard/DebtorsTable';
 import ApartmentDetailModal from '@/components/dashboard/ApartmentDetailModal';
-import { Users, Archive, Mail, Scale, AlertTriangle, CalendarClock, Upload, RefreshCw, CreditCard, Droplets, Flame, Gavel } from "lucide-react";
+import { Users, Archive, Mail, Scale, AlertTriangle, CalendarClock, Upload, RefreshCw, CreditCard, Droplets, Flame, Gavel, Zap } from "lucide-react";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { calculateDebtStatus } from '@/components/utils/debtStatusCalculator';
 import { getUniqueDebtorRecords } from '@/components/utils/debtorFilters';
@@ -152,9 +152,9 @@ export default function Dashboard() {
   const kpiCards = [
     { label: 'חוב דמי ניהול', value: `${formatNum(totalMonthly)}₪`, icon: <CreditCard className="w-5 h-5" />, iconBg: 'bg-purple-100', iconColor: 'text-purple-600', onClick: () => setActiveTab('debtors') },
     { label: 'חוב מים חמים', value: `${formatNum(totalSpecial)}₪`, icon: <Droplets className="w-5 h-5" />, iconBg: 'bg-blue-100', iconColor: 'text-blue-600', onClick: () => setActiveTab('debtors') },
+    { label: 'לגבייה מיידית', value: tabDatasets.immediateCollectCount, icon: <Zap className="w-5 h-5" />, iconBg: 'bg-orange-100', iconColor: 'text-orange-600', onClick: () => setActiveTab('debtors') },
     { label: 'מכתבי התראה', value: tabDatasets.warningTab.length, sub: `${tabDatasets.warningTab.length} מכתבים`, icon: <Mail className="w-5 h-5" />, iconBg: 'bg-[#fefaea]', iconColor: 'text-amber-500', onClick: () => setActiveTab('warning') },
     { label: 'לטיפול משפטי', value: tabDatasets.legalCandidatesTab.length, icon: <Flame className="w-5 h-5" />, iconBg: 'bg-red-100', iconColor: 'text-red-500', onClick: () => setActiveTab('legal_candidates') },
-    { label: 'דחוף', value: tabDatasets.immediateCollectCount, icon: <AlertTriangle className="w-5 h-5" />, iconBg: 'bg-orange-100', iconColor: 'text-orange-600', onClick: () => setActiveTab('debtors') },
     { label: 'הליך משפטי', value: tabDatasets.legalProcessTab.length, icon: <Gavel className="w-5 h-5" />, iconBg: 'bg-slate-100', iconColor: 'text-slate-700', onClick: () => setActiveTab('legal_process') },
   ];
 
@@ -168,15 +168,15 @@ export default function Dashboard() {
               {kpiCards.map((card, i) => (
                 <div key={i} onClick={card.onClick}
                   className="bg-white rounded-2xl p-4 flex flex-col justify-between min-h-[120px] cursor-pointer hover:shadow-lg transition-all relative overflow-hidden border border-slate-100">
-                  <div className="flex items-start justify-between">
-                    <div className={`w-10 h-10 rounded-xl ${card.iconBg} flex items-center justify-center ${card.iconColor}`}>
+                  <div className="flex items-center gap-3">
+                    <div className={`w-10 h-10 rounded-xl ${card.iconBg} flex items-center justify-center ${card.iconColor} flex-shrink-0`}>
                       {card.icon}
                     </div>
-                    {card.sub && <span className="text-xs font-medium text-slate-400 mt-1">{card.sub}</span>}
+                    <span className="text-[18px] font-bold text-slate-700 leading-tight">{card.label}</span>
                   </div>
-                  <div className="mt-3">
-                    <p className="text-xs font-medium text-slate-500 mb-1">{card.label}</p>
+                  <div className="mt-3 flex items-end justify-between">
                     <p className="text-2xl md:text-3xl font-black text-slate-900 leading-none">{card.value}</p>
+                    {card.sub && <span className="text-xs font-medium text-slate-400">{card.sub}</span>}
                   </div>
                 </div>
               ))}
