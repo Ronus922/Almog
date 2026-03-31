@@ -150,12 +150,12 @@ export default function Dashboard() {
   const formatNum = (n) => new Intl.NumberFormat('he-IL').format(Math.round(n));
 
   const kpiCards = [
-    { label: 'חוב דמי ניהול', value: `${formatNum(totalMonthly)}₪`, icon: <CreditCard className="w-5 h-5" />, iconBg: 'bg-purple-100', iconColor: 'text-purple-600', onClick: () => setActiveTab('debtors') },
-    { label: 'חוב מים חמים', value: `${formatNum(totalSpecial)}₪`, icon: <Droplets className="w-5 h-5" />, iconBg: 'bg-blue-100', iconColor: 'text-blue-600', onClick: () => setActiveTab('debtors') },
+    { label: 'חוב דמי ניהול', value: `₪${formatNum(totalMonthly)}`, icon: <CreditCard className="w-5 h-5" />, iconBg: 'bg-purple-100', iconColor: 'text-purple-600', onClick: () => setActiveTab('debtors') },
+    { label: 'חוב מים חמים', value: `₪${formatNum(totalSpecial)}`, icon: <Droplets className="w-5 h-5" />, iconBg: 'bg-blue-100', iconColor: 'text-blue-600', onClick: () => setActiveTab('debtors') },
     { label: 'לגבייה מיידית', value: tabDatasets.immediateCollectCount, icon: <Zap className="w-5 h-5" />, iconBg: 'bg-orange-100', iconColor: 'text-orange-600', onClick: () => setActiveTab('debtors') },
     { label: 'מכתבי התראה', value: tabDatasets.warningTab.length, sub: `${tabDatasets.warningTab.length} מכתבים`, icon: <Mail className="w-5 h-5" />, iconBg: 'bg-[#fefaea]', iconColor: 'text-amber-500', onClick: () => setActiveTab('warning') },
     { label: 'לטיפול משפטי', value: tabDatasets.legalCandidatesTab.length, icon: <Flame className="w-5 h-5" />, iconBg: 'bg-red-100', iconColor: 'text-red-500', onClick: () => setActiveTab('legal_candidates') },
-    { label: 'הליך משפטי', value: tabDatasets.legalProcessTab.length, icon: <Gavel className="w-5 h-5" />, iconBg: 'bg-slate-100', iconColor: 'text-slate-700', onClick: () => setActiveTab('legal_process') },
+    { label: 'הליך משפטי', value: tabDatasets.legalProcessTab.length, icon: <Gavel className="w-5 h-5" />, iconBg: 'bg-[#fee2e2]', iconColor: 'text-slate-700', onClick: () => setActiveTab('legal_process') },
   ];
 
   return (
