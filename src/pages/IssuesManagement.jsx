@@ -864,51 +864,86 @@ export default function IssuesManagement() {
             </div>
           </DragDropContext>
         ) : viewMode === "list" ? (
-           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm overflow-x-auto">
-             <table className="w-full min-w-[700px]">
-               <thead>
-                 <tr className="border-b border-slate-200 bg-slate-50">
-                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">מיקום</th>
-                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">מדווח / מטפל</th>
-                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">דחיפות</th>
-                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">סטטוס</th>
-                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">תאריך יצירה</th>
-                   <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">תיאור התקלה</th>
-                   <th className="px-4 py-3 text-center text-xs font-bold text-slate-600">פעולות</th>
-                 </tr>
-               </thead>
-               <tbody>
-                 {filtered.length === 0 ? (
-                   <tr><td colSpan="7" className="p-8 text-center text-slate-400">אין תקלות</td></tr>
-                 ) : (
-                   filtered
-                     .sort((a, b) => ({ urgent: 0, high: 1, medium: 2, low: 3 }[a.priority] ?? 3) - ({ urgent: 0, high: 1, medium: 2, low: 3 }[b.priority] ?? 3))
-                     .map((issue) => {
-                       const p = PRIORITY_MAP[issue.priority] || PRIORITY_MAP.low;
-                       const getAreaName = (id) => areas?.find(a => a.id === id)?.name || id;
-                       const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${getAreaName(issue.target_id)}`;
-                       const statusLabel = issue.status === "open" ? "פתוחה" : issue.status === "in_progress" ? "בטיפול" : "הושלמה";
-                       return (
-                         <tr key={issue.id} className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors" onClick={() => { setSelectedIssue(issue); setDetailsOpen(true); }}>
-                           <td className="px-4 py-3 text-right text-sm font-semibold text-slate-800">{targetLabel}</td>
-                           <td className="px-4 py-3 text-right text-sm text-slate-600"><IssuePersonLabel issue={issue} appUsers={appUsers} currentUsername={currentUser?.username} /></td>
-                           <td className="px-4 py-3 text-center"><div className="inline-flex items-center gap-1 px-2 py-1 rounded-lg" style={{ backgroundColor: `${p.bg}20`, color: p.color }}><span className={`w-2 h-2 rounded-full ${p.dot}`}></span><span className="text-xs font-semibold">{p.label}</span></div></td>
-                           <td className="px-4 py-3 text-center"><span className={`inline-block px-2 py-1 rounded-lg text-xs font-semibold ${issue.status === "resolved" ? "bg-green-100 text-green-700" : issue.status === "in_progress" ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"}`}>{statusLabel}</span></td>
-                           <td className="px-4 py-3 text-right text-sm text-slate-500">{format(new Date(issue.created_date), "dd/MM/yy")}</td>
-                           <td className="px-4 py-3 text-right text-sm text-slate-600 max-w-xs truncate">{issue.description}</td>
-                           <td className="px-4 py-3 text-center">
-                             <div className="flex items-center justify-center gap-1">
-                               <button onClick={(e) => { e.stopPropagation(); setSelectedIssue(issue); setDetailsOpen(true); }} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-blue-500 hover:bg-blue-50"><Eye className="w-4 h-4" /></button>
-                               <button onClick={(e) => { e.stopPropagation(); handleDelete(issue.id); }} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50"><Trash2 className="w-4 h-4" /></button>
-                             </div>
-                           </td>
-                         </tr>
-                       );
-                     })
-                 )}
-               </tbody>
-             </table>
-           </div>
+          <div className="space-y-2">
+            {/* Mobile cards */}
+            <div className="md:hidden space-y-2">
+              {filtered.length === 0 ? (
+                <div className="bg-white rounded-2xl border border-slate-100 p-8 text-center text-slate-400">אין תקלות</div>
+              ) : (
+                filtered
+                  .sort((a, b) => ({ urgent: 0, high: 1, medium: 2, low: 3 }[a.priority] ?? 3) - ({ urgent: 0, high: 1, medium: 2, low: 3 }[b.priority] ?? 3))
+                  .map((issue) => {
+                    const p = PRIORITY_MAP[issue.priority] || PRIORITY_MAP.low;
+                    const getAreaName = (id) => areas?.find(a => a.id === id)?.name || id;
+                    const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${getAreaName(issue.target_id)}`;
+                    const statusLabel = issue.status === "open" ? "פתוחה" : issue.status === "in_progress" ? "בטיפול" : "הושלמה";
+                    const statusColor = issue.status === "resolved" ? "bg-green-100 text-green-700" : issue.status === "in_progress" ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700";
+                    return (
+                      <div key={issue.id} className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 cursor-pointer hover:shadow-md transition-all" onClick={() => { setSelectedIssue(issue); setDetailsOpen(true); }}>
+                        <div className="flex items-start justify-between gap-2 mb-2">
+                          <div className="flex items-center gap-2">
+                            <span className={`w-2.5 h-2.5 rounded-full flex-shrink-0 ${p.dot}`}></span>
+                            <span className="font-bold text-slate-800 text-sm">{targetLabel}</span>
+                          </div>
+                          <span className={`text-xs px-2 py-0.5 rounded-full font-semibold flex-shrink-0 ${statusColor}`}>{statusLabel}</span>
+                        </div>
+                        {issue.description && <p className="text-sm text-slate-600 line-clamp-2 mb-2">{issue.description}</p>}
+                        <div className="flex items-center justify-between text-xs text-slate-400">
+                          <span>{format(new Date(issue.created_date), "dd/MM/yy")}</span>
+                          <IssuePersonLabel issue={issue} appUsers={appUsers} currentUsername={currentUser?.username} />
+                        </div>
+                      </div>
+                    );
+                  })
+              )}
+            </div>
+            {/* Desktop table */}
+            <div className="hidden md:block bg-white rounded-2xl border border-slate-100 shadow-sm overflow-x-auto">
+              <table className="w-full min-w-[700px]">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-slate-50">
+                    <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">מיקום</th>
+                    <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">מדווח / מטפל</th>
+                    <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">דחיפות</th>
+                    <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">סטטוס</th>
+                    <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">תאריך יצירה</th>
+                    <th className="px-4 py-3 text-right text-xs font-bold text-slate-600">תיאור התקלה</th>
+                    <th className="px-4 py-3 text-center text-xs font-bold text-slate-600">פעולות</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.length === 0 ? (
+                    <tr><td colSpan="7" className="p-8 text-center text-slate-400">אין תקלות</td></tr>
+                  ) : (
+                    filtered
+                      .sort((a, b) => ({ urgent: 0, high: 1, medium: 2, low: 3 }[a.priority] ?? 3) - ({ urgent: 0, high: 1, medium: 2, low: 3 }[b.priority] ?? 3))
+                      .map((issue) => {
+                        const p = PRIORITY_MAP[issue.priority] || PRIORITY_MAP.low;
+                        const getAreaName = (id) => areas?.find(a => a.id === id)?.name || id;
+                        const targetLabel = issue.target_type === "room" ? `חדר ${issue.target_id}` : `אזור ${getAreaName(issue.target_id)}`;
+                        const statusLabel = issue.status === "open" ? "פתוחה" : issue.status === "in_progress" ? "בטיפול" : "הושלמה";
+                        return (
+                          <tr key={issue.id} className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors" onClick={() => { setSelectedIssue(issue); setDetailsOpen(true); }}>
+                            <td className="px-4 py-3 text-right text-sm font-semibold text-slate-800">{targetLabel}</td>
+                            <td className="px-4 py-3 text-right text-sm text-slate-600"><IssuePersonLabel issue={issue} appUsers={appUsers} currentUsername={currentUser?.username} /></td>
+                            <td className="px-4 py-3 text-center"><div className="inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-slate-50"><span className={`w-2 h-2 rounded-full ${p.dot}`}></span><span className="text-xs font-semibold">{p.label}</span></div></td>
+                            <td className="px-4 py-3 text-center"><span className={`inline-block px-2 py-1 rounded-lg text-xs font-semibold ${issue.status === "resolved" ? "bg-green-100 text-green-700" : issue.status === "in_progress" ? "bg-amber-100 text-amber-700" : "bg-blue-100 text-blue-700"}`}>{statusLabel}</span></td>
+                            <td className="px-4 py-3 text-right text-sm text-slate-500">{format(new Date(issue.created_date), "dd/MM/yy")}</td>
+                            <td className="px-4 py-3 text-right text-sm text-slate-600 max-w-xs truncate">{issue.description}</td>
+                            <td className="px-4 py-3 text-center">
+                              <div className="flex items-center justify-center gap-1">
+                                <button onClick={(e) => { e.stopPropagation(); setSelectedIssue(issue); setDetailsOpen(true); }} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-blue-500 hover:bg-blue-50"><Eye className="w-4 h-4" /></button>
+                                <button onClick={(e) => { e.stopPropagation(); handleDelete(issue.id); }} className="w-8 h-8 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-500 hover:bg-red-50"><Trash2 className="w-4 h-4" /></button>
+                              </div>
+                            </td>
+                          </tr>
+                        );
+                      })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         ) : (
           <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-4 text-center text-slate-400">תצוגת יומן אינה זמינה כעת</div>
         )}

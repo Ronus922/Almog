@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import { format } from "date-fns";
 import { Repeat2, GripVertical, Eye, Pencil, Trash2, MapPin, AlertCircle } from "lucide-react";
@@ -40,7 +40,6 @@ function TaskCard({ task, index, onRowClick, onEdit, onDelete, currentUser }) {
             snapshot.isDragging ? "shadow-xl rotate-1 scale-105" : "hover:shadow-md"
           }`}
         >
-          {/* Drag handle bar */}
           <div
             {...provided.dragHandleProps}
             className="flex flex-row-reverse items-center justify-between px-3 py-2 border-b border-slate-100 bg-slate-50/60 cursor-grab active:cursor-grabbing"
@@ -52,9 +51,7 @@ function TaskCard({ task, index, onRowClick, onEdit, onDelete, currentUser }) {
             <GripVertical className="w-4 h-4 text-slate-300" />
           </div>
 
-          {/* Card body */}
           <div className="p-3 space-y-2">
-            {/* כותרת + אייקונים */}
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-1.5">
                 {task.apartment_number && (
@@ -82,9 +79,9 @@ function TaskCard({ task, index, onRowClick, onEdit, onDelete, currentUser }) {
                       <Pencil className="w-3.5 h-3.5" />
                     </button>
                     <button
-                     onClick={(e) => { e.stopPropagation(); onDelete(task.id, task.title || task.task_type); }}
-                     className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-400 hover:bg-red-50 transition-colors"
-                     title="מחוק"
+                      onClick={(e) => { e.stopPropagation(); onDelete(task.id, task.title || task.task_type); }}
+                      className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-400 hover:bg-red-50 transition-colors"
+                      title="מחוק"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
@@ -93,17 +90,14 @@ function TaskCard({ task, index, onRowClick, onEdit, onDelete, currentUser }) {
               </div>
             </div>
 
-            {/* כותרת אם יש דירה */}
             {task.apartment_number && (
               <p className="text-xs text-slate-600 leading-relaxed font-medium">{task.title}</p>
             )}
 
-            {/* תיאור */}
             {task.description && (
               <p className="text-xs text-slate-500 leading-relaxed line-clamp-3">{task.description}</p>
             )}
 
-            {/* מחזורי */}
             {task.is_recurring_instance && (
               <div className="flex items-center gap-1">
                 <Repeat2 className="w-3 h-3 text-blue-400" />
@@ -111,11 +105,8 @@ function TaskCard({ task, index, onRowClick, onEdit, onDelete, currentUser }) {
               </div>
             )}
 
-            {/* תחתית */}
             <div className="flex items-center justify-between pt-0.5 text-xs text-slate-400">
-              <span>
-                מדווח: {task.assigned_by_name || task.assigned_by || "לא צוין"}
-              </span>
+              <span>מדווח: {task.assigned_by_name || task.assigned_by || "לא צוין"}</span>
               <span className={isOverdue ? "text-red-500 font-semibold" : ""}>
                 {dueStr ? fmtDate(task.due_at) : (task.created_date ? fmtDate(task.created_date) : "")}
               </span>
@@ -129,14 +120,12 @@ function TaskCard({ task, index, onRowClick, onEdit, onDelete, currentUser }) {
 
 function KanbanColumn({ col, tasks, onRowClick, onEdit, onDelete, currentUser }) {
   return (
-    <div className="w-[280px] flex-shrink-0 md:flex-1 md:min-w-0 flex flex-col">
-      {/* Column header */}
+    <div className="w-full flex-shrink-0 md:flex-1 md:min-w-0 flex flex-col">
       <div className={`rounded-t-2xl border-t-4 ${col.color} bg-white border border-slate-200 px-4 py-3 flex items-center justify-between mb-0`}>
         <span className="font-black text-slate-700 text-base">{col.label}</span>
         <span className={`text-sm font-bold px-2.5 py-0.5 rounded-full ${col.count_color}`}>{tasks.length}</span>
       </div>
 
-      {/* Droppable area */}
       <Droppable droppableId={col.id}>
         {(provided, snapshot) => (
           <div
@@ -171,14 +160,9 @@ function KanbanColumn({ col, tasks, onRowClick, onEdit, onDelete, currentUser })
   );
 }
 
-export default function TaskProKanbanDnd({
-  tasks = [],
-  onRowClick,
-  onEdit,
-  onDelete,
-  currentUser
-}) {
+export default function TaskProKanbanDnd({ tasks = [], onRowClick, onEdit, onDelete, currentUser }) {
   const queryClient = useQueryClient();
+  const [mobileTab, setMobileTab] = useState("פתוחה");
 
   const byStatus = {};
   COLUMNS.forEach((c) => { byStatus[c.id] = []; });
@@ -190,7 +174,6 @@ export default function TaskProKanbanDnd({
     const { destination, source, draggableId } = result;
     if (!destination) return;
     if (destination.droppableId === source.droppableId && destination.index === source.index) return;
-
     const newStatus = destination.droppableId;
     try {
       await updateTask(draggableId, { status: newStatus });
@@ -203,7 +186,28 @@ export default function TaskProKanbanDnd({
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="flex gap-3 items-start overflow-x-auto pb-4 -mx-2 px-2" dir="rtl" style={{WebkitOverflowScrolling: 'touch', scrollSnapType: 'x mandatory'}}>
+      {/* Mobile: tab navigation */}
+      <div className="md:hidden" dir="rtl">
+        <div className="flex bg-white rounded-t-2xl border border-slate-200 overflow-hidden mb-0">
+          {COLUMNS.map(col => (
+            <button key={col.id} onClick={() => setMobileTab(col.id)}
+              className={`flex-1 py-3 text-xs font-bold transition-colors border-b-2 ${
+                mobileTab === col.id ? 'border-blue-500 text-blue-600 bg-blue-50/30' : 'border-transparent text-slate-500'
+              }`}>
+              {col.label}
+              <span className={`mr-1 px-1.5 rounded-full text-[10px] ${col.count_color}`}>
+                {(byStatus[col.id] || []).length}
+              </span>
+            </button>
+          ))}
+        </div>
+        {COLUMNS.filter(c => c.id === mobileTab).map(col => (
+          <KanbanColumn key={col.id} col={col} tasks={byStatus[col.id] || []}
+            onRowClick={onRowClick} onEdit={onEdit} onDelete={onDelete} currentUser={currentUser} />
+        ))}
+      </div>
+      {/* Desktop: all columns side by side */}
+      <div className="hidden md:flex gap-3 items-start pb-4" dir="rtl">
         {COLUMNS.map((col) => (
           <KanbanColumn
             key={col.id}

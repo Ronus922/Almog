@@ -294,7 +294,7 @@ export default function TasksProPage() {
       <div className="max-w-screen-xl mx-auto space-y-5">
 
         {/* Page Header */}
-        <div className="flex items-center justify-between flex-wrap gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold text-slate-800">ניהול משימות</h1>
             <p className="text-sm text-slate-500 mt-0.5">{filtered.length} משימות מוצגות</p>
@@ -348,7 +348,7 @@ export default function TasksProPage() {
               onClick={openNew}
               className="bg-blue-600 hover:bg-blue-700 text-white gap-2 h-10"
             >
-              <Plus className="w-4 h-4" /> משימה חדשה
+              <Plus className="w-4 h-4" /> <span className="hidden sm:inline">משימה חדשה</span><span className="sm:hidden">חדשה</span>
             </Button>
           </div>
         </div>
