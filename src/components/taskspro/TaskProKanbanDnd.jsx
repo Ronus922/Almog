@@ -36,9 +36,7 @@ function TaskCard({ task, index, onRowClick, onEdit, onDelete, currentUser }) {
           ref={provided.innerRef}
           {...provided.draggableProps}
           onClick={() => onRowClick(task)}
-          className={`bg-white rounded-xl border border-slate-200 shadow-sm mb-2 overflow-hidden transition-shadow cursor-pointer ${
-            snapshot.isDragging ? "shadow-xl rotate-1 scale-105" : "hover:shadow-md"
-          }`}
+          className={`bg-white rounded-xl border border-slate-200 shadow-sm mb-2 overflow-hidden transition-shadow cursor-pointer ${snapshot.isDragging ? "shadow-xl rotate-1 scale-105" : "hover:shadow-md"}`}
         >
           <div
             {...provided.dragHandleProps}
@@ -54,35 +52,21 @@ function TaskCard({ task, index, onRowClick, onEdit, onDelete, currentUser }) {
           <div className="p-3 space-y-2">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-1.5">
-                {task.apartment_number && (
-                  <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
-                )}
+                {task.apartment_number && <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />}
                 <span className="font-bold text-slate-800 text-sm">
                   {task.apartment_number ? `חדר ${task.apartment_number}` : task.title}
                 </span>
               </div>
               <div className="flex items-center gap-1">
-                <button
-                  onClick={(e) => { e.stopPropagation(); onRowClick(task); }}
-                  className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-blue-400 hover:bg-blue-50 transition-colors"
-                  title="צפה בפרטים"
-                >
+                <button onClick={(e) => { e.stopPropagation(); onRowClick(task); }} className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-blue-400 hover:bg-blue-50 transition-colors" title="צפה בפרטים">
                   <Eye className="w-3.5 h-3.5" />
                 </button>
                 {canEdit && (
                   <>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); onEdit(task); }}
-                      className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-amber-500 hover:bg-amber-50 transition-colors"
-                      title="עריכה"
-                    >
+                    <button onClick={(e) => { e.stopPropagation(); onEdit(task); }} className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-amber-500 hover:bg-amber-50 transition-colors" title="עריכה">
                       <Pencil className="w-3.5 h-3.5" />
                     </button>
-                    <button
-                      onClick={(e) => { e.stopPropagation(); onDelete(task.id, task.title || task.task_type); }}
-                      className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-400 hover:bg-red-50 transition-colors"
-                      title="מחוק"
-                    >
+                    <button onClick={(e) => { e.stopPropagation(); onDelete(task.id, task.title || task.task_type); }} className="w-6 h-6 flex items-center justify-center rounded-lg text-slate-300 hover:text-red-400 hover:bg-red-50 transition-colors" title="מחוק">
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>
                   </>
@@ -121,19 +105,16 @@ function TaskCard({ task, index, onRowClick, onEdit, onDelete, currentUser }) {
 function KanbanColumn({ col, tasks, onRowClick, onEdit, onDelete, currentUser }) {
   return (
     <div className="w-full flex-shrink-0 md:flex-1 md:min-w-0 flex flex-col">
-      <div className={`rounded-t-2xl border-t-4 ${col.color} bg-white border border-slate-200 px-4 py-3 flex items-center justify-between mb-0`}>
+      <div className={`rounded-t-2xl border-t-4 ${col.color} bg-white border border-slate-200 px-4 py-3 flex items-center justify-between`}>
         <span className="font-black text-slate-700 text-base">{col.label}</span>
         <span className={`text-sm font-bold px-2.5 py-0.5 rounded-full ${col.count_color}`}>{tasks.length}</span>
       </div>
-
       <Droppable droppableId={col.id}>
         {(provided, snapshot) => (
           <div
             ref={provided.innerRef}
             {...provided.droppableProps}
-            className={`flex-1 min-h-[300px] rounded-b-2xl border border-t-0 border-slate-200 p-3 transition-colors ${
-              snapshot.isDraggingOver ? "bg-blue-50/40" : "bg-slate-50/60"
-            }`}
+            className={`flex-1 min-h-[300px] rounded-b-2xl border border-t-0 border-slate-200 p-3 transition-colors ${snapshot.isDraggingOver ? "bg-blue-50/40" : "bg-slate-50/60"}`}
           >
             {tasks.length === 0 && !snapshot.isDraggingOver && (
               <div className="flex flex-col items-center justify-center h-24 text-slate-300">
@@ -142,15 +123,7 @@ function KanbanColumn({ col, tasks, onRowClick, onEdit, onDelete, currentUser })
               </div>
             )}
             {tasks.map((task, index) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                index={index}
-                onRowClick={onRowClick}
-                onEdit={onEdit}
-                onDelete={onDelete}
-                currentUser={currentUser}
-              />
+              <TaskCard key={task.id} task={task} index={index} onRowClick={onRowClick} onEdit={onEdit} onDelete={onDelete} currentUser={currentUser} />
             ))}
             {provided.placeholder}
           </div>
@@ -174,9 +147,8 @@ export default function TaskProKanbanDnd({ tasks = [], onRowClick, onEdit, onDel
     const { destination, source, draggableId } = result;
     if (!destination) return;
     if (destination.droppableId === source.droppableId && destination.index === source.index) return;
-    const newStatus = destination.droppableId;
     try {
-      await updateTask(draggableId, { status: newStatus });
+      await updateTask(draggableId, { status: destination.droppableId });
       queryClient.invalidateQueries({ queryKey: ["taskpro-tasks"] });
       toast.success("המשימה הועברה בהצלחה");
     } catch {
@@ -186,39 +158,31 @@ export default function TaskProKanbanDnd({ tasks = [], onRowClick, onEdit, onDel
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      {/* Mobile: tab navigation */}
-      <div className="md:hidden" dir="rtl">
-        <div className="flex bg-white rounded-t-2xl border border-slate-200 overflow-hidden mb-0">
-          {COLUMNS.map(col => (
-            <button key={col.id} onClick={() => setMobileTab(col.id)}
-              className={`flex-1 py-3 text-xs font-bold transition-colors border-b-2 ${
-                mobileTab === col.id ? 'border-blue-500 text-blue-600 bg-blue-50/30' : 'border-transparent text-slate-500'
-              }`}>
-              {col.label}
-              <span className={`mr-1 px-1.5 rounded-full text-[10px] ${col.count_color}`}>
-                {(byStatus[col.id] || []).length}
-              </span>
-            </button>
+      <div dir="rtl">
+        <div className="md:hidden">
+          <div className="flex bg-white rounded-t-2xl border border-slate-200 overflow-hidden">
+            {COLUMNS.map(col => (
+              <button
+                key={col.id}
+                onClick={() => setMobileTab(col.id)}
+                className={`flex-1 py-3 text-xs font-bold transition-colors border-b-2 ${mobileTab === col.id ? "border-blue-500 text-blue-600 bg-blue-50/30" : "border-transparent text-slate-500"}`}
+              >
+                {col.label}
+                <span className={`mr-1 px-1.5 rounded-full text-[10px] ${col.count_color}`}>
+                  {(byStatus[col.id] || []).length}
+                </span>
+              </button>
+            ))}
+          </div>
+          {COLUMNS.filter(c => c.id === mobileTab).map(col => (
+            <KanbanColumn key={col.id} col={col} tasks={byStatus[col.id] || []} onRowClick={onRowClick} onEdit={onEdit} onDelete={onDelete} currentUser={currentUser} />
           ))}
         </div>
-        {COLUMNS.filter(c => c.id === mobileTab).map(col => (
-          <KanbanColumn key={col.id} col={col} tasks={byStatus[col.id] || []}
-            onRowClick={onRowClick} onEdit={onEdit} onDelete={onDelete} currentUser={currentUser} />
-        ))}
-      </div>
-      {/* Desktop: all columns side by side */}
-      <div className="hidden md:flex gap-3 items-start pb-4" dir="rtl">
-        {COLUMNS.map((col) => (
-          <KanbanColumn
-            key={col.id}
-            col={col}
-            tasks={byStatus[col.id] || []}
-            onRowClick={onRowClick}
-            onEdit={onEdit}
-            onDelete={onDelete}
-            currentUser={currentUser}
-          />
-        ))}
+        <div className="hidden md:flex gap-3 items-start pb-4">
+          {COLUMNS.map((col) => (
+            <KanbanColumn key={col.id} col={col} tasks={byStatus[col.id] || []} onRowClick={onRowClick} onEdit={onEdit} onDelete={onDelete} currentUser={currentUser} />
+          ))}
+        </div>
       </div>
     </DragDropContext>
   );
