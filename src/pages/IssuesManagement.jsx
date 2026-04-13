@@ -137,7 +137,7 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
   };
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={onClose} modal={false}>
       <DialogContent className="max-w-2xl w-[95vw] max-h-[90vh] overflow-y-auto" dir="rtl">
         <DialogHeader>
           <div className="flex items-center gap-3">
@@ -157,7 +157,7 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
               <label className="text-sm font-semibold text-slate-700">סוג מיקום *</label>
               <Select value={form.target_type} onValueChange={(v) => setForm((p) => ({ ...p, target_type: v, target_id: "" }))}>
                 <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-slate-50 font-medium"><SelectValue /></SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[200]">
                   <SelectItem value="room">חדר</SelectItem>
                   <SelectItem value="area">אזור</SelectItem>
                 </SelectContent>
@@ -169,7 +169,7 @@ function ReportIssueDialog({ open, onClose, onSuccess, onNotify, currentUser }) 
                 <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-slate-50 font-medium">
                   <SelectValue placeholder={form.target_type === "room" ? "...בחר חדר" : "...בחר אזור"} />
                 </SelectTrigger>
-                <SelectContent className="max-h-60">
+                <SelectContent className="max-h-60 z-[200]">
                   {targetOptions.map((opt) => <SelectItem key={opt.id} value={opt.id}>{opt.name}</SelectItem>)}
                 </SelectContent>
               </Select>
@@ -395,7 +395,7 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange, on
 
   return (
     <>
-      <Dialog open={open} onOpenChange={onClose}>
+      <Dialog open={open} onOpenChange={onClose} modal={false}>
         <DialogContent className="max-w-3xl w-[95vw] max-h-[90vh] overflow-y-auto" dir="rtl">
           <DialogHeader>
             <div className="flex items-center justify-between">
@@ -457,7 +457,7 @@ function IssueDetailsDialog({ issue, open, onClose, onDelete, onStatusChange, on
               <SelectTrigger className="h-11 rounded-xl border-slate-200 bg-slate-50 font-medium">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[200]">
                 <SelectItem value="open">פתוחה</SelectItem>
                 <SelectItem value="in_progress">בטיפול</SelectItem>
                 <SelectItem value="resolved">הושלמה</SelectItem>
@@ -821,7 +821,7 @@ export default function IssuesManagement() {
           </div>
           <Select value={filterPriority} onValueChange={setFilterPriority}>
             <SelectTrigger className="h-10 w-36 rounded-xl border-slate-200 bg-slate-50 text-sm"><SelectValue placeholder="דחיפות" /></SelectTrigger>
-            <SelectContent>
+            <SelectContent className="z-[200]">
               <SelectItem value="all">כל הדחיפויות</SelectItem>
               <SelectItem value="urgent">דחוף</SelectItem>
               <SelectItem value="high">גבוהה</SelectItem>
