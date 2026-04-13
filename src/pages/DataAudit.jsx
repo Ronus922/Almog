@@ -105,7 +105,42 @@ export default function DataAudit() {
     );
   }
 
-  const fixData
+  const fixData = async () => {
+    setIsFixing(true);
+    try {
+      let fixedCount = 0;
+      const errors = [];
+      for (const record of allRecords) {
+        let needsUpdate = false;
+        let updates = {};
+        const val = record.isArchived;
+        if (val === 'true' || val === 'TRUE' || val === '1' || val === 1 || val === 'yes') {
+          updates.isArchived = true; needsUpdate = true;
+        } else if (val === 'false' || val === 'FALSE' || val === '0' || val === 0 || val === 'no' || !val) {
+          updates.isArchived = false; needsUpdate = true;
+        }
+        if ((!record.legal_status_id || record.legal_status_id === '') && (record.totalDebt || 0) > 0 && record.isArchived === true) {
+          updates.isArchived = false; needsUpdate = true;
+        }
+        if (needsUpdate) {
+          try {
+            await base44.entities.DebtorRecord.update(record.id, updates);
+            fixedCount++;
+            await new Promise(resolve => setTimeout(resolve, 100));
+          } catch (err) { errors.push({ apartmentNumber: record.apartmentNumber, error: err.message }); }
+        }
+      }
+      toast.success(`תוקנו ${fixedCount} רשומות`);
+      if (errors.length > 0) toast.warning(`${errors.length} רשומות נכשלו`);
+      queryClient.invalidateQueries({ queryKey: ['allDebtorRecordsAudit'] });
+      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
+      setTimeout(() => runAudit(), 1000);
+    } catch (error) {
+      toast.error('שגיאה בתיקון הנתונים');
+    } finally { setIsFixing(false); }
+  };
+
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
