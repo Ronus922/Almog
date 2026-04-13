@@ -29,26 +29,6 @@ export default function DataAudit() {
 
   const isAdmin = isManagerRole(currentUser);
 
-  // Require authentication and admin
-  if (authChecked && !currentUser) {
-    return <Navigate to={createPageUrl('AppLogin')} replace />;
-  }
-
-  if (authChecked && !isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100" dir="rtl">
-        <Card className="max-w-md">
-          <CardHeader>
-            <CardTitle className="text-red-600">אין הרשאת גישה</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-slate-600">דף זה זמין למנהלים בלבד.</p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
   const { data: allRecords = [], isLoading } = useQuery({
     queryKey: ['allDebtorRecordsAudit'],
     queryFn: () => base44.entities.DebtorRecord.list(),
@@ -105,76 +85,27 @@ export default function DataAudit() {
     }
   }, [allRecords]);
 
-  const fixData = async () => {
-    setIsFixing(true);
-    try {
-      let fixedCount = 0;
-      const errors = [];
+  // Auth guards after hooks
+  if (authChecked && !currentUser) {
+    return <Navigate to={createPageUrl('AppLogin')} replace />;
+  }
 
-      for (const record of allRecords) {
-        let needsUpdate = false;
-        let updates = {};
+  if (authChecked && !isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100" dir="rtl">
+        <Card className="max-w-md">
+          <CardHeader>
+            <CardTitle className="text-red-600">אין הרשאת גישה</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-slate-600">דף זה זמין למנהלים בלבד.</p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-        // Fix 1: Normalize boolean values
-        const val = record.isArchived;
-        if (val === 'true' || val === 'TRUE' || val === '1' || val === 1 || val === 'yes') {
-          updates.isArchived = true;
-          needsUpdate = true;
-        } else if (val === 'false' || val === 'FALSE' || val === '0' || val === 0 || val === 'no' || !val) {
-          updates.isArchived = false;
-          needsUpdate = true;
-        }
-
-        // Fix 2: Restore records that were incorrectly archived
-        // Condition: no legal_status_id, totalDebt > 0, currently archived
-        if (
-          (!record.legal_status_id || record.legal_status_id === '') &&
-          (record.totalDebt || 0) > 0 &&
-          record.isArchived === true
-        ) {
-          updates.isArchived = false;
-          needsUpdate = true;
-        }
-
-        if (needsUpdate) {
-          try {
-            await base44.entities.DebtorRecord.update(record.id, updates);
-            fixedCount++;
-            // Add delay to avoid rate limiting
-            await new Promise(resolve => setTimeout(resolve, 100));
-          } catch (err) {
-            errors.push({
-              apartmentNumber: record.apartmentNumber,
-              error: err.message
-            });
-          }
-        }
-      }
-
-      toast.success(`תוקנו ${fixedCount} רשומות`);
-      
-      if (errors.length > 0) {
-        console.error('Errors during fix:', errors);
-        toast.warning(`${errors.length} רשומות נכשלו`);
-      }
-
-      // Refresh data
-      queryClient.invalidateQueries({ queryKey: ['allDebtorRecordsAudit'] });
-      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
-      queryClient.invalidateQueries({ queryKey: ['archivedRecords'] });
-      queryClient.invalidateQueries({ queryKey: ['allDebtorRecords'] });
-      
-      // Re-run audit
-      setTimeout(() => runAudit(), 1000);
-    } catch (error) {
-      console.error('Fix error:', error);
-      toast.error('שגיאה בתיקון הנתונים');
-    } finally {
-      setIsFixing(false);
-    }
-  };
-
-  if (isLoading) {
+  const fixData
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />

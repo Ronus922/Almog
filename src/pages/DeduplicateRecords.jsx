@@ -24,23 +24,6 @@ export default function DeduplicateRecords() {
 
   const isAdmin = isManagerRole(currentUser);
 
-  if (authChecked && !currentUser) {
-    return <Navigate to={createPageUrl('AppLogin')} replace />;
-  }
-
-  if (authChecked && !isAdmin) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4" dir="rtl">
-        <Alert variant="destructive" className="max-w-md">
-          <AlertTriangle className="w-5 h-5" />
-          <AlertDescription>
-            אין לך הרשאה לגשת לעמוד זה. נדרשות הרשאות מנהל.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
-
   const { data: allRecords = [], isLoading, refetch } = useQuery({
     queryKey: ['allDebtorRecordsForDedup'],
     queryFn: () => base44.entities.DebtorRecord.list('-created_date'),
@@ -64,111 +47,25 @@ export default function DeduplicateRecords() {
     },
   });
 
-  const analyzeDuplicates = () => {
-    setAnalyzing(true);
-    try {
-      const grouped = {};
-      
-      allRecords.forEach(record => {
-        const normalizedApt = normalizeApartmentNumber(record.apartmentNumber);
-        if (!normalizedApt) return;
-        
-        if (!grouped[normalizedApt]) {
-          grouped[normalizedApt] = [];
-        }
-        grouped[normalizedApt].push(record);
-      });
+  // Auth guards after hooks
+  if (authChecked && !currentUser) {
+    return <Navigate to={createPageUrl('AppLogin')} replace />;
+  }
 
-      const duplicateGroups = Object.entries(grouped)
-        .filter(([_, records]) => records.length > 1)
-        .map(([aptNumber, records]) => ({
-          apartmentNumber: aptNumber,
-          originalValues: records.map(r => r.apartmentNumber),
-          records: records.sort((a, b) => 
-            new Date(b.updated_date || b.created_date) - new Date(a.updated_date || a.created_date)
-          ),
-          count: records.length
-        }));
+  if (authChecked && !isAdmin) {
+    return (
+      <div className="min-h-screen flex items-center justify-center p-4" dir="rtl">
+        <Alert variant="destructive" className="max-w-md">
+          <AlertTriangle className="w-5 h-5" />
+          <AlertDescription>
+            אין לך הרשאה לגשת לעמוד זה. נדרשות הרשאות מנהל.
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
-      setDuplicates(duplicateGroups);
-      
-      if (duplicateGroups.length === 0) {
-        toast.success('לא נמצאו כפילויות במערכת');
-      } else {
-        toast.warning(`נמצאו ${duplicateGroups.length} דירות עם כפילויות`);
-      }
-    } catch (error) {
-      console.error('Error analyzing duplicates:', error);
-      toast.error('שגיאה בניתוח כפילויות');
-    } finally {
-      setAnalyzing(false);
-    }
-  };
-
-  const mergeDuplicateGroup = async (group) => {
-    setMerging(true);
-    try {
-      const [primary, ...duplicatesToRemove] = group.records;
-      
-      // Merge data from duplicates into primary
-      const mergedData = {
-        phoneOwner: primary.phoneOwner || duplicatesToRemove.find(r => r.phoneOwner)?.phoneOwner || '',
-        phoneTenant: primary.phoneTenant || duplicatesToRemove.find(r => r.phoneTenant)?.phoneTenant || '',
-        phonePrimary: primary.phonePrimary || duplicatesToRemove.find(r => r.phonePrimary)?.phonePrimary || '',
-        notes: [primary.notes, ...duplicatesToRemove.map(r => r.notes)].filter(Boolean).join('\n---\n'),
-      };
-
-      // Update primary with merged data
-      await updateMutation.mutateAsync({ id: primary.id, data: mergedData });
-
-      // Delete duplicates
-      for (const dup of duplicatesToRemove) {
-        await deleteMutation.mutateAsync(dup.id);
-      }
-
-      toast.success(`מוזגו ${duplicatesToRemove.length} רשומות כפולות לדירה ${group.apartmentNumber}`);
-      
-      // Re-analyze
-      setTimeout(() => analyzeDuplicates(), 500);
-    } catch (error) {
-      console.error('Error merging duplicates:', error);
-      toast.error('שגיאה במיזוג רשומות');
-    } finally {
-      setMerging(false);
-    }
-  };
-
-  const mergeAllDuplicates = async () => {
-    if (!window.confirm(`האם למזג את כל ${duplicates.length} הכפילויות? פעולה זו היא בלתי הפיכה.`)) {
-      return;
-    }
-
-    setMerging(true);
-    let successCount = 0;
-    let errorCount = 0;
-
-    for (const group of duplicates) {
-      try {
-        await mergeDuplicateGroup(group);
-        successCount++;
-      } catch (error) {
-        console.error(`Error merging group ${group.apartmentNumber}:`, error);
-        errorCount++;
-      }
-    }
-
-    setMerging(false);
-    
-    if (errorCount === 0) {
-      toast.success(`בוצע מיזוג מוצלח של ${successCount} דירות`);
-    } else {
-      toast.warning(`בוצע מיזוג של ${successCount} דירות, ${errorCount} נכשלו`);
-    }
-
-    setTimeout(() => analyzeDuplicates(), 500);
-  };
-
-  if (loading || isLoading) {
+  const analyzeDuplicates
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-blue-600" />

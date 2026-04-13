@@ -26,14 +26,8 @@ export default function DebtorReport() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const queryClient = useQueryClient();
 
-  // Get reportKey from URL
   const urlParams = new URLSearchParams(window.location.search);
   const reportKey = urlParams.get('reportKey');
-
-  // CRITICAL: Require authentication
-  if (authChecked && !currentUser) {
-    return <Navigate to={createPageUrl('AppLogin')} replace />;
-  }
 
   const { data: allRecords = [], isLoading: recordsLoading } = useQuery({
     queryKey: ['debtorRecords'],
@@ -50,39 +44,6 @@ export default function DebtorReport() {
     queryFn: () => base44.entities.Settings.list(),
   });
 
-  const settings = settingsList[0] || {};
-  const isAdmin = isManagerRole(currentUser);
-
-  // Filter records based on reportKey
-  const filteredRecords = React.useMemo(() => {
-    if (!reportKey || !allRecords.length) return allRecords;
-
-    switch (reportKey) {
-      case 'IMMEDIATE_COLLECTION':
-        return allRecords.filter(r => r.debt_status_auto === 'לגבייה מיידית');
-      
-      case 'REQUIRES_LEGAL_ACTION':
-        return allRecords.filter(r => r.debt_status_auto === 'חריגה מופרזת');
-      
-      case 'LEGAL_PROCESS': {
-        const legalStatus = allStatuses.find(s => s.type === 'LEGAL' && s.name === 'תביעה משפטית');
-        return legalStatus 
-          ? allRecords.filter(r => r.legal_status_id === legalStatus.id)
-          : [];
-      }
-      
-      case 'WARNING_LETTER': {
-        const warningStatus = allStatuses.find(s => s.type === 'LEGAL' && s.name === 'מכתב התראה');
-        return warningStatus
-          ? allRecords.filter(r => r.legal_status_id === warningStatus.id)
-          : [];
-      }
-      
-      default:
-        return allRecords;
-    }
-  }, [reportKey, allRecords, allStatuses]);
-
   const updateMutation = useMutation({
     mutationFn: ({ id, data }) => base44.entities.DebtorRecord.update(id, data),
     onSuccess: () => {
@@ -91,18 +52,30 @@ export default function DebtorReport() {
     },
   });
 
-  const handleRowClick = (record) => {
-    setSelectedRecord(record);
-    setIsModalOpen(true);
-  };
+  const settings = settingsList[0] || {};
+  const isAdmin = isManagerRole(currentUser);
 
-  const handleSaveRecord = async (editedRecord) => {
-    await updateMutation.mutateAsync({ id: editedRecord.id, data: editedRecord });
-  };
+  const filteredRecords = React.useMemo(() => {
+    if (!reportKey || !allRecords.length) return allRecords;
+    switch (reportKey) {
+      case 'IMMEDIATE_COLLECTION': return allRecords.filter(r => r.debt_status_auto === 'לגבייה מיידית');
+      case 'REQUIRES_LEGAL_ACTION': return allRecords.filter(r => r.debt_status_auto === 'חריגה מופרזת');
+      case 'LEGAL_PROCESS': {
+        const legalStatus = allStatuses.find(s => s.type === 'LEGAL' && s.name === 'תביעה משפטית');
+        return legalStatus ? allRecords.filter(r => r.legal_status_id === legalStatus.id) : [];
+      }
+      case 'WARNING_LETTER': {
+        const warningStatus = allStatuses.find(s => s.type === 'LEGAL' && s.name === 'מכתב התראה');
+        return warningStatus ? allRecords.filter(r => r.legal_status_id === warningStatus.id) : [];
+      }
+      default: return allRecords;
+    }
+  }, [reportKey, allRecords, allStatuses]);
 
-  const handleBackToDashboard = () => {
-    navigate(createPageUrl('Dashboard'));
-  };
+  // Auth guard after all hooks
+  if (authChecked && !currentUser) {
+    return <Navigate to={createPageUrl('AppLogin')} replace />;
+  }
 
   if (loading || recordsLoading) {
     return (
@@ -119,52 +92,46 @@ export default function DebtorReport() {
 
   const reportTitle = REPORT_TITLES[reportKey] || 'דוח חייבים';
 
+  const handleRowClick = (record) => { setSelectedRecord(record); setIsModalOpen(true); };
+  const handleSaveRecord = async (editedRecord) => {
+    await updateMutation.mutateAsync({ id: editedRecord.id, data: editedRecord });
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-slate-100" dir="rtl">
       <div className="max-w-7xl mx-auto p-4 md:p-6 lg:p-8 space-y-6 md:space-y-8">
-        
-        {/* Header */}
         <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 border border-slate-200">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
             <div className="order-2 md:order-1 flex-1">
               <h1 className="text-2xl md:text-3xl font-extrabold bg-gradient-to-l from-slate-800 to-slate-600 bg-clip-text text-transparent">
                 דוח: {reportTitle}
               </h1>
-              <p className="text-sm text-slate-600 font-medium mt-1">
-                {filteredRecords.length} רשומות
-              </p>
+              <p className="text-sm text-slate-600 font-medium mt-1">{filteredRecords.length} רשומות</p>
             </div>
             <div className="order-1 md:order-2">
-              <Button
-                onClick={handleBackToDashboard}
-                className="w-full md:w-auto bg-gradient-to-l from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md hover:shadow-xl transition-all duration-200 h-12 md:h-14 px-6 md:px-8 text-base md:text-lg font-bold rounded-xl"
-              >
-                <ArrowRight className="w-5 h-5 md:w-6 md:h-6 ml-2" />
+              <Button onClick={() => navigate(createPageUrl('Dashboard'))}
+                className="w-full md:w-auto bg-gradient-to-l from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-md h-12 px-6 text-base font-bold rounded-xl">
+                <ArrowRight className="w-5 h-5 ml-2" />
                 חזרה לדשבורד
               </Button>
             </div>
           </div>
         </div>
 
-        {/* Info Alert */}
         <Alert className="bg-blue-50 border-blue-200">
           <AlertDescription className="text-blue-900">
             <span className="font-bold">מציג:</span> {reportTitle}
           </AlertDescription>
         </Alert>
 
-        {/* Table */}
-        <div data-debtors-table>
-          <DebtorsTable 
-            records={filteredRecords} 
-            onRowClick={handleRowClick}
-            isAdmin={isAdmin}
-            settings={settings}
-            allStatuses={allStatuses}
-          />
-        </div>
+        <DebtorsTable
+          records={filteredRecords}
+          onRowClick={handleRowClick}
+          isAdmin={isAdmin}
+          settings={settings}
+          allStatuses={allStatuses}
+        />
 
-        {/* Modal */}
         <ApartmentDetailModal
           record={selectedRecord}
           isOpen={isModalOpen}

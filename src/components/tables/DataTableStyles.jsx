@@ -1,3 +1,5 @@
+import { Input } from '@/components/ui/input';
+
 /**
  * DataTableStyles - סגנונות וקלאסים מרכזיים לטבלאות בכל האתר
  * 
@@ -82,8 +84,6 @@ export function DataTableHeader({ title, subtitle, actions }) {
  * קומפוננט DataTableSearch - שדה חיפוש סטנדרטי
  */
 export function DataTableSearch({ placeholder, value, onChange }) {
-  const { Input } = require('@/components/ui/input');
-  
   return (
     <div className="mb-6">
       <Input
