@@ -23,7 +23,7 @@ export default function Dashboard() {
   const [syncing, setSyncing] = useState(false);
   const [syncError, setSyncError] = useState(null);
 
-  const isAdmin = currentUser?.role === 'ADMIN' || currentUser?.isBase44Admin;
+  const isAdmin = currentUser?.role === 'ADMIN' || currentUser?.role === 'SUPER_ADMIN' || currentUser?.isBase44Admin || currentUser?.roleData?.is_admin === true || currentUser?.accessiblePages === null;
 
   const { data: rawRecords = [] } = useQuery({
     queryKey: ['debtorRecords'],

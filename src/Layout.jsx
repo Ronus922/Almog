@@ -31,7 +31,7 @@ function LayoutContent({ children, currentPageName }) {
   const [isCollapsed, setIsCollapsed] = useState(false);
 
 
-  const isAdmin = isManagerRole(currentUser) || currentUser?.isBase44Admin === true || currentUser?.role === 'SUPER_ADMIN';
+  const isAdmin = isManagerRole(currentUser) || currentUser?.isBase44Admin === true || currentUser?.role === 'SUPER_ADMIN' || currentUser?.roleData?.is_admin === true || currentUser?.accessiblePages === null;
 
   /**
    * האם המשתמש רשאי לראות דף זה בתפריט?
@@ -41,6 +41,7 @@ function LayoutContent({ children, currentPageName }) {
   const canAccessPage = (pageName) => {
     if (!currentUser) return false;
     if (currentUser.isBase44Admin || currentUser.role === 'SUPER_ADMIN') return true;
+    if (currentUser.roleData?.is_admin === true) return true;
     if (currentUser.accessiblePages === null) return true;
     return (currentUser.accessiblePages || []).includes(pageName);
   };
