@@ -23,8 +23,15 @@ import { calculateDebtStatusDebug } from '../utils/debtStatusCalculator';
 import CommentsSection from '../comments/CommentsSection';
 import { getPhonePrimaryForTable } from '../utils/phoneDisplay';
 
-export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin, settings }) {
+export default function ApartmentDetailModal({ record, isOpen, onClose, onSave, isAdmin: isAdminProp, settings }) {
   const { currentUser } = useAuth();
+  // חישוב isAdmin מקומי — לא תלוי רק בפרופ
+  const isAdmin = isAdminProp ||
+    currentUser?.role === 'ADMIN' ||
+    currentUser?.role === 'SUPER_ADMIN' ||
+    currentUser?.isBase44Admin === true ||
+    currentUser?.roleData?.is_admin === true ||
+    currentUser?.accessiblePages === null;
   const { showAlert } = useAlert();
   const [isExporting, setIsExporting] = useState(false);
   const { data: allStatuses = [] } = useQuery({

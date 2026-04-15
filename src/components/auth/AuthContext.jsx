@@ -120,6 +120,13 @@ export function AuthProvider({ children }) {
         finalAccessiblePages: accessiblePages,
       });
 
+      // עדכון session עם role עדכני
+      localStorage.setItem('app_session', JSON.stringify({
+        username: user.username,
+        role: systemRole,
+        loginTime: new Date().toISOString(),
+      }));
+
       setCurrentUser({
         email: user.email || user.username,
         username: user.username,
