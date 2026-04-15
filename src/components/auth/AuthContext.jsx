@@ -56,30 +56,7 @@ export function AuthProvider({ children }) {
     setLoading(true);
     setAuthChecked(false);
 
-    try {
-      const base44User = await base44.auth.me().catch(() => null);
-
-      if (base44User && base44User.role === 'admin') {
-        const userData = {
-          email: base44User.email,
-          username: base44User.email || base44User.full_name,
-          firstName: base44User.full_name || 'Admin',
-          role: 'SUPER_ADMIN',
-          role_id: null,
-          isBase44Admin: true,
-          accessiblePages: null, // null = גישה מלאה
-          roleData: null,
-        };
-        console.log('[Auth] ✓ Base44 SUPER_ADMIN:', userData);
-        setCurrentUser(userData);
-        setLoading(false);
-        setAuthChecked(true);
-        return;
-      }
-    } catch {
-      // silent
-    }
-
+    // בדיקת session מקומי קודם — עדיפות על base44 admin
     const sessionData = localStorage.getItem('app_session');
     if (!sessionData) {
       console.log('[Auth] ✗ No session');
@@ -200,10 +177,6 @@ export function AuthProvider({ children }) {
   };
 
   const logout = () => {
-    if (currentUser?.isBase44Admin) {
-      base44.auth.logout();
-      return;
-    }
     localStorage.removeItem('app_session');
     setCurrentUser(null);
     window.location.href = '/';
