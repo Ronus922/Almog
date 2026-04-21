@@ -56,9 +56,32 @@ export function AuthProvider({ children }) {
     setLoading(true);
     setAuthChecked(false);
 
-    // בדיקת session מקומי קודם — עדיפות על base44 admin
+    // ── 1. בדיקת session מקומי (משתמש אפליקציה) ──
     const sessionData = localStorage.getItem('app_session');
     if (!sessionData) {
+      // ── 2. אין session — ננסה לזהות מפתח Base44 (admin פלטפורמה) ──
+      try {
+        const b44User = await base44.auth.me();
+        if (b44User && b44User.role === 'admin') {
+          console.log('[Auth] ✓ Base44 platform admin detected:', b44User.email);
+          setCurrentUser({
+            email: b44User.email,
+            username: b44User.email,
+            firstName: b44User.full_name || 'מנהל',
+            lastName: '',
+            role: 'SUPER_ADMIN',
+            role_id: null,
+            isBase44Admin: true,
+            accessiblePages: null,
+            roleData: null,
+          });
+          setLoading(false);
+          setAuthChecked(true);
+          return;
+        }
+      } catch (e) {
+        // לא מחובר כמפתח Base44 — המשך לדרישת לוגין
+      }
       console.log('[Auth] ✗ No session');
       setCurrentUser(null);
       setLoading(false);
