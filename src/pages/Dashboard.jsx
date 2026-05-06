@@ -115,8 +115,8 @@ export default function Dashboard() {
   const handleSync = async () => {
     setSyncing(true); setSyncError(null);
     try {
-      const res = await fetch('https://crm.bios.co.il/api/admin/jobs/syncBllinkDebt', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
-      const data = await res.json();
+      const response = await base44.functions.invoke('importBuildingDebtReport', {});
+      const data = response.data;
       if (data.ok) {
         try {
           const settingsList = await base44.entities.Settings.list();
@@ -127,7 +127,7 @@ export default function Dashboard() {
         queryClient.invalidateQueries({ queryKey: ['settings'] });
         queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
       } else { setSyncError(data.error || 'שגיאה בסנכרון'); }
-    } catch (err) { setSyncError('שגיאה בסנכרון'); }
+    } catch (err) { setSyncError(err?.response?.data?.error || err?.message || 'שגיאה בסנכרון'); }
     finally { setSyncing(false); }
   };
 
