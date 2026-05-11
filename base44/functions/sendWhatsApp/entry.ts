@@ -1,9 +1,7 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.20';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 Deno.serve(async (req) => {
   const base44 = createClientFromRequest(req);
-  const user = await base44.auth.me();
-  if (!user) return Response.json({ error: 'Unauthorized' }, { status: 401 });
 
   const { phone, message, fileUrl, fileName } = await req.json();
   if (!phone || (!message && !fileUrl)) return Response.json({ error: 'Missing phone, message, or fileUrl' }, { status: 400 });
