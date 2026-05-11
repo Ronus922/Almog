@@ -448,18 +448,53 @@ Deno.serve(async (req) => {
       skippedRowsCount: rows.length - uniqueApts.length,
     });
 
-    // טען רשומות קיימות
-    const existingRecords = await base44.asServiceRole.entities.DebtorRecord.list('-updated_date', 2000);
+    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+    // טען את כל הרשומות הקיימות (ב-chunks של 500 כדי לא לפספס)
+    let existingRecords = [];
+    let page = 0;
+    while (true) {
+      const chunk = await base44.asServiceRole.entities.DebtorRecord.list('-updated_date', 500, page * 500);
+      if (!chunk || chunk.length === 0) break;
+      existingRecords = existingRecords.concat(chunk);
+      if (chunk.length < 500) break;
+      page++;
+    }
+
+    // בניית מפה — אם יש כפולות, שמור את העדכנית ביותר ומחק את הישנות
     const existingMap = new Map();
+    const toDelete = []; // כפולות למחיקה
     for (const rec of existingRecords) {
-      if (rec.apartmentNumber) existingMap.set(normalizeApt(rec.apartmentNumber), rec);
+      if (!rec.apartmentNumber) continue;
+      const key = normalizeApt(rec.apartmentNumber);
+      const existing = existingMap.get(key);
+      if (!existing) {
+        existingMap.set(key, rec);
+      } else {
+        // יש כפולה — שמור את העדכנית, סמן את הישנה למחיקה
+        const recDate = rec.updated_date || rec.created_date || '';
+        const existDate = existing.updated_date || existing.created_date || '';
+        if (recDate > existDate) {
+          toDelete.push(existing.id);
+          existingMap.set(key, rec);
+        } else {
+          toDelete.push(rec.id);
+        }
+      }
+    }
+
+    // מחק כפולות ישנות
+    if (toDelete.length > 0) {
+      console.log(`[Import] מוחק ${toDelete.length} כפולות ישנות`);
+      for (const id of toDelete) {
+        await base44.asServiceRole.entities.DebtorRecord.delete(id).catch(() => {});
+        await sleep(200);
+      }
     }
 
     let created = 0, updated = 0, failed = 0;
     const errorDetails = [];
     const now = new Date().toISOString();
-
-    const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
     for (let i = 0; i < uniqueApts.length; i++) {
       const [apt, rowData] = uniqueApts[i];
