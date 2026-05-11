@@ -142,7 +142,20 @@ function TaskAnalyticsDashboard() {
 
   // חישוב KPI חדשים
   const buildingMetrics = useMemo(() => {
-    const totalDebt = debtors.reduce((sum, d) => sum + (d.totalDebt || 0), 0);
+    // דדוף לפי דירה — לוקחים את הרשומה העדכנית ביותר לכל דירה
+    const normalizeApt = (raw) => raw ? String(raw).trim().replace(/^0+/, '') || String(raw).trim() : null;
+    const aptMap = new Map();
+    for (const d of debtors) {
+      const apt = normalizeApt(d.apartmentNumber);
+      if (!apt) continue;
+      const existing = aptMap.get(apt);
+      if (!existing) { aptMap.set(apt, d); continue; }
+      const dDate = d.updated_date || d.created_date || '';
+      const eDate = existing.updated_date || existing.created_date || '';
+      if (dDate > eDate) aptMap.set(apt, d);
+    }
+    const uniqueDebtors = Array.from(aptMap.values());
+    const totalDebt = uniqueDebtors.reduce((sum, d) => sum + (d.totalDebt || 0), 0);
     const activeAppointments = appointments.filter((a) => {
       const apptDate = new Date(a.date);
       const today = new Date();
