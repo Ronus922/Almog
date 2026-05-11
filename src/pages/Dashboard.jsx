@@ -102,7 +102,9 @@ export default function Dashboard() {
       setIsModalOpen(false); setSelectedRecord(null);
     } catch (error) {}
   };
-  const handleRecordUpdate = () => { queryClient.invalidateQueries({ queryKey: ['debtorRecords'] }); };
+  const handleRecordUpdate = () => {
+    setTimeout(() => queryClient.invalidateQueries({ queryKey: ['debtorRecords'] }), 500);
+  };
 
   const handleSync = async () => {
     setSyncing(true); setSyncError(null);
