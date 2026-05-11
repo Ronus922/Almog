@@ -155,7 +155,9 @@ function TaskAnalyticsDashboard() {
       if (dDate > eDate) aptMap.set(apt, d);
     }
     const uniqueDebtors = Array.from(aptMap.values());
-    const totalDebt = uniqueDebtors.reduce((sum, d) => sum + (d.totalDebt || 0), 0);
+    // דמי ניהול = totalDebt פחות specialDebt — כולל חוב עבר
+    const totalSpecialDebt = uniqueDebtors.reduce((sum, d) => sum + (d.specialDebt || 0), 0);
+    const totalDebt = uniqueDebtors.reduce((sum, d) => sum + ((d.totalDebt || 0) - (d.specialDebt || 0)), 0);
     const activeAppointments = appointments.filter((a) => {
       const apptDate = new Date(a.date);
       const today = new Date();

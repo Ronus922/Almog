@@ -42,15 +42,7 @@ export default function Dashboard() {
     }, '');
   }, [records]);
 
-  useEffect(() => {
-    const unsubscribeDebtor = base44.entities.DebtorRecord.subscribe(() => {
-      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
-    });
-    const unsubscribeContact = base44.entities.Contact.subscribe(() => {
-      queryClient.invalidateQueries({ queryKey: ['debtorRecords'] });
-    });
-    return () => { unsubscribeDebtor(); unsubscribeContact(); };
-  }, [queryClient]);
+
 
   const { data: settings } = useQuery({
     queryKey: ['settings'],
