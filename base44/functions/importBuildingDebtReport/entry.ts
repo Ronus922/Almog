@@ -282,23 +282,22 @@ function mapBllinkRowToDebtor(apt, data) {
   if (tenantPhone && tenantPhone !== '000000000') result.phoneTenant = String(tenantPhone).trim();
 
   // חובות — מ-Bllink fields
-  // pastPaymentsLeft = חוב עבר (דמי ניהול חודשיים שלא שולמו)
-  const pastDebt = parseNum(data.pastPaymentsLeft ?? data.pastOnlyPaymentsLeft);
-  const currentMonthDebt = parseNum(data.currentMonthDebtLeft);
+  // pastPaymentsLeft = סך כל חוב ועד חודשי (עבר + נוכחי) — זה מה שבלינק מציג כ"חובות ועד חודשי"
+  const monthlyTotal = parseNum(data.pastPaymentsLeft); // = pastOnlyPaymentsLeft + currentMonthDebtLeft
   const oneTime = parseNum(data.oneTimeLeft); // חיובים חד פעמיים (מים חמים וכו')
 
-  // totalDebt = כל החוב הפתוח
+  // monthlyDebt = סך חוב ועד חודשי (בדיוק כמו בלינק)
+  if (monthlyTotal !== null) result.monthlyDebt = monthlyTotal;
+  // specialDebt = חד פעמי (מים חמים)
+  if (oneTime !== null) result.specialDebt = oneTime;
+
+  // totalDebt = סך הכל (ועד + מיוחד)
   const total = parseNum(data.totalDebt ?? data.total_debt);
   if (total !== null) {
     result.totalDebt = total;
-  } else if (pastDebt !== null || currentMonthDebt !== null || oneTime !== null) {
-    result.totalDebt = (pastDebt ?? 0) + (currentMonthDebt ?? 0) + (oneTime ?? 0);
+  } else {
+    result.totalDebt = (monthlyTotal ?? 0) + (oneTime ?? 0);
   }
-
-  // monthlyDebt = חוב חודשי נוכחי (דמי ניהול)
-  if (currentMonthDebt !== null) result.monthlyDebt = currentMonthDebt;
-  // specialDebt = חד פעמי (מים חמים)
-  if (oneTime !== null) result.specialDebt = oneTime;
 
   // פרטי תשלומים
   if (data.openMonthDebtPayments?.length) {
@@ -429,6 +428,11 @@ Deno.serve(async (req) => {
 
     if (rows.length === 0) throw new Error('API החזיר 0 שורות');
 
+    // לוג דגימה של השדות הגולמיים
+    const sample = rows[0];
+    console.log('[SAMPLE ROW KEYS]:', Object.keys(sample).join(', '));
+    console.log('[SAMPLE ROW DATA]:', JSON.stringify(sample).slice(0, 800));
+
     await base44.asServiceRole.entities.ImportRun.update(logId, { stage: 'PARSE', totalRowsRead: rows.length });
 
     // מיפוי לפי דירה
@@ -495,6 +499,22 @@ Deno.serve(async (req) => {
     let created = 0, updated = 0, failed = 0;
     const errorDetails = [];
     const now = new Date().toISOString();
+
+    // אפס חוב לכל דיירים שלא הופיעו בקובץ הנוכחי (חובם שולם)
+    for (const [apt, rec] of existingMap.entries()) {
+      if (!aptMap.has(apt) && !rec.isArchived) {
+        await base44.asServiceRole.entities.DebtorRecord.update(rec.id, {
+          monthlyDebt: 0,
+          specialDebt: 0,
+          totalDebt: 0,
+          debt_status_auto: 'תקין',
+          importedThisRun: false,
+          flaggedAsCleared: true,
+          clearedAt: now,
+        }).catch(() => {});
+        await sleep(500);
+      }
+    }
 
     for (let i = 0; i < uniqueApts.length; i++) {
       const [apt, rowData] = uniqueApts[i];
