@@ -1,4 +1,4 @@
-import { createClientFromRequest } from 'npm:@base44/sdk@0.8.21';
+import { createClientFromRequest } from 'npm:@base44/sdk@0.8.25';
 
 /**
  * אימות Cognito SRP — מימוש נאמן לחלוטין ל-amazon-cognito-identity-js
@@ -371,9 +371,8 @@ Deno.serve(async (req) => {
     });
   }
 
-  // DEBUG mode
-  let body = {};
-  try { body = await req.json(); } catch {}
+  // DEBUG mode — body נשמר לשימוש עתידי
+  const body = {};
 
 
   let logId = null;
