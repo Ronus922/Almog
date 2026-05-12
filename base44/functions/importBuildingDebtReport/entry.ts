@@ -454,7 +454,16 @@ Deno.serve(async (req) => {
 
     const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-    // טען את כל הרשומות הקיימות (ב-chunks של 500 כדי לא לפספס)
+    // עזר: עיבוד batch מקבילי
+    async function processBatch(items, fn, batchSize = 10) {
+      for (let i = 0; i < items.length; i += batchSize) {
+        const batch = items.slice(i, i + batchSize);
+        await Promise.all(batch.map(item => fn(item).catch(() => {})));
+        if (i + batchSize < items.length) await sleep(200);
+      }
+    }
+
+    // טען את כל הרשומות הקיימות (ב-chunks של 500)
     let existingRecords = [];
     let page = 0;
     while (true) {
@@ -467,7 +476,7 @@ Deno.serve(async (req) => {
 
     // בניית מפה — אם יש כפולות, שמור את העדכנית ביותר ומחק את הישנות
     const existingMap = new Map();
-    const toDelete = []; // כפולות למחיקה
+    const toDelete = [];
     for (const rec of existingRecords) {
       if (!rec.apartmentNumber) continue;
       const key = normalizeApt(rec.apartmentNumber);
@@ -475,7 +484,6 @@ Deno.serve(async (req) => {
       if (!existing) {
         existingMap.set(key, rec);
       } else {
-        // יש כפולה — שמור את העדכנית, סמן את הישנה למחיקה
         const recDate = rec.updated_date || rec.created_date || '';
         const existDate = existing.updated_date || existing.created_date || '';
         if (recDate > existDate) {
@@ -487,38 +495,34 @@ Deno.serve(async (req) => {
       }
     }
 
-    // מחק כפולות ישנות
+    // מחק כפולות ישנות — מקביל
     if (toDelete.length > 0) {
       console.log(`[Import] מוחק ${toDelete.length} כפולות ישנות`);
-      for (const id of toDelete) {
-        await base44.asServiceRole.entities.DebtorRecord.delete(id).catch(() => {});
-        await sleep(200);
-      }
+      await processBatch(toDelete, id =>
+        base44.asServiceRole.entities.DebtorRecord.delete(id), 10
+      );
     }
 
     let created = 0, updated = 0, failed = 0;
     const errorDetails = [];
     const now = new Date().toISOString();
 
-    // אפס חוב לכל דיירים שלא הופיעו בקובץ הנוכחי (חובם שולם)
+    // אפס חוב לדיירים שלא הופיעו — מקביל
+    const toClear = [];
     for (const [apt, rec] of existingMap.entries()) {
-      if (!aptMap.has(apt) && !rec.isArchived) {
-        await base44.asServiceRole.entities.DebtorRecord.update(rec.id, {
-          monthlyDebt: 0,
-          specialDebt: 0,
-          totalDebt: 0,
-          debt_status_auto: 'תקין',
-          importedThisRun: false,
-          flaggedAsCleared: true,
-          clearedAt: now,
-        }).catch(() => {});
-        await sleep(500);
-      }
+      if (!aptMap.has(apt) && !rec.isArchived) toClear.push(rec);
     }
+    await processBatch(toClear, rec =>
+      base44.asServiceRole.entities.DebtorRecord.update(rec.id, {
+        monthlyDebt: 0, specialDebt: 0, totalDebt: 0,
+        debt_status_auto: 'תקין', importedThisRun: false,
+        flaggedAsCleared: true, clearedAt: now,
+      }), 10
+    );
 
-    for (let i = 0; i < uniqueApts.length; i++) {
-      const [apt, rowData] = uniqueApts[i];
-      try {
+    // עדכון/יצירת רשומות — מקביל בקבוצות של 10
+    const upsertResults = await Promise.allSettled(
+      uniqueApts.map(async ([apt, rowData]) => {
         const mapped = mapBllinkRowToDebtor(apt, rowData);
         mapped.importedThisRun = true;
         mapped.lastImportRunId = runId;
@@ -537,37 +541,22 @@ Deno.serve(async (req) => {
             if (v !== null && v !== undefined && v !== '') updatePayload[k2] = v;
           }
           await base44.asServiceRole.entities.DebtorRecord.update(existing.id, updatePayload);
-          updated++;
+          return 'updated';
         } else {
           await base44.asServiceRole.entities.DebtorRecord.create(mapped);
-          created++;
+          return 'created';
         }
+      })
+    );
 
-        // delay בין רשומות למניעת rate limit
-        await sleep(500);
-      } catch (rowErr) {
-        if (rowErr.message?.includes('Rate limit')) {
-          // המתן ונסה שוב
-          await sleep(2000);
-          try {
-            const existing = existingMap.get(apt);
-            const mapped = mapBllinkRowToDebtor(apt, rowData);
-            mapped.importedThisRun = true; mapped.lastImportRunId = runId; mapped.lastImportAt = now;
-            if (existing) {
-              await base44.asServiceRole.entities.DebtorRecord.update(existing.id, mapped);
-              updated++;
-            } else {
-              await base44.asServiceRole.entities.DebtorRecord.create(mapped);
-              created++;
-            }
-          } catch (retryErr) {
-            failed++;
-            errorDetails.push({ apartmentNumber: apt, errorMessage: retryErr.message });
-          }
-        } else {
-          failed++;
-          errorDetails.push({ apartmentNumber: apt, errorMessage: rowErr.message });
-        }
+    for (let i = 0; i < upsertResults.length; i++) {
+      const r = upsertResults[i];
+      if (r.status === 'fulfilled') {
+        if (r.value === 'created') created++;
+        else updated++;
+      } else {
+        failed++;
+        errorDetails.push({ apartmentNumber: uniqueApts[i][0], errorMessage: r.reason?.message || 'שגיאה' });
       }
     }
 
