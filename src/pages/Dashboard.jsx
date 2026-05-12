@@ -139,11 +139,14 @@ export default function Dashboard() {
   const formattedDate = noDate ? '—' : new Date(importDate).toLocaleDateString('he-IL', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + new Date(importDate).toLocaleTimeString('he-IL', { hour: '2-digit', minute: '2-digit' });
   const showWarning = (hoursSince !== null && hoursSince >= 24) || noDate;
 
-  const totalMonthly = records.reduce((s,r) => s + (r.monthlyDebt || 0), 0);
-  const totalSpecial = records.reduce((s,r) => s + (r.specialDebt || 0), 0);
+  const activeRecords = records.filter(r => !r.isArchived);
+  const totalMonthly = activeRecords.reduce((s,r) => s + (r.monthlyDebt || 0), 0);
+  const totalSpecial = activeRecords.reduce((s,r) => s + (r.specialDebt || 0), 0);
+  const totalDebtAll = activeRecords.reduce((s,r) => s + (r.totalDebt || 0), 0);
   const formatNum = (n) => new Intl.NumberFormat('he-IL').format(Math.round(n));
 
   const kpiCards = [
+    { label: 'סה״כ חוב', value: `₪${formatNum(totalDebtAll)}`, icon: <CreditCard className="w-5 h-5" />, iconBg: 'bg-red-100', iconColor: 'text-red-600', onClick: () => setActiveTab('debtors') },
     { label: 'חוב דמי ניהול', value: `₪${formatNum(totalMonthly)}`, icon: <CreditCard className="w-5 h-5" />, iconBg: 'bg-purple-100', iconColor: 'text-purple-600', onClick: () => setActiveTab('debtors') },
     { label: 'חוב מים חמים', value: `₪${formatNum(totalSpecial)}`, icon: <Droplets className="w-5 h-5" />, iconBg: 'bg-blue-100', iconColor: 'text-blue-600', onClick: () => setActiveTab('debtors') },
     { label: 'לגבייה מיידית', value: tabDatasets.immediateCollectCount, icon: <Zap className="w-5 h-5" />, iconBg: 'bg-orange-100', iconColor: 'text-orange-600', onClick: () => setActiveTab('debtors') },
@@ -158,7 +161,7 @@ export default function Dashboard() {
 
         <div className="px-3 md:px-6 pt-4 md:pt-6">
           <div className="p-4 md:p-6">
-            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 md:gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-3 md:gap-4">
               {kpiCards.map((card, i) => (
                 <div key={i} onClick={card.onClick}
                   className="bg-white rounded-2xl p-4 flex flex-col justify-between min-h-[120px] cursor-pointer hover:shadow-lg transition-all relative overflow-hidden border border-slate-100">
