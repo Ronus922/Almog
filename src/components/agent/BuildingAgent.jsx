@@ -126,7 +126,7 @@ export default function BuildingAgent() {
           setIsMinimized(false);
           setHasUnread(false);
         }}
-        className={`fixed bottom-4 left-4 z-50 w-14 h-14 md:w-16 md:h-16 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 ${
+        className={`fixed bottom-6 right-6 z-50 w-14 h-14 md:w-16 md:h-16 rounded-full shadow-2xl flex items-center justify-center transition-all duration-300 hover:scale-110 ${
           isOpen ? 'opacity-0 pointer-events-none scale-75' : 'opacity-100 scale-100'
         } bg-gradient-to-br from-blue-600 to-indigo-700`}
         title="עוזר הבניין"
@@ -146,8 +146,8 @@ export default function BuildingAgent() {
           className={`fixed z-50 flex flex-col bg-white shadow-2xl border border-slate-200 transition-all duration-300 overflow-hidden
             ${
               isMinimized
-                ? 'bottom-4 left-4 right-4 md:right-auto md:w-72 h-16 rounded-2xl'
-                : 'inset-2 md:inset-auto md:bottom-6 md:left-6 md:w-96 md:h-[600px] rounded-2xl md:rounded-3xl'
+                ? 'bottom-6 right-6 left-6 md:left-auto md:w-72 h-16 rounded-2xl'
+                : 'inset-2 md:inset-auto md:bottom-6 md:right-6 md:w-96 md:h-[600px] rounded-2xl md:rounded-3xl'
             }`}
           style={{ maxHeight: isMinimized ? '4rem' : 'calc(100dvh - 1rem)' }}
         >
