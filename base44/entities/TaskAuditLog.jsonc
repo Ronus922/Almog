@@ -1,0 +1,31 @@
+{
+  "name": "TaskAuditLog",
+  "type": "object",
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05d4\u05de\u05e9\u05d9\u05de\u05d4"
+    },
+    "action": {
+      "type": "string",
+      "description": "\u05e1\u05d5\u05d2 \u05d4\u05e4\u05e2\u05d5\u05dc\u05d4: created / updated"
+    },
+    "changed_by_username": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05de\u05e9\u05ea\u05de\u05e9 \u05e9\u05d1\u05d9\u05e6\u05e2 \u05d0\u05ea \u05d4\u05e9\u05d9\u05e0\u05d5\u05d9"
+    },
+    "changed_by_name": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05de\u05dc\u05d0 \u05e9\u05dc \u05de\u05d9 \u05e9\u05d1\u05d9\u05e6\u05e2 \u05d0\u05ea \u05d4\u05e9\u05d9\u05e0\u05d5\u05d9"
+    },
+    "changes": {
+      "type": "string",
+      "description": "\u05ea\u05d9\u05d0\u05d5\u05e8 \u05d4\u05e9\u05d9\u05e0\u05d5\u05d9\u05d9\u05dd \u05e9\u05d1\u05d5\u05e6\u05e2\u05d5 (JSON string)"
+    }
+  },
+  "required": [
+    "task_id",
+    "action",
+    "changed_by_username"
+  ]
+}

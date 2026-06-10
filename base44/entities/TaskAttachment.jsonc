@@ -1,0 +1,54 @@
+{
+  "name": "TaskAttachment",
+  "type": "object",
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "description": "FK -> Task.id"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "URL \u05d4\u05e7\u05d5\u05d1\u05e5"
+    },
+    "file_name": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05e7\u05d5\u05d1\u05e5 \u05de\u05e7\u05d5\u05e8\u05d9"
+    },
+    "file_display_name": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05ea\u05e6\u05d5\u05d2\u05d4 \u05de\u05d5\u05ea\u05d0\u05dd \u05d0\u05d9\u05e9\u05d9\u05ea"
+    },
+    "file_type": {
+      "type": "string",
+      "description": "MIME type"
+    },
+    "file_size_bytes": {
+      "type": "number",
+      "description": "\u05d2\u05d5\u05d3\u05dc \u05d1\u05d1\u05d9\u05d9\u05d8\u05d9\u05dd"
+    },
+    "uploaded_by_username": {
+      "type": "string",
+      "description": "\u05de\u05e9\u05ea\u05de\u05e9 \u05e9\u05d4\u05e2\u05dc\u05d4"
+    },
+    "uploaded_by_name": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05de\u05e9\u05ea\u05de\u05e9 \u05e9\u05d4\u05e2\u05dc\u05d4"
+    },
+    "is_deleted": {
+      "type": "boolean",
+      "default": false,
+      "description": "\u05e7\u05d5\u05d1\u05e5 \u05e0\u05de\u05d7\u05e7 (soft delete)"
+    },
+    "deleted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\u05d6\u05de\u05df \u05de\u05d7\u05d9\u05e7\u05d4"
+    }
+  },
+  "required": [
+    "task_id",
+    "file_url",
+    "file_name",
+    "uploaded_by_username"
+  ]
+}

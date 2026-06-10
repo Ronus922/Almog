@@ -1,0 +1,107 @@
+{
+  "type": "object",
+  "properties": {
+    "target_type": {
+      "type": "string",
+      "enum": [
+        "room",
+        "area"
+      ],
+      "description": "\u05e1\u05d5\u05d2 \u05d4\u05d9\u05e2\u05d3 - \u05d7\u05d3\u05e8 \u05d0\u05d5 \u05d0\u05d6\u05d5\u05e8"
+    },
+    "target_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05d4\u05d7\u05d3\u05e8 \u05d0\u05d5 \u05d4\u05d0\u05d6\u05d5\u05e8"
+    },
+    "description": {
+      "type": "string",
+      "description": "\u05ea\u05d9\u05d0\u05d5\u05e8 \u05d4\u05ea\u05e7\u05dc\u05d4"
+    },
+    "images": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 5,
+      "description": "\u05e7\u05d9\u05e9\u05d5\u05e8\u05d9\u05dd \u05dc\u05ea\u05de\u05d5\u05e0\u05d5\u05ea (\u05e2\u05d3 5)"
+    },
+    "videos": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "maxItems": 3,
+      "description": "\u05e7\u05d9\u05e9\u05d5\u05e8\u05d9\u05dd \u05dc\u05e1\u05e8\u05d8\u05d5\u05e0\u05d9\u05dd (\u05e2\u05d3 3)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "in_progress",
+        "resolved"
+      ],
+      "default": "open",
+      "description": "\u05e1\u05d8\u05d8\u05d5\u05e1 \u05d4\u05d8\u05d9\u05e4\u05d5\u05dc \u05d1\u05ea\u05e7\u05dc\u05d4"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "medium",
+        "high",
+        "urgent"
+      ],
+      "default": "medium",
+      "description": "\u05d3\u05d7\u05d9\u05e4\u05d5\u05ea \u05d4\u05ea\u05e7\u05dc\u05d4"
+    },
+    "notes": {
+      "type": "string",
+      "description": "\u05d4\u05e2\u05e8\u05d5\u05ea \u05de\u05e0\u05d4\u05dc"
+    },
+    "reporter_email": {
+      "type": "string",
+      "description": "\u05d0\u05d9\u05de\u05d9\u05d9\u05dc \u05d4\u05de\u05d3\u05d5\u05d5\u05d7"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05d4\u05e2\u05d5\u05d1\u05d3 \u05d4\u05d0\u05d7\u05e8\u05d0\u05d9 \u05e2\u05dc \u05d4\u05d8\u05d9\u05e4\u05d5\u05dc"
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_email": {
+            "type": "string"
+          },
+          "user_name": {
+            "type": "string"
+          },
+          "change_type": {
+            "type": "string"
+          },
+          "old_value": {
+            "type": "string"
+          },
+          "new_value": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "description": "\u05d4\u05d9\u05e1\u05d8\u05d5\u05e8\u05d9\u05d9\u05ea \u05e9\u05d9\u05e0\u05d5\u05d9\u05d9\u05dd"
+    }
+  },
+  "required": [
+    "target_type",
+    "target_id",
+    "description"
+  ],
+  "name": "IssueReport"
+}

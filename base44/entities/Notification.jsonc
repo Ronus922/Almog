@@ -1,0 +1,112 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "user_username": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05d4\u05de\u05e9\u05ea\u05de\u05e9 \u05e9\u05d0\u05de\u05d5\u05e8 \u05dc\u05e7\u05d1\u05dc \u05d0\u05ea \u05d4\u05d4\u05ea\u05e8\u05d0\u05d4"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "task_assigned",
+        "task_reassigned",
+        "task_due_today",
+        "task_due_tomorrow",
+        "task_due_overdue",
+        "task_pro_assigned",
+        "task_pro_reassigned",
+        "task_pro_completed",
+        "task_pro_due_today",
+        "task_pro_due_tomorrow",
+        "task_pro_due_overdue",
+        "appointment_due_today",
+        "appointment_due_tomorrow",
+        "appointment_assigned",
+        "appointment_updated",
+        "whatsapp_message_received",
+        "whatsapp_message_received_unlinked",
+        "issue_created",
+        "issue_assigned",
+        "issue_status_changed",
+        "issue_resolved",
+        "issue_urgent_created",
+        "internal_chat_message_received",
+        "internal_chat_mention"
+      ],
+      "description": "\u05e1\u05d5\u05d2 \u05d4\u05d4\u05ea\u05e8\u05d0\u05d4"
+    },
+    "title": {
+      "type": "string",
+      "description": "\u05db\u05d5\u05ea\u05e8\u05ea \u05e7\u05e6\u05e8\u05d4 \u05e9\u05dc \u05d4\u05d4\u05ea\u05e8\u05d0\u05d4"
+    },
+    "message": {
+      "type": "string",
+      "description": "\u05ea\u05d5\u05db\u05df \u05d4\u05d4\u05ea\u05e8\u05d0\u05d4"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false,
+      "description": "\u05d4\u05d0\u05dd \u05d4\u05d4\u05ea\u05e8\u05d0\u05d4 \u05e0\u05e7\u05e8\u05d0\u05d4"
+    },
+    "source_module": {
+      "type": "string",
+      "enum": [
+        "tasks",
+        "calendar",
+        "whatsapp",
+        "issues",
+        "internal_chat"
+      ],
+      "description": "\u05d4\u05de\u05d5\u05d3\u05d5\u05dc \u05e9\u05de\u05de\u05e0\u05d5 \u05e0\u05d5\u05e6\u05e8\u05d4 \u05d4\u05d4\u05ea\u05e8\u05d0\u05d4"
+    },
+    "source_entity_type": {
+      "type": "string",
+      "description": "\u05e1\u05d5\u05d2 \u05d4\u05e8\u05e9\u05d5\u05de\u05d4 \u05d4\u05de\u05e7\u05d5\u05e8\u05d9\u05ea (Task, TaskPro, Appointment, ChatMessage...)"
+    },
+    "source_entity_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05d4\u05e8\u05e9\u05d5\u05de\u05d4 \u05d4\u05de\u05e7\u05d5\u05e8\u05d9\u05ea"
+    },
+    "action_url": {
+      "type": "string",
+      "description": "URL \u05dc\u05e0\u05d9\u05d5\u05d5\u05d8 \u05d1\u05dc\u05d7\u05d9\u05e6\u05d4 \u05e2\u05dc \u05d4\u05d4\u05ea\u05e8\u05d0\u05d4"
+    },
+    "priority": {
+      "type": "string",
+      "enum": [
+        "low",
+        "normal",
+        "high",
+        "urgent"
+      ],
+      "default": "normal",
+      "description": "\u05e2\u05d3\u05d9\u05e4\u05d5\u05ea \u05d4\u05d4\u05ea\u05e8\u05d0\u05d4"
+    },
+    "dedupe_key": {
+      "type": "string",
+      "description": "\u05de\u05e4\u05ea\u05d7 \u05dc\u05de\u05e0\u05d9\u05e2\u05ea \u05db\u05e4\u05d9\u05dc\u05d5\u05d9\u05d5\u05ea. \u05e4\u05d5\u05e8\u05de\u05d8: type:entity_id:user[:date]"
+    },
+    "task_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05de\u05e9\u05d9\u05de\u05d4 \u05d9\u05e9\u05e0\u05d4 (Task) \u2014 \u05dc\u05ea\u05d0\u05d9\u05de\u05d5\u05ea \u05dc\u05d0\u05d7\u05d5\u05e8"
+    },
+    "task_pro_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 TaskPro \u2014 \u05dc\u05ea\u05d0\u05d9\u05de\u05d5\u05ea \u05dc\u05d0\u05d7\u05d5\u05e8"
+    },
+    "task_type": {
+      "type": "string",
+      "description": "\u05e1\u05d5\u05d2 \u05de\u05e9\u05d9\u05de\u05d4 (legacy)"
+    },
+    "assigner_name": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05d4\u05de\u05e7\u05e6\u05d4"
+    }
+  },
+  "required": [
+    "user_username",
+    "type",
+    "message"
+  ]
+}

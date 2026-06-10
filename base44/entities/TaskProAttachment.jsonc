@@ -1,0 +1,45 @@
+{
+  "name": "TaskProAttachment",
+  "type": "object",
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "description": "FK -> TaskPro.id"
+    },
+    "file_url": {
+      "type": "string"
+    },
+    "file_name": {
+      "type": "string"
+    },
+    "file_display_name": {
+      "type": "string"
+    },
+    "file_type": {
+      "type": "string"
+    },
+    "file_size_bytes": {
+      "type": "number"
+    },
+    "uploaded_by_username": {
+      "type": "string"
+    },
+    "uploaded_by_name": {
+      "type": "string"
+    },
+    "is_deleted": {
+      "type": "boolean",
+      "default": false
+    },
+    "deleted_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "task_id",
+    "file_url",
+    "file_name",
+    "uploaded_by_username"
+  ]
+}

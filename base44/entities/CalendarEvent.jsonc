@@ -1,0 +1,143 @@
+{
+  "name": "CalendarEvent",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "\u05db\u05d5\u05ea\u05e8\u05ea \u05d4\u05e4\u05d2\u05d9\u05e9\u05d4/\u05d0\u05d9\u05e8\u05d5\u05e2"
+    },
+    "item_kind": {
+      "type": "string",
+      "enum": [
+        "meeting",
+        "event"
+      ],
+      "default": "meeting",
+      "description": "\u05e1\u05d5\u05d2 \u05d4\u05e4\u05e8\u05d9\u05d8"
+    },
+    "meeting_type": {
+      "type": "string",
+      "description": "\u05e1\u05d5\u05d2 \u05d4\u05e4\u05d2\u05d9\u05e9\u05d4"
+    },
+    "event_date": {
+      "type": "string",
+      "format": "date",
+      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05d4\u05d0\u05d9\u05e8\u05d5\u05e2"
+    },
+    "start_datetime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05d5\u05e9\u05e2\u05ea \u05d4\u05ea\u05d7\u05dc\u05d4 \u05de\u05dc\u05d0\u05d4"
+    },
+    "end_datetime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05d5\u05e9\u05e2\u05ea \u05e1\u05d9\u05d5\u05dd \u05de\u05dc\u05d0\u05d4"
+    },
+    "is_all_day": {
+      "type": "boolean",
+      "default": false,
+      "description": "\u05d4\u05d0\u05dd \u05d6\u05d4\u05d5 \u05d0\u05d9\u05e8\u05d5\u05e2 \u05db\u05dc \u05d4\u05d9\u05d5\u05dd"
+    },
+    "location": {
+      "type": "string",
+      "description": "\u05de\u05d9\u05e7\u05d5\u05dd \u05d4\u05d0\u05d9\u05e8\u05d5\u05e2"
+    },
+    "reminder_offset_minutes": {
+      "type": "integer",
+      "description": "\u05d3\u05e7\u05d5\u05ea \u05dc\u05e4\u05e0\u05d9 \u05d4\u05d0\u05d9\u05e8\u05d5\u05e2 \u05dc\u05d4\u05ea\u05d6\u05db\u05d5\u05e8"
+    },
+    "reminder_channel": {
+      "type": "string",
+      "enum": [
+        "sms",
+        "email",
+        "whatsapp",
+        "none"
+      ],
+      "default": "none",
+      "description": "\u05d0\u05d5\u05e4\u05df \u05d4\u05ea\u05d6\u05db\u05d5\u05e8\u05ea"
+    },
+    "color_key": {
+      "type": "string",
+      "description": "\u05de\u05e4\u05ea\u05d7 \u05e6\u05d1\u05e2 \u05de\u05d4\u05e4\u05dc\u05d8\u05d4"
+    },
+    "description": {
+      "type": "string",
+      "description": "\u05ea\u05d9\u05d0\u05d5\u05e8 \u05de\u05e4\u05d5\u05e8\u05d8"
+    },
+    "recurrence_enabled": {
+      "type": "boolean",
+      "default": false,
+      "description": "\u05d4\u05d0\u05dd \u05db\u05e8\u05d5\u05da/\u05d7\u05d5\u05d6\u05e8"
+    },
+    "recurrence_type": {
+      "type": "string",
+      "enum": [
+        "weekly",
+        "monthly",
+        "yearly"
+      ],
+      "description": "\u05e1\u05d5\u05d2 \u05d4\u05d7\u05d6\u05e8\u05d4"
+    },
+    "recurrence_interval": {
+      "type": "integer",
+      "default": 1,
+      "description": "\u05db\u05dc \u05db\u05de\u05d4 \u05d9\u05d7\u05d9\u05d3\u05d5\u05ea"
+    },
+    "recurrence_end_type": {
+      "type": "string",
+      "enum": [
+        "never",
+        "until_date",
+        "count"
+      ],
+      "default": "never",
+      "description": "\u05de\u05ea\u05d9 \u05de\u05e1\u05ea\u05d9\u05d9\u05dd \u05d4\u05d7\u05d6\u05e8\u05d4"
+    },
+    "recurrence_until_date": {
+      "type": "string",
+      "format": "date",
+      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05e1\u05d9\u05d5\u05dd \u05d4\u05d7\u05d6\u05e8\u05d4"
+    },
+    "recurrence_count": {
+      "type": "integer",
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05d7\u05d6\u05e8\u05d5\u05ea"
+    },
+    "parent_series_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05e1\u05d3\u05e8\u05d4 \u05d7\u05d5\u05d6\u05e8\u05ea"
+    },
+    "source_type": {
+      "type": "string",
+      "enum": [
+        "manual",
+        "generated_occurrence"
+      ],
+      "default": "manual",
+      "description": "\u05de\u05e7\u05d5\u05e8 \u05d9\u05e6\u05d9\u05e8\u05d4"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "scheduled",
+        "completed",
+        "cancelled"
+      ],
+      "default": "scheduled",
+      "description": "\u05e1\u05d8\u05d8\u05d5\u05e1 \u05d0\u05d9\u05e8\u05d5\u05e2"
+    },
+    "owner_user_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05d4\u05de\u05e9\u05ea\u05de\u05e9 \u05d4\u05d1\u05e2\u05dc\u05d9\u05dd"
+    },
+    "owner_user_name": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05d4\u05de\u05e9\u05ea\u05de\u05e9 \u05d4\u05d1\u05e2\u05dc\u05d9\u05dd"
+    }
+  },
+  "required": [
+    "title",
+    "event_date"
+  ]
+}

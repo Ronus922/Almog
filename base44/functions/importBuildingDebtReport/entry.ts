@@ -454,12 +454,12 @@ Deno.serve(async (req) => {
 
     const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-    // עזר: עיבוד batch מקבילי
-    async function processBatch(items, fn, batchSize = 10) {
+    // עזר: עיבוד batch מקבילי עם דיליי למניעת Rate limit
+    async function processBatch(items, fn, batchSize = 5) {
       for (let i = 0; i < items.length; i += batchSize) {
         const batch = items.slice(i, i + batchSize);
         await Promise.all(batch.map(item => fn(item).catch(() => {})));
-        if (i + batchSize < items.length) await sleep(200);
+        if (i + batchSize < items.length) await sleep(400);
       }
     }
 
@@ -520,43 +520,54 @@ Deno.serve(async (req) => {
       }), 10
     );
 
-    // עדכון/יצירת רשומות — מקביל בקבוצות של 10
-    const upsertResults = await Promise.allSettled(
-      uniqueApts.map(async ([apt, rowData]) => {
-        const mapped = mapBllinkRowToDebtor(apt, rowData);
-        mapped.importedThisRun = true;
-        mapped.lastImportRunId = runId;
-        mapped.lastImportAt = now;
-        mapped.flaggedAsCleared = false;
+    // עדכון/יצירת רשומות — batch של 5 עם המתנה בין קבוצות למניעת Rate limit
+    const BATCH_SIZE = 5;
+    const BATCH_DELAY = 500; // ms בין קבוצות
 
-        const totalDebt = mapped.totalDebt ?? 0;
-        if (totalDebt <= 0) mapped.debt_status_auto = 'תקין';
-        else if (totalDebt < 3000) mapped.debt_status_auto = 'לגבייה מיידית';
-        else mapped.debt_status_auto = 'חריגה מופרזת';
+    for (let i = 0; i < uniqueApts.length; i += BATCH_SIZE) {
+      const batch = uniqueApts.slice(i, i + BATCH_SIZE);
+      const batchResults = await Promise.allSettled(
+        batch.map(async ([apt, rowData]) => {
+          const mapped = mapBllinkRowToDebtor(apt, rowData);
+          mapped.importedThisRun = true;
+          mapped.lastImportRunId = runId;
+          mapped.lastImportAt = now;
+          mapped.flaggedAsCleared = false;
 
-        const existing = existingMap.get(apt);
-        if (existing) {
-          const updatePayload = {};
-          for (const [k2, v] of Object.entries(mapped)) {
-            if (v !== null && v !== undefined && v !== '') updatePayload[k2] = v;
+          const totalDebt = mapped.totalDebt ?? 0;
+          if (totalDebt <= 0) mapped.debt_status_auto = 'תקין';
+          else if (totalDebt < 3000) mapped.debt_status_auto = 'לגבייה מיידית';
+          else mapped.debt_status_auto = 'חריגה מופרזת';
+
+          const existing = existingMap.get(apt);
+          if (existing) {
+            const updatePayload = {};
+            for (const [k2, v] of Object.entries(mapped)) {
+              if (v !== null && v !== undefined && v !== '') updatePayload[k2] = v;
+            }
+            await base44.asServiceRole.entities.DebtorRecord.update(existing.id, updatePayload);
+            return 'updated';
+          } else {
+            await base44.asServiceRole.entities.DebtorRecord.create(mapped);
+            return 'created';
           }
-          await base44.asServiceRole.entities.DebtorRecord.update(existing.id, updatePayload);
-          return 'updated';
-        } else {
-          await base44.asServiceRole.entities.DebtorRecord.create(mapped);
-          return 'created';
-        }
-      })
-    );
+        })
+      );
 
-    for (let i = 0; i < upsertResults.length; i++) {
-      const r = upsertResults[i];
-      if (r.status === 'fulfilled') {
-        if (r.value === 'created') created++;
-        else updated++;
-      } else {
-        failed++;
-        errorDetails.push({ apartmentNumber: uniqueApts[i][0], errorMessage: r.reason?.message || 'שגיאה' });
+      for (let j = 0; j < batchResults.length; j++) {
+        const r = batchResults[j];
+        if (r.status === 'fulfilled') {
+          if (r.value === 'created') created++;
+          else updated++;
+        } else {
+          failed++;
+          errorDetails.push({ apartmentNumber: batch[j][0], errorMessage: r.reason?.message || 'שגיאה' });
+        }
+      }
+
+      // המתנה בין קבוצות למניעת Rate limit (לא לאחר הקבוצה האחרונה)
+      if (i + BATCH_SIZE < uniqueApts.length) {
+        await sleep(BATCH_DELAY);
       }
     }
 

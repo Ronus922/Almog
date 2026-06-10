@@ -1,0 +1,65 @@
+{
+  "name": "TodoItem",
+  "type": "object",
+  "properties": {
+    "category_id": {
+      "type": "string",
+      "description": "FK -> TodoCategory.id"
+    },
+    "owner_user_id": {
+      "type": "string",
+      "description": "Username of the owner"
+    },
+    "title": {
+      "type": "string",
+      "description": "Item title"
+    },
+    "description": {
+      "type": "string",
+      "description": "Optional description"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "open",
+        "done"
+      ],
+      "default": "open",
+      "description": "open or done"
+    },
+    "position": {
+      "type": "number",
+      "description": "Manual sort order within category",
+      "default": 0
+    },
+    "shared_with_user_id": {
+      "type": "string",
+      "description": "Username of the user this item is shared with (nullable)"
+    },
+    "strip_color": {
+      "type": "string",
+      "enum": [
+        "blue",
+        "green",
+        "orange",
+        "purple",
+        "pink"
+      ],
+      "description": "Optional item-level strip color override (nullable). If null, uses category color."
+    },
+    "completed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When marked done"
+    },
+    "completed_by_user_id": {
+      "type": "string",
+      "description": "Username who marked it done"
+    }
+  },
+  "required": [
+    "category_id",
+    "owner_user_id",
+    "title"
+  ]
+}

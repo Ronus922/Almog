@@ -1,0 +1,70 @@
+{
+  "name": "BroadcastRecipient",
+  "type": "object",
+  "properties": {
+    "campaign_id": {
+      "type": "string",
+      "description": "FK -> BroadcastCampaign.id"
+    },
+    "recipient_name": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05d4\u05e0\u05de\u05e2\u05df"
+    },
+    "recipient_phone": {
+      "type": "string",
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05d8\u05dc\u05e4\u05d5\u05df"
+    },
+    "recipient_type": {
+      "type": "string",
+      "enum": [
+        "owner",
+        "tenant",
+        "operator",
+        "supplier"
+      ],
+      "description": "\u05e1\u05d5\u05d2 \u05d4\u05e0\u05de\u05e2\u05df"
+    },
+    "contact_id": {
+      "type": "string",
+      "description": "FK -> Contact.id (\u05d0\u05dd \u05e8\u05dc\u05d5\u05d5\u05e0\u05d8\u05d9)"
+    },
+    "supplier_id": {
+      "type": "string",
+      "description": "FK -> Supplier.id (\u05d0\u05dd \u05e1\u05e4\u05e7)"
+    },
+    "operator_id": {
+      "type": "string",
+      "description": "FK -> Operator.id (\u05d0\u05dd \u05de\u05e4\u05e2\u05d9\u05dc)"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "sent",
+        "delivered",
+        "read",
+        "failed"
+      ],
+      "default": "pending",
+      "description": "\u05e1\u05d8\u05d8\u05d5\u05e1 \u05e9\u05dc\u05d9\u05d7\u05d4 \u05dc\u05e0\u05de\u05e2\u05df \u05d6\u05d4"
+    },
+    "external_message_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05d4\u05d5\u05d3\u05e2\u05d4 \u05d1-Green API"
+    },
+    "error_message": {
+      "type": "string",
+      "description": "\u05d4\u05d5\u05d3\u05e2\u05ea \u05e9\u05d2\u05d9\u05d0\u05d4 \u05d0\u05dd \u05e0\u05db\u05e9\u05dc"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\u05d6\u05de\u05df \u05e9\u05dc\u05d9\u05d7\u05d4 \u05d1\u05e4\u05d5\u05e2\u05dc"
+    }
+  },
+  "required": [
+    "campaign_id",
+    "recipient_phone",
+    "recipient_type"
+  ]
+}

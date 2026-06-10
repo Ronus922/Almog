@@ -1,0 +1,46 @@
+{
+  "name": "TaskActivity",
+  "type": "object",
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "description": "FK -> Task.id"
+    },
+    "activity_type": {
+      "type": "string",
+      "enum": [
+        "created",
+        "updated",
+        "status_changed",
+        "priority_changed",
+        "assigned",
+        "commented",
+        "attachment_added",
+        "attachment_deleted",
+        "archived",
+        "unarchived",
+        "reminder_sent",
+        "recurring_generated",
+        "completed"
+      ],
+      "description": "\u05e1\u05d5\u05d2 \u05e4\u05e2\u05d9\u05dc\u05d5\u05ea"
+    },
+    "actor_username": {
+      "type": "string",
+      "description": "\u05de\u05e9\u05ea\u05de\u05e9 \u05e9\u05d1\u05d9\u05e6\u05e2 \u05e4\u05e2\u05d5\u05dc\u05d4"
+    },
+    "actor_name": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05de\u05e9\u05ea\u05de\u05e9"
+    },
+    "payload_json": {
+      "type": "string",
+      "description": "\u05e0\u05ea\u05d5\u05e0\u05d9\u05dd \u05e0\u05d5\u05e1\u05e4\u05d9\u05dd (JSON)"
+    }
+  },
+  "required": [
+    "task_id",
+    "activity_type",
+    "actor_username"
+  ]
+}

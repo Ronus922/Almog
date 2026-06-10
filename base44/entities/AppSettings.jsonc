@@ -1,0 +1,6 @@
+{
+  "name": "AppSettings",
+  "type": "object",
+  "properties": {},
+  "required": []
+}

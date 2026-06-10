@@ -1,0 +1,58 @@
+{
+  "name": "TaskProReminder",
+  "type": "object",
+  "properties": {
+    "task_id": {
+      "type": "string",
+      "description": "FK -> TaskPro.id"
+    },
+    "user_username": {
+      "type": "string"
+    },
+    "remind_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "reminder_type": {
+      "type": "string",
+      "enum": [
+        "before_due",
+        "on_due",
+        "overdue",
+        "custom"
+      ],
+      "default": "custom"
+    },
+    "channel": {
+      "type": "string",
+      "enum": [
+        "in_app",
+        "email",
+        "whatsapp"
+      ],
+      "default": "in_app"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "sent",
+        "failed",
+        "canceled"
+      ],
+      "default": "pending"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "error_message": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "task_id",
+    "user_username",
+    "remind_at"
+  ]
+}

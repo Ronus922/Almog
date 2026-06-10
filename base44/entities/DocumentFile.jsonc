@@ -1,0 +1,64 @@
+{
+  "name": "DocumentFile",
+  "type": "object",
+  "properties": {
+    "folder_id": {
+      "type": "string",
+      "description": "ID of the parent folder (null = root)"
+    },
+    "original_folder_id": {
+      "type": "string",
+      "description": "Original folder before trash \u2014 used for restore"
+    },
+    "title": {
+      "type": "string",
+      "description": "Display title"
+    },
+    "original_file_name": {
+      "type": "string",
+      "description": "Original file name with extension"
+    },
+    "file_url": {
+      "type": "string",
+      "description": "Storage URL"
+    },
+    "storage_key": {
+      "type": "string",
+      "description": "Storage key"
+    },
+    "file_extension": {
+      "type": "string",
+      "description": "File extension"
+    },
+    "mime_type": {
+      "type": "string",
+      "description": "MIME type"
+    },
+    "file_size_bytes": {
+      "type": "number",
+      "description": "File size in bytes"
+    },
+    "file_category": {
+      "type": "string",
+      "description": "Derived category: image, pdf, document, spreadsheet, etc."
+    },
+    "is_deleted": {
+      "type": "boolean",
+      "default": false,
+      "description": "Soft delete flag \u2014 file is in trash"
+    },
+    "deleted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Timestamp when moved to trash"
+    },
+    "deleted_by_user_id": {
+      "type": "string",
+      "description": "User ID who deleted the file"
+    }
+  },
+  "required": [
+    "title",
+    "file_url"
+  ]
+}

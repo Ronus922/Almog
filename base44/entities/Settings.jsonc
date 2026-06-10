@@ -1,0 +1,71 @@
+{
+  "name": "Settings",
+  "type": "object",
+  "properties": {
+    "threshold_ok_max": {
+      "type": "number",
+      "description": "\u05e1\u05e3 \u05d7\u05d5\u05d1 \u05ea\u05e7\u05d9\u05df \u05de\u05e7\u05e1\u05d9\u05de\u05dc\u05d9",
+      "default": 1000
+    },
+    "threshold_collect_from": {
+      "type": "number",
+      "description": "\u05e1\u05e3 \u05d7\u05d5\u05d1 \u05dc\u05d2\u05d1\u05d9\u05d9\u05d4 \u05de\u05d9\u05d9\u05d3\u05d9\u05ea",
+      "default": 1500
+    },
+    "threshold_legal_from": {
+      "type": "number",
+      "description": "\u05e1\u05e3 \u05d7\u05d5\u05d1 \u05dc\u05d8\u05d9\u05e4\u05d5\u05dc \u05de\u05e9\u05e4\u05d8\u05d9",
+      "default": 5000
+    },
+    "makeEnabled": {
+      "type": "boolean",
+      "description": "\u05d7\u05d9\u05d1\u05d5\u05e8 MAKE \u05e4\u05e2\u05d9\u05dc",
+      "default": false
+    },
+    "makeWebhookStatusChangeUrl": {
+      "type": "string",
+      "description": "URL \u05dc\u05e9\u05d9\u05e0\u05d5\u05d9 \u05e1\u05d8\u05d8\u05d5\u05e1"
+    },
+    "makeWebhookNewLawsuitCandidateUrl": {
+      "type": "string",
+      "description": "URL \u05dc\u05de\u05d5\u05e2\u05de\u05d3 \u05dc\u05ea\u05d1\u05d9\u05e2\u05d4"
+    },
+    "makeWebhookNewRecordUrl": {
+      "type": "string",
+      "description": "URL \u05dc\u05e8\u05e9\u05d5\u05de\u05d4 \u05d7\u05d3\u05e9\u05d4"
+    },
+    "buildingName": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05d4\u05d1\u05e0\u05d9\u05d9\u05df",
+      "default": "\u05d1\u05e0\u05d9\u05d9\u05df \u05d0\u05dc\u05de\u05d5\u05d2"
+    },
+    "buildingAddress": {
+      "type": "string",
+      "description": "\u05db\u05ea\u05d5\u05d1\u05ea \u05d4\u05d1\u05e0\u05d9\u05d9\u05df",
+      "default": "\u05d3\u05d5\u05d3 \u05d0\u05dc\u05e2\u05d6\u05e8 10, \u05d7\u05d9\u05e4\u05d4"
+    },
+    "last_import_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05d5\u05e9\u05e2\u05ea \u05d9\u05d9\u05d1\u05d5\u05d0 \u05d0\u05d7\u05e8\u05d5\u05df"
+    },
+    "greenApiInstanceId": {
+      "type": "string",
+      "description": "Green API Instance ID \u05dc\u05e9\u05dc\u05d9\u05d7\u05ea WhatsApp"
+    },
+    "greenApiToken": {
+      "type": "string",
+      "description": "Green API Token \u05dc\u05e9\u05dc\u05d9\u05d7\u05ea WhatsApp"
+    },
+    "resendApiKey": {
+      "type": "string",
+      "description": "\u05de\u05e4\u05ea\u05d7 API \u05e9\u05dc Resend \u05dc\u05e9\u05dc\u05d9\u05d7\u05ea \u05de\u05d9\u05d9\u05dc\u05d9\u05dd"
+    },
+    "gmailSenderEmail": {
+      "type": "string",
+      "description": "\u05db\u05ea\u05d5\u05d1\u05ea \u05d4\u05de\u05d9\u05d9\u05dc \u05dc\u05e9\u05dc\u05d9\u05d7\u05ea \u05d4\u05d5\u05d3\u05e2\u05d5\u05ea \u05de\u05e2\u05e8\u05db\u05ea (Gmail)",
+      "default": "ronen.yeadim@gmail.com"
+    }
+  },
+  "required": []
+}

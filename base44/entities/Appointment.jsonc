@@ -1,0 +1,156 @@
+{
+  "name": "Appointment",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "\u05db\u05d5\u05ea\u05e8\u05ea \u05d4\u05e4\u05d2\u05d9\u05e9\u05d4/\u05de\u05e9\u05d9\u05de\u05d4"
+    },
+    "appointment_type": {
+      "type": "string",
+      "enum": [
+        "\u05e4\u05d2\u05d9\u05e9\u05d4",
+        "\u05de\u05e9\u05d9\u05de\u05d4",
+        "\u05d0\u05d7\u05e8"
+      ],
+      "default": "\u05e4\u05d2\u05d9\u05e9\u05d4",
+      "description": "\u05e1\u05d5\u05d2 \u05d4\u05e4\u05d2\u05d9\u05e9\u05d4"
+    },
+    "attendees_users": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "\u05de\u05d6\u05d4\u05d4 \u05d4\u05de\u05e9\u05ea\u05de\u05e9"
+          },
+          "name": {
+            "type": "string",
+            "description": "\u05e9\u05dd \u05d4\u05de\u05e9\u05ea\u05de\u05e9"
+          },
+          "email": {
+            "type": "string",
+            "description": "\u05d0\u05d9\u05de\u05d9\u05d9\u05dc \u05d4\u05de\u05e9\u05ea\u05de\u05e9"
+          }
+        }
+      },
+      "description": "\u05e8\u05e9\u05d9\u05de\u05ea \u05de\u05e9\u05ea\u05de\u05e9\u05d9\u05dd \u05d4\u05de\u05e9\u05ea\u05ea\u05e4\u05d9\u05dd \u05e2\u05dd \u05e9\u05de\u05d5\u05ea\u05d9\u05d4\u05dd"
+    },
+    "attendees_contacts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "\u05e8\u05e9\u05d9\u05de\u05ea ID \u05e9\u05dc \u05d0\u05e0\u05e9\u05d9 \u05e7\u05e9\u05e8 (\u05d3\u05d9\u05d9\u05e8\u05d9\u05dd) \u05d4\u05de\u05e9\u05ea\u05ea\u05e4\u05d9\u05dd"
+    },
+    "date": {
+      "type": "string",
+      "format": "date",
+      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05d4\u05e4\u05d2\u05d9\u05e9\u05d4"
+    },
+    "start_time": {
+      "type": "string",
+      "description": "\u05e9\u05e2\u05ea \u05d4\u05ea\u05d7\u05dc\u05d4 (\u05dc\u05d3\u05d5\u05d2\u05de\u05d4, 10:00)"
+    },
+    "start_datetime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05d5\u05e9\u05e2\u05d4 \u05de\u05dc\u05d0\u05d9\u05dd \u05e9\u05dc \u05d4\u05ea\u05d7\u05dc\u05d4"
+    },
+    "end_time": {
+      "type": "string",
+      "description": "\u05e9\u05e2\u05ea \u05e1\u05d9\u05d5\u05dd (\u05dc\u05d3\u05d5\u05d2\u05de\u05d4, 11:00)"
+    },
+    "end_datetime": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05d5\u05e9\u05e2\u05d4 \u05de\u05dc\u05d0\u05d9\u05dd \u05e9\u05dc \u05e1\u05d9\u05d5\u05dd"
+    },
+    "is_recurring": {
+      "type": "boolean",
+      "default": false,
+      "description": "\u05d4\u05d0\u05dd \u05d6\u05d4 \u05d0\u05d9\u05e8\u05d5\u05e2 \u05d7\u05d5\u05d6\u05e8"
+    },
+    "recurrence_pattern": {
+      "type": "string",
+      "enum": [
+        "\u05d9\u05d5\u05de\u05d9",
+        "\u05e9\u05d1\u05d5\u05e2\u05d9",
+        "\u05d7\u05d5\u05d3\u05e9\u05d9",
+        "\u05e9\u05e0\u05ea\u05d9"
+      ],
+      "description": "\u05ea\u05d3\u05d9\u05e8\u05d5\u05ea \u05d4\u05d7\u05d6\u05e8\u05d4"
+    },
+    "recurrence_interval": {
+      "type": "integer",
+      "description": "\u05db\u05dc \u05db\u05de\u05d4 \u05d9\u05d7\u05d9\u05d3\u05d5\u05ea \u05d6\u05de\u05df (\u05dc\u05d3\u05d5\u05d2\u05de\u05d4, \u05db\u05dc 2 \u05e9\u05d1\u05d5\u05e2\u05d5\u05ea)",
+      "default": 1,
+      "minimum": 1
+    },
+    "recurrence_count": {
+      "type": "integer",
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05d7\u05d6\u05e8\u05d5\u05ea (\u05de\u05e1\u05e4\u05e8 \u05d4\u05de\u05d5\u05e4\u05e2\u05d9\u05dd \u05d4\u05db\u05d5\u05dc\u05dc)",
+      "minimum": 1
+    },
+    "series_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05d4\u05e1\u05d3\u05e8\u05d4 \u05d4\u05de\u05d7\u05d6\u05d5\u05e8\u05d9\u05ea - \u05de\u05e9\u05d5\u05ea\u05e3 \u05dc\u05db\u05dc \u05d4\u05de\u05d5\u05e4\u05e2\u05d9\u05dd \u05d1\u05e1\u05d3\u05e8\u05d4"
+    },
+    "series_occurrence_number": {
+      "type": "integer",
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05e1\u05d9\u05d3\u05d5\u05e8\u05d9 \u05d1\u05e1\u05d3\u05e8\u05d4 \u05d4\u05de\u05d7\u05d6\u05d5\u05e8\u05d9\u05ea (1, 2, 3 \u05d5\u05db\u05d5')"
+    },
+    "is_exception": {
+      "type": "boolean",
+      "default": false,
+      "description": "\u05d4\u05d0\u05dd \u05d0\u05d9\u05e8\u05d5\u05e2 \u05d6\u05d4 \u05d4\u05d5\u05d0 \u05e2\u05e8\u05d9\u05db\u05d4/\u05d7\u05e8\u05d9\u05d2\u05d4 \u05de\u05d4\u05e1\u05d3\u05e8\u05d4"
+    },
+    "location": {
+      "type": "string",
+      "description": "\u05de\u05d9\u05e7\u05d5\u05dd \u05d4\u05e4\u05d2\u05d9\u05e9\u05d4"
+    },
+    "reminder_before": {
+      "type": "string",
+      "enum": [
+        "15m",
+        "30m",
+        "1h",
+        "1d"
+      ],
+      "description": "\u05d6\u05de\u05df \u05d4\u05ea\u05d6\u05db\u05d5\u05e8\u05ea \u05dc\u05e4\u05e0\u05d9 \u05d4\u05e4\u05d2\u05d9\u05e9\u05d4"
+    },
+    "reminder_method": {
+      "type": "string",
+      "enum": [
+        "email",
+        "sms",
+        "whatsapp",
+        "none"
+      ],
+      "default": "email",
+      "description": "\u05d0\u05d5\u05e4\u05df \u05e9\u05dc\u05d9\u05d7\u05ea \u05d4\u05ea\u05d6\u05db\u05d5\u05e8\u05ea"
+    },
+    "event_color": {
+      "type": "string",
+      "description": "\u05e7\u05d5\u05d3 \u05e6\u05d1\u05e2 \u05dc\u05d0\u05d9\u05e8\u05d5\u05e2 (\u05dc\u05d3\u05d5\u05d2\u05de\u05d4, #FF6B6B)"
+    },
+    "description": {
+      "type": "string",
+      "description": "\u05ea\u05d9\u05d0\u05d5\u05e8 \u05d4\u05d0\u05d9\u05e8\u05d5\u05e2"
+    },
+    "attachments": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "\u05e8\u05e9\u05d9\u05de\u05ea URL \u05dc\u05e7\u05d1\u05e6\u05d9\u05dd \u05de\u05e6\u05d5\u05e8\u05e4\u05d9\u05dd"
+    }
+  },
+  "required": [
+    "title",
+    "date",
+    "start_time",
+    "end_time"
+  ]
+}

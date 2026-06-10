@@ -1,0 +1,60 @@
+{
+  "name": "LegalStatusHistory",
+  "type": "object",
+  "properties": {
+    "debtor_record_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05e8\u05e9\u05d5\u05de\u05ea \u05d4\u05d7\u05d9\u05d9\u05d1 (FK -> DebtorRecord.id)"
+    },
+    "apartment_number": {
+      "type": "string",
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05d3\u05d9\u05e8\u05d4 (\u05dc\u05e0\u05d5\u05d7\u05d5\u05ea)"
+    },
+    "old_status_id": {
+      "type": "string",
+      "description": "\u05e1\u05d8\u05d8\u05d5\u05e1 \u05de\u05e9\u05e4\u05d8\u05d9 \u05e7\u05d5\u05d3\u05dd (FK -> Status.id)"
+    },
+    "old_status_name": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05d4\u05e1\u05d8\u05d8\u05d5\u05e1 \u05d4\u05e7\u05d5\u05d3\u05dd (\u05dc\u05e0\u05d5\u05d7\u05d5\u05ea)"
+    },
+    "new_status_id": {
+      "type": "string",
+      "description": "\u05e1\u05d8\u05d8\u05d5\u05e1 \u05de\u05e9\u05e4\u05d8\u05d9 \u05d7\u05d3\u05e9 (FK -> Status.id)"
+    },
+    "new_status_name": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05d4\u05e1\u05d8\u05d8\u05d5\u05e1 \u05d4\u05d7\u05d3\u05e9 (\u05dc\u05e0\u05d5\u05d7\u05d5\u05ea)"
+    },
+    "changed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05d5\u05e9\u05e2\u05ea \u05d4\u05e9\u05d9\u05e0\u05d5\u05d9"
+    },
+    "changed_by": {
+      "type": "string",
+      "description": "\u05de\u05d9 \u05d1\u05d9\u05e6\u05e2 \u05d0\u05ea \u05d4\u05e9\u05d9\u05e0\u05d5\u05d9 (user email/id)"
+    },
+    "source": {
+      "type": "string",
+      "enum": [
+        "AUTO_DEFAULT",
+        "MANUAL",
+        "IMPORT",
+        "SYSTEM_FIX"
+      ],
+      "description": "\u05de\u05e7\u05d5\u05e8 \u05d4\u05e9\u05d9\u05e0\u05d5\u05d9",
+      "default": "MANUAL"
+    },
+    "notes": {
+      "type": "string",
+      "description": "\u05d4\u05e2\u05e8\u05d5\u05ea \u05e0\u05d5\u05e1\u05e4\u05d5\u05ea \u05e2\u05dc \u05d4\u05e9\u05d9\u05e0\u05d5\u05d9"
+    }
+  },
+  "required": [
+    "debtor_record_id",
+    "new_status_id",
+    "changed_at",
+    "source"
+  ]
+}

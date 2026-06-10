@@ -1,0 +1,67 @@
+{
+  "name": "ChatMessage",
+  "type": "object",
+  "properties": {
+    "contact_id": {
+      "type": "string",
+      "description": "ID \u05e9\u05dc \u05d0\u05d9\u05e9 \u05d4\u05e7\u05e9\u05e8 \u05d4\u05de\u05e9\u05d5\u05d9\u05da (FK -> Contact.id). \u05e8\u05d9\u05e7 \u05d0\u05dd unlinked."
+    },
+    "contact_phone": {
+      "type": "string",
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05d8\u05dc\u05e4\u05d5\u05df \u05e9\u05dc \u05d4\u05e9\u05d5\u05dc\u05d7/\u05e0\u05de\u05e2\u05df"
+    },
+    "sender_chat_id": {
+      "type": "string",
+      "description": "chatId \u05de-Green API (\u05dc\u05d3\u05d5\u05d2\u05de\u05d4: 972501234567@c.us) \u2014 \u05dc\u05e9\u05d9\u05d5\u05da \u05e8\u05d8\u05e8\u05d5\u05d0\u05e7\u05d8\u05d9\u05d1\u05d9"
+    },
+    "sender_phone_raw": {
+      "type": "string",
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05d8\u05dc\u05e4\u05d5\u05df \u05d2\u05d5\u05dc\u05de\u05d9 \u05db\u05e4\u05d9 \u05e9\u05d4\u05d2\u05d9\u05e2 \u05de-Green API \u05dc\u05e4\u05e0\u05d9 \u05e0\u05e8\u05de\u05d5\u05dc"
+    },
+    "external_message_id": {
+      "type": "string",
+      "description": "idMessage \u05de-Green API \u2014 \u05de\u05d6\u05d4\u05d4 \u05d9\u05d9\u05d7\u05d5\u05d3\u05d9 \u05e2\u05d1\u05d5\u05e8 \u05d4\u05d5\u05d3\u05e2\u05d4 \u05d1\u05d7\u05d5\u05e5. \u05de\u05e9\u05de\u05e9 \u05dc\u05de\u05e0\u05d9\u05e2\u05ea \u05db\u05e4\u05d9\u05dc\u05d5\u05d9\u05d5\u05ea \u05e9\u05dc webhook redelivery"
+    },
+    "link_status": {
+      "type": "string",
+      "enum": [
+        "linked",
+        "unlinked"
+      ],
+      "default": "linked",
+      "description": "\u05d4\u05d0\u05dd \u05d4\u05d4\u05d5\u05d3\u05e2\u05d4 \u05de\u05e9\u05d5\u05d9\u05db\u05ea \u05dc-Contact \u05e7\u05d9\u05d9\u05dd"
+    },
+    "direction": {
+      "type": "string",
+      "enum": [
+        "sent",
+        "received"
+      ],
+      "description": "\u05db\u05d9\u05d5\u05d5\u05df \u05d4\u05d4\u05d5\u05d3\u05e2\u05d4"
+    },
+    "message_type": {
+      "type": "string",
+      "enum": [
+        "text",
+        "image",
+        "document"
+      ],
+      "description": "\u05e1\u05d5\u05d2 \u05d4\u05d4\u05d5\u05d3\u05e2\u05d4"
+    },
+    "content": {
+      "type": "string",
+      "description": "\u05ea\u05d5\u05db\u05df \u05d4\u05d4\u05d5\u05d3\u05e2\u05d4"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\u05d6\u05de\u05df \u05d4\u05d4\u05d5\u05d3\u05e2\u05d4"
+    }
+  },
+  "required": [
+    "contact_phone",
+    "direction",
+    "message_type",
+    "timestamp"
+  ]
+}

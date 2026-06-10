@@ -1,0 +1,44 @@
+{
+  "name": "InternalConversation",
+  "type": "object",
+  "properties": {
+    "conversation_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05d9\u05d9\u05d7\u05d5\u05d3\u05d9 \u05dc\u05e9\u05d9\u05d7\u05d4"
+    },
+    "participant_a": {
+      "type": "string",
+      "description": "\u05de\u05e9\u05ea\u05ea\u05e3 \u05e8\u05d0\u05e9\u05d5\u05df"
+    },
+    "participant_b": {
+      "type": "string",
+      "description": "\u05de\u05e9\u05ea\u05ea\u05e3 \u05e9\u05e0\u05d9"
+    },
+    "participant_a_name": {
+      "type": "string"
+    },
+    "participant_b_name": {
+      "type": "string"
+    },
+    "last_message_preview": {
+      "type": "string"
+    },
+    "last_message_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "unread_count_a": {
+      "type": "number",
+      "default": 0
+    },
+    "unread_count_b": {
+      "type": "number",
+      "default": 0
+    }
+  },
+  "required": [
+    "conversation_id",
+    "participant_a",
+    "participant_b"
+  ]
+}

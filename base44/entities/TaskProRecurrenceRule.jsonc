@@ -1,0 +1,120 @@
+{
+  "name": "TaskProRecurrenceRule",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true
+    },
+    "is_paused": {
+      "type": "boolean",
+      "default": false
+    },
+    "frequency": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "monthly",
+        "yearly"
+      ]
+    },
+    "interval_value": {
+      "type": "number",
+      "default": 1
+    },
+    "days_of_week_json": {
+      "type": "string",
+      "description": "JSON array of days"
+    },
+    "day_of_month": {
+      "type": "number"
+    },
+    "month_of_year": {
+      "type": "number"
+    },
+    "starts_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "ends_mode": {
+      "type": "string",
+      "enum": [
+        "never",
+        "on_date",
+        "after_count"
+      ],
+      "default": "never"
+    },
+    "ends_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "max_occurrences": {
+      "type": "number"
+    },
+    "generated_count": {
+      "type": "number",
+      "default": 0
+    },
+    "generate_mode": {
+      "type": "string",
+      "enum": [
+        "on_completion",
+        "fixed_schedule"
+      ],
+      "default": "fixed_schedule"
+    },
+    "next_run_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "last_generated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "template_task_title": {
+      "type": "string"
+    },
+    "template_task_type": {
+      "type": "string"
+    },
+    "template_priority": {
+      "type": "string"
+    },
+    "template_description": {
+      "type": "string"
+    },
+    "assigned_to": {
+      "type": "string"
+    },
+    "assigned_to_name": {
+      "type": "string"
+    },
+    "debtor_record_id": {
+      "type": "string"
+    },
+    "apartment_number": {
+      "type": "string"
+    },
+    "owner_name": {
+      "type": "string"
+    },
+    "created_by": {
+      "type": "string"
+    },
+    "created_by_name": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "title",
+    "frequency",
+    "starts_at",
+    "generate_mode",
+    "next_run_at"
+  ]
+}

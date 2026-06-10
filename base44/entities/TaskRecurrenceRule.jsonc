@@ -1,0 +1,154 @@
+{
+  "name": "TaskRecurrenceRule",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05d4\u05db\u05dc\u05dc"
+    },
+    "is_active": {
+      "type": "boolean",
+      "default": true,
+      "description": "\u05db\u05dc\u05dc \u05e4\u05e2\u05d9\u05dc"
+    },
+    "is_paused": {
+      "type": "boolean",
+      "default": false,
+      "description": "\u05db\u05dc\u05dc \u05de\u05d5\u05e9\u05d4\u05d4"
+    },
+    "frequency": {
+      "type": "string",
+      "enum": [
+        "daily",
+        "weekly",
+        "monthly",
+        "yearly"
+      ],
+      "description": "\u05ea\u05d3\u05d9\u05e8\u05d5\u05ea"
+    },
+    "interval_value": {
+      "type": "number",
+      "default": 1,
+      "description": "\u05db\u05dc \u05db\u05de\u05d4 \u05d9\u05d7\u05d9\u05d3\u05d5\u05ea (1, 2, 6 \u05d5\u05db\u05d5')"
+    },
+    "days_of_week_json": {
+      "type": "string",
+      "description": "JSON: ['sunday','monday',...] \u05dc\u05e9\u05d1\u05d5\u05e2\u05d9"
+    },
+    "day_of_month": {
+      "type": "number",
+      "description": "\u05d9\u05d5\u05dd \u05e9\u05dc \u05d4\u05d7\u05d5\u05d3\u05e9 (1-31) \u05dc\u05d7\u05d5\u05d3\u05e9\u05d9"
+    },
+    "month_of_year": {
+      "type": "number",
+      "description": "\u05d7\u05d5\u05d3\u05e9 \u05e9\u05dc \u05d4\u05e9\u05e0\u05d4 (1-12) \u05dc\u05e9\u05e0\u05ea\u05d9"
+    },
+    "starts_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05d4\u05ea\u05d7\u05dc\u05d4"
+    },
+    "ends_mode": {
+      "type": "string",
+      "enum": [
+        "never",
+        "on_date",
+        "after_count"
+      ],
+      "default": "never",
+      "description": "\u05d0\u05d5\u05e4\u05df \u05e1\u05d9\u05d5\u05dd"
+    },
+    "ends_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05e1\u05d9\u05d5\u05dd (\u05d0\u05dd on_date)"
+    },
+    "max_occurrences": {
+      "type": "number",
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05de\u05e7\u05e1\u05d9\u05de\u05dc\u05d9 \u05e9\u05dc \u05d4\u05d5\u05e4\u05e2\u05d5\u05ea (\u05d0\u05dd after_count)"
+    },
+    "generated_count": {
+      "type": "number",
+      "default": 0,
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05de\u05e9\u05d9\u05de\u05d5\u05ea \u05e9\u05e0\u05d5\u05e6\u05e8\u05d5"
+    },
+    "generate_mode": {
+      "type": "string",
+      "enum": [
+        "on_completion",
+        "on_due_date",
+        "fixed_schedule"
+      ],
+      "description": "\u05d0\u05d5\u05e4\u05df \u05d9\u05e6\u05d9\u05e8\u05d4: \u05dc\u05d0\u05d7\u05e8 \u05d4\u05e9\u05dc\u05de\u05d4 / \u05d1\u05ea\u05d0\u05e8\u05d9\u05da \u05d4\u05e7\u05d1\u05d5\u05e2 / \u05d1\u05dc\u05d5\u05d7 \u05d6\u05de\u05e0\u05d9\u05dd \u05e7\u05d1\u05d5\u05e2"
+    },
+    "next_run_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\u05d4\u05e8\u05d9\u05e6\u05d4 \u05d4\u05d1\u05d0\u05d4"
+    },
+    "last_generated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\u05e8\u05d9\u05e6\u05d4 \u05d0\u05d7\u05e8\u05d5\u05e0\u05d4"
+    },
+    "template_task_id": {
+      "type": "string",
+      "description": "\u05de\u05e9\u05d9\u05de\u05ea \u05de\u05e7\u05d5\u05e8 (FK -> Task.id)"
+    },
+    "assigned_to": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05de\u05e9\u05ea\u05de\u05e9 \u05dc\u05d4\u05e7\u05e6\u05d0\u05d4"
+    },
+    "assigned_to_name": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05de\u05dc\u05d0 \u05dc\u05d4\u05e7\u05e6\u05d0\u05d4"
+    },
+    "debtor_record_id": {
+      "type": "string",
+      "description": "\u05e8\u05e9\u05d5\u05de\u05ea \u05d7\u05d9\u05d9\u05d1 (FK -> DebtorRecord.id)"
+    },
+    "apartment_number": {
+      "type": "string",
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05d3\u05d9\u05e8\u05d4"
+    },
+    "owner_name": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05d1\u05e2\u05dc"
+    },
+    "default_task_type": {
+      "type": "string",
+      "description": "\u05e1\u05d5\u05d2 \u05de\u05e9\u05d9\u05de\u05d4 \u05d1\u05e8\u05d9\u05e8\u05ea \u05de\u05d7\u05d3\u05dc"
+    },
+    "default_priority": {
+      "type": "string",
+      "description": "\u05e2\u05d3\u05d9\u05e4\u05d5\u05ea \u05d1\u05e8\u05d9\u05e8\u05ea \u05de\u05d7\u05d3\u05dc"
+    },
+    "default_status": {
+      "type": "string",
+      "description": "\u05e1\u05d8\u05d8\u05d5\u05e1 \u05d1\u05e8\u05d9\u05e8\u05ea \u05de\u05d7\u05d3\u05dc"
+    },
+    "default_description": {
+      "type": "string",
+      "description": "\u05ea\u05d9\u05d0\u05d5\u05e8 \u05d1\u05e8\u05d9\u05e8\u05ea \u05de\u05d7\u05d3\u05dc"
+    },
+    "default_completion_notes_template": {
+      "type": "string",
+      "description": "\u05ea\u05d1\u05e0\u05d9\u05ea \u05d4\u05e2\u05e8\u05d5\u05ea \u05d4\u05e9\u05dc\u05de\u05d4"
+    },
+    "created_by": {
+      "type": "string",
+      "description": "\u05de\u05e9\u05ea\u05de\u05e9 \u05de\u05e2\u05e6\u05d1"
+    },
+    "created_by_name": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05de\u05e9\u05ea\u05de\u05e9 \u05de\u05e2\u05e6\u05d1"
+    }
+  },
+  "required": [
+    "title",
+    "frequency",
+    "starts_at",
+    "generate_mode",
+    "next_run_at"
+  ]
+}

@@ -1,0 +1,40 @@
+{
+  "name": "TodoCategory",
+  "type": "object",
+  "properties": {
+    "owner_user_id": {
+      "type": "string",
+      "description": "Username of the owner"
+    },
+    "name": {
+      "type": "string",
+      "description": "Category name"
+    },
+    "color": {
+      "type": "string",
+      "enum": [
+        "blue",
+        "green",
+        "orange",
+        "purple",
+        "pink"
+      ],
+      "default": "blue",
+      "description": "Category color accent"
+    },
+    "position": {
+      "type": "number",
+      "description": "Manual sort order",
+      "default": 0
+    },
+    "is_archived": {
+      "type": "boolean",
+      "description": "Archived categories are hidden from main view",
+      "default": false
+    }
+  },
+  "required": [
+    "owner_user_id",
+    "name"
+  ]
+}

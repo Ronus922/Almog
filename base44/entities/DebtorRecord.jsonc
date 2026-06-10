@@ -1,0 +1,161 @@
+{
+  "name": "DebtorRecord",
+  "type": "object",
+  "properties": {
+    "apartmentNumber": {
+      "type": "string",
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05d3\u05d9\u05e8\u05d4"
+    },
+    "ownerName": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05d1\u05e2\u05dc\u05d9\u05dd"
+    },
+    "phoneOwner": {
+      "type": "string",
+      "description": "\u05d8\u05dc\u05e4\u05d5\u05df \u05d1\u05e2\u05dc \u05d3\u05d9\u05e8\u05d4"
+    },
+    "phoneTenant": {
+      "type": "string",
+      "description": "\u05d8\u05dc\u05e4\u05d5\u05df \u05e9\u05d5\u05db\u05e8"
+    },
+    "phonePrimary": {
+      "type": "string",
+      "description": "\u05d8\u05dc\u05e4\u05d5\u05df \u05e8\u05d0\u05e9\u05d9 \u05dc\u05d4\u05e6\u05d2\u05d4"
+    },
+    "phonesRaw": {
+      "type": "string",
+      "description": "\u05d8\u05dc\u05e4\u05d5\u05e0\u05d9\u05dd \u05d2\u05d5\u05dc\u05de\u05d9 \u05de\u05d4\u05d0\u05e7\u05e1\u05dc"
+    },
+    "phonesManualOverride": {
+      "type": "boolean",
+      "description": "\u05d4\u05d0\u05dd \u05d8\u05dc\u05e4\u05d5\u05e0\u05d9\u05dd \u05e2\u05d5\u05d3\u05db\u05e0\u05d5 \u05d9\u05d3\u05e0\u05d9\u05ea",
+      "default": false
+    },
+    "totalDebt": {
+      "type": "number",
+      "description": "\u05e1\u05d4\u05db \u05d7\u05d5\u05d1"
+    },
+    "monthlyDebt": {
+      "type": "number",
+      "description": "\u05d7\u05d5\u05d1 \u05d7\u05d5\u05d3\u05e9\u05d9"
+    },
+    "specialDebt": {
+      "type": "number",
+      "description": "\u05d7\u05d5\u05d1 \u05de\u05d9\u05d5\u05d7\u05d3"
+    },
+    "detailsMonthly": {
+      "type": "string",
+      "description": "\u05e4\u05e8\u05d8\u05d9\u05dd \u05d7\u05d5\u05d3\u05e9\u05d9\u05d9\u05dd"
+    },
+    "detailsSpecial": {
+      "type": "string",
+      "description": "\u05e4\u05e8\u05d8\u05d9\u05dd \u05de\u05d9\u05d5\u05d7\u05d3\u05d9\u05dd"
+    },
+    "managementMonthsRaw": {
+      "type": "string",
+      "description": "\u05d3\u05de\u05d9 \u05e0\u05d9\u05d4\u05d5\u05dc \u05dc\u05d7\u05d5\u05d3\u05e9\u05d9\u05dd (\u05d2\u05d5\u05dc\u05de\u05d9 \u05de\u05e2\u05de\u05d5\u05d3\u05d4 F)"
+    },
+    "monthsInArrears": {
+      "type": "number",
+      "description": "\u05d7\u05d5\u05d3\u05e9\u05d9 \u05e4\u05d9\u05d2\u05d5\u05e8"
+    },
+    "debt_status_auto": {
+      "type": "string",
+      "enum": [
+        "\u05ea\u05e7\u05d9\u05df",
+        "\u05dc\u05d2\u05d1\u05d9\u05d9\u05d4 \u05de\u05d9\u05d9\u05d3\u05d9\u05ea",
+        "\u05d7\u05e8\u05d9\u05d2\u05d4 \u05de\u05d5\u05e4\u05e8\u05d6\u05ea"
+      ],
+      "description": "\u05e1\u05d8\u05d8\u05d5\u05e1 \u05d7\u05d5\u05d1 \u05d0\u05d5\u05d8\u05d5\u05de\u05d8\u05d9",
+      "default": "\u05ea\u05e7\u05d9\u05df"
+    },
+    "legal_status_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05e1\u05d8\u05d8\u05d5\u05e1 \u05de\u05e9\u05e4\u05d8\u05d9 \u05de\u05e7\u05d5\u05e9\u05e8 (FK -> Status.id)"
+    },
+    "legal_status_overridden": {
+      "type": "boolean",
+      "description": "\u05d4\u05d0\u05dd \u05d4\u05e1\u05d8\u05d8\u05d5\u05e1 \u05d4\u05de\u05e9\u05e4\u05d8\u05d9 \u05e9\u05d5\u05e0\u05d4 \u05d9\u05d3\u05e0\u05d9\u05ea (\u05dc\u05d0 \u05d1\u05e8\u05d9\u05e8 \u05de\u05d7\u05d3\u05dc)",
+      "default": false
+    },
+    "legal_status_updated_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\u05de\u05ea\u05d9 \u05d4\u05e1\u05d8\u05d8\u05d5\u05e1 \u05d4\u05de\u05e9\u05e4\u05d8\u05d9 \u05e2\u05d5\u05d3\u05db\u05df \u05dc\u05d0\u05d7\u05e8\u05d5\u05e0\u05d4"
+    },
+    "legal_status_updated_by": {
+      "type": "string",
+      "description": "\u05de\u05d9 \u05e2\u05d3\u05db\u05df \u05d0\u05ea \u05d4\u05e1\u05d8\u05d8\u05d5\u05e1 \u05d4\u05de\u05e9\u05e4\u05d8\u05d9 (user email/id)"
+    },
+    "legal_status_source": {
+      "type": "string",
+      "enum": [
+        "AUTO_DEFAULT",
+        "MANUAL",
+        "IMPORT",
+        "SYSTEM_FIX"
+      ],
+      "description": "\u05de\u05e7\u05d5\u05e8 \u05e2\u05d3\u05db\u05d5\u05df \u05d4\u05e1\u05d8\u05d8\u05d5\u05e1 \u05d4\u05de\u05e9\u05e4\u05d8\u05d9",
+      "default": "AUTO_DEFAULT"
+    },
+    "legal_status_lock": {
+      "type": "boolean",
+      "description": "\u05e0\u05e2\u05d9\u05dc\u05d4 \u05de\u05e4\u05e0\u05d9 \u05d3\u05e8\u05d9\u05e1\u05d4 \u05d1\u05d9\u05d1\u05d5\u05d0 - true = \u05d9\u05d3\u05e0\u05d9, \u05dc\u05d0 \u05dc\u05d3\u05e8\u05d5\u05e1",
+      "default": false
+    },
+    "legal_status_manual": {
+      "type": "string",
+      "description": "\u05de\u05e6\u05d1 \u05de\u05e9\u05e4\u05d8\u05d9 \u05d9\u05d3\u05e0\u05d9 - \u05d8\u05e7\u05e1\u05d8 \u05d7\u05d5\u05e4\u05e9\u05d9 (Deprecated - \u05dc\u05e9\u05d9\u05de\u05d5\u05e9 \u05de\u05d9\u05d2\u05e8\u05e6\u05d9\u05d4 \u05d1\u05dc\u05d1\u05d3)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "\u05d4\u05e2\u05e8\u05d5\u05ea"
+    },
+    "lastContactDate": {
+      "type": "string",
+      "format": "date",
+      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05e7\u05e9\u05e8 \u05d0\u05d7\u05e8\u05d5\u05df"
+    },
+    "nextActionDate": {
+      "type": "string",
+      "format": "date",
+      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05e4\u05e2\u05d5\u05dc\u05d4 \u05d4\u05d1\u05d0\u05d4"
+    },
+    "importedThisRun": {
+      "type": "boolean",
+      "description": "\u05d3\u05d2\u05dc: \u05d4\u05d0\u05dd \u05d4\u05e8\u05e9\u05d5\u05de\u05d4 \u05d9\u05d5\u05d1\u05d0\u05d4 \u05d1\u05e8\u05d9\u05e6\u05d4 \u05d4\u05e0\u05d5\u05db\u05d7\u05d9\u05ea",
+      "default": false
+    },
+    "lastImportRunId": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05e8\u05d9\u05e6\u05ea \u05d9\u05d9\u05d1\u05d5\u05d0 \u05d0\u05d7\u05e8\u05d5\u05e0\u05d4"
+    },
+    "lastImportAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05d5\u05d6\u05de\u05df \u05d9\u05d9\u05d1\u05d5\u05d0 \u05d0\u05d7\u05e8\u05d5\u05df"
+    },
+    "flaggedAsCleared": {
+      "type": "boolean",
+      "description": "\u05d3\u05d2\u05dc: \u05d4\u05e8\u05e9\u05d5\u05de\u05d4 \u05d0\u05d5\u05e4\u05e1\u05d4 \u05db\u05d9 \u05dc\u05d0 \u05d4\u05d5\u05e4\u05d9\u05e2\u05d4 \u05d1\u05e7\u05d5\u05d1\u05e5 \u05d4\u05d7\u05d3\u05e9",
+      "default": false
+    },
+    "clearedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05d5\u05d6\u05de\u05df \u05d0\u05d9\u05e4\u05d5\u05e1 \u05d7\u05d5\u05d1"
+    },
+    "sourceRowHash": {
+      "type": "string",
+      "description": "Hash \u05e9\u05dc \u05e0\u05ea\u05d5\u05e0\u05d9 \u05d4\u05de\u05e7\u05d5\u05e8 \u05dc\u05d6\u05d9\u05d4\u05d5\u05d9 \u05e9\u05d9\u05e0\u05d5\u05d9\u05d9\u05dd"
+    },
+    "isArchived": {
+      "type": "boolean",
+      "description": "\u05d4\u05d0\u05dd \u05d4\u05e8\u05e9\u05d5\u05de\u05d4 \u05d1\u05d0\u05e8\u05db\u05d9\u05d5\u05df",
+      "default": false
+    }
+  },
+  "required": [
+    "apartmentNumber"
+  ]
+}

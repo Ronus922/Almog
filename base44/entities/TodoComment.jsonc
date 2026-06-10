@@ -1,0 +1,23 @@
+{
+  "name": "TodoComment",
+  "type": "object",
+  "properties": {
+    "todo_item_id": {
+      "type": "string",
+      "description": "FK -> TodoItem.id"
+    },
+    "user_id": {
+      "type": "string",
+      "description": "Username of the commenter"
+    },
+    "body": {
+      "type": "string",
+      "description": "Comment text"
+    }
+  },
+  "required": [
+    "todo_item_id",
+    "user_id",
+    "body"
+  ]
+}

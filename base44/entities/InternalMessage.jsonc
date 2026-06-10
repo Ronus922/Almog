@@ -1,0 +1,65 @@
+{
+  "name": "InternalMessage",
+  "type": "object",
+  "properties": {
+    "conversation_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05e9\u05d9\u05d7\u05d4 \u05d9\u05d9\u05d7\u05d5\u05d3\u05d9 (\u05de\u05d7\u05d5\u05e9\u05d1 \u05de-participants)"
+    },
+    "sender_username": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05de\u05e9\u05ea\u05de\u05e9 \u05e9\u05d5\u05dc\u05d7"
+    },
+    "sender_name": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05de\u05dc\u05d0 \u05e9\u05d5\u05dc\u05d7"
+    },
+    "recipient_username": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05de\u05e9\u05ea\u05de\u05e9 \u05de\u05e7\u05d1\u05dc (null = \u05e7\u05d1\u05d5\u05e6\u05d4)"
+    },
+    "content": {
+      "type": "string",
+      "description": "\u05ea\u05d5\u05db\u05df \u05d4\u05d4\u05d5\u05d3\u05e2\u05d4"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false
+    },
+    "read_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "task_pro_id": {
+      "type": "string",
+      "description": "FK -> TaskPro.id (\u05d0\u05dd \u05d4\u05d4\u05d5\u05d3\u05e2\u05d4 \u05e7\u05e9\u05d5\u05e8\u05d4 \u05dc\u05de\u05e9\u05d9\u05de\u05d4)"
+    },
+    "task_pro_title": {
+      "type": "string",
+      "description": "\u05db\u05d5\u05ea\u05e8\u05ea \u05d4\u05de\u05e9\u05d9\u05de\u05d4 (\u05dc\u05e0\u05d5\u05d7\u05d5\u05ea \u05ea\u05e6\u05d5\u05d2\u05d4)"
+    },
+    "attachment_url": {
+      "type": "string"
+    },
+    "attachment_name": {
+      "type": "string"
+    },
+    "is_deleted": {
+      "type": "boolean",
+      "default": false
+    },
+    "reply_to_id": {
+      "type": "string",
+      "description": "FK -> InternalMessage.id (\u05ea\u05d2\u05d5\u05d1\u05d4 \u05dc\u05d4\u05d5\u05d3\u05e2\u05d4)"
+    },
+    "reply_to_preview": {
+      "type": "string",
+      "description": "\u05ea\u05e6\u05d5\u05d2\u05d4 \u05de\u05e7\u05d3\u05d9\u05de\u05d4 \u05e9\u05dc \u05d4\u05d4\u05d5\u05d3\u05e2\u05d4 \u05d4\u05de\u05e7\u05d5\u05e8\u05d9\u05ea"
+    }
+  },
+  "required": [
+    "conversation_id",
+    "sender_username",
+    "content"
+  ]
+}

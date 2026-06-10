@@ -1,0 +1,127 @@
+{
+  "name": "Contact",
+  "type": "object",
+  "properties": {
+    "apartment_number": {
+      "type": "string",
+      "description": "\u05de\u05e1\u05e4\u05e8 \u05d3\u05d9\u05e8\u05d4"
+    },
+    "owner_name": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05d1\u05e2\u05dc \u05d4\u05d3\u05d9\u05e8\u05d4"
+    },
+    "owner_phone": {
+      "type": "string",
+      "description": "\u05d8\u05dc\u05e4\u05d5\u05df \u05d1\u05e2\u05dc \u05d4\u05d3\u05d9\u05e8\u05d4"
+    },
+    "owner_email": {
+      "type": "string",
+      "description": "\u05de\u05d9\u05d9\u05dc \u05d1\u05e2\u05dc \u05d4\u05d3\u05d9\u05e8\u05d4"
+    },
+    "tenant_name": {
+      "type": "string",
+      "description": "\u05e9\u05dd \u05d4\u05e9\u05d5\u05db\u05e8"
+    },
+    "tenant_phone": {
+      "type": "string",
+      "description": "\u05d8\u05dc\u05e4\u05d5\u05df \u05d4\u05e9\u05d5\u05db\u05e8"
+    },
+    "tenant_email": {
+      "type": "string",
+      "description": "\u05de\u05d9\u05d9\u05dc \u05d4\u05e9\u05d5\u05db\u05e8"
+    },
+    "contact_type": {
+      "type": "string",
+      "enum": [
+        "owner",
+        "tenant",
+        "both"
+      ],
+      "description": "\u05d0\u05d9\u05e9 \u05e7\u05e9\u05e8 \u05e8\u05d0\u05e9\u05d9 \u05dc\u05d4\u05d5\u05d3\u05e2\u05d5\u05ea (legacy)"
+    },
+    "resident_type": {
+      "type": "string",
+      "enum": [
+        "owner",
+        "tenant",
+        "operator"
+      ],
+      "default": "owner",
+      "description": "\u05de\u05d9 \u05d2\u05e8 \u05d1\u05d3\u05d9\u05e8\u05d4 \u05d1\u05e4\u05d5\u05e2\u05dc"
+    },
+    "operator_id": {
+      "type": "string",
+      "description": "\u05de\u05d6\u05d4\u05d4 \u05d4\u05de\u05e4\u05e2\u05d9\u05dc \u05d4\u05de\u05e9\u05d5\u05d9\u05da \u05dc\u05d3\u05d9\u05e8\u05d4 (FK -> Operator.id)"
+    },
+    "owner_is_primary_contact": {
+      "type": "boolean",
+      "default": true,
+      "description": "\u05d1\u05e2\u05dc \u05d3\u05d9\u05e8\u05d4 \u05de\u05e7\u05d1\u05dc \u05d4\u05d5\u05d3\u05e2\u05d5\u05ea"
+    },
+    "tenant_is_primary_contact": {
+      "type": "boolean",
+      "default": false,
+      "description": "\u05e9\u05d5\u05db\u05e8 \u05de\u05e7\u05d1\u05dc \u05d4\u05d5\u05d3\u05e2\u05d5\u05ea"
+    },
+    "operator_is_primary_contact": {
+      "type": "boolean",
+      "default": false,
+      "description": "\u05de\u05e4\u05e2\u05d9\u05dc \u05de\u05e7\u05d1\u05dc \u05d4\u05d5\u05d3\u05e2\u05d5\u05ea"
+    },
+    "address": {
+      "type": "string",
+      "description": "\u05db\u05ea\u05d5\u05d1\u05ea \u05de\u05d2\u05d5\u05e8\u05d9\u05dd (\u05d0\u05d5\u05e4\u05e6\u05d9\u05d5\u05e0\u05dc\u05d9)"
+    },
+    "notes": {
+      "type": "string",
+      "description": "\u05d4\u05e2\u05e8\u05d5\u05ea"
+    },
+    "management_fees": {
+      "type": "number",
+      "description": "\u05d3\u05de\u05d9 \u05e0\u05d9\u05d4\u05d5\u05dc (import only, read-only)"
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "\u05ea\u05d2\u05d9\u05d5\u05ea \u05dc\u05e1\u05d9\u05e0\u05d5\u05df"
+    },
+    "whatsapp_profile_image": {
+      "type": "string",
+      "description": "URL \u05dc\u05ea\u05de\u05d5\u05e0\u05ea \u05e4\u05e8\u05d5\u05e4\u05d9\u05dc \u05d5\u05d5\u05d0\u05d8\u05e1\u05d0\u05e4 \u05e9\u05dc \u05d4\u05e7\u05e9\u05e8"
+    },
+    "whatsapp_profile_image_url": {
+      "type": "string",
+      "description": "URL \u05dc\u05ea\u05de\u05d5\u05e0\u05ea \u05e4\u05e8\u05d5\u05e4\u05d9\u05dc \u05d5\u05d5\u05d0\u05d8\u05e1\u05d0\u05e4 (\u05e1\u05e0\u05db\u05e8\u05df \u05de-Green API)"
+    },
+    "whatsapp_profile_sync_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "synced",
+        "no_avatar",
+        "unavailable",
+        "failed"
+      ],
+      "description": "\u05e1\u05d8\u05d8\u05d5\u05e1 \u05e1\u05e0\u05db\u05e8\u05d5\u05df \u05ea\u05de\u05d5\u05e0\u05ea \u05e4\u05e8\u05d5\u05e4\u05d9\u05dc \u05d5\u05d5\u05d0\u05d8\u05e1\u05d0\u05e4"
+    },
+    "whatsapp_profile_last_synced_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\u05d6\u05de\u05df \u05e1\u05e0\u05db\u05e8\u05d5\u05df \u05d0\u05d7\u05e8\u05d5\u05df \u05e9\u05dc \u05ea\u05de\u05d5\u05e0\u05ea \u05e4\u05e8\u05d5\u05e4\u05d9\u05dc"
+    },
+    "whatsapp_profile_sync_error": {
+      "type": "string",
+      "description": "\u05d4\u05d5\u05d3\u05e2\u05ea \u05e9\u05d2\u05d9\u05d0\u05d4 \u05d0\u05dd \u05e1\u05e0\u05db\u05e8\u05d5\u05df \u05e0\u05db\u05e9\u05dc"
+    },
+    "last_whatsapp_sent_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "\u05ea\u05d0\u05e8\u05d9\u05da \u05e9\u05dc\u05d9\u05d7\u05ea \u05d4\u05d5\u05d3\u05e2\u05ea \u05d5\u05d5\u05d0\u05d8\u05e1\u05d0\u05e4 \u05d0\u05d7\u05e8\u05d5\u05e0\u05d4"
+    }
+  },
+  "required": [
+    "apartment_number"
+  ]
+}
