@@ -341,42 +341,15 @@ async function notifyAdmins(base44, title, message, priority = 'normal') {
   }
 }
 
-// ─── Main Handler ────────────────────────────────────────────────────────────
-Deno.serve(async (req) => {
+// ─── הלוגיקה הראשית — רצה ברקע ─────────────────────────────────────────────
+async function runImport(base44) {
   const startedAt = new Date().toISOString();
-  const base44 = createClientFromRequest(req);
-
   const BLLINK_USERNAME = Deno.env.get('BLLINK_USERNAME')?.trim();
   const BLLINK_PASSWORD = Deno.env.get('BLLINK_PASSWORD')?.trim();
   const BUILDING_ID = 'udnp';
   const API_BASE = 'https://api.bllink.co';
 
-  if (!BLLINK_USERNAME || !BLLINK_PASSWORD) {
-    return Response.json({ error: 'BLLINK_USERNAME / BLLINK_PASSWORD חסרים' }, { status: 500 });
-  }
-
-  // DEBUG: בדיקת credentials (נמחק לאחר אימות)
-  const urlParams = new URL(req.url).searchParams;
-  if (urlParams.get('debug') === '1') {
-    return Response.json({
-      username_length: BLLINK_USERNAME.length,
-      username_first3: BLLINK_USERNAME.slice(0, 3),
-      username_last3: BLLINK_USERNAME.slice(-3),
-      password_length: BLLINK_PASSWORD.length,
-      password_first2: BLLINK_PASSWORD.slice(0, 2),
-      password_last2: BLLINK_PASSWORD.slice(-2),
-      pool_name: POOL_NAME,
-      client_id_first8: COGNITO_CLIENT_ID.slice(0, 8),
-    });
-  }
-
-  // DEBUG mode — body נשמר לשימוש עתידי
-  const body = {};
-
-
-  let logId = null;
   const runId = `bllink-${Date.now()}`;
-
   const logData = {
     importRunId: runId,
     fileName: `bllink-api-${BUILDING_ID}`,
@@ -395,13 +368,14 @@ Deno.serve(async (req) => {
     errorDetails: [],
   };
 
+  let logId = null;
+
   try {
     const logRecord = await base44.asServiceRole.entities.ImportRun.create(logData);
     logId = logRecord.id;
 
     // שלב 1: אימות
     const token = await srpAuth(BLLINK_USERNAME, BLLINK_PASSWORD);
-
     await base44.asServiceRole.entities.ImportRun.update(logId, { stage: 'FETCH_DATA' });
 
     // שלב 2: שליפת נתוני חוב
@@ -409,14 +383,12 @@ Deno.serve(async (req) => {
       `${API_BASE}/api/v1/managers/debts/per_building/${BUILDING_ID}?excludeCurrentMonth=false`,
       { headers: { Authorization: `Bearer ${token}` } }
     );
-
     if (!debtResp.ok) {
       const txt = await debtResp.text();
       throw new Error(`שליפת נתוני חוב נכשלה: ${debtResp.status} ${txt.slice(0, 200)}`);
     }
 
     const debtJson = await debtResp.json();
-
     let rows = [];
     if (Array.isArray(debtJson)) rows = debtJson;
     else if (Array.isArray(debtJson?.data)) rows = debtJson.data;
@@ -424,14 +396,12 @@ Deno.serve(async (req) => {
     else if (Array.isArray(debtJson?.apartments)) rows = debtJson.apartments;
     else if (Array.isArray(debtJson?.debts)) rows = debtJson.debts;
     else if (Array.isArray(debtJson?.results)) rows = debtJson.results;
-    else throw new Error(`מבנה תשובה לא מזוהה: ${Object.keys(debtJson).join(', ')}. דוגמה: ${JSON.stringify(debtJson).slice(0, 500)}`);
+    else throw new Error(`מבנה תשובה לא מזוהה: ${Object.keys(debtJson).join(', ')}`);
 
     if (rows.length === 0) throw new Error('API החזיר 0 שורות');
 
-    // לוג דגימה של השדות הגולמיים
     const sample = rows[0];
     console.log('[SAMPLE ROW KEYS]:', Object.keys(sample).join(', '));
-    console.log('[SAMPLE ROW DATA]:', JSON.stringify(sample).slice(0, 800));
 
     await base44.asServiceRole.entities.ImportRun.update(logId, { stage: 'PARSE', totalRowsRead: rows.length });
 
@@ -443,7 +413,6 @@ Deno.serve(async (req) => {
       const apt = normalizeApt(aptRaw);
       if (apt) aptMap.set(apt, row);
     }
-
     const uniqueApts = Array.from(aptMap.entries());
 
     await base44.asServiceRole.entities.ImportRun.update(logId, {
@@ -454,7 +423,7 @@ Deno.serve(async (req) => {
 
     const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-    // retry עם exponential backoff לטיפול ב-Rate limit
+    // retry עם exponential backoff
     async function withRetry(fn, maxRetries = 4) {
       for (let attempt = 0; attempt <= maxRetries; attempt++) {
         try {
@@ -462,7 +431,7 @@ Deno.serve(async (req) => {
         } catch (err) {
           const isRateLimit = err?.message?.includes('429') || err?.message?.toLowerCase().includes('rate limit');
           if (isRateLimit && attempt < maxRetries) {
-            const delay = 1000 * Math.pow(2, attempt); // 1s, 2s, 4s, 8s
+            const delay = 1000 * Math.pow(2, attempt);
             console.log(`[RateLimit] ניסיון ${attempt + 1}/${maxRetries + 1} — ממתין ${delay}ms`);
             await sleep(delay);
             continue;
@@ -472,7 +441,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // עזר: עיבוד batch סדרתי עם דיליי למניעת Rate limit
+    // batch סדרתי
     async function processBatch(items, fn, batchSize = 3) {
       for (let i = 0; i < items.length; i += batchSize) {
         const batch = items.slice(i, i + batchSize);
@@ -481,7 +450,7 @@ Deno.serve(async (req) => {
       }
     }
 
-    // טען את כל הרשומות הקיימות (ב-chunks של 200 עם דיליי)
+    // טען רשומות קיימות
     let existingRecords = [];
     let page = 0;
     while (true) {
@@ -492,10 +461,10 @@ Deno.serve(async (req) => {
       existingRecords = existingRecords.concat(chunk);
       if (chunk.length < 200) break;
       page++;
-      await sleep(500); // המתנה בין pages
+      await sleep(500);
     }
 
-    // בניית מפה — אם יש כפולות, שמור את העדכנית ביותר ומחק את הישנות
+    // בניית מפה + מחיקת כפולות
     const existingMap = new Map();
     const toDelete = [];
     for (const rec of existingRecords) {
@@ -516,19 +485,16 @@ Deno.serve(async (req) => {
       }
     }
 
-    // מחק כפולות ישנות — מקביל
     if (toDelete.length > 0) {
       console.log(`[Import] מוחק ${toDelete.length} כפולות ישנות`);
-      await processBatch(toDelete, id =>
-        base44.asServiceRole.entities.DebtorRecord.delete(id), 10
-      );
+      await processBatch(toDelete, id => base44.asServiceRole.entities.DebtorRecord.delete(id), 3);
     }
 
     let created = 0, updated = 0, failed = 0;
     const errorDetails = [];
     const now = new Date().toISOString();
 
-    // אפס חוב לדיירים שלא הופיעו — מקביל
+    // אפס חוב לדיירים שנעלמו
     const toClear = [];
     for (const [apt, rec] of existingMap.entries()) {
       if (!aptMap.has(apt) && !rec.isArchived) toClear.push(rec);
@@ -538,12 +504,12 @@ Deno.serve(async (req) => {
         monthlyDebt: 0, specialDebt: 0, totalDebt: 0,
         debt_status_auto: 'תקין', importedThisRun: false,
         flaggedAsCleared: true, clearedAt: now,
-      }), 10
+      }), 3
     );
 
-    // עדכון/יצירת רשומות — batch של 2 עם המתנה בין קבוצות למניעת Rate limit
+    // עדכון/יצירת רשומות — batch של 2
     const BATCH_SIZE = 2;
-    const BATCH_DELAY = 800; // ms בין קבוצות
+    const BATCH_DELAY = 800;
 
     for (let i = 0; i < uniqueApts.length; i += BATCH_SIZE) {
       const batch = uniqueApts.slice(i, i + BATCH_SIZE);
@@ -586,10 +552,7 @@ Deno.serve(async (req) => {
         }
       }
 
-      // המתנה בין קבוצות למניעת Rate limit (לא לאחר הקבוצה האחרונה)
-      if (i + BATCH_SIZE < uniqueApts.length) {
-        await sleep(BATCH_DELAY);
-      }
+      if (i + BATCH_SIZE < uniqueApts.length) await sleep(BATCH_DELAY);
     }
 
     const finalStatus = failed > 0 && (created + updated) === 0 ? 'FAILED' : failed > 0 ? 'PARTIAL' : 'SUCCESS';
@@ -617,15 +580,43 @@ Deno.serve(async (req) => {
       await notifyAdmins(base44, 'יבוא נכשל', 'יבוא אוטומטי נכשל. בדוק לוג.', 'urgent');
     }
 
-    return Response.json({ ok: true, status: finalStatus, logId, summary: { totalRows: rows.length, created, updated, failed } });
+    console.log(`[Import] סיום: ${finalStatus}, נוצרו ${created}, עודכנו ${updated}, נכשלו ${failed}`);
 
   } catch (err) {
+    console.error('[Import] שגיאה קריטית:', err.message);
     if (logId) {
       await base44.asServiceRole.entities.ImportRun.update(logId, {
         finishedAt: new Date().toISOString(), status: 'FAILED', stage: 'ERROR', errorSummary: err.message,
       }).catch(() => {});
     }
     await notifyAdmins(base44, 'יבוא נכשל', `שגיאה: ${err.message}`, 'urgent').catch(() => {});
-    return Response.json({ ok: false, error: err.message }, { status: 500 });
   }
+}
+
+// ─── Main Handler — מחזיר מיד, עובד ברקע ────────────────────────────────────
+Deno.serve(async (req) => {
+  const BLLINK_USERNAME = Deno.env.get('BLLINK_USERNAME')?.trim();
+  const BLLINK_PASSWORD = Deno.env.get('BLLINK_PASSWORD')?.trim();
+
+  if (!BLLINK_USERNAME || !BLLINK_PASSWORD) {
+    return Response.json({ error: 'BLLINK_USERNAME / BLLINK_PASSWORD חסרים' }, { status: 500 });
+  }
+
+  const urlParams = new URL(req.url).searchParams;
+  if (urlParams.get('debug') === '1') {
+    return Response.json({
+      username_length: BLLINK_USERNAME.length,
+      username_first3: BLLINK_USERNAME.slice(0, 3),
+      password_length: BLLINK_PASSWORD.length,
+      pool_name: POOL_NAME,
+    });
+  }
+
+  const base44 = createClientFromRequest(req);
+
+  // הרץ ברקע — fire and forget, אל תחכה
+  runImport(base44).catch(e => console.error('[Import background error]', e.message));
+
+  // החזר מיד ללקוח — לפני timeout
+  return Response.json({ ok: true, status: 'STARTED', message: 'הסנכרון החל ברקע. בדוק את לוג הייבוא לתוצאות.' });
 });
