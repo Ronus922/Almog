@@ -454,24 +454,45 @@ Deno.serve(async (req) => {
 
     const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-    // עזר: עיבוד batch מקבילי עם דיליי למניעת Rate limit
-    async function processBatch(items, fn, batchSize = 5) {
-      for (let i = 0; i < items.length; i += batchSize) {
-        const batch = items.slice(i, i + batchSize);
-        await Promise.all(batch.map(item => fn(item).catch(() => {})));
-        if (i + batchSize < items.length) await sleep(400);
+    // retry עם exponential backoff לטיפול ב-Rate limit
+    async function withRetry(fn, maxRetries = 4) {
+      for (let attempt = 0; attempt <= maxRetries; attempt++) {
+        try {
+          return await fn();
+        } catch (err) {
+          const isRateLimit = err?.message?.includes('429') || err?.message?.toLowerCase().includes('rate limit');
+          if (isRateLimit && attempt < maxRetries) {
+            const delay = 1000 * Math.pow(2, attempt); // 1s, 2s, 4s, 8s
+            console.log(`[RateLimit] ניסיון ${attempt + 1}/${maxRetries + 1} — ממתין ${delay}ms`);
+            await sleep(delay);
+            continue;
+          }
+          throw err;
+        }
       }
     }
 
-    // טען את כל הרשומות הקיימות (ב-chunks של 500)
+    // עזר: עיבוד batch סדרתי עם דיליי למניעת Rate limit
+    async function processBatch(items, fn, batchSize = 3) {
+      for (let i = 0; i < items.length; i += batchSize) {
+        const batch = items.slice(i, i + batchSize);
+        await Promise.all(batch.map(item => withRetry(() => fn(item)).catch(() => {})));
+        if (i + batchSize < items.length) await sleep(600);
+      }
+    }
+
+    // טען את כל הרשומות הקיימות (ב-chunks של 200 עם דיליי)
     let existingRecords = [];
     let page = 0;
     while (true) {
-      const chunk = await base44.asServiceRole.entities.DebtorRecord.list('-updated_date', 500, page * 500);
+      const chunk = await withRetry(() =>
+        base44.asServiceRole.entities.DebtorRecord.list('-updated_date', 200, page * 200)
+      );
       if (!chunk || chunk.length === 0) break;
       existingRecords = existingRecords.concat(chunk);
-      if (chunk.length < 500) break;
+      if (chunk.length < 200) break;
       page++;
+      await sleep(500); // המתנה בין pages
     }
 
     // בניית מפה — אם יש כפולות, שמור את העדכנית ביותר ומחק את הישנות
