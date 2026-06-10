@@ -541,9 +541,9 @@ Deno.serve(async (req) => {
       }), 10
     );
 
-    // עדכון/יצירת רשומות — batch של 5 עם המתנה בין קבוצות למניעת Rate limit
-    const BATCH_SIZE = 5;
-    const BATCH_DELAY = 500; // ms בין קבוצות
+    // עדכון/יצירת רשומות — batch של 2 עם המתנה בין קבוצות למניעת Rate limit
+    const BATCH_SIZE = 2;
+    const BATCH_DELAY = 800; // ms בין קבוצות
 
     for (let i = 0; i < uniqueApts.length; i += BATCH_SIZE) {
       const batch = uniqueApts.slice(i, i + BATCH_SIZE);
@@ -566,10 +566,10 @@ Deno.serve(async (req) => {
             for (const [k2, v] of Object.entries(mapped)) {
               if (v !== null && v !== undefined && v !== '') updatePayload[k2] = v;
             }
-            await base44.asServiceRole.entities.DebtorRecord.update(existing.id, updatePayload);
+            await withRetry(() => base44.asServiceRole.entities.DebtorRecord.update(existing.id, updatePayload));
             return 'updated';
           } else {
-            await base44.asServiceRole.entities.DebtorRecord.create(mapped);
+            await withRetry(() => base44.asServiceRole.entities.DebtorRecord.create(mapped));
             return 'created';
           }
         })
